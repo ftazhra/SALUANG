@@ -1,0 +1,2185 @@
+/* =====================================================
+   SALUANG — CSS EVALUASI PEMBELAJARAN
+   Dashboard Siswa
+   ===================================================== */
+
+
+/* =====================================================
+   01. MENAMPILKAN SATU HALAMAN EVALUASI
+   ===================================================== */
+
+.sd-page #sd-section-evaluasi[hidden] {
+    display: none !important;
+}
+
+.sd-page .sd-eval-screen {
+    display: none !important;
+}
+
+.sd-page .sd-eval-screen.is-active {
+    display: block !important;
+}
+
+.sd-page .sd-eval-screen [hidden],
+.sd-page .sd-eval-outer-navigation[hidden] {
+    display: none !important;
+}
+
+.sd-page #sd-section-evaluasi {
+    min-width: 0;
+    max-width: 100%;
+}
+
+
+/* =====================================================
+   02. KARTU EVALUASI
+   ===================================================== */
+
+.sd-page .sd-eval-card {
+    background: var(--sd-cream, #fffdf6);
+    border: 1px solid #dce9e5;
+    border-radius: 13px;
+    padding: 20px;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.sd-page .sd-eval-overview-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 17px;
+}
+
+.sd-page .sd-eval-heading {
+    margin: 0 0 7px;
+    color: #075477;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.sd-page .sd-eval-description {
+    margin: 0 0 10px;
+    color: #70939e;
+    font-size: 10px;
+    line-height: 1.8;
+}
+
+.sd-page .sd-eval-overview-box {
+    padding: 17px;
+    background: #ffffff;
+    border: 1px solid #dce9e5;
+    border-radius: 10px;
+}
+
+.sd-page .sd-eval-overview-box h2 {
+    margin: 0 0 9px;
+    color: #075477;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.sd-page .sd-eval-overview-box p {
+    margin-bottom: 9px;
+    font-size: 10px;
+    line-height: 1.8;
+}
+
+
+/* =====================================================
+   02.1. HALAMAN PENGANTAR EVALUASI AKHIR
+   ===================================================== */
+
+/* 02.1.1. Kartu utama pengantar */
+
+.sd-page .sd-eval-intro {
+    padding: 24px;
+}
+
+.sd-page .sd-eval-intro-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    min-width: 0;
+}
+
+.sd-page .sd-eval-intro-icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 43px;
+    width: 43px;
+    height: 43px;
+    border-radius: 10px;
+    background: #dff3e9;
+    color: #177b51;
+    font-size: 24px;
+}
+
+.sd-page .sd-eval-intro-title {
+    margin: 0 0 6px;
+    color: #075477;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.sd-page .sd-eval-intro-subtitle {
+    margin: 0;
+    max-width: 610px;
+    color: #638a96;
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+
+/* 02.1.2. Layout pengantar kiri dan kanan */
+
+.sd-page .sd-eval-intro-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(210px, .8fr);
+    gap: 16px;
+    margin-top: 22px;
+}
+
+.sd-page .sd-eval-intro-main,
+.sd-page .sd-eval-intro-aside {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    min-width: 0;
+}
+
+
+/* 02.1.3. Panel informasi dan petunjuk */
+
+.sd-page .sd-eval-intro-panel {
+    padding: 17px;
+    border: 1px solid #e0eae4;
+    border-radius: 11px;
+    background: #ffffff;
+}
+
+.sd-page .sd-eval-intro-panel-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 15px;
+    color: #086341;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.sd-page .sd-eval-intro-panel-title i {
+    font-size: 17px;
+}
+
+
+/* 02.1.4. Tiga kartu informasi evaluasi */
+
+.sd-page .sd-eval-info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    align-items: stretch;
+}
+
+.sd-page .sd-eval-info-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 9px;
+
+    width: 100%;
+    min-width: 0;
+    height: 125px;
+    min-height: 125px;
+    padding: 10px;
+
+    border-radius: 14px;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+
+/* 02.1.4.1. Wadah gambar siswa — ukuran sama */
+
+.sd-page .sd-eval-info-card>.sd-eval-info-image {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 85px;
+    width: 85px;
+    height: 100px;
+    min-width: 85px;
+    min-height: 100px;
+
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+
+    background: transparent;
+    border: none;
+    border-radius: 0;
+}
+
+
+/* 02.1.4.2. Ukuran seluruh PNG siswa */
+
+.sd-page .sd-eval-info-image img {
+    display: block;
+    flex: none;
+
+    width: 85px;
+    height: 100px;
+    max-width: 100%;
+    max-height: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    object-fit: contain;
+    object-position: center;
+
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.sd-page .sd-eval-info-card--blue .sd-eval-info-image img,
+.sd-page .sd-eval-info-card--green .sd-eval-info-image img {
+    width: 67px;
+    height: 79px;
+}
+
+
+/* 02.1.4.3. Teks informasi — terpisah dari wadah gambar */
+
+.sd-page .sd-eval-info-card>div:not(.sd-eval-info-image) {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 5px;
+
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+
+    margin: 0;
+    padding: 0;
+}
+
+.sd-page .sd-eval-info-card span {
+    display: block;
+    color: #557e88;
+    font-size: 9px;
+    line-height: 1.5;
+}
+
+.sd-page .sd-eval-info-card strong {
+    display: block;
+    color: #075477;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+
+/* 02.1.4.4. Warna kartu */
+
+.sd-page .sd-eval-info-card--blue {
+    background: #ddf3f5;
+}
+
+.sd-page .sd-eval-info-card--green {
+    background: #e0f4d5;
+}
+
+.sd-page .sd-eval-info-card--yellow {
+    background: #ffedbe;
+}
+
+
+/* 02.1.5. Materi yang diujikan */
+
+.sd-page .sd-eval-intro-material {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    margin-top: 13px;
+    padding: 13px;
+    background: #f5f8ef;
+    border-radius: 9px;
+}
+
+.sd-page .sd-eval-intro-material-icon {
+    color: #228c61;
+    font-size: 25px;
+}
+
+.sd-page .sd-eval-intro-material h3 {
+    margin: 0 0 5px;
+    color: #075477;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.sd-page .sd-eval-intro-material p {
+    margin: 0;
+    color: #527f72;
+    font-size: 10px;
+    line-height: 1.8;
+}
+
+
+/* 02.1.6. Petunjuk pengerjaan */
+
+.sd-page .sd-eval-instructions {
+    margin: 0;
+    padding-left: 20px;
+    color: #356f62;
+    font-size: 10px;
+    line-height: 2;
+}
+
+.sd-page .sd-eval-instructions li {
+    padding-left: 3px;
+}
+
+.sd-page .sd-eval-instructions li+li {
+    margin-top: 4px;
+}
+
+
+/* 02.1.7. Tujuan evaluasi */
+
+.sd-page .sd-eval-intro-aside-copy {
+    margin: 0;
+    color: #527f72;
+    font-size: 10px;
+    line-height: 1.9;
+}
+
+
+/* 02.1.8. Kotak motivasi */
+
+.sd-page .sd-eval-intro-quote {
+    padding: 17px;
+    border-radius: 10px;
+    background: #dcefc9;
+    color: #28633e;
+    text-align: center;
+}
+
+.sd-page .sd-eval-intro-quote i {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 19px;
+}
+
+.sd-page .sd-eval-intro-quote p {
+    margin: 0;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.8;
+}
+
+
+/* 02.1.9. Posisi tombol Mulai Evaluasi */
+
+.sd-page .sd-eval-intro-start {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: auto;
+}
+
+
+/* =====================================================
+   02.2. RESPONSIVE HALAMAN PENGANTAR
+   ===================================================== */
+
+/* 02.2.1. Tablet */
+
+@media (max-width: 1199.98px) {
+    .sd-page .sd-eval-info-card {
+        gap: 7px;
+        padding: 8px;
+    }
+
+    .sd-page .sd-eval-info-card>.sd-eval-info-image {
+        flex-basis: 70px;
+        width: 70px;
+        min-width: 70px;
+        height: 90px;
+        min-height: 90px;
+    }
+
+    .sd-page .sd-eval-info-image img {
+        width: 70px;
+        height: 90px;
+    }
+
+    .sd-page .sd-eval-info-card strong {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .sd-page .sd-eval-intro-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .sd-page .sd-eval-intro-start {
+        justify-content: flex-start;
+    }
+}
+
+
+/* 02.2.2. HP */
+
+@media (max-width: 575.98px) {
+    .sd-page .sd-eval-intro {
+        padding: 15px;
+    }
+
+    .sd-page .sd-eval-intro-heading {
+        gap: 10px;
+    }
+
+    .sd-page .sd-eval-intro-title {
+        font-size: 19px;
+    }
+
+    .sd-page .sd-eval-intro-subtitle {
+        font-size: 10px;
+    }
+
+    .sd-page .sd-eval-info-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .sd-page .sd-eval-info-card {
+        height: 115px;
+        min-height: 115px;
+        padding: 12px;
+        gap: 14px;
+    }
+
+    .sd-page .sd-eval-info-card>.sd-eval-info-image {
+        flex-basis: 85px;
+        width: 85px;
+        min-width: 85px;
+        height: 95px;
+        min-height: 95px;
+    }
+
+    .sd-page .sd-eval-info-image img {
+        width: 85px;
+        height: 95px;
+    }
+
+    .sd-page .sd-eval-info-card strong {
+        font-size: 15px;
+    }
+
+    .sd-page .sd-eval-overview-header {
+        flex-wrap: wrap;
+    }
+}
+
+
+/* =====================================================
+   02.3. HALAMAN PENGERJAAN EVALUASI AKHIR
+   ===================================================== */
+
+/* 02.3.1. Header evaluasi */
+
+.sd-page .sd-eval-exam-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+
+    margin-top: 24px;
+    margin-bottom: 25px;
+    padding: 6px 0;
+}
+
+.sd-page .sd-eval-exam-title-group {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+}
+
+.sd-page .sd-eval-exam-icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 49px;
+    width: 49px;
+    height: 49px;
+    background: #ddf2e5;
+    border-radius: 11px;
+    color: #087248;
+    font-size: 26px;
+}
+
+.sd-page .sd-eval-exam-title-group h1 {
+    margin: 0 0 4px;
+    color: #075477;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.sd-page .sd-eval-exam-title-group p {
+    margin: 0;
+    color: #648f80;
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.sd-page .sd-eval-exam-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    padding: 8px 13px;
+    background: #e1f2e7;
+    color: #087248;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* 02.3.1.1. Tombol kembali ke halaman pengantar */
+
+.sd-page .sd-eval-exam-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    flex-shrink: 0;
+    min-height: 39px;
+    padding: 9px 14px;
+
+    background: #ffffff;
+    border: 1px solid #cbdedb;
+    border-radius: 8px;
+
+    color: #075477;
+    font-family: 'Poppins', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+
+    cursor: pointer;
+}
+
+.sd-page .sd-eval-exam-back:hover {
+    background: #eaf5f8;
+    border-color: #8ebfd9;
+    color: #075477;
+}
+
+@media (max-width: 575.98px) {
+    .sd-page .sd-eval-exam-header {
+        flex-wrap: wrap;
+        margin-top: 16px;
+    }
+
+    .sd-page .sd-eval-exam-back {
+        width: 100%;
+    }
+}
+
+/* 02.3.2. Layout soal kiri dan panel kanan */
+
+.sd-page .sd-eval-exam-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 18px;
+    align-items: start;
+    width: 100%;
+    min-width: 0;
+}
+
+.sd-page .sd-eval-exam-main,
+.sd-page .sd-eval-exam-sidebar {
+    min-width: 0;
+}
+
+
+/* 02.3.3. Kartu soal */
+
+.sd-page .sd-eval-question-card {
+    min-height: 410px;
+    padding: 23px;
+    background: #fffdf6;
+    border: 1px solid #dce9e5;
+    border-radius: 13px;
+}
+
+.sd-page .sd-eval-question-meta {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 19px;
+}
+
+.sd-page #sd-eval-current-number {
+    color: #528979;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.sd-page #sd-eval-current-type {
+    padding: 5px 10px;
+    background: #e7f4ed;
+    color: #18754d;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.sd-page .sd-eval-exam-question-content {
+    min-width: 0;
+}
+
+
+/* 02.3.4. Konten sementara sebelum soal dimasukkan */
+
+.sd-page .sd-eval-question-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 285px;
+    padding: 22px;
+    border: 1px dashed #b6d6c7;
+    border-radius: 10px;
+    background: #f6fbf8;
+    text-align: center;
+}
+
+.sd-page .sd-eval-question-placeholder>i {
+    font-size: 39px;
+    color: #3d9a70;
+}
+
+.sd-page .sd-eval-question-placeholder h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #075477;
+}
+
+.sd-page .sd-eval-question-placeholder p {
+    margin: 0;
+    max-width: 350px;
+    color: #6a9084;
+    font-size: 11px;
+    line-height: 1.9;
+}
+
+
+/* 02.3.5. Navigasi soal */
+
+.sd-page .sd-eval-exam-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 17px;
+}
+
+.sd-page .sd-eval-exam-navigation .sd-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 39px;
+    padding: 9px 13px;
+    border-radius: 8px;
+}
+
+.sd-page .sd-eval-exam-navigation .sd-nav-btn:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.sd-page .sd-eval-quiz-last-note {
+    width: 100%;
+    padding: 10px 13px;
+    border-radius: 8px;
+    background: #fff1d9;
+    color: #8a622e;
+    font-size: 10px;
+    line-height: 1.8;
+}
+
+/* 02.3.5.1. Sembunyikan tombol yang tidak diperlukan */
+
+.sd-page .sd-eval-exam-navigation .sd-nav-btn[hidden] {
+    display: none !important;
+}
+
+/* 02.3.6. Panel waktu */
+
+.sd-page .sd-eval-exam-timer-panel {
+    padding: 14px;
+    border-radius: 12px;
+    background: #d9edc5;
+    border: 1px solid #cde3b7;
+}
+
+.sd-page .sd-eval-timer-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+    padding: 9px 7px;
+}
+
+.sd-page .sd-eval-timer-header>i {
+    font-size: 29px;
+    color: #0c7752;
+}
+
+.sd-page .sd-eval-timer-header>div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.sd-page .sd-eval-timer-header span {
+    color: #417c60;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.sd-page .sd-eval-timer-header strong {
+    color: #075477;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+}
+
+
+/* 02.3.7. Daftar nomor soal */
+
+.sd-page .sd-eval-exam-number-panel {
+    padding: 13px;
+    border-radius: 10px;
+    background: #ffffff;
+}
+
+.sd-page .sd-eval-exam-number-panel h2 {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0 0 14px;
+    color: #075477;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.sd-page .sd-eval-number-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.sd-page .sd-eval-number-button {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    min-width: 0;
+    aspect-ratio: 1;
+    padding: 0;
+    border: 1px solid #dce9df;
+    border-radius: 50%;
+    background: #f7f8f3;
+    color: #477c65;
+    font-family: 'Poppins', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background-color .2s ease,
+        border-color .2s ease,
+        color .2s ease;
+}
+
+.sd-page .sd-eval-number-button:hover {
+    background: #e2f2e5;
+    border-color: #70b692;
+}
+
+.sd-page .sd-eval-number-button.is-active {
+    background: #087248;
+    border-color: #087248;
+    color: #ffffff;
+}
+
+.sd-page .sd-eval-number-button.is-answered {
+    background: #bce7c9;
+    border-color: #8bcda1;
+    color: #08613d;
+}
+
+.sd-page .sd-eval-number-button.is-active.is-answered {
+    background: #087248;
+    border-color: #087248;
+    color: #ffffff;
+}
+
+.sd-page .sd-eval-number-button:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+
+/* 02.3.8. Legenda nomor soal */
+
+.sd-page .sd-eval-number-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    margin-top: 16px;
+}
+
+.sd-page .sd-eval-number-legend span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #699080;
+    font-size: 9px;
+}
+
+.sd-page .sd-eval-legend-dot {
+    display: inline-block;
+    flex: 0 0 10px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px solid #cdded0;
+    background: #f7f8f3;
+}
+
+.sd-page .sd-eval-legend-dot.is-active {
+    background: #087248;
+    border-color: #087248;
+}
+
+.sd-page .sd-eval-legend-dot.is-answered {
+    background: #bce7c9;
+    border-color: #8bcda1;
+}
+
+
+/* 02.3.9. Peringatan waktu */
+
+.sd-page .sd-eval-timer-notice {
+    margin: 12px 3px 0;
+    color: #4d7858;
+    font-size: 10px;
+    line-height: 1.8;
+}
+
+.sd-page .sd-eval-exam-timer-panel.is-urgent {
+    background: #ffe9d1;
+    border-color: #eaba8e;
+}
+
+.sd-page .sd-eval-exam-timer-panel.is-expired {
+    background: #f8e0dc;
+    border-color: #e8ada5;
+}
+
+
+/* 02.3.10. Responsive */
+
+@media (max-width: 1199.98px) {
+    .sd-page .sd-eval-exam-layout {
+        grid-template-columns: minmax(0, 1fr) 245px;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .sd-page .sd-eval-exam-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .sd-page .sd-eval-exam-sidebar {
+        grid-row: 1;
+    }
+
+    .sd-page .sd-eval-exam-timer-panel {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+        gap: 12px;
+        align-items: start;
+    }
+
+    .sd-page .sd-eval-timer-header {
+        margin-bottom: 0;
+    }
+
+    .sd-page .sd-eval-timer-notice {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .sd-page .sd-eval-exam-title-group h1 {
+        font-size: 18px;
+    }
+
+    .sd-page .sd-eval-exam-badge {
+        display: none;
+    }
+
+    .sd-page .sd-eval-question-card {
+        padding: 15px;
+        min-height: 320px;
+    }
+
+    .sd-page .sd-eval-exam-timer-panel {
+        display: block;
+    }
+
+    .sd-page .sd-eval-timer-header {
+        margin-bottom: 12px;
+    }
+
+    .sd-page .sd-eval-number-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .sd-page .sd-eval-exam-navigation {
+        align-items: stretch;
+    }
+
+    .sd-page .sd-eval-exam-navigation .sd-nav-btn {
+        flex: 1 1 auto;
+        white-space: normal;
+    }
+}
+
+
+/* =====================================================
+   02.4. MODAL KONFIRMASI EVALUASI SALUANG
+   ===================================================== */
+
+/* 02.4.1. Wadah modal */
+
+.sd-page .sd-eval-confirm {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+}
+
+.sd-page .sd-eval-confirm[hidden] {
+    display: none !important;
+}
+
+/* 02.4.2. Latar belakang gelap */
+
+.sd-page .sd-eval-confirm-backdrop {
+    position: absolute;
+    inset: 0;
+
+    background: rgba(9, 40, 36, 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+/* 02.4.3. Kotak modal */
+
+.sd-page .sd-eval-confirm-dialog {
+    position: relative;
+    z-index: 1;
+
+    width: 100%;
+    max-width: 435px;
+    max-height: calc(100dvh - 40px);
+    overflow-y: auto;
+
+    padding: 23px 26px 26px;
+
+    background: #fffdf6;
+    border: 1px solid #dce9e5;
+    border-radius: 18px;
+
+    box-shadow: 0 20px 60px rgba(5, 52, 43, 0.25);
+
+    text-align: center;
+}
+
+@keyframes sdEvalModalEnter {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* 02.4.4. Tombol silang */
+
+.sd-page .sd-eval-confirm-close {
+    position: absolute;
+    top: 13px;
+    right: 13px;
+
+    display: grid;
+    place-items: center;
+
+    width: 32px;
+    height: 32px;
+    padding: 0;
+
+    border: none;
+    border-radius: 9px;
+
+    background: #edf5ee;
+    color: #477963;
+
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.sd-page .sd-eval-confirm-close:hover {
+    background: #dcece3;
+    color: #075477;
+}
+
+/* 02.4.5. Wadah gambar bekantan */
+
+.sd-page .sd-eval-confirm-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 170px;
+    height: 155px;
+
+    margin: 0 auto 13px;
+    padding: 0;
+
+    background: transparent;
+    border: none;
+    border-radius: 0;
+
+    overflow: hidden;
+}
+
+/* 02.4.6. Gambar bekantan stabil */
+
+.sd-page .sd-eval-confirm-icon img {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+
+    object-fit: contain;
+    object-position: center;
+
+    transform: none;
+    animation: none;
+    transition: none;
+
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* 02.4.7. Judul modal */
+
+.sd-page .sd-eval-confirm-title {
+    margin: 0 0 10px;
+
+    color: #075477;
+
+    font-family: 'Poppins', sans-serif;
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+/* 02.4.8. Deskripsi modal */
+
+.sd-page .sd-eval-confirm-description {
+    max-width: 355px;
+    margin: 0 auto 17px;
+
+    color: #63867b;
+
+    font-size: 11px;
+    line-height: 1.9;
+}
+
+/* 02.4.9. Informasi timer */
+
+.sd-page .sd-eval-confirm-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+
+    margin-bottom: 22px;
+    padding: 13px;
+
+    background: #eaf5ed;
+    border: 1px solid #d4e9d9;
+    border-radius: 10px;
+
+    color: #397555;
+
+    text-align: left;
+    font-size: 10px;
+    line-height: 1.8;
+}
+
+.sd-page .sd-eval-confirm-info i {
+    flex: 0 0 auto;
+    font-size: 19px;
+}
+
+/* 02.4.10. Area dua tombol */
+
+.sd-page .sd-eval-confirm-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 11px;
+}
+
+.sd-page .sd-eval-confirm-cancel,
+.sd-page .sd-eval-confirm-accept {
+    appearance: none;
+    -webkit-appearance: none;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    min-width: 0;
+    min-height: 43px;
+    padding: 11px 13px;
+
+    border-radius: 9px;
+
+    font-family: 'Poppins', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background-color .2s ease,
+        border-color .2s ease,
+        transform .2s ease;
+}
+
+/* 02.4.11. Tombol Batal */
+
+.sd-page .sd-eval-confirm-cancel {
+    background: #ffffff;
+    border: 1px solid #cbdedb;
+    color: #075477;
+}
+
+.sd-page .sd-eval-confirm-cancel:hover {
+    background: #eaf5f8;
+    border-color: #8ebfd9;
+}
+
+/* 02.4.12. Tombol Ya, Mulai */
+
+.sd-page .sd-eval-confirm-accept {
+    background: #087248;
+    border: 1px solid #087248;
+    color: #ffffff;
+}
+
+.sd-page .sd-eval-confirm-accept:hover {
+    background: #075477;
+    border-color: #075477;
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+/* 02.4.13. Warna modal saat keluar */
+
+.sd-page .sd-eval-confirm.is-exit .sd-eval-confirm-info {
+    background: #fff3e2;
+    border-color: #f0dfc4;
+    color: #93652e;
+}
+
+.sd-page .sd-eval-confirm.is-exit .sd-eval-confirm-accept {
+    background: #b57932;
+    border-color: #b57932;
+}
+
+.sd-page .sd-eval-confirm.is-exit .sd-eval-confirm-accept:hover {
+    background: #915a21;
+    border-color: #915a21;
+}
+
+/* 02.4.14. Fokus keyboard */
+
+.sd-page .sd-eval-confirm-cancel:focus-visible,
+.sd-page .sd-eval-confirm-accept:focus-visible,
+.sd-page .sd-eval-confirm-close:focus-visible {
+    outline: 3px solid #329ecb;
+    outline-offset: 3px;
+}
+
+/* 02.4.15. Tampilan HP */
+
+@media (max-width: 575.98px) {
+    .sd-page .sd-eval-confirm-dialog {
+        padding: 23px 18px 20px;
+    }
+
+    .sd-page .sd-eval-confirm-icon {
+        width: 145px;
+        height: 135px;
+    }
+
+    .sd-page .sd-eval-confirm-title {
+        font-size: 17px;
+    }
+
+    .sd-page .sd-eval-confirm-actions {
+        gap: 8px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sd-page .sd-eval-confirm-dialog {
+        animation: none;
+    }
+}
+
+
+/* =====================================================
+   03. TOMBOL EVALUASI
+   ===================================================== */
+
+/* 03.1. Pengaturan dasar tombol */
+
+.sd-page .sd-eval-primary,
+.sd-page .sd-eval-outline {
+    appearance: none;
+    -webkit-appearance: none;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    width: auto;
+    min-height: 40px;
+    padding: 10px 16px;
+
+    border: 1px solid transparent;
+    border-radius: 8px;
+
+    font-family: 'Poppins', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+
+    cursor: pointer;
+
+    transition:
+        background-color .2s ease,
+        border-color .2s ease,
+        color .2s ease,
+        transform .2s ease,
+        box-shadow .2s ease;
+}
+
+
+/* 03.2. Tombol utama hijau */
+
+.sd-page .sd-eval-primary {
+    background: #25915f;
+    border-color: #25915f;
+    color: #ffffff;
+}
+
+.sd-page .sd-eval-primary:hover {
+    background: #18794e;
+    border-color: #18794e;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 13px rgba(7, 84, 119, .15);
+}
+
+
+/* 03.3. Tombol outline */
+
+.sd-page .sd-eval-outline {
+    background: #ffffff;
+    border-color: #cbdedb;
+    color: #075477;
+}
+
+.sd-page .sd-eval-outline:hover {
+    background: #eaf5f8;
+    border-color: #8ebfd9;
+    color: #075477;
+    transform: translateY(-2px);
+}
+
+
+/* 03.4. Tombol Kembali ke Beranda */
+
+.sd-page .sd-eval-intro .sd-eval-outline {
+    flex-shrink: 0;
+    min-height: 38px;
+    padding: 9px 14px;
+
+    background: #ffffff;
+    border: 1px solid #cbdedb;
+    border-radius: 8px;
+
+    color: #075477;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+
+/* 03.5. Tombol Mulai Evaluasi */
+
+.sd-page .sd-eval-intro-start .sd-eval-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    width: auto;
+    min-width: 160px;
+    min-height: 40px;
+    padding: 10px 18px;
+
+    background: #087248;
+    border: 1px solid #087248;
+    border-radius: 8px;
+
+    color: #ffffff;
+    font-family: 'Poppins', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.4;
+
+    box-shadow: none;
+    cursor: pointer;
+}
+
+.sd-page .sd-eval-intro-start .sd-eval-primary:hover {
+    background: #075477;
+    border-color: #075477;
+    color: #ffffff;
+}
+
+
+/* 03.6. Fokus tombol */
+
+.sd-page .sd-eval-primary:focus-visible,
+.sd-page .sd-eval-outline:focus-visible {
+    outline: 3px solid #329ecb;
+    outline-offset: 3px;
+}
+
+
+/* 03.7. Responsive tombol */
+
+@media (max-width: 575.98px) {
+    .sd-page .sd-eval-intro .sd-eval-outline {
+        width: 100%;
+    }
+
+    .sd-page .sd-eval-intro-start {
+        justify-content: stretch;
+    }
+
+    .sd-page .sd-eval-intro-start .sd-eval-primary {
+        width: 100%;
+    }
+}
+
+
+/* =====================================================
+   04. PENANDA SOAL
+   ===================================================== */
+
+.sd-page .sd-eval-time {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 12px 0;
+    padding: 10px 12px;
+    background: #eaf6f3;
+    border-radius: 8px;
+    color: #075477;
+    font-size: 10px;
+}
+
+.sd-page .sd-eval-topic {
+    margin: 13px 0;
+    padding: 10px 12px;
+    background: #eaf6f2;
+    border-radius: 7px;
+    color: #075477;
+    font-size: 10px;
+}
+
+.sd-page .sd-eval-number {
+    margin: 15px 0 7px;
+    color: #70939e;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.sd-page .sd-eval-question {
+    margin: 0 0 10px;
+    color: #075477;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+
+/* =====================================================
+   05. LAYOUT ITEM DAN TARGET
+   ===================================================== */
+
+.sd-page .sd-eval-classification {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 18px;
+    margin-top: 17px;
+    min-width: 0;
+}
+
+.sd-page .sd-eval-items,
+.sd-page .sd-eval-targets {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+}
+
+
+/* =====================================================
+   06. ITEM GAMBAR ASLI
+   ===================================================== */
+
+/* 06.1. Gambar tanpa teks */
+
+.sd-page .sd-eval-image-items {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    align-content: start;
+}
+
+.sd-page .sd-eval-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    min-width: 0;
+    min-height: 106px;
+    padding: 12px;
+
+    background: #ffffff;
+    border: 1px solid #d1e2df;
+    border-radius: 10px;
+
+    color: #075477;
+    cursor: pointer;
+
+    transition:
+        background-color .2s ease,
+        border-color .2s ease,
+        transform .2s ease;
+}
+
+.sd-page .sd-eval-item:hover {
+    background: #eaf6fd;
+    border-color: #80b9d8;
+    transform: translateY(-2px);
+}
+
+.sd-page .sd-eval-item.is-selected {
+    background: #d5edfa;
+    border-color: #2587b7;
+    box-shadow: inset 0 0 0 1px #2587b7;
+}
+
+.sd-page .sd-eval-item.is-assigned {
+    border-color: #79b99a;
+    background: #f2faf5;
+}
+
+
+/* 06.2. Wadah gambar yang diseret */
+
+.sd-page .sd-eval-emoji {
+    display: grid;
+    place-items: center;
+
+    flex: 0 1 88px;
+    width: 88px;
+    height: 82px;
+    min-width: 0;
+    min-height: 0;
+
+    padding: 5px;
+    overflow: hidden;
+
+    background: #eef8f4;
+    border-radius: 9px;
+
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+
+    transition:
+        transform .18s ease,
+        opacity .18s ease,
+        background-color .18s ease;
+}
+
+.sd-page .sd-eval-emoji:hover {
+    transform: scale(1.05);
+    background: #dbeff9;
+}
+
+.sd-page .sd-eval-emoji.is-dragging {
+    opacity: .35;
+    cursor: grabbing;
+}
+
+
+/* 06.3. Ukuran gambar */
+
+.sd-page .sd-eval-emoji img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+
+    object-fit: contain;
+    pointer-events: none;
+
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+
+/* 06.4. Tooltip */
+
+.sd-page .sd-eval-item[title] {
+    cursor: grab;
+}
+
+.sd-page .sd-eval-item:focus-visible {
+    outline: 3px solid #329ecb;
+    outline-offset: 3px;
+}
+
+
+/* =====================================================
+   07. TARGET PENGELOMPOKAN
+   ===================================================== */
+
+.sd-page .sd-eval-target {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 7px;
+
+    width: 100%;
+    min-height: 130px;
+    padding: 15px;
+
+    background: #f8fcfa;
+    border: 1px dashed #9ccdb8;
+    border-radius: 10px;
+
+    color: #075477;
+    text-align: left;
+    cursor: pointer;
+
+    transition:
+        background-color .2s ease,
+        border-color .2s ease;
+}
+
+.sd-page .sd-eval-target:hover {
+    background: #e5f3fa;
+    border-color: #398bb5;
+}
+
+.sd-page .sd-eval-target.is-drop-hover {
+    background: #c9e7f9;
+    border-color: #287da9;
+    box-shadow: 0 0 0 3px rgba(40, 125, 169, .12);
+}
+
+.sd-page .sd-eval-target strong {
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.sd-page .sd-eval-target small {
+    color: #7797a0;
+    font-size: 9px;
+}
+
+.sd-page .sd-eval-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+
+    margin-top: 8px;
+    min-height: 45px;
+    width: 100%;
+}
+
+.sd-page .sd-eval-chip {
+    display: grid;
+    place-items: center;
+
+    width: 54px;
+    height: 54px;
+    padding: 5px;
+
+    background: #e2f3e8;
+    border: 1px solid #cfe7d7;
+    border-radius: 8px;
+
+    overflow: hidden;
+}
+
+.sd-page .sd-eval-chip img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.sd-page .sd-eval-chip[title] {
+    cursor: help;
+}
+
+
+/* =====================================================
+   08. FEEDBACK BENAR ATAU SALAH
+   ===================================================== */
+
+.sd-page .sd-eval-feedback {
+    margin-top: 16px;
+    padding: 15px;
+    border-radius: 9px;
+    font-size: 10px;
+    line-height: 1.8;
+}
+
+.sd-page .sd-eval-feedback.is-correct {
+    background: #e5f5eb;
+    color: #226b43;
+}
+
+.sd-page .sd-eval-feedback.is-warning {
+    background: #fff1e4;
+    color: #935333;
+}
+
+.sd-page .sd-eval-feedback ul {
+    margin: 9px 0 0;
+    padding-left: 19px;
+}
+
+.sd-page .sd-eval-feedback li+li {
+    margin-top: 7px;
+}
+
+
+/* =====================================================
+   09. NAVIGASI EVALUASI
+   ===================================================== */
+
+.sd-page .sd-eval-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.sd-page .sd-eval-outer-navigation {
+    margin-bottom: 24px;
+}
+
+.sd-page .sd-eval-outer-navigation[hidden] {
+    display: none !important;
+}
+
+
+/* =====================================================
+   10. HASIL AKHIR DENGAN GAMBAR
+   ===================================================== */
+
+.sd-page .sd-eval-result {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(200px, .8fr);
+    align-items: center;
+    gap: 24px;
+
+    padding: 18px;
+    background: #f0f8f3;
+    border-radius: 12px;
+}
+
+.sd-page .sd-eval-result-text h2 {
+    margin: 12px 0;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.sd-page .sd-eval-score {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin: 16px 0;
+}
+
+.sd-page .sd-eval-score span {
+    color: #648f80;
+    font-size: 10px;
+}
+
+.sd-page .sd-eval-score strong {
+    color: #258452;
+    font-size: 45px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.sd-page .sd-eval-score small {
+    font-size: 10px;
+}
+
+.sd-page #sd-eval-final-message {
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+.sd-page .sd-eval-result-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.sd-page .sd-eval-result-illustration {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    padding: 17px;
+    background: #fffdf6;
+    border-radius: 11px;
+    text-align: center;
+}
+
+.sd-page .sd-eval-result-illustration img {
+    display: block;
+    width: min(100%, 235px);
+    max-height: 200px;
+    object-fit: contain;
+}
+
+.sd-page .sd-eval-result-illustration p {
+    margin: 0;
+    color: #387859;
+    font-size: 10px;
+    line-height: 1.7;
+}
+
+
+/* =====================================================
+   11. RESPONSIVE
+   ===================================================== */
+
+@media (max-width: 991.98px) {
+    .sd-page .sd-eval-classification {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .sd-page .sd-eval-image-items {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .sd-page .sd-eval-match-layout {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 767.98px) {
+    .sd-page .sd-eval-card {
+        padding: 15px;
+    }
+
+    .sd-page .sd-eval-overview-header,
+    .sd-page .sd-eval-result {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .sd-page .sd-eval-heading {
+        font-size: 15px;
+    }
+
+    .sd-page .sd-eval-result-text h2 {
+        font-size: 17px;
+    }
+
+    .sd-page .sd-eval-score strong {
+        font-size: 38px;
+    }
+
+    .sd-page .sd-eval-image-items {
+        gap: 8px;
+    }
+
+    .sd-page .sd-eval-item {
+        min-height: 90px;
+        padding: 7px;
+    }
+
+    .sd-page .sd-eval-emoji {
+        width: 70px;
+        height: 68px;
+    }
+
+    .sd-page .sd-eval-match-layout {
+        gap: 35px;
+    }
+
+    .sd-page .sd-eval-match-row {
+        min-height: 85px;
+    }
+
+    .sd-page .sd-eval-match-image {
+        width: 58px;
+        height: 58px;
+    }
+
+    .sd-page .sd-eval-match-target {
+        min-height: 130px;
+        padding: 10px;
+    }
+}
+
+@media (max-width: 380px) {
+    .sd-page .sd-eval-image-items {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+
+/* =====================================================
+   12. AKSESIBILITAS EVALUASI
+   ===================================================== */
+
+.sd-page .sd-eval-item:focus-visible,
+.sd-page .sd-eval-target:focus-visible,
+.sd-page .sd-eval-primary:focus-visible,
+.sd-page .sd-eval-outline:focus-visible,
+.sd-page .sd-eval-bullet:focus-visible {
+    outline: 3px solid #329ecb;
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .sd-page .sd-eval-primary,
+    .sd-page .sd-eval-outline,
+    .sd-page .sd-eval-item,
+    .sd-page .sd-eval-emoji,
+    .sd-page .sd-eval-target {
+        transition: none;
+    }
+}
+
+
+/* =====================================================
+   13. DRAG AND DROP DAN BULLET PENGHUBUNG
+   ===================================================== */
+
+/* 13.1. Gambar yang mengikuti kursor */
+
+.sd-eval-drag-ghost {
+    position: fixed;
+    z-index: 99999;
+    left: 0;
+    top: 0;
+
+    display: grid;
+    place-items: center;
+
+    width: 90px;
+    height: 90px;
+    padding: 7px;
+
+    border: 2px solid #398db8;
+    border-radius: 13px;
+    background: #ffffff;
+    box-shadow: 0 8px 22px rgba(7, 84, 119, .2);
+
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+}
+
+.sd-eval-drag-ghost img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+
+/* 13.2. Layout khusus soal menghubungkan */
+
+.sd-page .sd-eval-match-layout {
+    position: relative;
+    isolation: isolate;
+
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 70px;
+    align-items: start;
+}
+
+
+/* 13.3. Kumpulan gambar soal menghubungkan */
+
+.sd-page .sd-eval-match-items {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    min-width: 0;
+}
+
+.sd-page .sd-eval-match-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    width: 100%;
+    min-width: 0;
+    min-height: 88px;
+    padding: 10px 15px;
+
+    background: #ffffff;
+    border: 1px solid #d1e2df;
+    border-radius: 10px;
+}
+
+.sd-page .sd-eval-match-row.is-assigned {
+    background: #f2faf5;
+    border-color: #91cbb0;
+}
+
+.sd-page .sd-eval-match-image {
+    display: block;
+    flex: 0 1 76px;
+
+    width: 76px;
+    height: 65px;
+    min-width: 0;
+    object-fit: contain;
+}
+
+.sd-page .sd-eval-match-targets {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    min-width: 0;
+}
+
+
+/* 13.4. Kotak kelompok hewan/tumbuhan */
+
+.sd-page .sd-eval-match-target {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+
+    min-height: 125px;
+    padding: 16px;
+
+    border: 1px dashed #9ccdb8;
+    border-radius: 10px;
+    background: #f8fcfa;
+}
+
+.sd-page .sd-eval-match-target-label {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.sd-page .sd-eval-match-target-label strong {
+    color: #075477;
+    font-size: 12px;
+}
+
+.sd-page .sd-eval-match-target-label small {
+    color: #7797a0;
+    font-size: 9px;
+}
+
+
+/* 13.5. Bullet penghubung */
+
+.sd-page .sd-eval-bullet {
+    display: inline-block;
+    flex: 0 0 17px;
+
+    width: 17px;
+    height: 17px;
+    min-width: 17px;
+    min-height: 17px;
+    padding: 0;
+
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+
+    background: #2f9b6a;
+    box-shadow: 0 0 0 2px #2f9b6a;
+
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+
+    position: relative;
+    z-index: 5;
+
+    transition:
+        transform .15s ease,
+        background-color .15s ease;
+}
+
+.sd-page .sd-eval-bullet:hover {
+    transform: scale(1.2);
+}
+
+.sd-page .sd-eval-bullet.is-selected {
+    background: #075477;
+    box-shadow: 0 0 0 3px #52aeda;
+    cursor: grabbing;
+}
+
+.sd-page .sd-eval-bullet-target {
+    margin-left: -25px;
+}
+
+.sd-page .sd-eval-bullet-target.is-drop-hover {
+    background: #075477;
+    box-shadow: 0 0 0 4px #b6e0f2;
+}
+
+
+/* 13.6. Garis kurva dari bullet ke bullet */
+
+.sd-page .sd-eval-lines {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+
+    display: block;
+    width: 100%;
+    height: 100%;
+
+    overflow: visible;
+    pointer-events: none;
+}
+
+.sd-page .sd-eval-lines path {
+    fill: none;
+    stroke: #2f9b6a;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+}
+
+.sd-page .sd-eval-lines circle {
+    fill: #2f9b6a;
+}
+
+
+/* 13.7. Penyesuaian bullet layar kecil */
+
+@media (max-width: 767.98px) {
+    .sd-page .sd-eval-match-layout {
+        column-gap: 26px;
+    }
+
+    .sd-page .sd-eval-match-row {
+        padding: 8px;
+    }
+
+    .sd-page .sd-eval-match-target {
+        gap: 9px;
+        padding: 10px;
+    }
+
+    .sd-page .sd-eval-bullet-target {
+        margin-left: -18px;
+    }
+}

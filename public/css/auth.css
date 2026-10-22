@@ -1,0 +1,854 @@
+/* ==========================================
+   SALUANG — LOGIN & DAFTAR
+   CSS KHUSUS AUTENTIKASI
+========================================== */
+
+:root {
+    --sl-blue: #105b77;
+    --sl-green: #509f70;
+    --sl-cream: #fffdf5;
+    --sl-border: #ccdee7;
+    --sl-muted: #68838f;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-width: 320px;
+}
+
+body {
+    font-family: "Nunito", sans-serif;
+    color: var(--sl-blue);
+    background: var(--sl-cream);
+}
+
+button,
+input {
+    font: inherit;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+/* ==========================================
+   DUA PANEL UTAMA
+========================================== */
+
+.sl-page {
+    display: grid;
+    grid-template-columns: 47% 53%;
+    width: 100%;
+    height: 100vh;
+    min-height: 0;
+}
+
+/* ==========================================
+   ILUSTRASI KIRI
+========================================== */
+
+.sl-art {
+    position: sticky;
+    top: 0;
+
+    width: 100%;
+    height: 100vh;
+    min-height: 0;
+
+    background-color: #91d9ef;
+    background-image: url("/images/login-wetland.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+.sl-art-text {
+    position: relative;
+    width: min(75%, 470px);
+    margin: 0 auto;
+
+    padding-top: clamp(130px, 20vh, 200px);
+}
+
+.sl-art-text h1 {
+    margin: 0;
+
+    color: var(--sl-blue);
+    font-family: "Poppins", sans-serif;
+    font-size: clamp(29px, 2.75vw, 45px);
+    font-weight: 800;
+    line-height: 1.14;
+    letter-spacing: -1.2px;
+}
+
+.sl-art-text h1 span {
+    color: var(--sl-green);
+}
+
+.sl-art-line {
+    width: 110px;
+    height: 4px;
+    margin: 21px 0 25px;
+
+    border-radius: 10px;
+    background: #36aecd;
+}
+
+.sl-art-text p {
+    max-width: 345px;
+    margin: 0;
+
+    color: #174358;
+    font-family: "Nunito", sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.75;
+}
+
+/* ==========================================
+   PANEL KANAN
+========================================== */
+
+.sl-right {
+    position: relative;
+    isolation: isolate;
+
+    min-width: 0;
+    height: 100vh;
+    min-height: 0;
+
+    padding: 30px 36px 45px;
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    background: var(--sl-cream);
+}
+
+.sl-right::before,
+.sl-right::after {
+    position: absolute;
+    z-index: -1;
+
+    content: "";
+    width: 260px;
+    height: 260px;
+
+    border-radius: 50%;
+    background: #f0f4e9;
+    pointer-events: none;
+}
+
+.sl-right::before {
+    top: -190px;
+    right: -165px;
+}
+
+.sl-right::after {
+    bottom: -195px;
+    right: -165px;
+}
+
+.sl-content {
+    width: 100%;
+    max-width: 435px;
+    margin: 0 auto;
+}
+
+/* ==========================================
+   LOGO SALUANG
+========================================== */
+
+.sl-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    min-height: 65px;
+    margin: 0 0 24px;
+}
+
+.sl-logo img {
+    display: block;
+    width: 170px;
+    max-width: 100%;
+    max-height: 68px;
+
+    height: auto;
+    object-fit: contain;
+}
+
+/* ==========================================
+   JUDUL
+========================================== */
+
+.sl-heading {
+    margin: 0 0 22px;
+}
+
+.sl-heading h2 {
+    margin: 0 0 10px;
+
+    color: var(--sl-blue);
+    font-family: "Poppins", sans-serif;
+    font-size: clamp(23px, 1.8vw, 28px);
+    font-weight: 800;
+    line-height: 1.3;
+    letter-spacing: -0.6px;
+}
+
+.sl-heading p {
+    margin: 0;
+
+    color: var(--sl-muted);
+    font-family: "Nunito", sans-serif;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* ==========================================
+   PILIHAN SISWA / GURU / ORANG TUA
+========================================== */
+
+.sl-roles {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+
+    width: 100%;
+    margin: 0 0 22px;
+    padding: 0;
+
+    border: none;
+    outline: none;
+}
+
+.sl-role {
+    position: relative;
+    display: block;
+    min-width: 0;
+    cursor: pointer;
+}
+
+.sl-role input[type="radio"] {
+    position: absolute;
+
+    width: 1px;
+    height: 1px;
+
+    opacity: 0;
+}
+
+.sl-role-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 111px;
+    gap: 14px;
+    padding: 10px 5px;
+
+    border: 1px solid #d5e3e8;
+    border-radius: 13px;
+    background: #ffffff;
+    color: #16475e;
+
+    transition:
+        color 0.2s ease,
+        background-color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+/* SVG DIKUNCI — TIDAK AKAN MEMBESAR */
+.sl-role-card>svg {
+    display: block;
+
+    width: 25px !important;
+    height: 25px !important;
+
+    min-width: 25px;
+    min-height: 25px;
+    max-width: 25px;
+    max-height: 25px;
+
+    flex: 0 0 25px;
+}
+
+.sl-role-card>span {
+    color: inherit;
+    font-family: "Nunito", sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.sl-role input:checked+.sl-role-card {
+    border-color: var(--sl-green);
+    background: var(--sl-green);
+    color: #ffffff;
+}
+
+.sl-role input:focus-visible+.sl-role-card {
+    outline: 3px solid #39a9cb;
+    outline-offset: 3px;
+}
+
+/* ==========================================
+   LABEL & INPUT
+========================================== */
+
+.sl-field {
+    width: 100%;
+    margin: 0 0 21px;
+}
+
+.sl-field>label {
+    display: block;
+    margin: 0 0 8px;
+
+    color: #16445a;
+    font-family: "Nunito", sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.sl-input {
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+    height: 44px;
+
+    border: 1px solid var(--sl-border);
+    border-radius: 11px;
+    background: #ffffff;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.sl-input:focus-within {
+    border-color: #43adcb;
+    box-shadow: 0 0 0 3px rgba(67, 173, 203, 0.09);
+}
+
+.sl-input-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 34px;
+    flex: 0 0 34px;
+
+    color: #7698a5;
+}
+
+.sl-input-icon svg {
+    display: block;
+
+    width: 16px;
+    height: 16px;
+
+    min-width: 16px;
+    max-width: 16px;
+    max-height: 16px;
+}
+
+.sl-input input {
+    display: block;
+    flex: 1;
+
+    width: 100%;
+    min-width: 0;
+    height: 42px;
+
+    padding: 0 10px 0 0;
+    border: none;
+    outline: none;
+    border-radius: 11px;
+
+    background: transparent;
+    color: #16445a;
+
+    font-family: "Nunito", sans-serif;
+    font-size: 12px;
+}
+
+.sl-input input::placeholder {
+    color: #92aab6;
+    opacity: 1;
+}
+
+/* ==========================================
+   TOMBOL LIHAT PASSWORD
+========================================== */
+
+.sl-eye {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+
+    padding: 0;
+    border: none;
+    background: transparent;
+
+    color: #7598a6;
+    cursor: pointer;
+}
+
+.sl-eye svg {
+    display: block;
+    width: 18px;
+    height: 18px;
+    max-width: 18px;
+    max-height: 18px;
+}
+
+.sl-eye:hover {
+    color: var(--sl-green);
+}
+
+/* ==========================================
+   LUPA KATA SANDI
+========================================== */
+
+.sl-forgot {
+    margin: -6px 0 23px;
+
+    text-align: right;
+    color: var(--sl-green);
+
+    font-family: "Nunito", sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+/* ==========================================
+   TOMBOL MASUK / DAFTAR
+========================================== */
+
+.sl-submit {
+    display: block;
+
+    width: 100%;
+    height: 44px;
+    padding: 10px 15px;
+
+    border: none;
+    border-radius: 11px;
+
+    background: var(--sl-green);
+    color: #ffffff;
+
+    font-family: "Nunito", sans-serif;
+    font-size: 13px;
+    font-weight: 900;
+
+    text-align: center;
+    cursor: pointer;
+}
+
+.sl-submit:hover {
+    background: #438e60;
+}
+
+.sl-submit:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* ==========================================
+   LINK DAFTAR / LOGIN
+========================================== */
+
+.sl-switch {
+    margin: 20px 0;
+
+    color: var(--sl-muted);
+    font-family: "Nunito", sans-serif;
+    font-size: 12px;
+    text-align: center;
+}
+
+.sl-switch a {
+    color: var(--sl-green);
+    font-weight: 900;
+    text-decoration: underline;
+}
+
+.sl-back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 44px;
+
+    padding: 10px 15px;
+    border-radius: 11px;
+
+    background: #eaf6f2;
+    color: #377b55;
+
+    font-family: "Nunito", sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.sl-back:hover {
+    background: #dcefe7;
+}
+
+/* ==========================================
+   PESAN VALIDASI
+========================================== */
+
+.sl-alert,
+.sl-info {
+    margin: 0 0 17px;
+    padding: 12px 14px;
+
+    border-radius: 10px;
+
+    font-family: "Nunito", sans-serif;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.sl-alert {
+    border: 1px solid #eebaba;
+    background: #fff0f0;
+    color: #a42d2d;
+}
+
+.sl-alert ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.sl-info {
+    border: 1px solid #ead9ae;
+    background: #fff8e2;
+    color: #755d25;
+}
+
+/* ==========================================
+   HALAMAN REGISTRASI
+========================================== */
+
+.sl-right-register {
+    padding-top: 25px;
+    padding-bottom: 40px;
+}
+
+.sl-right-register .sl-logo {
+    margin-bottom: 15px;
+}
+
+.sl-right-register .sl-heading {
+    margin-bottom: 18px;
+}
+
+.sl-right-register .sl-roles {
+    margin-bottom: 20px;
+}
+
+.sl-right-register .sl-role-card {
+    height: 102px;
+}
+
+.sl-right-register .sl-field {
+    margin-bottom: 17px;
+}
+
+/* ==========================================
+   LAYAR LAPTOP / TABLET
+========================================== */
+
+@media (max-width: 1000px) {
+    .sl-page {
+        grid-template-columns: 44% 56%;
+    }
+
+    .sl-right {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+
+    .sl-art-text {
+        width: 82%;
+    }
+
+    .sl-art-text h1 {
+        font-size: clamp(27px, 3vw, 38px);
+    }
+
+    .sl-heading h2 {
+        font-size: 24px;
+    }
+}
+
+/* ==========================================
+   LAYAR HANDPHONE
+========================================== */
+
+@media (max-width: 680px) {
+    .sl-page {
+        grid-template-columns: 1fr;
+        height: auto;
+        min-height: 100vh;
+    }
+
+    .sl-art {
+        position: relative;
+        height: 230px;
+        min-height: 230px;
+        background-position: center 55%;
+    }
+
+    .sl-right,
+    .sl-right-register {
+        height: auto;
+        min-height: 0;
+        overflow: visible;
+        padding: 30px 22px 45px;
+    }
+}
+
+.sl-logo {
+    margin-bottom: 23px;
+}
+
+.sl-heading h2 {
+    font-size: 23px;
+}
+
+.sl-roles {
+    gap: 9px;
+}
+
+.sl-role-card {
+    height: 104px;
+    gap: 12px;
+}
+
+
+.sl-role-card>span {
+    font-size: 11px;
+}
+
+/* ==========================================
+   PETUNJUK NISN ANAK
+   HALAMAN DAFTAR ORANG TUA
+========================================== */
+
+.sl-field-hint {
+    display: block;
+    margin-top: 7px;
+    color: #728b97;
+    font-family: "Nunito", sans-serif;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+/* ==========================================
+   SALUANG — LUPA KATA SANDI
+   Mengikuti desain Figma
+========================================== */
+
+.sl-forgot-page {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.sl-forgot-content {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    max-width: 500px;
+}
+
+.sl-forgot-page .sl-logo {
+    flex-shrink: 0;
+    margin-top: 37px;
+    margin-bottom: 0;
+}
+
+.sl-forgot-form-area {
+    width: 100%;
+    margin-top: auto;
+    margin-bottom: auto;
+    padding: 35px 0 85px;
+}
+
+.sl-forgot-form-area .sl-heading {
+    margin-bottom: 33px;
+}
+
+.sl-forgot-form-area .sl-heading h2 {
+    margin-bottom: 11px;
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1.25;
+}
+
+.sl-forgot-form-area .sl-heading p {
+    max-width: 485px;
+    font-size: 15px;
+    line-height: 1.65;
+}
+
+.sl-forgot-form-area .sl-field {
+    margin-bottom: 26px;
+}
+
+.sl-forgot-form-area .sl-field>label {
+    margin-bottom: 11px;
+    font-size: 14px;
+}
+
+.sl-forgot-form-area .sl-input {
+    height: 51px;
+    border-radius: 11px;
+}
+
+.sl-forgot-form-area .sl-input input {
+    height: 49px;
+    font-size: 13px;
+}
+
+.sl-forgot-form-area .sl-submit {
+    height: 51px;
+    font-size: 14px;
+}
+
+.sl-forgot-back {
+    height: 51px;
+    margin-top: 22px;
+}
+
+.sl-success {
+    margin-bottom: 20px;
+    padding: 13px 15px;
+    border: 1px solid #a7d8b8;
+    border-radius: 10px;
+    background: #eef9f0;
+    color: #2e744c;
+    font-family: "Nunito", sans-serif;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+@media (max-width: 1000px) {
+    .sl-forgot-form-area .sl-heading h2 {
+        font-size: 26px;
+    }
+}
+
+@media (max-width: 680px) {
+    .sl-forgot-page {
+        padding: 28px 22px 50px;
+    }
+
+    .sl-forgot-content {
+        min-height: auto;
+    }
+
+    .sl-forgot-page .sl-logo {
+        margin-top: 0;
+    }
+
+    .sl-forgot-form-area {
+        margin-top: 50px;
+        margin-bottom: 0;
+        padding: 0;
+    }
+
+    .sl-forgot-form-area .sl-heading h2 {
+        font-size: 25px;
+    }
+
+    .sl-forgot-form-area .sl-heading p {
+        font-size: 14px;
+    }
+
+}
+
+
+/* ==========================================
+   SALUANG - HOVER INTERAKTIF KARTU PERAN
+   BERLAKU UNTUK LOGIN DAN DAFTAR
+========================================== */
+
+.sl-role-card {
+    cursor: pointer;
+    transition:
+        transform 0.22s ease,
+        background-color 0.22s ease,
+        border-color 0.22s ease,
+        box-shadow 0.22s ease,
+        color 0.22s ease;
+}
+
+/* Saat kursor diarahkan ke kartu */
+.sl-role:hover .sl-role-card {
+    transform: translateY(-4px);
+    border-color: #509f70;
+    background-color: #f0faf3;
+    box-shadow: 0 7px 18px rgba(39, 115, 74, 0.13);
+}
+
+/* Saat kartu dipilih: tetap hijau */
+.sl-role input[type="radio"]:checked + .sl-role-card,
+.sl-role:hover input[type="radio"]:checked + .sl-role-card {
+    background-color: #509f70;
+    border-color: #509f70;
+    color: #ffffff;
+}
+
+/* Kartu yang dipilih juga bereaksi ketika di-hover */
+.sl-role:hover input[type="radio"]:checked + .sl-role-card {
+    background-color: #438d60;
+    box-shadow: 0 8px 20px rgba(45, 120, 79, 0.23);
+}
+
+/* Efek saat ditekan */
+.sl-role:active .sl-role-card {
+    transform: translateY(-1px) scale(0.98);
+}
+
+/* Navigasi menggunakan keyboard */
+.sl-role input[type="radio"]:focus-visible + .sl-role-card {
+    outline: 3px solid #39a9cb;
+    outline-offset: 3px;
+}
+
+/* Hormati pengaturan pengguna yang mengurangi animasi */
+@media (prefers-reduced-motion: reduce) {
+    .sl-role-card {
+        transition: none;
+    }
+}

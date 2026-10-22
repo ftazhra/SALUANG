@@ -1,0 +1,1034 @@
+
+/* =====================================================
+   SALUANG — KELOLA EVALUASI GURU
+   File: public/css/guru-evaluasi.css
+   ===================================================== */
+
+.ge-page {
+    width: 100%;
+    color: #174a60;
+    font-family: 'Poppins', sans-serif;
+}
+
+.ge-page[hidden],
+.ge-page [hidden] {
+    display: none !important;
+}
+
+/* PANEL UTAMA */
+
+.ge-panel {
+    background: #ffffff;
+    border: 1px solid #e3eeea;
+    border-radius: 18px;
+    padding: 28px;
+    box-shadow: 0 8px 28px rgba(16, 65, 72, 0.045);
+    margin: 20px 0;
+}
+
+.ge-heading,
+.ge-section-heading,
+.ge-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.ge-heading {
+    margin-bottom: 24px;
+}
+
+.ge-heading h1 {
+    margin: 0 0 8px;
+    color: #075477;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.ge-heading p,
+.ge-section-heading p {
+    margin: 0;
+    color: #708b94;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+.ge-section-heading {
+    margin: 30px 0 16px;
+}
+
+.ge-section-heading h2 {
+    margin: 0 0 6px;
+    color: #075477;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+/* TOMBOL */
+
+.ge-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 10px 17px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color .2s ease,
+                border-color .2s ease,
+                transform .2s ease;
+}
+
+.ge-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.ge-btn:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.ge-btn-primary {
+    background: #4e9d6d;
+    color: #ffffff;
+}
+
+.ge-btn-primary:hover:not(:disabled) {
+    background: #397f56;
+}
+
+.ge-btn-outline {
+    background: #ffffff;
+    border-color: #cbdeda;
+    color: #075477;
+}
+
+.ge-btn-outline:hover:not(:disabled) {
+    background: #f1f8f5;
+}
+
+.ge-btn-danger {
+    background: #fff0ef;
+    border-color: #f0cdca;
+    color: #b53838;
+}
+
+.ge-btn-danger:hover:not(:disabled) {
+    background: #ffe2df;
+}
+
+/* KARTU RINGKASAN */
+
+.ge-summary {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.ge-summary-card {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    min-width: 0;
+    padding: 18px;
+    background: #f7fbf9;
+    border: 1px solid #e1eee8;
+    border-radius: 14px;
+}
+
+.ge-summary-card > i {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    background: #e0f1e6;
+    border-radius: 10px;
+    color: #39885b;
+    font-size: 19px;
+}
+
+.ge-summary-card span {
+    color: #708b94;
+    font-size: 11px;
+}
+
+.ge-summary-card strong {
+    color: #075477;
+    font-size: 23px;
+    font-weight: 700;
+}
+
+/* PETUNJUK */
+
+.ge-info {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-top: 20px;
+    padding: 14px 16px;
+    background: #eef7f3;
+    border: 1px solid #d8ece1;
+    border-radius: 12px;
+}
+
+.ge-info > i {
+    color: #39885b;
+    font-size: 17px;
+}
+
+.ge-info p {
+    margin: 0;
+    color: #537c70;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+/* GRID NOMOR SOAL */
+
+.ge-question-grid {
+    display: grid;
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.ge-number-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 48px;
+    padding: 8px;
+    background: #f7faf9;
+    border: 1px solid #dce8e4;
+    border-radius: 10px;
+    color: #075477;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.ge-number-button:hover {
+    background: #e9f5ef;
+    border-color: #8ac9a3;
+}
+
+.ge-number-button.is-filled {
+    background: #e7f5ec;
+    border-color: #aadbb9;
+    color: #287c48;
+}
+
+.ge-number-button.is-active {
+    background: #075477;
+    border-color: #075477;
+    color: #ffffff;
+}
+
+.ge-number-button.is-draft {
+    border-style: dashed;
+}
+
+.ge-number-button:focus-visible,
+.ge-btn:focus-visible {
+    outline: 3px solid rgba(78, 157, 109, .35);
+    outline-offset: 3px;
+}
+
+/* DETAIL SOAL */
+
+.ge-question-detail {
+    margin-top: 24px;
+    padding: 24px;
+    background: #f9fcfb;
+    border: 1px solid #e0ece7;
+    border-radius: 14px;
+}
+
+.ge-detail-header {
+    padding-bottom: 18px;
+    border-bottom: 1px solid #e0ece7;
+}
+
+.ge-detail-number {
+    display: inline-block;
+    padding: 6px 12px;
+    background: #e6f3ea;
+    border-radius: 999px;
+    color: #348657;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.ge-detail-header h2 {
+    margin: 12px 0 6px;
+    color: #075477;
+    font-size: 17px;
+    line-height: 1.6;
+    font-weight: 700;
+}
+
+.ge-detail-header p {
+    margin: 0;
+    color: #78939b;
+    font-size: 12px;
+}
+
+.ge-status {
+    display: inline-block;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: #fff3de;
+    color: #a36c1f;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.ge-status.is-published {
+    background: #e0f3e8;
+    color: #267b4b;
+}
+
+.ge-detail-body {
+    padding: 22px 0;
+    color: #355f6c;
+    font-size: 13px;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+
+.ge-detail-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* FORM MODAL */
+
+.ge-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.ge-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 33, 43, .58);
+}
+
+.ge-modal-dialog {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 760px);
+    max-height: min(90vh, 900px);
+    overflow-y: auto;
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 28px;
+    box-shadow: 0 25px 80px rgba(4, 37, 46, .22);
+}
+
+.ge-modal-dialog-small {
+    width: min(100%, 450px);
+    text-align: center;
+}
+
+.ge-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.ge-modal-header h2 {
+    margin: 0 0 8px;
+    color: #075477;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.ge-modal-header p,
+.ge-field-help {
+    margin: 0;
+    color: #72909b;
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+.ge-modal-close {
+    display: grid;
+    place-items: center;
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    background: #f0f5f3;
+    border: 0;
+    border-radius: 9px;
+    color: #446b77;
+    cursor: pointer;
+}
+
+.ge-modal-close:hover {
+    background: #e4eeea;
+}
+
+.ge-field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+}
+
+.ge-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 17px;
+}
+
+.ge-field label {
+    color: #24576a;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.ge-field input,
+.ge-field select,
+.ge-field textarea {
+    display: block;
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #d5e3de;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #174a60;
+    font-family: inherit;
+    font-size: 12px;
+    line-height: 1.6;
+    outline: none;
+    transition: border-color .2s ease,
+                box-shadow .2s ease;
+}
+
+.ge-field textarea {
+    resize: vertical;
+}
+
+.ge-field input:focus,
+.ge-field select:focus,
+.ge-field textarea:focus {
+    border-color: #4e9d6d;
+    box-shadow: 0 0 0 3px rgba(78, 157, 109, .12);
+}
+
+.ge-field select:disabled {
+    background: #f0f5f3;
+    color: #617e88;
+}
+
+.ge-type-fields {
+    margin: 10px 0 20px;
+    padding: 18px;
+    background: #f8fbfa;
+    border: 1px solid #e2ece8;
+    border-radius: 12px;
+}
+
+.ge-type-fields h3 {
+    margin: 0 0 18px;
+    color: #075477;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.ge-publish-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 5px 0 20px;
+    color: #24576a;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.ge-publish-field input {
+    width: 17px;
+    height: 17px;
+    accent-color: #4e9d6d;
+}
+
+.ge-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 22px;
+}
+
+.ge-delete-icon {
+    display: grid;
+    place-items: center;
+    width: 65px;
+    height: 65px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: #fff0ef;
+    color: #b53838;
+    font-size: 28px;
+}
+
+/* NOTIFIKASI */
+
+.ge-toast {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 1800;
+    max-width: min(400px, calc(100vw - 32px));
+    padding: 14px 20px;
+    border-radius: 12px;
+    background: #075477;
+    color: #ffffff;
+    box-shadow: 0 12px 30px rgba(8, 50, 68, .2);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.ge-toast.is-error {
+    background: #b53838;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1000px) {
+    .ge-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .ge-question-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .ge-panel {
+        padding: 18px;
+    }
+
+    .ge-heading,
+    .ge-detail-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ge-heading h1 {
+        font-size: 21px;
+    }
+
+    .ge-summary {
+        gap: 10px;
+    }
+
+    .ge-summary-card {
+        padding: 13px;
+    }
+
+    .ge-summary-card strong {
+        font-size: 19px;
+    }
+
+    .ge-field-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .ge-question-detail,
+    .ge-modal-dialog {
+        padding: 18px;
+    }
+
+    .ge-modal {
+        padding: 12px;
+    }
+
+    .ge-question-grid {
+        gap: 7px;
+    }
+
+    .ge-number-button {
+        min-height: 42px;
+    }
+
+    .ge-detail-actions .ge-btn {
+        flex: 1 1 auto;
+    }
+}
+
+
+/* =====================================================
+   SALUANG — PERBAIKAN DROPDOWN EVALUASI
+   ===================================================== */
+
+.ge-page .ge-field select {
+    width: 100%;
+    min-height: 46px;
+    padding: 11px 44px 11px 14px;
+
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    background-color: #ffffff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23075477' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 16px;
+
+    border: 1px solid #d5e3de;
+    border-radius: 10px;
+
+    color: #174a60;
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    line-height: 1.6;
+    cursor: pointer;
+}
+
+.ge-page .ge-field select:focus {
+    border-color: #4e9d6d;
+    box-shadow: 0 0 0 3px rgba(78, 157, 109, .12);
+}
+
+.ge-page .ge-field select:disabled {
+    background-color: #f0f5f3;
+    color: #617e88;
+    cursor: not-allowed;
+}
+
+
+/* =====================================================
+   PETUNJUK JENIS SOAL DALAM BULLET POINT
+   ===================================================== */
+
+.ge-info-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.ge-info-content > strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #287c58;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.ge-info .ge-info-list {
+    margin: 0;
+    padding-left: 20px;
+    list-style-type: disc;
+}
+
+.ge-info .ge-info-list li {
+    display: list-item;
+    margin-bottom: 5px;
+    color: #537c70;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+.ge-info .ge-info-list li::marker {
+    color: #39885b;
+}
+
+.ge-info .ge-info-list li:last-child {
+    margin-bottom: 0;
+}
+
+
+/* =====================================================
+   SALUANG — FORM VISUAL SOAL EVALUASI BERGAMBAR
+   ===================================================== */
+
+/* Bagian kategori dan daftar gambar */
+
+.ge-visual-section {
+    margin-top: 22px;
+    padding: 18px;
+    background: #ffffff;
+    border: 1px solid #dfebe6;
+    border-radius: 14px;
+}
+
+.ge-visual-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.ge-visual-heading h4 {
+    margin: 0;
+    color: #075477;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.ge-visual-heading .ge-btn {
+    min-height: 36px;
+    padding: 8px 12px;
+    font-size: 11px;
+}
+
+.ge-visual-section > .ge-field-help {
+    margin-bottom: 14px;
+}
+
+/* Daftar item dinamis */
+
+#geTargetsList,
+#geImagesList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ge-target-row,
+.ge-image-row {
+    padding: 14px;
+    background: #f8fbfa;
+    border: 1px solid #dfebe6;
+    border-radius: 12px;
+}
+
+.ge-target-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ge-target-row .ge-target-name {
+    flex: 1;
+    min-width: 0;
+}
+
+.ge-target-name,
+.ge-image-name,
+.ge-image-answer {
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 12px;
+    border: 1px solid #d5e3de;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #174a60;
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    outline: none;
+}
+
+.ge-target-name:focus,
+.ge-image-name:focus,
+.ge-image-answer:focus {
+    border-color: #4e9d6d;
+    box-shadow: 0 0 0 3px rgba(78, 157, 109, .12);
+}
+
+/* Baris gambar */
+
+.ge-image-row {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr);
+    gap: 16px;
+}
+
+.ge-image-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 110px;
+    height: 110px;
+    overflow: hidden;
+    background: #edf4f0;
+    border: 1px dashed #c6dcd1;
+    border-radius: 11px;
+}
+
+.ge-image-preview img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.ge-image-preview i {
+    font-size: 30px;
+    color: #8cae9d;
+}
+
+.ge-image-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+}
+
+.ge-image-fields label {
+    display: block;
+    margin-bottom: 5px;
+    color: #24576a;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.ge-image-file {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    font-family: 'Poppins', sans-serif;
+    font-size: 11px;
+    color: #466977;
+}
+
+.ge-image-file::file-selector-button {
+    margin-right: 10px;
+    padding: 9px 12px;
+    border: 1px solid #cbdeda;
+    border-radius: 8px;
+    background: #eff7f2;
+    color: #287c58;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.ge-image-file::file-selector-button:hover {
+    background: #e2f2e8;
+}
+
+/* Pemilih pasangan jawaban */
+
+.ge-image-answer {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 40px;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23075477' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 13px center;
+    background-size: 16px;
+    cursor: pointer;
+}
+
+/* Tombol hapus baris */
+
+.ge-remove-row {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-start;
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    border: 1px solid #f0cdca;
+    border-radius: 9px;
+    background: #fff0ef;
+    color: #b53838;
+    cursor: pointer;
+    transition: background-color .2s ease;
+}
+
+.ge-remove-row:hover {
+    background: #ffe2df;
+}
+
+/* Pilihan kunci untuk soal memilih gambar */
+
+.ge-image-correct {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 12px;
+    background: #eff8f2;
+    border: 1px solid #d8ece0;
+    border-radius: 9px;
+    color: #287c58;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.ge-image-correct input {
+    width: 16px;
+    height: 16px;
+    accent-color: #4e9d6d;
+}
+
+/* Informasi kecil */
+
+.ge-visual-empty {
+    padding: 16px;
+    text-align: center;
+    background: #f7faf9;
+    border: 1px dashed #d5e3de;
+    border-radius: 10px;
+    color: #78939b;
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+.ge-visual-error {
+    color: #b53838;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+/* Responsive */
+
+@media (max-width: 600px) {
+    .ge-visual-section {
+        padding: 12px;
+    }
+
+    .ge-image-row {
+        grid-template-columns: 1fr;
+    }
+
+    .ge-image-preview {
+        width: 100%;
+        height: 170px;
+    }
+
+    .ge-target-row {
+        flex-wrap: wrap;
+    }
+
+    .ge-target-row .ge-remove-row {
+        margin-left: auto;
+    }
+}
+
+
+/* =====================================================
+   SALUANG — PERBAIKAN ALIGNMENT JAWABAN GAMBAR
+   ===================================================== */
+
+.ge-page .ge-image-correct {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    min-height: 46px;
+    padding: 10px 14px;
+    line-height: 1.4;
+    cursor: pointer;
+}
+
+.ge-page .ge-image-correct input[type="radio"] {
+    display: block;
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    padding: 0;
+    accent-color: #4e9d6d;
+}
+
+.ge-page .ge-image-correct {
+    font-size: 12px;
+    font-weight: 600;
+    color: #24576a;
+}
+
+
+/* =====================================================
+   SALUANG — PRATINJAU SOAL EVALUASI BERGAMBAR
+   ===================================================== */
+
+.ge-preview-targets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-bottom: 12px;
+}
+
+.ge-preview-target {
+    padding: 8px 13px;
+    background: #e8f5ed;
+    border: 1px solid #cde6d6;
+    border-radius: 9px;
+    color: #287c58;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.ge-preview-images {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.ge-preview-image-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px;
+    background: #f8fbfa;
+    border: 1px solid #dce9e3;
+    border-radius: 13px;
+}
+
+.ge-preview-image-card.is-correct {
+    background: #f1faf4;
+    border-color: #70bb8c;
+}
+
+.ge-preview-image-card img {
+    display: block;
+    width: 100%;
+    height: 180px;
+    object-fit: contain;
+    background: #edf4f0;
+    border-radius: 10px;
+}
+
+.ge-preview-image-card strong {
+    color: #075477;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.ge-preview-answer {
+    color: #39885b;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+    .ge-preview-images {
+        grid-template-columns: 1fr;
+    }
+
+    .ge-preview-image-card img {
+        height: 160px;
+    }
+}

@@ -1,0 +1,3402 @@
+/* =====================================================
+
+   SALUANG — KELOLA MATERI GURU
+
+   File: public/css/guru-materi.css
+
+   ===================================================== */
+
+
+
+/* 01. PENGATURAN DASAR */
+
+.gd-material-page {
+
+    color: #075477;
+
+    font-family: 'Poppins', sans-serif;
+
+}
+
+
+
+.gd-material-page [hidden] {
+
+    display: none !important;
+
+}
+
+
+
+.gd-material-page button,
+
+.gd-material-page input,
+
+.gd-material-page textarea {
+
+    font-family: inherit;
+
+}
+
+
+
+.gd-material-page button {
+
+    cursor: pointer;
+
+}
+
+
+
+/* 02. JUDUL DAN AKSI HALAMAN */
+
+.gm-heading {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 18px;
+
+    margin: 22px 0;
+
+}
+
+
+
+.gm-heading h1 {
+
+    margin: 0 0 8px;
+
+    color: #075477;
+
+    font-size: 24px;
+
+    font-weight: 700;
+
+}
+
+
+
+.gm-heading h2 {
+
+    margin: 0 0 8px;
+
+    color: #075477;
+
+    font-size: 18px;
+
+    font-weight: 700;
+
+}
+
+
+
+.gm-heading p {
+
+    margin: 0;
+
+    color: #7d9ba5;
+
+    font-size: 11px;
+
+    line-height: 1.8;
+
+}
+
+
+
+/* 03. TOMBOL */
+
+.gm-btn {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    min-height: 38px;
+
+    padding: 10px 16px;
+
+    border: 1px solid transparent;
+
+    border-radius: 9px;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    text-align: center;
+
+    text-decoration: none;
+
+    transition:
+
+        background-color .2s ease,
+
+        border-color .2s ease,
+
+        color .2s ease,
+
+        transform .2s ease,
+
+        box-shadow .2s ease;
+
+}
+
+
+
+.gm-btn i {
+
+    font-size: 14px;
+
+}
+
+
+
+.gm-btn-primary {
+
+    background: #4e9d6d;
+
+    border-color: #4e9d6d;
+
+    color: #ffffff;
+
+}
+
+
+
+.gm-btn-primary:hover {
+
+    background: #327f52;
+
+    border-color: #327f52;
+
+    color: #ffffff;
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 5px 12px rgba(50, 127, 82, .18);
+
+}
+
+
+
+.gm-btn-outline {
+
+    background: #ffffff;
+
+    border-color: #cddfda;
+
+    color: #075477;
+
+}
+
+
+
+.gm-btn-outline:hover {
+
+    background: #dceefa;
+
+    border-color: #9fc9de;
+
+    color: #075477;
+
+    transform: translateY(-2px);
+
+}
+
+
+
+.gm-btn-danger {
+
+    background: #df4646;
+
+    border-color: #df4646;
+
+    color: #ffffff;
+
+}
+
+
+
+.gm-btn-danger:hover {
+
+    background: #b82d2d;
+
+    border-color: #b82d2d;
+
+    color: #ffffff;
+
+    transform: translateY(-2px);
+
+}
+
+
+
+.gm-btn:disabled {
+
+    opacity: .55;
+
+    cursor: not-allowed;
+
+    transform: none;
+
+}
+
+
+
+/* 04. DAFTAR BAB */
+
+.gm-chapter-list {
+
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 16px;
+
+}
+
+
+
+.gm-chapter-card {
+
+    min-width: 0;
+
+    padding: 22px;
+
+    border: 1px solid #d5e8e3;
+
+    border-radius: 13px;
+
+    background: #eef8f4;
+
+    transition:
+
+        border-color .2s ease,
+
+        box-shadow .2s ease,
+
+        transform .2s ease;
+
+}
+
+
+
+.gm-chapter-card:hover {
+
+    border-color: #a9cfdc;
+
+    box-shadow: 0 6px 18px rgba(7, 84, 119, .08);
+
+}
+
+
+
+.gm-chapter-label {
+
+    display: inline-block;
+
+    margin-bottom: 10px;
+
+    color: #287b4e;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing: .04em;
+
+}
+
+
+
+.gm-chapter-card h2,
+
+.gm-chapter-card h3 {
+
+    margin: 0 0 12px;
+
+    color: #075477;
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    line-height: 1.5;
+
+}
+
+
+
+.gm-chapter-card p {
+
+    margin: 0 0 14px;
+
+    color: #537a8c;
+
+    font-size: 11px;
+
+    line-height: 1.8;
+
+    overflow-wrap: anywhere;
+
+}
+
+
+
+.gm-chapter-meta {
+
+    margin-bottom: 15px;
+
+    color: #7d9ba5;
+
+    font-size: 10px;
+
+}
+
+
+
+.gm-chapter-actions,
+
+.gm-subchapter-actions {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 9px;
+
+}
+
+
+
+/* 05. TAMPILAN KOSONG / MEMUAT */
+
+.gm-empty {
+
+    grid-column: 1 / -1;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 12px;
+
+    min-height: 180px;
+
+    padding: 25px;
+
+    border: 1px dashed #cddfda;
+
+    border-radius: 13px;
+
+    background: #fffefa;
+
+    text-align: center;
+
+}
+
+
+
+.gm-empty i {
+
+    color: #4e9d6d;
+
+    font-size: 32px;
+
+}
+
+
+
+.gm-empty p {
+
+    margin: 0;
+
+    color: #638a96;
+
+    font-size: 12px;
+
+    line-height: 1.7;
+
+}
+
+
+
+/* 06. TOMBOL KEMBALI */
+
+.gm-back-actions {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin: 16px 0 20px;
+
+}
+
+
+
+/* 07. KARTU DETAIL BAB */
+
+.gm-detail-card {
+
+    padding: 24px;
+
+    border: 1px solid #dce9e6;
+
+    border-radius: 14px;
+
+    background: #fffefa;
+
+}
+
+
+
+.gm-detail-top {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 16px;
+
+}
+
+
+
+.gm-detail-top h1 {
+
+    margin: 0 0 12px;
+
+    color: #075477;
+
+    font-size: 23px;
+
+    font-weight: 700;
+
+    line-height: 1.5;
+
+}
+
+
+
+.gm-detail-actions {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 9px;
+
+}
+
+
+
+.gm-detail-description {
+
+    margin: 8px 0 0;
+
+    color: #537a8c;
+
+    font-size: 12px;
+
+    line-height: 1.9;
+
+    white-space: pre-line;
+
+    overflow-wrap: anywhere;
+
+}
+
+
+
+/* 08. DAFTAR SUBBAB */
+
+.gm-subchapter-section {
+
+    margin-top: 24px;
+
+    padding: 24px;
+
+    border: 1px solid #dce9e6;
+
+    border-radius: 14px;
+
+    background: #fffefa;
+
+}
+
+
+
+.gm-subchapter-section .gm-heading {
+
+    margin: 0 0 20px;
+
+}
+
+
+
+.gm-subchapter-list {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+}
+
+
+
+.gm-subchapter-card {
+
+    padding: 18px;
+
+    border: 1px solid #d5e8e3;
+
+    border-radius: 11px;
+
+    background: #eef8f4;
+
+}
+
+
+
+.gm-subchapter-card h3 {
+
+    margin: 0 0 9px;
+
+    color: #075477;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+}
+
+
+
+.gm-subchapter-card p {
+
+    margin: 0 0 14px;
+
+    color: #537a8c;
+
+    font-size: 11px;
+
+    line-height: 1.8;
+
+    overflow-wrap: anywhere;
+
+}
+
+
+
+/* 09. MODAL FORMULIR CRUD */
+
+.gm-modal {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 3000;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+}
+
+
+
+.gm-modal[hidden] {
+
+    display: none !important;
+
+}
+
+
+
+.gm-modal-backdrop {
+
+    position: absolute;
+
+    inset: 0;
+
+    background: rgba(7, 41, 55, .55);
+
+}
+
+
+
+.gm-modal-dialog {
+
+    position: relative;
+
+    z-index: 1;
+
+    width: min(100%, 540px);
+
+    max-height: calc(100vh - 40px);
+
+    padding: 24px;
+
+    overflow-y: auto;
+
+    border: 1px solid #dce9e6;
+
+    border-radius: 15px;
+
+    background: #fffefa;
+
+    box-shadow: 0 16px 48px rgba(7, 41, 55, .18);
+
+}
+
+
+
+.gm-modal-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 14px;
+
+    margin-bottom: 22px;
+
+}
+
+
+
+.gm-modal-header h2 {
+
+    margin: 0;
+
+    color: #075477;
+
+    font-size: 19px;
+
+    font-weight: 700;
+
+}
+
+
+
+.gm-modal-close {
+
+    display: grid;
+
+    place-items: center;
+
+    width: 34px;
+
+    height: 34px;
+
+    border: 0;
+
+    border-radius: 8px;
+
+    background: #edf4f5;
+
+    color: #075477;
+
+    cursor: pointer;
+
+}
+
+
+
+.gm-modal-close:hover {
+
+    background: #d7eafa;
+
+}
+
+
+
+/* 10. KOLOM FORM */
+
+.gm-field {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    margin-bottom: 17px;
+
+}
+
+
+
+.gm-field label {
+
+    color: #075477;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+}
+
+
+
+.gm-field input,
+
+.gm-field textarea {
+
+    display: block;
+
+    width: 100%;
+
+    min-height: 42px;
+
+    padding: 11px 13px;
+
+    border: 1px solid #ccdfdd;
+
+    border-radius: 9px;
+
+    outline: none;
+
+    background: #ffffff;
+
+    color: #075477;
+
+    font-size: 11px;
+
+}
+
+
+
+.gm-field textarea {
+
+    min-height: 110px;
+
+    resize: vertical;
+
+    line-height: 1.8;
+
+}
+
+
+
+.gm-field input:focus,
+
+.gm-field textarea:focus {
+
+    border-color: #65b69a;
+
+    box-shadow: 0 0 0 3px rgba(101, 182, 154, .13);
+
+}
+
+
+
+.gm-checkbox {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    margin: 16px 0;
+
+    color: #075477;
+
+    font-size: 11px;
+
+    cursor: pointer;
+
+}
+
+
+
+.gm-checkbox input {
+
+    accent-color: #4e9d6d;
+
+}
+
+
+
+.gm-modal-actions {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 22px;
+
+}
+
+
+
+/* Edit Subbab: compact block-first workflow */
+
+#gmSubchapterModal .gm-editor-modal-dialog {
+
+    display: grid;
+
+    grid-template-rows: auto minmax(0, 1fr) auto;
+
+    width: min(960px, 96vw);
+
+    height: 92vh;
+
+    height: 92dvh;
+
+    max-height: 92vh;
+
+    max-height: 92dvh;
+
+    padding: 0;
+
+    overflow: hidden;
+
+}
+
+
+
+#gmSubchapterModal .gm-modal-header {
+
+    flex: 0 0 auto;
+
+    margin: 0;
+
+    padding: 18px 24px;
+
+    border-bottom: 1px solid #e1ece7;
+
+    background: #fffefa;
+
+}
+
+
+
+#gmSubchapterModal #gmSubchapterForm {
+
+    flex: 1 1 auto;
+
+    min-height: 0;
+
+    height: auto;
+
+    overflow-y: auto;
+
+    padding: 18px 24px 32px;
+
+    overscroll-behavior: contain;
+
+}
+
+
+
+#gmSubchapterModal .gm-subchapter-fields {
+
+    display: grid;
+
+    grid-template-columns: minmax(130px, .28fr) minmax(0, 1fr);
+
+    gap: 14px;
+
+}
+
+
+
+#gmSubchapterModal .gm-subchapter-fields .gm-field {
+
+    margin-bottom: 14px;
+
+}
+
+
+
+#gmSubchapterModal .gm-content-block-editor {
+
+    margin: 4px 0 14px;
+
+    padding: 14px;
+
+    border-color: #d6e7e3;
+
+    background: #f8fbf8;
+
+}
+
+
+
+#gmSubchapterModal .gm-content-block-heading h3 {
+
+    font-size: 14px;
+
+}
+
+
+
+#gmSubchapterModal .gm-content-block-heading p,
+
+#gmSubchapterModal .gm-content-block-help,
+
+#gmSubchapterModal .gm-content-block-empty,
+
+#gmSubchapterModal .gm-content-block-placeholder {
+
+    font-size: 11px;
+
+    line-height: 1.55;
+
+}
+
+
+
+#gmSubchapterModal .gm-content-block-add {
+
+    align-items: center;
+
+    margin-top: 9px;
+
+}
+
+
+
+#gmSubchapterModal .gm-content-block-add select {
+
+    min-height: 38px;
+
+}
+
+
+
+#gmSubchapterModal .gm-content-block-add .gm-btn,
+
+#gmSubchapterModal .gm-content-block-actions .gm-btn {
+
+    min-height: 34px;
+
+    padding: 6px 9px;
+
+    font-size: 11px;
+
+}
+
+
+
+#gmSubchapterModal .gm-content-block-list {
+
+    padding: 1px;
+
+}
+
+
+
+#gmSubchapterModal .gm-content-block-card {
+
+    gap: 12px;
+
+    padding: 10px 12px;
+
+}
+
+
+
+#gmSubchapterModal .gm-content-block-summary strong {
+
+    font-size: 12px;
+
+}
+
+
+
+#gmSubchapterModal .gm-content-block-summary span {
+
+    max-width: 480px;
+
+    font-size: 11px;
+
+}
+
+
+
+#gmSubchapterModal .gm-content-block-actions {
+
+    flex: 0 0 auto;
+
+    gap: 6px;
+
+}
+
+
+
+#gmSubchapterModal .gm-content-block-placeholder {
+
+    margin: 10px 0 0;
+
+    padding: 9px 11px;
+
+    border-radius: 8px;
+
+    background: #edf5f1;
+
+    color: #52716c;
+
+}
+
+
+
+#gmSubchapterModal .gm-content-block-callout,
+
+#gmSubchapterModal .gm-content-block-media-editor {
+
+    margin: 0 0 14px;
+
+    padding: 14px;
+
+}
+
+
+
+#gmSubchapterModal .gm-content-block-callout .gm-field,
+
+#gmSubchapterModal .gm-content-block-media-editor .gm-field {
+
+    gap: 6px;
+
+    margin-bottom: 12px;
+
+}
+
+
+
+#gmSubchapterModal .gm-content-block-media-editor .gm-field:last-child {
+
+    margin-bottom: 0;
+
+}
+
+
+
+#gmSubchapterModal .gm-content-block-media-editor input[type="file"] {
+
+    min-height: 40px;
+
+    padding: 7px 9px;
+
+    background: #fff;
+
+}
+
+
+
+#gmSubchapterModal .gm-legacy-media-details {
+
+    margin: 4px 0 16px;
+
+    border: 1px solid #dce9e6;
+
+    border-radius: 10px;
+
+    background: #fffefa;
+
+}
+
+
+
+#gmSubchapterModal .gm-legacy-media-details>summary {
+
+    padding: 11px 13px;
+
+    color: #075477;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+}
+
+
+
+#gmSubchapterModal .gm-legacy-media-details[open]>summary {
+
+    border-bottom: 1px solid #e4eee9;
+
+}
+
+
+
+#gmSubchapterModal .gm-legacy-media-help {
+
+    margin: 10px 13px 0;
+
+    color: #57747c;
+
+    font-size: 11px;
+
+    line-height: 1.55;
+
+}
+
+
+
+#gmSubchapterModal .gm-legacy-media-details .gm-media-fields {
+
+    margin: 0;
+
+    padding: 12px;
+
+}
+
+
+
+#gmSubchapterModal .gm-modal-actions {
+
+    flex: 0 0 auto;
+
+    margin: 0;
+
+    padding: 12px 24px max(12px, env(safe-area-inset-bottom));
+
+    border-top: 1px solid #e1ece7;
+
+    background: #fffefa;
+
+}
+
+
+
+#gmSubchapterModal #gmSaveSubchapter {
+
+    min-width: 150px;
+
+    min-height: 42px;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+}
+
+
+
+@media (max-width: 767.98px) {
+
+    #gmSubchapterModal {
+
+        align-items: flex-end;
+
+        padding: 8px;
+
+    }
+
+
+
+    #gmSubchapterModal .gm-editor-modal-dialog {
+
+        width: 100%;
+
+        height: 96vh;
+
+        height: 96dvh;
+
+        max-height: 96vh;
+
+        max-height: 96dvh;
+
+        border-radius: 14px 14px 8px 8px;
+
+    }
+
+
+
+    #gmSubchapterModal .gm-modal-header {
+
+        padding: 14px 16px;
+
+    }
+
+
+
+    #gmSubchapterModal #gmSubchapterForm {
+
+        padding: 14px 16px 28px;
+
+    }
+
+
+
+    #gmSubchapterModal .gm-subchapter-fields {
+
+        grid-template-columns: minmax(80px, .35fr) minmax(0, 1fr);
+
+        gap: 9px;
+
+    }
+
+
+
+    #gmSubchapterModal .gm-content-block-editor {
+
+        padding: 11px;
+
+    }
+
+
+
+    #gmSubchapterModal .gm-media-metadata {
+
+        grid-template-columns: minmax(0, 1fr);
+
+    }
+
+
+
+    #gmSubchapterModal .gm-content-block-card {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+    }
+
+
+
+    #gmSubchapterModal .gm-content-block-actions {
+
+        width: 100%;
+
+        justify-content: flex-start;
+
+    }
+
+
+
+    #gmSubchapterModal .gm-modal-actions {
+
+        padding: 10px 16px max(10px, env(safe-area-inset-bottom));
+
+    }
+
+
+
+    #gmSubchapterModal .gm-modal-actions .gm-btn {
+
+        min-height: 40px;
+
+    }
+
+}
+
+
+
+/* 11. MODAL HAPUS */
+
+.gm-delete-dialog {
+
+    max-width: 430px;
+
+    text-align: center;
+
+}
+
+
+
+.gm-delete-icon {
+
+    display: grid;
+
+    place-items: center;
+
+    width: 62px;
+
+    height: 62px;
+
+    margin: 0 auto 16px;
+
+    border-radius: 50%;
+
+    background: #fff0e9;
+
+    color: #d44949;
+
+    font-size: 26px;
+
+}
+
+
+
+.gm-delete-dialog h2 {
+
+    margin: 0 0 12px;
+
+    color: #075477;
+
+    font-size: 19px;
+
+}
+
+
+
+.gm-delete-dialog p {
+
+    margin: 0;
+
+    color: #638a96;
+
+    font-size: 12px;
+
+    line-height: 1.8;
+
+}
+
+
+
+/* 12. PESAN STATUS */
+
+.gm-toast {
+
+    position: fixed;
+
+    right: 24px;
+
+    bottom: 24px;
+
+    z-index: 3100;
+
+    max-width: min(360px, calc(100vw - 32px));
+
+    padding: 13px 18px;
+
+    border: 1px solid #c8e7d4;
+
+    border-radius: 10px;
+
+    background: #e6f5ea;
+
+    color: #17643e;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    box-shadow: 0 8px 24px rgba(7, 84, 119, .12);
+
+}
+
+
+
+.gm-toast.is-error {
+
+    border-color: #f0c5c5;
+
+    background: #fff0ef;
+
+    color: #a52f2f;
+
+}
+
+
+
+/* 13. RESPONSIVE TABLET */
+
+@media (max-width: 991.98px) {
+
+    .gm-chapter-list {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+
+    .gm-detail-top {
+
+        flex-direction: column;
+
+    }
+
+}
+
+
+
+/* 14. RESPONSIVE HANDPHONE */
+
+@media (max-width: 767.98px) {
+
+    .gm-heading {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+
+    .gm-heading h1 {
+
+        font-size: 21px;
+
+    }
+
+
+
+    .gm-detail-card,
+
+    .gm-subchapter-section {
+
+        padding: 17px;
+
+    }
+
+
+
+    .gm-detail-top h1 {
+
+        font-size: 20px;
+
+    }
+
+
+
+    .gm-modal {
+
+        padding: 12px;
+
+    }
+
+
+
+    .gm-modal-dialog {
+
+        padding: 18px;
+
+        max-height: calc(100vh - 24px);
+
+    }
+
+
+
+    .gm-back-actions .gm-btn {
+
+        flex: 1 1 auto;
+
+    }
+
+
+
+    .gm-toast {
+
+        right: 16px;
+
+        bottom: 16px;
+
+    }
+
+}
+
+
+
+/* 15. AKSESIBILITAS */
+
+.gd-material-page button:focus-visible,
+
+.gd-material-page input:focus-visible,
+
+.gd-material-page textarea:focus-visible {
+
+    outline: 3px solid #329ecb;
+
+    outline-offset: 3px;
+
+}
+
+
+
+@media (prefers-reduced-motion: reduce) {
+
+    .gd-material-page \*,
+
+    .gd-material-page \*::before,
+
+    .gd-material-page \*::after {
+
+        transition: none !important;
+
+    }
+
+}
+
+
+
+
+
+/* =========================================
+
+   INPUT TUJUAN PEMBELAJARAN
+
+   ========================================= */
+
+
+
+.gm-field-help,
+
+.gm-field small {
+
+    color: #7395a0;
+
+    font-size: 10px;
+
+    line-height: 1.7;
+
+}
+
+
+
+#gmObjectivesList {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+
+    margin-bottom: 12px;
+
+}
+
+
+
+.gm-objective-row {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+}
+
+
+
+.gm-objective-row input {
+
+    flex: 1;
+
+    min-width: 0;
+
+}
+
+
+
+.gm-remove-objective {
+
+    display: grid;
+
+    place-items: center;
+
+    flex: 0 0 38px;
+
+    width: 38px;
+
+    height: 38px;
+
+    border: 1px solid #f0c5c5;
+
+    border-radius: 9px;
+
+    background: #fff0ef;
+
+    color: #b82d2d;
+
+    cursor: pointer;
+
+    transition: background-color .2s ease;
+
+}
+
+
+
+.gm-remove-objective:hover {
+
+    background: #ffd9d5;
+
+}
+
+
+
+/* =========================================
+
+   DETAIL PENGENALAN BAB
+
+   ========================================= */
+
+
+
+.gm-detail-section {
+
+    margin-top: 22px;
+
+    padding-top: 18px;
+
+    border-top: 1px solid #e1ece8;
+
+}
+
+
+
+.gm-detail-section h2 {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    margin: 0 0 12px;
+
+    color: #075477;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+}
+
+
+
+.gm-detail-section h2 i {
+
+    color: #4e9d6d;
+
+}
+
+
+
+.gm-detail-section p,
+
+.gm-detail-section li {
+
+    color: #537a8c;
+
+    font-size: 12px;
+
+    line-height: 1.9;
+
+    overflow-wrap: anywhere;
+
+}
+
+
+
+.gm-detail-section p {
+
+    margin: 0;
+
+    white-space: pre-line;
+
+}
+
+
+
+.gm-detail-section ol {
+
+    margin: 0;
+
+    padding-left: 23px;
+
+}
+
+
+
+.gm-detail-section li+li {
+
+    margin-top: 8px;
+
+}
+
+
+
+/* Media pembelajaran pada form Subbab */
+
+#gmSubchapterModal .gm-media-fields {
+
+    display: grid;
+
+    gap: 14px;
+
+    margin: 20px 0;
+
+    color: #075477;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-heading,
+
+#gmSubchapterModal .gm-media-panel-heading {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-heading {
+
+    padding: 4px 2px;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-heading-icon,
+
+#gmSubchapterModal .gm-media-type-icon {
+
+    display: grid;
+
+    flex: 0 0 auto;
+
+    place-items: center;
+
+    width: 38px;
+
+    height: 38px;
+
+    border-radius: 11px;
+
+    background: #e8f4ef;
+
+    color: #37835c;
+
+    font-size: 17px;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-heading h3,
+
+#gmSubchapterModal .gm-media-panel-heading h4 {
+
+    margin: 0;
+
+    color: #075477;
+
+    font-weight: 700;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-heading h3 {
+
+    font-size: 16px;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-heading p,
+
+#gmSubchapterModal .gm-media-panel-heading p {
+
+    margin: 3px 0 0;
+
+    color: #73909a;
+
+    font-size: 10px;
+
+    line-height: 1.6;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-panel {
+
+    min-width: 0;
+
+    padding: 16px;
+
+    border: 1px solid #d9e8e2;
+
+    border-radius: 13px;
+
+    background: #fbfdfc;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-panel-heading {
+
+    margin-bottom: 13px;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-panel-heading h4 {
+
+    font-size: 13px;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-type-icon {
+
+    width: 34px;
+
+    height: 34px;
+
+    border-radius: 10px;
+
+    font-size: 15px;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-video-icon {
+
+    background: #eaf1fb;
+
+    color: #3975a5;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-choices {
+
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 8px;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-choice {
+
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    min-width: 0;
+
+    min-height: 54px;
+
+    padding: 9px 10px;
+
+    border: 1px solid #dce8e3;
+
+    border-radius: 10px;
+
+    background: #ffffff;
+
+    color: #315e68;
+
+    cursor: pointer;
+
+    transition: border-color .16s ease, background .16s ease, box-shadow .16s ease;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-choice:has(input:checked) {
+
+    border-color: #65aa83;
+
+    background: #f0f8f3;
+
+    box-shadow: 0 0 0 2px rgba(78, 157, 109, .1);
+
+}
+
+
+
+#gmSubchapterModal .gm-media-choice:focus-within {
+
+    outline: 3px solid rgba(51, 130, 91, .18);
+
+    outline-offset: 1px;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-choice input {
+
+    position: absolute;
+
+    width: 1px;
+
+    height: 1px;
+
+    margin: 0;
+
+    opacity: 0;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-choice-icon {
+
+    display: grid;
+
+    flex: 0 0 auto;
+
+    place-items: center;
+
+    width: 30px;
+
+    height: 30px;
+
+    border-radius: 8px;
+
+    background: #eff5f2;
+
+    color: #448363;
+
+    font-size: 14px;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-choice-copy {
+
+    display: grid;
+
+    min-width: 0;
+
+    gap: 2px;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-choice-copy strong {
+
+    color: #245568;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    line-height: 1.35;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-choice-copy small {
+
+    color: #7b969c;
+
+    font-size: 9px;
+
+    line-height: 1.4;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-choice-danger .gm-media-choice-icon {
+
+    background: #fff0ef;
+
+    color: #bd5a56;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-choice-danger:has(input:checked) {
+
+    border-color: #db9c98;
+
+    background: #fff7f6;
+
+    box-shadow: 0 0 0 2px rgba(189, 90, 86, .08);
+
+}
+
+
+
+#gmSubchapterModal .gm-media-field {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+
+    min-width: 0;
+
+    margin-top: 12px;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-field label {
+
+    color: #315e68;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-field label span,
+
+#gmSubchapterModal .gm-media-field small {
+
+    color: #7b969c;
+
+    font-size: 9px;
+
+    font-weight: 400;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-field input {
+
+    min-height: 38px;
+
+    padding: 9px 11px;
+
+    font-size: 10px;
+
+}
+
+
+
+#gmChapterModal .gm-field textarea.gm-multiline-input,
+
+#gmSubchapterModal .gm-field textarea.gm-multiline-input,
+
+#gmSubchapterModal .gm-media-field textarea.gm-multiline-input {
+
+    width: 100%;
+
+    min-height: 150px;
+
+    padding: 10px 12px;
+
+    border: 1px solid #ccdfdd;
+
+    border-radius: 9px;
+
+    outline: none;
+
+    background: #fff;
+
+    color: #075477;
+
+    font-family: inherit;
+
+    font-size: 11px;
+
+    line-height: 1.7;
+
+    resize: vertical;
+
+}
+
+
+
+#gmChapterModal .gm-field textarea.gm-multiline-input:focus,
+
+#gmSubchapterModal .gm-field textarea.gm-multiline-input:focus,
+
+#gmSubchapterModal .gm-media-field textarea.gm-multiline-input:focus {
+
+    border-color: #65b69a;
+
+    box-shadow: 0 0 0 3px rgba(101, 182, 154, .13);
+
+}
+
+
+
+#gmSubchapterModal .gm-rich-content.gm-multiline-input {
+
+    display: block;
+
+    width: 100%;
+
+    min-height: 150px;
+
+    padding: 10px 12px;
+
+    border: 1px solid #ccdfdd;
+
+    border-radius: 9px;
+
+    background: #fff;
+
+    color: #075477;
+
+    font-family: inherit;
+
+    font-size: 11px;
+
+    line-height: 1.7;
+
+    resize: vertical;
+
+}
+
+
+
+#gmSubchapterModal .gm-rich-content.gm-multiline-input:focus {
+
+    border-color: #65b69a;
+
+    box-shadow: 0 0 0 3px rgba(101, 182, 154, .13);
+
+}
+
+
+
+#gmSubchapterModal .gm-media-metadata {
+
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 12px;
+
+    margin-top: 10px;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-metadata .gm-media-field {
+
+    margin-top: 0;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-gallery {
+
+    display: grid;
+
+    grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+
+    gap: 9px;
+
+    margin-top: 12px;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-gallery-card {
+
+    position: relative;
+
+    display: grid;
+
+    align-content: start;
+
+    gap: 6px;
+
+    min-width: 0;
+
+    padding: 7px;
+
+    border: 1px solid #dce8e3;
+
+    border-radius: 10px;
+
+    background: #ffffff;
+
+    color: #315e68;
+
+    cursor: pointer;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-gallery-card:has(input:checked) {
+
+    border-color: #65aa83;
+
+    background: #f0f8f3;
+
+    box-shadow: 0 0 0 2px rgba(78, 157, 109, .1);
+
+}
+
+
+
+#gmSubchapterModal .gm-media-gallery-card input {
+
+    position: absolute;
+
+    width: 1px;
+
+    height: 1px;
+
+    opacity: 0;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-gallery-card:focus-within {
+
+    outline: 3px solid rgba(51, 130, 91, .18);
+
+    outline-offset: 1px;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-gallery-card img {
+
+    display: block;
+
+    width: 100%;
+
+    height: 76px;
+
+    border-radius: 6px;
+
+    background: #edf4f1;
+
+    object-fit: contain;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-gallery-card>span:last-child {
+
+    overflow: hidden;
+
+    color: #315e68;
+
+    font-size: 9px;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-preview {
+
+    width: min(100%, 280px);
+
+    margin: 12px 0 0;
+
+    padding: 8px;
+
+    border: 1px solid #dce8e3;
+
+    border-radius: 10px;
+
+    background: #ffffff;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-preview img {
+
+    display: block;
+
+    width: 100%;
+
+    max-height: 180px;
+
+    border-radius: 7px;
+
+    object-fit: contain;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-preview figcaption {
+
+    padding-top: 6px;
+
+    color: #73909a;
+
+    font-size: 9px;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-current-video {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+
+    margin-top: 12px;
+
+    padding: 9px;
+
+    border: 1px solid #dce8e3;
+
+    border-radius: 10px;
+
+    background: #ffffff;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-current-video video {
+
+    width: min(45%, 190px);
+
+    aspect-ratio: 16 / 9;
+
+    border-radius: 7px;
+
+    background: #14282d;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-current-video-copy {
+
+    display: grid;
+
+    gap: 4px;
+
+    min-width: 0;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-current-video-copy strong {
+
+    overflow-wrap: anywhere;
+
+    color: #315e68;
+
+    font-size: 10px;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-current-video-copy span,
+
+#gmSubchapterModal .gm-media-empty,
+
+#gmSubchapterModal .gm-media-action-note {
+
+    margin: 0;
+
+    color: #73909a;
+
+    font-size: 9px;
+
+    line-height: 1.6;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-action-note {
+
+    margin-top: 10px;
+
+    padding: 9px 11px;
+
+    border-radius: 8px;
+
+    background: #fff7e8;
+
+    color: #87672c;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-empty {
+
+    grid-column: 1 / -1;
+
+    padding: 12px;
+
+    border: 1px dashed #d4e3dc;
+
+    border-radius: 9px;
+
+    text-align: center;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-video-card {
+
+    grid-template-columns: 30px minmax(0, 1fr);
+
+    align-items: center;
+
+    min-height: 50px;
+
+    padding: 9px;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-video-card-icon {
+
+    display: grid;
+
+    place-items: center;
+
+    width: 28px;
+
+    height: 28px;
+
+    border-radius: 8px;
+
+    background: #eaf1fb;
+
+    color: #3975a5;
+
+    font-size: 15px;
+
+}
+
+
+
+#gmSubchapterModal .gm-media-video-card>span:last-child {
+
+    white-space: normal;
+
+}
+
+
+
+@media (max-width: 575.98px) {
+
+    #gmSubchapterModal .gm-media-panel {
+
+        padding: 12px;
+
+    }
+
+
+
+    #gmSubchapterModal .gm-media-choices,
+
+    #gmSubchapterModal .gm-media-metadata {
+
+        grid-template-columns: minmax(0, 1fr);
+
+    }
+
+
+
+    #gmSubchapterModal .gm-media-current-video {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+    }
+
+
+
+    #gmSubchapterModal .gm-media-current-video video {
+
+        width: 100%;
+
+        max-width: 300px;
+
+    }
+
+}
+
+
+
+/* =====================================================
+
+   PENYEMPURNAAN EDITOR GURU — KOLOM TEKS & MODAL
+
+   Hanya memengaruhi halaman Kelola Materi Guru.
+
+   ===================================================== */
+
+
+
+/* Satu area scroll: form. Footer tetap sebagai baris grid,
+
+   bukan overlay di atas daftar blok. */
+
+#gmSubchapterModal .gm-editor-modal-dialog {
+
+    display: grid;
+
+    grid-template-rows: auto minmax(0, 1fr) auto;
+
+    overflow: hidden;
+
+}
+
+#gmSubchapterModal #gmSubchapterForm {
+
+    min-width: 0;
+
+    min-height: 0;
+
+    height: auto;
+
+    overflow-x: hidden;
+
+    overflow-y: auto;
+
+    box-sizing: border-box;
+
+    padding-bottom: 36px;
+
+}
+
+#gmSubchapterModal .gm-content-block-list {
+
+    height: auto;
+
+    min-height: 0;
+
+    max-height: none;
+
+    overflow: visible;
+
+}
+
+#gmSubchapterModal .gm-modal-actions {
+
+    position: static;
+
+    inset: auto;
+
+    z-index: auto;
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+}
+
+
+
+/* Samakan textarea panjang dengan referensi Keterangan Video.
+
+   Kolom judul yang satu baris sengaja tidak diubah. */
+
+#gmChapterModal .gm-field textarea.gm-multiline-input,
+
+#gmSubchapterModal .gm-field textarea.gm-multiline-input,
+
+#gmSubchapterModal .gm-media-field textarea.gm-multiline-input,
+
+#gmSubchapterModal textarea.gm-rich-content.gm-multiline-input {
+
+    display: block;
+
+    box-sizing: border-box;
+
+    width: 100%;
+
+    min-height: 150px;
+
+    padding: 16px 18px;
+
+    border: 1px solid #c7dfd8;
+
+    border-radius: 15px;
+
+    background: #ffffff;
+
+    color: #075477;
+
+    font-family: 'Poppins', sans-serif;
+
+    font-size: 14px !important;
+    /* Menang atas style inline Blade lama */
+
+    line-height: 1.7;
+
+    resize: vertical;
+
+    outline: none;
+
+    box-shadow: none;
+
+}
+
+#gmChapterModal .gm-field textarea.gm-multiline-input::placeholder,
+
+#gmSubchapterModal .gm-field textarea.gm-multiline-input::placeholder,
+
+#gmSubchapterModal .gm-media-field textarea.gm-multiline-input::placeholder,
+
+#gmSubchapterModal textarea.gm-rich-content.gm-multiline-input::placeholder {
+
+    color: #87939a;
+
+    opacity: 1;
+
+}
+
+#gmChapterModal .gm-field textarea.gm-multiline-input:focus,
+
+#gmSubchapterModal .gm-field textarea.gm-multiline-input:focus,
+
+#gmSubchapterModal .gm-media-field textarea.gm-multiline-input:focus,
+
+#gmSubchapterModal textarea.gm-rich-content.gm-multiline-input:focus {
+
+    border-color: #65b69a;
+
+    outline: none;
+
+    box-shadow: 0 0 0 4px rgba(101, 182, 154, .14);
+
+}
+
+
+
+@media (max-width: 767.98px) {
+
+    #gmSubchapterModal .gm-editor-modal-dialog {
+
+        display: grid;
+
+        grid-template-rows: auto minmax(0, 1fr) auto;
+
+    }
+
+    #gmChapterModal .gm-field textarea.gm-multiline-input,
+
+    #gmSubchapterModal .gm-field textarea.gm-multiline-input,
+
+    #gmSubchapterModal .gm-media-field textarea.gm-multiline-input,
+
+    #gmSubchapterModal textarea.gm-rich-content.gm-multiline-input {
+
+        font-size: 14px !important;
+
+        padding: 14px 15px;
+
+    }
+
+}
+
+
+
+
+
+/* ============================================================
+
+   FINAL: SEMUA INPUT TEKS GURU SESUAI GAYA KETERANGAN VIDEO
+
+   Perbaikan kotak Judul Video/Gambar/Media yang sebelumnya
+
+   memakai border browser default (persegi), bukan textarea.
+
+   Tidak mengubah tipe field, id, name, maupun binding JS.
+
+   ============================================================ */
+
+#gmChapterModal .gm-field input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+
+#gmSubchapterModal .gm-field input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+
+#gmSubchapterModal .gm-media-field input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+
+#gmSubchapterModal .gm-content-block-add select,
+
+#gmSubchapterModal .gm-field select {
+
+    display: block;
+
+    box-sizing: border-box;
+
+    width: 100%;
+
+    min-width: 0;
+
+    min-height: 52px;
+
+    padding: 13px 17px;
+
+    border: 1px solid #c7dfd8;
+
+    border-radius: 15px;
+
+    outline: none;
+
+    background: #ffffff;
+
+    color: #075477;
+
+    font-family: 'Poppins', sans-serif;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+
+    box-shadow: none;
+
+    transition: border-color .18s ease, box-shadow .18s ease;
+
+}
+
+#gmChapterModal .gm-field input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"])::placeholder,
+
+#gmSubchapterModal .gm-field input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"])::placeholder,
+
+#gmSubchapterModal .gm-media-field input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"])::placeholder {
+
+    color: #87939a;
+
+    opacity: 1;
+
+}
+
+#gmChapterModal .gm-field input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+
+#gmSubchapterModal .gm-field input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+
+#gmSubchapterModal .gm-media-field input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+
+#gmSubchapterModal .gm-content-block-add select:focus,
+
+#gmSubchapterModal .gm-field select:focus {
+
+    border-color: #65b69a;
+
+    outline: none;
+
+    box-shadow: 0 0 0 4px rgba(101, 182, 154, .14);
+
+}
+
+/* Pastikan textarea tetap mendapatkan dimensi seperti referensi. */
+
+#gmChapterModal .gm-field textarea.gm-multiline-input,
+
+#gmSubchapterModal .gm-field textarea.gm-multiline-input,
+
+#gmSubchapterModal .gm-media-field textarea.gm-multiline-input,
+
+#gmSubchapterModal textarea.gm-rich-content.gm-multiline-input {
+
+    border-radius: 15px;
+
+    font-size: 14px;
+
+}
+
+
+
+/* ============================================================
+
+   SALUANG: SELECT & FILE PICKER — tampilan konsisten
+
+   Native upload tetap dipakai agar perilaku dan JS lama aman.
+
+   ============================================================ */
+
+#gmSubchapterModal .gm-content-block-add {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    align-items: center;
+
+}
+
+#gmSubchapterModal .gm-content-block-add>label:not(.visually-hidden) {
+
+    flex: 0 0 auto;
+
+    margin: 0;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+}
+
+#gmSubchapterModal .gm-content-block-add>select {
+
+    flex: 1 1 260px;
+
+    width: auto;
+
+    min-width: 0;
+
+}
+
+#gmSubchapterModal .gm-content-block-add>.gm-btn {
+
+    flex: 0 0 auto;
+
+    min-height: 50px;
+
+    padding: 11px 16px;
+
+    border-radius: 14px;
+
+    font-size: 13px;
+
+}
+
+#gmSubchapterModal select,
+
+#gmChapterModal select {
+
+    -webkit-appearance: none;
+
+    appearance: none;
+
+    box-sizing: border-box;
+
+    min-height: 50px;
+
+    padding: 12px 46px 12px 16px !important;
+
+    border: 1px solid #c7dfd8;
+
+    border-radius: 15px;
+
+    background-color: #fff;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http\://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23075477' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+
+    background-repeat: no-repeat;
+
+    background-position: right 16px center;
+
+    background-size: 16px 16px;
+
+    color: #075477;
+
+    font: 400 14px 'Poppins', sans-serif;
+
+    box-shadow: none;
+
+    cursor: pointer;
+
+}
+
+#gmSubchapterModal select:focus,
+
+#gmChapterModal select:focus {
+
+    outline: none;
+
+    border-color: #65b69a;
+
+    box-shadow: 0 0 0 4px rgba(101, 182, 154, .14);
+
+}
+
+/* Native file input: gaya tombol upload tanpa mengubah fungsi unggah */
+
+#gmSubchapterModal input[type="file"] {
+
+    display: block;
+
+    box-sizing: border-box;
+
+    width: 100%;
+
+    min-width: 0;
+
+    min-height: 66px;
+
+    padding: 10px 12px;
+
+    border: 1px solid #c7dfd8;
+
+    border-radius: 15px;
+
+    background: #fff;
+
+    color: #537a8c;
+
+    font: 400 13px 'Poppins', sans-serif;
+
+    cursor: pointer;
+
+}
+
+#gmSubchapterModal input[type="file"]::file-selector-button {
+
+    margin-right: 14px;
+
+    padding: 11px 16px;
+
+    border: 1px solid #b8d9c7;
+
+    border-radius: 11px;
+
+    background: #eaf7ef;
+
+    color: #176747;
+
+    font: 600 13px 'Poppins', sans-serif;
+
+    cursor: pointer;
+
+    transition: background-color .2s ease, border-color .2s ease;
+
+}
+
+#gmSubchapterModal input[type="file"]:hover::file-selector-button {
+
+    background: #d9f0e2;
+
+    border-color: #88be9e;
+
+}
+
+#gmSubchapterModal input[type="file"]:focus-visible {
+
+    outline: none;
+
+    border-color: #65b69a;
+
+    box-shadow: 0 0 0 4px rgba(101, 182, 154, .14);
+
+}
+
+@media (max-width: 575.98px) {
+
+    #gmSubchapterModal .gm-content-block-add>select {
+
+        flex-basis: 100%;
+
+    }
+
+    #gmSubchapterModal .gm-content-block-add>.gm-btn {
+
+        width: 100%;
+
+    }
+
+    #gmSubchapterModal input[type="file"] {
+
+        font-size: 12px;
+
+    }
+
+}
+
+
+
+
+
+/* SALUANG_GURU_MEDIA_PREVIEW_V1 — hanya area Guru */
+
+#guruMaterialPage .gm-subchapter-content {
+
+    font-size: 13px !important;
+
+    line-height: 1.75 !important;
+
+    color: #315e68;
+
+}
+
+#guruMaterialPage .gm-subchapter-content p {
+    font-size: inherit;
+    line-height: inherit;
+}
+
+#guruMaterialPage .gm-preview-media {
+
+    margin: 16px 0;
+
+    padding: 12px;
+
+    max-width: 760px;
+
+    border: 1px solid #d5e8e3;
+
+    border-radius: 14px;
+
+    background: #fff;
+
+}
+
+#guruMaterialPage .gm-preview-media>img,
+
+#guruMaterialPage .gm-preview-media>video,
+
+#guruMaterialPage .gm-preview-media>iframe {
+
+    display: block;
+
+    width: 100%;
+
+    max-height: 420px;
+
+    border-radius: 10px;
+
+    background: #f1f7f4;
+
+    object-fit: contain;
+
+}
+
+#guruMaterialPage .gm-preview-media>iframe {
+    height: auto;
+    aspect-ratio: 16/9;
+    border: 0;
+}
+
+#guruMaterialPage .gm-preview-media figcaption {
+    display: grid;
+    gap: 3px;
+    padding-top: 9px;
+    font-size: 12px;
+    color: #527883;
+}
+
+#guruMaterialPage .gm-preview-media figcaption strong {
+    font-weight: 600;
+    color: #075477;
+}
+
+#guruMaterialPage .gm-preview-unavailable {
+    margin: 0;
+    color: #6b8490;
+    font-size: 12px;
+}
+
+#guruMaterialPage .gm-subchapter-actions [data-gm-action="view-subchapter"] {
+    font-size: 13px;
+    gap: 8px;
+}
+
+#guruMaterialPage .gm-preview-chevron {
+    font-size: 12px;
+    margin-left: 3px;
+}
+
+#gmSubchapterModal .gm-content-block-add {
+    gap: 10px;
+}
+
+#gmSubchapterModal .gm-content-block-add>label:not(.visually-hidden) {
+    font-size: 13px !important;
+}
+
+#gmSubchapterModal #gmContentBlockType {
+    font-size: 13px !important;
+    background-position: right 16px center;
+}
+
+#gmSubchapterModal .gm-content-block-add>.gm-btn {
+    font-size: 13px !important;
+}
+
+
+
+/* SALUANG: penyesuaian terakhir menu pilihan blok dan teks pratinjau */
+
+#gmSubchapterModal .gm-content-block-add {
+
+    display: grid !important;
+
+    grid-template-columns: auto minmax(0, 1fr) auto;
+
+    gap: 10px !important;
+
+    align-items: center;
+
+}
+
+#gmSubchapterModal .gm-content-block-add::after {
+
+    content: '';
+
+    width: 8px;
+    height: 8px;
+
+    border-right: 2px solid #075477;
+
+    border-bottom: 2px solid #075477;
+
+    transform: rotate(45deg);
+
+    grid-column: 2;
+    grid-row: 1;
+
+    justify-self: end;
+
+    margin-right: 20px;
+
+    margin-top: -4px;
+
+    pointer-events: none;
+
+    z-index: 1;
+
+}
+
+#gmSubchapterModal .gm-content-block-add #gmContentBlockType {
+
+    grid-column: 2;
+    grid-row: 1;
+
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    padding-right: 48px !important;
+
+    appearance: none !important;
+
+    -webkit-appearance: none !important;
+
+    background-image: none !important;
+
+    font-size: 13px !important;
+
+    font-weight: 400 !important;
+
+}
+
+#gmSubchapterModal .gm-content-block-add>.gm-btn {
+
+    grid-column: 3;
+    grid-row: 1;
+
+    font-size: 13px !important;
+
+}
+
+#gmSubchapterModal .gm-content-block-add>label:not(.visually-hidden) {
+
+    grid-column: 1;
+    grid-row: 1;
+
+    font-size: 13px !important;
+
+    font-weight: 600;
+
+}
+
+#guruMaterialPage .gm-subchapter-content {
+
+    font-size: 13px !important;
+
+    line-height: 1.65 !important;
+
+    margin-top: 15px;
+
+}
+
+#guruMaterialPage .gm-subchapter-content :is(p, li, span, div) {
+
+    font-size: inherit;
+
+    line-height: inherit;
+
+}
+
+#guruMaterialPage .gm-subchapter-content .gm-preview-media figcaption {
+
+    font-size: 12px;
+    line-height: 1.5;
+
+}
+
+#guruMaterialPage .gm-subchapter-content .gm-preview-media figcaption span {
+    font-size: 12px;
+}
+
+#guruMaterialPage .gm-subchapter-content .gm-preview-unavailable {
+
+    padding: 14px;
+    background: #f7faf9;
+    border-radius: 9px;
+
+    color: #617984;
+    font-size: 12px;
+
+}
+
+@media (max-width: 767.98px) {
+
+    #gmSubchapterModal .gm-content-block-add {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #gmSubchapterModal .gm-content-block-add>label:not(.visually-hidden) {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    #gmSubchapterModal .gm-content-block-add #gmContentBlockType {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    #gmSubchapterModal .gm-content-block-add::after {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    #gmSubchapterModal .gm-content-block-add>.gm-btn {
+        grid-column: 1;
+        grid-row: 3;
+        width: 100%;
+    }
+
+}
+
+
+/* ============================================================
+   SALUANG — PERATAAN PRATINJAU MATERI DASHBOARD GURU
+   Hanya memengaruhi tampilan Lihat Materi, bukan editor/siswa.
+   ============================================================ */
+
+/* Teks utama materi dibaca rata kanan-kiri, bukan rata tengah. */
+#guruMaterialPage .gm-subchapter-content>p,
+#guruMaterialPage .gm-subchapter-content>div:not(.gm-preview-media),
+#guruMaterialPage .gm-subchapter-content>ul,
+#guruMaterialPage .gm-subchapter-content>ol {
+    text-align: justify;
+    text-justify: inter-word;
+    overflow-wrap: break-word;
+}
+
+/* Card gambar/video ditempatkan di tengah area pratinjau. */
+#guruMaterialPage .gm-subchapter-content .gm-preview-media {
+    box-sizing: border-box;
+    width: min(100%, 760px);
+    max-width: 760px;
+    margin: 20px auto;
+    padding: 15px;
+    text-align: center;
+}
+
+/* Media tetap responsif dan diposisikan di tengah card. */
+#guruMaterialPage .gm-subchapter-content .gm-preview-media>img,
+#guruMaterialPage .gm-subchapter-content .gm-preview-media>video,
+#guruMaterialPage .gm-subchapter-content .gm-preview-media>iframe {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 100%;
+}
+
+/* Judul berada di tengah; keterangan berbentuk paragraf justify. */
+#guruMaterialPage .gm-subchapter-content .gm-preview-media figcaption {
+    display: block;
+    padding-top: 12px;
+    text-align: center;
+}
+
+#guruMaterialPage .gm-subchapter-content .gm-preview-media figcaption strong {
+    display: block;
+    margin-bottom: 6px;
+    text-align: center;
+}
+
+#guruMaterialPage .gm-subchapter-content .gm-preview-media figcaption span,
+#guruMaterialPage .gm-subchapter-content .gm-preview-media figcaption p {
+    display: block;
+    margin: 0;
+    text-align: justify;
+    text-justify: inter-word;
+    overflow-wrap: break-word;
+}
+
+@media (max-width: 575.98px) {
+    #guruMaterialPage .gm-subchapter-content .gm-preview-media {
+        width: 100%;
+        padding: 12px;
+    }
+}

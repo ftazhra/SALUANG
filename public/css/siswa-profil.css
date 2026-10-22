@@ -1,0 +1,710 @@
+
+/* =====================================================
+   SALUANG — DESAIN HALAMAN PROFIL SISWA
+   ===================================================== */
+
+.sd-page #profilePage [hidden] {
+    display: none !important;
+}
+
+.sd-profile-container {
+    width: min(100%, 920px);
+    margin: 22px auto 45px;
+}
+
+.sd-profile-heading {
+    margin-bottom: 18px;
+}
+
+.sd-profile-heading h1 {
+    margin: 0 0 6px;
+    color: #075477;
+    font-size: 27px;
+    font-weight: 600;
+}
+
+.sd-profile-heading p {
+    margin: 0;
+    color: #7594a1;
+    font-size: 12px;
+}
+
+/* 01. KARTU DASAR */
+
+.sd-profile-card {
+    margin-bottom: 15px;
+    padding: 24px;
+    border: 1px solid #d5e8e5;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 3px 12px rgba(7, 84, 119, .025);
+}
+
+/* 02. IDENTITAS */
+
+.sd-profile-identity {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    min-height: 135px;
+}
+
+.sd-profile-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 78px;
+    height: 78px;
+    border-radius: 50%;
+    background: #cceef0;
+    color: #075477;
+    font-size: 23px;
+    font-weight: 700;
+}
+
+.sd-profile-identity-info h2 {
+    margin: 0 0 4px;
+    color: #075477;
+    font-size: 19px;
+    font-weight: 600;
+}
+
+.sd-profile-identity-info p {
+    margin: 0 0 12px;
+    color: #7594a1;
+    font-size: 11px;
+}
+
+.sd-profile-photo-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+#profilePhotoFilename {
+    color: #7594a1;
+    font-size: 10px;
+}
+
+/* 03. HEADER KARTU */
+
+.sd-profile-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.sd-profile-card-header h2 {
+    margin: 0;
+    color: #075477;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* 04. INFORMASI PRIBADI */
+
+.sd-profile-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 24px;
+    row-gap: 14px;
+}
+
+.sd-profile-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+    padding: 0 0 11px;
+    border-bottom: 1px solid #e1eceb;
+}
+
+.sd-profile-info-item span,
+.sd-profile-password-summary span {
+    color: #7594a1;
+    font-size: 10px;
+}
+
+.sd-profile-info-item strong,
+.sd-profile-password-summary strong {
+    color: #075477;
+    font-size: 12px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+/* 05. PENGATURAN PASSWORD */
+
+.sd-profile-password-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.sd-profile-password-summary > div {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* 06. FORM */
+
+.sd-profile-form {
+    margin-top: 19px;
+}
+
+.sd-profile-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.sd-profile-form-grid label {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    color: #075477;
+    font-size: 11px;
+    font-weight: 500;
+    min-width: 0;
+}
+
+.sd-profile-form-grid input {
+    width: 100%;
+    height: 41px;
+    padding: 0 13px;
+    border: 1px solid #cedfdf;
+    border-radius: 8px;
+    outline: none;
+    background: #ffffff;
+    color: #075477;
+    font-family: Poppins, sans-serif;
+    font-size: 11px;
+}
+
+.sd-profile-form-grid input:focus {
+    border-color: #80b6c1;
+    box-shadow: 0 0 0 3px rgba(7, 84, 119, .08);
+}
+
+.sd-profile-form-grid input[readonly] {
+    background: #f4f8f7;
+    color: #78949d;
+}
+
+.sd-profile-form-actions,
+.sd-profile-password-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.sd-profile-message {
+    margin: 10px 0 0;
+    color: #537f8c;
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.sd-profile-message.is-error {
+    color: #c44545;
+}
+
+/* 07. TOMBOL */
+
+.sd-page .sd-profile-outline,
+.sd-page .sd-profile-primary,
+.sd-page .sd-profile-back,
+.sd-page .sd-profile-logout,
+.sd-page .sd-profile-home {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 39px;
+    padding: 9px 15px;
+    border-radius: 9px;
+    font-family: Poppins, sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+        background-color .2s ease,
+        border-color .2s ease,
+        box-shadow .2s ease,
+        transform .2s ease;
+}
+
+.sd-page .sd-profile-outline {
+    border: 1px solid #cde0df;
+    background: #ffffff;
+    color: #075477;
+}
+
+.sd-page .sd-profile-outline:hover {
+    background: #e9f5f7;
+    border-color: #91bac7;
+    transform: translateY(-1px);
+}
+
+.sd-page .sd-profile-primary {
+    border: 1px solid #075477;
+    background: #075477;
+    color: #ffffff;
+}
+
+.sd-page .sd-profile-primary:hover {
+    background: #043f5b;
+    box-shadow: 0 4px 12px rgba(7, 84, 119, .14);
+    transform: translateY(-1px);
+}
+
+.sd-page .sd-profile-back {
+    justify-content: flex-start;
+    width: 100%;
+}
+
+.sd-page .sd-profile-logout,
+.sd-page .sd-profile-home {
+    width: 100%;
+    margin-bottom: 13px;
+}
+
+.sd-page .sd-profile-logout {
+    border: 1px solid #f2c9cb;
+    background: #fff4f4;
+    color: #c3454d;
+}
+
+.sd-page .sd-profile-logout:hover {
+    background: #ffe6e8;
+}
+
+.sd-page .sd-profile-home {
+    border: 1px solid #d3e5e2;
+    background: #ffffff;
+    color: #075477;
+}
+
+.sd-page .sd-profile-home:hover {
+    background: #ecf7f4;
+}
+
+/* 08. RESPONSIVE */
+
+@media (max-width: 767.98px) {
+    .sd-profile-container {
+        margin-top: 12px;
+    }
+
+    .sd-profile-card {
+        padding: 18px;
+    }
+
+    .sd-profile-info-grid,
+    .sd-profile-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sd-profile-identity {
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .sd-profile-avatar {
+        width: 60px;
+        height: 60px;
+        font-size: 19px;
+    }
+
+    .sd-profile-heading h1 {
+        font-size: 23px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sd-page .sd-profile-outline,
+    .sd-page .sd-profile-primary,
+    .sd-page .sd-profile-logout,
+    .sd-page .sd-profile-home {
+        transition: none;
+        transform: none;
+    }
+}
+
+
+/* =====================================================
+   09. PERBAIKAN FORM UBAH KATA SANDI
+   ===================================================== */
+
+/* Form password disusun vertikal */
+.sd-page #profilePasswordForm .sd-profile-form-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+}
+
+/* Tombol kembali kecil, tidak memenuhi kolom */
+.sd-page #profilePasswordBack {
+    display: inline-flex;
+    width: fit-content;
+    min-height: 38px;
+    padding: 9px 16px;
+    align-self: flex-start;
+    background: #ffffff;
+    border: 1px solid #cde0df;
+    border-radius: 9px;
+    color: #075477;
+    font-size: 11px;
+}
+
+/* Hover tombol kembali */
+.sd-page #profilePasswordBack:hover {
+    background: #edf7fa;
+    border-color: #91bac7;
+}
+
+/* Input password sepanjang lebar kartu */
+.sd-page #profilePasswordForm .sd-profile-form-grid label {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    width: 100%;
+}
+
+.sd-page #profilePasswordForm .sd-profile-form-grid input {
+    width: 100%;
+    height: 44px;
+}
+
+/* Tombol Simpan Password di bawah */
+.sd-page #profilePasswordForm .sd-profile-password-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+}
+
+/* =====================================================
+   10. FOTO PROFIL SISWA
+   ===================================================== */
+
+.sd-page .sd-profile-avatar {
+    overflow: hidden;
+}
+
+.sd-page .sd-profile-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.sd-page #profilePhotoButton:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+
+/* =====================================================
+   11. MODAL KONFIRMASI KELUAR AKUN SALUANG
+   ===================================================== */
+
+body.sd-logout-open {
+    overflow: hidden;
+}
+
+.sd-logout-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.sd-logout-modal[hidden] {
+    display: none !important;
+}
+
+.sd-logout-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(18, 36, 49, .55);
+    backdrop-filter: blur(4px);
+}
+
+.sd-logout-dialog {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 470px;
+    padding: 28px 28px 32px;
+    border-radius: 22px;
+    background: #ffffff;
+    box-shadow: 0 20px 60px rgba(7, 50, 72, .22);
+    text-align: center;
+    animation: sdLogoutAppear .25s ease;
+}
+
+.sd-logout-close {
+    position: absolute;
+    top: 15px;
+    right: 16px;
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 50%;
+    background: #f1f6f7;
+    color: #75909b;
+    cursor: pointer;
+}
+
+.sd-logout-close:hover {
+    background: #e4eff2;
+    color: #075477;
+}
+
+.sd-logout-mascot {
+    display: block;
+    width: min(100%, 270px);
+    height: 245px;
+    object-fit: contain;
+    margin: 0 auto 12px;
+}
+
+.sd-logout-dialog h2 {
+    margin: 0 0 12px;
+    color: #075477;
+    font-size: 23px;
+    font-weight: 700;
+}
+
+.sd-logout-dialog p {
+    max-width: 360px;
+    margin: 0 auto 24px;
+    color: #78909d;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+.sd-logout-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.sd-logout-cancel,
+.sd-logout-confirm {
+    min-height: 44px;
+    padding: 10px;
+    border-radius: 10px;
+    font-family: Poppins, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background-color .2s ease,
+        transform .2s ease,
+        box-shadow .2s ease;
+}
+
+.sd-logout-cancel {
+    border: 1px solid #c9dee4;
+    background: white;
+    color: #075477;
+}
+
+.sd-logout-cancel:hover {
+    background: #edf7fa;
+    transform: translateY(-2px);
+}
+
+.sd-logout-confirm {
+    border: 1px solid #d3484d;
+    background: #d3484d;
+    color: white;
+}
+
+.sd-logout-confirm:hover:not(:disabled) {
+    background: #b9343c;
+    box-shadow: 0 5px 14px rgba(211, 72, 77, .2);
+    transform: translateY(-2px);
+}
+
+.sd-logout-confirm:disabled {
+    opacity: .65;
+    cursor: wait;
+}
+
+@keyframes sdLogoutAppear {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (max-width: 480px) {
+    .sd-logout-dialog {
+        padding: 25px 18px;
+    }
+
+    .sd-logout-dialog h2 {
+        font-size: 19px;
+    }
+
+    .sd-logout-mascot {
+        height: 190px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sd-logout-dialog {
+        animation: none;
+    }
+
+    .sd-logout-cancel,
+    .sd-logout-confirm {
+        transition: none;
+    }
+}
+
+#profileSettingsCard {
+    scroll-margin-top: 90px;
+}
+
+
+/* =====================================================
+   12. HAPUS FOTO PROFIL
+   ===================================================== */
+
+.sd-page .sd-profile-delete-photo {
+    min-height: 39px;
+    padding: 9px 15px;
+    border: 1px solid #f0bfc1;
+    border-radius: 9px;
+    background: #fff3f3;
+    color: #c4434d;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color .2s ease;
+}
+
+.sd-page .sd-profile-delete-photo:hover {
+    background: #ffe3e5;
+}
+
+.sd-profile-photo-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.sd-profile-photo-modal[hidden],
+.sd-page .sd-profile-delete-photo[hidden] {
+    display: none !important;
+}
+
+.sd-profile-photo-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 36, 50, .5);
+    backdrop-filter: blur(4px);
+}
+
+.sd-profile-photo-dialog {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 420px;
+    padding: 30px 25px;
+    border-radius: 19px;
+    background: #fffdf9;
+    box-shadow: 0 20px 55px rgba(7, 84, 119, .18);
+    text-align: center;
+}
+
+.sd-profile-photo-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: #fff0f0;
+    color: #c4434d;
+    font-size: 30px;
+}
+
+.sd-profile-photo-dialog h2 {
+    margin: 0 0 12px;
+    color: #075477;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.sd-profile-photo-dialog > p {
+    color: #78909d;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+.sd-profile-photo-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 22px;
+}
+
+.sd-profile-photo-cancel,
+.sd-profile-photo-danger {
+    min-height: 43px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.sd-profile-photo-cancel {
+    border: 1px solid #cde0df;
+    background: #fff;
+    color: #075477;
+}
+
+.sd-profile-photo-cancel:hover {
+    background: #edf7fa;
+}
+
+.sd-profile-photo-danger {
+    border: 1px solid #c4434d;
+    background: #c4434d;
+    color: #fff;
+}
+
+.sd-profile-photo-danger:hover:not(:disabled) {
+    background: #a92f39;
+}
+
+.sd-profile-photo-actions button:disabled {
+    opacity: .6;
+    cursor: wait;
+}

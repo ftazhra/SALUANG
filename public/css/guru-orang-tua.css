@@ -1,0 +1,517 @@
+
+/* =====================================================
+   SALUANG — HUBUNGI ORANG TUA GURU
+   File: public/css/guru-orang-tua.css
+   ===================================================== */
+
+/* 01. HALAMAN */
+.gp-page {
+    width: 100%;
+    min-width: 0;
+}
+
+.gp-page[hidden],
+.gp-contact-detail[hidden],
+.gp-toast[hidden],
+.gp-btn-whatsapp[hidden] {
+    display: none !important;
+}
+
+/* 02. PANEL UTAMA */
+.gp-panel {
+    background: #fff;
+    border: 1px solid #d8e6e8;
+    border-radius: 14px;
+    padding: 24px;
+    margin: 18px 0;
+}
+
+.gp-heading {
+    margin-bottom: 22px;
+}
+
+.gp-heading h1 {
+    margin: 0 0 6px;
+    color: #075b78;
+    font-size: 23px;
+    font-weight: 700;
+}
+
+.gp-heading p {
+    margin: 0;
+    color: #70818b;
+    font-size: 13px;
+}
+
+/* 03. LAYOUT */
+.gp-layout {
+    display: grid;
+    grid-template-columns: minmax(250px, 330px) minmax(0, 1fr);
+    gap: 18px;
+    align-items: stretch;
+}
+
+.gp-sidebar,
+.gp-main {
+    min-width: 0;
+    border: 1px solid #e0e9eb;
+    border-radius: 12px;
+    background: #fff;
+}
+
+/* 04. DAFTAR NARAHUBUNG */
+.gp-sidebar {
+    padding: 16px;
+}
+
+.gp-sidebar-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.gp-sidebar-heading h2 {
+    margin: 0;
+    font-size: 15px;
+    color: #075b78;
+}
+
+.gp-sidebar-heading span {
+    font-size: 11px;
+    color: #71838b;
+}
+
+.gp-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #244957;
+}
+
+.gp-search-box {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    border: 1px solid #d5e3e7;
+    border-radius: 9px;
+    padding: 0 12px;
+}
+
+.gp-search-box:focus-within {
+    border-color: #1688a8;
+}
+
+.gp-search-box i {
+    color: #8799a1;
+}
+
+.gp-search-box input {
+    width: 100%;
+    padding: 12px 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font: inherit;
+    font-size: 12px;
+}
+
+.gp-contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+    max-height: 520px;
+    overflow-y: auto;
+}
+
+.gp-contact-item {
+    width: 100%;
+    padding: 14px;
+    text-align: left;
+    background: #fff;
+    border: 1px solid #e0e9eb;
+    border-radius: 10px;
+    cursor: pointer;
+    font: inherit;
+    transition: background .2s, border-color .2s;
+}
+
+.gp-contact-item:hover {
+    background: #f2f9f8;
+    border-color: #9acac1;
+}
+
+.gp-contact-item.active {
+    background: #eaf7f0;
+    border-color: #56a67a;
+}
+
+.gp-contact-item strong {
+    display: block;
+    font-size: 13px;
+    color: #17495a;
+}
+
+.gp-contact-item small {
+    display: block;
+    margin-top: 5px;
+    font-size: 11px;
+    color: #70818b;
+}
+
+.gp-contact-item .gp-relation {
+    display: inline-block;
+    margin-top: 9px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #28744d;
+}
+
+/* 05. AREA DETAIL DAN CHAT */
+.gp-main {
+    padding: 18px;
+}
+
+.gp-contact-detail {
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e4ebed;
+}
+
+.gp-detail-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.gp-contact-avatar {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #e6f5ef;
+    color: #338b63;
+    font-size: 21px;
+}
+
+.gp-detail-heading h2 {
+    margin: 0 0 4px;
+    font-size: 18px;
+    color: #075b78;
+}
+
+.gp-detail-heading span {
+    font-size: 12px;
+    color: #72848a;
+}
+
+.gp-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.gp-info-item {
+    min-width: 0;
+}
+
+.gp-info-item small {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 11px;
+    color: #75868d;
+}
+
+.gp-info-item strong {
+    overflow-wrap: anywhere;
+    color: #244b59;
+    font-size: 13px;
+}
+
+.gp-info-phone {
+    grid-column: 1 / -1;
+}
+
+.gp-phone-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* 06. TOMBOL */
+.gp-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 10px 14px;
+    border: 0;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.gp-btn-whatsapp {
+    background: #e4f6eb;
+    color: #247547;
+}
+
+.gp-btn-whatsapp:hover {
+    background: #d2eedc;
+}
+
+.gp-btn-send {
+    align-self: flex-end;
+    background: #4c9e6f;
+    color: #fff;
+}
+
+.gp-btn-send:disabled {
+    background: #b8c6c0;
+    cursor: not-allowed;
+}
+
+/* 07. CHAT */
+.gp-chat-heading {
+    margin-bottom: 15px;
+}
+
+.gp-chat-heading h2 {
+    margin: 0 0 5px;
+    font-size: 16px;
+    color: #075b78;
+}
+
+.gp-chat-heading p {
+    margin: 0;
+    font-size: 12px;
+    color: #73858d;
+}
+
+.gp-chat-messages {
+    min-height: 250px;
+    max-height: 420px;
+    overflow-y: auto;
+    padding: 17px;
+    border-radius: 10px;
+    background: #f5f9f8;
+}
+
+.gp-chat-placeholder,
+.gp-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 35px 15px;
+    text-align: center;
+    color: #7d9098;
+}
+
+.gp-chat-placeholder i,
+.gp-empty i {
+    font-size: 27px;
+    color: #9cb8b3;
+}
+
+.gp-chat-placeholder h3 {
+    margin: 0;
+    font-size: 14px;
+    color: #346173;
+}
+
+.gp-chat-placeholder p,
+.gp-empty p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.gp-chat-form {
+    margin-top: 17px;
+}
+
+.gp-chat-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #255368;
+}
+
+.gp-chat-compose {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.gp-chat-compose textarea {
+    flex: 1;
+    min-width: 0;
+    resize: vertical;
+    padding: 12px;
+    border: 1px solid #d7e5e8;
+    border-radius: 9px;
+    outline: none;
+    font: inherit;
+    font-size: 12px;
+}
+
+.gp-chat-compose textarea:focus {
+    border-color: #1688a8;
+}
+
+.gp-chat-compose textarea:disabled {
+    background: #f6f8f8;
+    color: #9aa7ab;
+}
+
+.gp-chat-notice {
+    margin: 10px 0 0;
+    color: #8a9ba1;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+/* 08. NOTIFIKASI */
+.gp-toast {
+    position: fixed;
+    right: 25px;
+    bottom: 25px;
+    z-index: 1000;
+    max-width: 330px;
+    padding: 12px 18px;
+    background: #245e72;
+    color: #fff;
+    border-radius: 10px;
+    font-size: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, .12);
+}
+
+/* 09. RESPONSIVE */
+@media (max-width: 900px) {
+    .gp-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .gp-contact-list {
+        max-height: 300px;
+    }
+}
+
+@media (max-width: 600px) {
+    .gp-panel {
+        padding: 16px;
+    }
+
+    .gp-main,
+    .gp-sidebar {
+        padding: 13px;
+    }
+
+    .gp-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .gp-chat-compose {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .gp-btn-send {
+        align-self: stretch;
+    }
+}
+
+
+/* =====================================================
+   10. DAFTAR KELAS VII A - VII E
+   ===================================================== */
+
+.gp-class-list {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-top: 16px;
+}
+
+.gp-class-item {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    width: 100%;
+    padding: 14px 13px;
+    background: #ffffff;
+    border: 1px solid #dce7e8;
+    border-radius: 10px;
+    color: #19546a;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: background .2s ease, border-color .2s ease;
+}
+
+.gp-class-item > .bi-people {
+    font-size: 17px;
+    color: #4d9c78;
+}
+
+.gp-class-item > span {
+    flex: 1;
+}
+
+.gp-class-item > .bi-chevron-down {
+    color: #87999f;
+    transition: transform .2s ease;
+}
+
+.gp-class-item:hover {
+    background: #f2f9f6;
+    border-color: #90c4aa;
+}
+
+.gp-class-item.active {
+    background: #e9f6ee;
+    border-color: #4d9c78;
+    color: #17613e;
+}
+
+.gp-class-item.active > .bi-chevron-down {
+    transform: rotate(180deg);
+}
+
+.gp-class-item:focus-visible {
+    outline: 3px solid #8fc7b7;
+    outline-offset: 2px;
+}
+
+/* Daftar siswa muncul di bawah pilihan kelas */
+.gp-contact-list {
+    margin-top: 13px;
+}
+
+.gp-contact-list .gp-empty {
+    padding: 24px 12px;
+}
+
+/* Layar kecil */
+@media (max-width: 600px) {
+    .gp-class-item {
+        padding: 12px;
+        font-size: 12px;
+    }
+}

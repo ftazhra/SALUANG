@@ -1,0 +1,632 @@
+
+/* =====================================================
+   SALUANG — KELOLA SOAL KUIS GURU
+   File: public/css/guru-kuis.css
+   ===================================================== */
+
+/* 01. DASAR HALAMAN */
+.gq-page {
+    color: #075477;
+    font-family: 'Poppins', sans-serif;
+}
+
+.gq-page [hidden] {
+    display: none !important;
+}
+
+.gq-page button,
+.gq-page input,
+.gq-page select,
+.gq-page textarea {
+    font-family: inherit;
+}
+
+.gq-page button {
+    cursor: pointer;
+}
+
+/* 02. TOMBOL KEMBALI */
+.gq-back-navigation {
+    display: flex;
+    align-items: center;
+    margin: 17px 0 20px;
+}
+
+/* 03. TOMBOL UTAMA */
+.gq-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 38px;
+    padding: 10px 16px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.5;
+    text-decoration: none;
+    transition:
+        background-color .2s ease,
+        border-color .2s ease,
+        color .2s ease,
+        box-shadow .2s ease,
+        transform .2s ease;
+}
+
+.gq-btn i {
+    font-size: 14px;
+}
+
+.gq-btn-primary {
+    background: #4e9d6d;
+    border-color: #4e9d6d;
+    color: #ffffff;
+}
+
+.gq-btn-primary:hover {
+    background: #327f52;
+    border-color: #327f52;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 13px rgba(50, 127, 82, .18);
+}
+
+.gq-btn-outline {
+    background: #ffffff;
+    border-color: #cddfda;
+    color: #075477;
+}
+
+.gq-btn-outline:hover {
+    background: #dceefa;
+    border-color: #9fc9de;
+    color: #075477;
+    transform: translateY(-2px);
+}
+
+.gq-btn-danger {
+    background: #df4646;
+    border-color: #df4646;
+    color: #ffffff;
+}
+
+.gq-btn-danger:hover {
+    background: #b82d2d;
+    border-color: #b82d2d;
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+.gq-btn:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* 04. KARTU UTAMA */
+.gq-panel {
+    padding: 25px;
+    border: 1px solid #dae9e5;
+    border-radius: 15px;
+    background: #fffefa;
+    box-shadow: 0 3px 13px rgba(7, 84, 119, .04);
+}
+
+.gq-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 23px;
+}
+
+.gq-heading h1 {
+    margin: 0 0 8px;
+    color: #075477;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.gq-heading p {
+    margin: 0;
+    color: #7395a0;
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+/* 05. DROPDOWN BAB DAN SUBBAB */
+.gq-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 23px;
+}
+
+.gq-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.gq-field label {
+    color: #075477;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.gq-field input,
+.gq-field select,
+.gq-field textarea {
+    display: block;
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 13px;
+    border: 1px solid #ccdfdd;
+    border-radius: 9px;
+    outline: none;
+    background: #ffffff;
+    color: #075477;
+    font-size: 11px;
+    transition:
+        border-color .2s ease,
+        background-color .2s ease,
+        box-shadow .2s ease;
+}
+
+.gq-field textarea {
+    min-height: 82px;
+    resize: vertical;
+    line-height: 1.8;
+}
+
+.gq-field select {
+    cursor: pointer;
+}
+
+.gq-field input:hover,
+.gq-field select:hover,
+.gq-field textarea:hover {
+    border-color: #91bfc3;
+}
+
+.gq-field input:focus,
+.gq-field select:focus,
+.gq-field textarea:focus {
+    border-color: #65b69a;
+    box-shadow: 0 0 0 3px rgba(101, 182, 154, .14);
+}
+
+.gq-field select:disabled {
+    background: #eef3f2;
+    color: #8298a0;
+    cursor: not-allowed;
+}
+
+/* 06. AREA NOMOR SOAL */
+.gq-question-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin: 18px 0;
+    padding-top: 20px;
+    border-top: 1px solid #e0ece8;
+}
+
+.gq-question-heading h2 {
+    margin: 0;
+    color: #075477;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.6;
+}
+
+.gq-question-tabs {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin: 18px 0 20px;
+}
+
+/* Dipakai JS untuk tombol Soal 1, Soal 2, dst. */
+.gq-question-tab {
+    min-height: 38px;
+    padding: 9px 17px;
+    border: 1px solid #cbdedb;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #075477;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background-color .2s ease,
+        border-color .2s ease,
+        color .2s ease,
+        transform .2s ease;
+}
+
+.gq-question-tab:hover {
+    background: #dceefa;
+    border-color: #a5cada;
+    transform: translateY(-2px);
+}
+
+.gq-question-tab.active,
+.gq-question-tab[aria-pressed="true"] {
+    background: #4e9d6d;
+    border-color: #4e9d6d;
+    color: #ffffff;
+}
+
+.gq-question-tab.active:hover,
+.gq-question-tab[aria-pressed="true"]:hover {
+    background: #327f52;
+    border-color: #327f52;
+    color: #ffffff;
+}
+
+/* 07. DETAIL SOAL */
+.gq-question-card {
+    padding: 23px;
+    border: 1px solid #d5e8e3;
+    border-radius: 12px;
+    background: #eef8f4;
+}
+
+.gq-question-card h3 {
+    margin: 0 0 15px;
+    color: #075477;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.7;
+}
+
+.gq-question-text {
+    margin: 0 0 18px;
+    color: #075477;
+    font-size: 12px;
+    line-height: 1.9;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.gq-answer-list {
+    display: grid;
+    gap: 10px;
+    margin: 0 0 18px;
+}
+
+.gq-answer-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid #d5e5e0;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #075477;
+    font-size: 11px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+.gq-answer-letter {
+    display: inline-grid;
+    flex: 0 0 26px;
+    place-items: center;
+    height: 26px;
+    border-radius: 7px;
+    background: #e5f2ed;
+    color: #287b4e;
+    font-weight: 700;
+}
+
+.gq-answer-item.is-correct {
+    border-color: #8bc5a5;
+    background: #e2f5e9;
+}
+
+.gq-answer-item.is-correct .gq-answer-letter {
+    background: #4e9d6d;
+    color: #ffffff;
+}
+
+.gq-question-meta {
+    margin: 15px 0;
+    color: #60818a;
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+.gq-question-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* 08. KEADAAN KOSONG */
+.gq-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 160px;
+    padding: 24px;
+    border: 1px dashed #cddfda;
+    border-radius: 12px;
+    background: #f5faf7;
+    text-align: center;
+}
+
+.gq-empty i {
+    color: #4e9d6d;
+    font-size: 31px;
+}
+
+.gq-empty p {
+    margin: 0;
+    color: #638a96;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+/* 09. MODAL */
+.gq-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 3100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.gq-modal[hidden] {
+    display: none !important;
+}
+
+.gq-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(7, 41, 55, .55);
+}
+
+.gq-modal-dialog {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 580px);
+    max-height: calc(100vh - 40px);
+    padding: 25px;
+    overflow-y: auto;
+    border: 1px solid #dce9e6;
+    border-radius: 15px;
+    background: #fffefa;
+    box-shadow: 0 16px 48px rgba(7, 41, 55, .18);
+}
+
+.gq-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.gq-modal-header h2 {
+    margin: 0;
+    color: #075477;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.gq-close-button {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 8px;
+    background: #edf4f5;
+    color: #075477;
+    cursor: pointer;
+    transition: background-color .2s ease;
+}
+
+.gq-close-button:hover {
+    background: #d7eafa;
+}
+
+/* 10. PILIHAN A, B, C, D DI FORM */
+.gq-options-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 14px;
+}
+
+.gq-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 16px 0;
+    color: #075477;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.gq-checkbox input {
+    accent-color: #4e9d6d;
+}
+
+.gq-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 22px;
+}
+
+/* 11. MODAL HAPUS */
+.gq-delete-dialog {
+    max-width: 440px;
+    text-align: center;
+}
+
+.gq-delete-icon {
+    display: grid;
+    place-items: center;
+    width: 62px;
+    height: 62px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: #fff0e9;
+    color: #d44949;
+    font-size: 26px;
+}
+
+.gq-delete-dialog h2 {
+    margin: 0 0 12px;
+    color: #075477;
+    font-size: 19px;
+}
+
+.gq-delete-dialog p {
+    margin: 0;
+    color: #638a96;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+/* 12. PRATINJAU */
+.gq-preview-question {
+    margin-bottom: 18px;
+    color: #075477;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.8;
+    white-space: pre-wrap;
+}
+
+.gq-preview-options {
+    display: grid;
+    gap: 10px;
+}
+
+.gq-preview-option {
+    padding: 12px 15px;
+    border: 1px solid #d5e5e0;
+    border-radius: 9px;
+    background: #f6faf8;
+    color: #075477;
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+/* 13. TOAST HASIL CRUD */
+.gq-toast {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 3200;
+    max-width: min(360px, calc(100vw - 32px));
+    padding: 13px 18px;
+    border: 1px solid #c8e7d4;
+    border-radius: 10px;
+    background: #e6f5ea;
+    color: #17643e;
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(7, 84, 119, .12);
+}
+
+.gq-toast.is-error {
+    border-color: #f0c5c5;
+    background: #fff0ef;
+    color: #a52f2f;
+}
+
+/* 14. TABLET */
+@media (max-width: 991.98px) {
+    .gq-filter-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .gq-options-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 15. HANDPHONE */
+@media (max-width: 767.98px) {
+    .gq-panel {
+        padding: 17px;
+    }
+
+    .gq-heading h1 {
+        font-size: 21px;
+    }
+
+    .gq-question-heading {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .gq-question-card {
+        padding: 16px;
+    }
+
+    .gq-modal {
+        padding: 12px;
+    }
+
+    .gq-modal-dialog {
+        padding: 18px;
+        max-height: calc(100vh - 24px);
+    }
+
+    .gq-toast {
+        right: 16px;
+        bottom: 16px;
+    }
+}
+
+/* 16. AKSESIBILITAS */
+.gq-page button:focus-visible,
+.gq-page input:focus-visible,
+.gq-page select:focus-visible,
+.gq-page textarea:focus-visible {
+    outline: 3px solid #329ecb;
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gq-page *,
+    .gq-page *::before,
+    .gq-page *::after {
+        transition: none !important;
+    }
+}
+
+/* Perbaikan posisi panah dropdown Bab dan Subbab */
+.gq-field select {
+    -webkit-appearance: none;
+    appearance: none;
+
+    padding-right: 44px;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23075477' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 16px 16px;
+}
+
+.gq-field select:disabled {
+    background-color: #eef3f2;
+}
