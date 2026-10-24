@@ -21,6 +21,26 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## SALUANG learning media storage
+
+Uploaded lesson media and Chapter introduction images are stored on Laravel's
+`public` disk under `storage/app/public/subchapter-media` and
+`storage/app/public/chapters/introduction`. Keep these directories on persistent
+storage and writable by the PHP process when deploying the application. Set
+`APP_URL` to the public application URL so Laravel generates browser-accessible
+media URLs.
+
+Apply pending database migrations with `php artisan migrate` during deployment.
+The Chapter introduction image path is nullable, so existing Chapter records
+remain valid and continue using the existing student illustration fallback
+where applicable.
+
+From the application root, run `php artisan storage:link` when deploying to a
+host where `public/storage` is missing. Confirm that `public/storage` points to
+the current application's `storage/app/public` directory; a stale link to a
+different project path makes existing media inaccessible without deleting the
+uploaded files.
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.

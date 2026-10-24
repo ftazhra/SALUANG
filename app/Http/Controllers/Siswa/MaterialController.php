@@ -39,7 +39,9 @@ class MaterialController extends Controller
                 'nomor_bab',
                 'judul',
                 'deskripsi',
-                'pengantar',
+                'gambar_pengenalan_path',
+                'gambar_pengenalan_judul',
+                'gambar_pengenalan_keterangan',
                 'tujuan_pembelajaran',
                 'pertanyaan_pemantik',
             ]);

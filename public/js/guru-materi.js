@@ -11,8 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const $ = id => document.getElementById(id);
 
   const page = $('guruMaterialPage');
-
   if (!page) return;
+
+  const homeMaterialList = $('gdHomeMaterialList');
+  const homeMaterialTotal = $('gdTotalMaterials');
 
 
 
@@ -31,22 +33,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const contentField = $('gmSubchapterContent'), toast = $('gmToast');
 
   const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
-
+  const chapterImageInput = $('gmChapterIntroductionImage');
+  const chapterImagePreview = $('gmChapterIntroductionPreview');
 
 
   let chapters = [];
 
-  let imageLibrary = [];
+  let chapterPreviewObjectUrl = null;
 
-  let videoLibrary = [];
-
-  let activeImage = null;
-
-  let activeVideo = null;
-
-  let imagePreviewUrl = null;
-
-  let videoPreviewUrl = null;
+  let chapterStoredImageUrl = null;
 
   let selectedChapter = null;
 
@@ -654,6 +649,169 @@ document.addEventListener('DOMContentLoaded', () => {
 
   }
 
+  const learningActivityTitles = new Map([
+    ['ayo berpikir', 'Ayo Berpikir!'],
+    ['ayo mengamati', 'Ayo Mengamati!'],
+    ['ayo berdiskusi', 'Ayo Berdiskusi!'],
+    ['ayo mencoba', 'Ayo Mencoba!'],
+    ['ayo refleksi', 'Ayo Refleksi!'],
+    ['ayo berlatih', 'Ayo Berlatih!']
+  ]);
+
+  function learningActivityTitle(node) {
+    if (node.nodeType !== Node.ELEMENT_NODE) return null;
+
+    const match = node.textContent
+      .replace(/\*\*/g, '')
+      .trim()
+      .match(/^Ayo\s+(Berpikir|Mengamati|Berdiskusi|Mencoba|Refleksi|Berlatih)!?(?=$|\s)/i);
+    if (!match) return null;
+
+    return learningActivityTitles.get(
+      `ayo ${match[1].toLocaleLowerCase('id')}`
+    ) || null;
+  }
+
+  function learningActivityRemainder(node) {
+    const prefix = node.textContent.match(
+      /^\s*Ayo\s+(?:Berpikir|Mengamati|Berdiskusi|Mencoba|Refleksi|Berlatih)!?/i
+    );
+    if (!prefix || !node.textContent.slice(prefix[0].length).trim()) {
+      return null;
+    }
+
+    const remainder = node.cloneNode(true);
+    let charactersToRemove = prefix[0].length;
+    const walker = document.createTreeWalker(
+      remainder,
+      NodeFilter.SHOW_TEXT
+    );
+    let textNode;
+
+    while (charactersToRemove > 0 && (textNode = walker.nextNode())) {
+      const count = Math.min(
+        charactersToRemove,
+        textNode.textContent.length
+      );
+      textNode.textContent = textNode.textContent.slice(count);
+      charactersToRemove -= count;
+    }
+
+    return remainder;
+  }
+
+  function isLearningActivityBoundary(node) {
+    if (node.nodeType !== Node.ELEMENT_NODE) return false;
+
+    const startsNumberedSection = /^H[1-3]$/.test(node.tagName)
+      && /^\s*\d+\.\s+/.test(node.textContent);
+
+    return startsNumberedSection
+      || ['FIGURE', 'IMG', 'VIDEO', 'IFRAME', 'HR', 'TABLE'].includes(node.tagName)
+      || node.matches(
+        '.gm-preview-media, .gm-summary-card, .sd-media-item, .sd-summary-panel'
+      )
+      || Boolean(node.querySelector(
+        'figure, img, video, iframe, hr, table, '
+        + '.gm-preview-media, .gm-summary-card, .sd-media-item, .sd-summary-panel'
+      ));
+  }
+
+  function isLearningActivityContent(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      return Boolean(node.textContent.trim());
+    }
+
+    return node.nodeType === Node.ELEMENT_NODE
+      && !isLearningActivityBoundary(node)
+      && (/^H[1-6]$/.test(node.tagName)
+        || ['P', 'OL', 'UL', 'BLOCKQUOTE', 'DIV'].includes(node.tagName));
+  }
+
+  function wrapLearningActivities(parent) {
+    const nodes = [...parent.childNodes];
+    const output = document.createDocumentFragment();
+
+    for (let index = 0; index < nodes.length; index++) {
+      const node = nodes[index];
+      const title = learningActivityTitle(node);
+
+      if (!title) {
+        if (
+          node.nodeType === Node.ELEMENT_NODE
+          && ['DIV', 'SECTION', 'BLOCKQUOTE'].includes(node.tagName)
+        ) {
+          wrapLearningActivities(node);
+        }
+        output.appendChild(node);
+        continue;
+      }
+
+      const inlineRemainder = node.tagName === 'P'
+        ? learningActivityRemainder(node)
+        : null;
+      const activityContent = [];
+      let nextIndex = index + 1;
+
+      while (nextIndex < nodes.length) {
+        const candidate = nodes[nextIndex];
+        if (
+          learningActivityTitle(candidate)
+          || isLearningActivityBoundary(candidate)
+        ) {
+          break;
+        }
+
+        if (
+          candidate.nodeType === Node.TEXT_NODE
+          && !candidate.textContent.trim()
+        ) {
+          activityContent.push(candidate);
+          nextIndex++;
+          continue;
+        }
+
+        if (!isLearningActivityContent(candidate)) break;
+        activityContent.push(candidate);
+        nextIndex++;
+      }
+
+      if (
+        !inlineRemainder
+        && !activityContent.some(content =>
+          content.nodeType !== Node.TEXT_NODE
+          || content.textContent.trim()
+        )
+      ) {
+        output.appendChild(node);
+        continue;
+      }
+
+      const card = document.createElement('section');
+      card.className = 'gm-learning-activity';
+      const heading = document.createElement('h3');
+      heading.className = 'gm-learning-activity-title';
+      heading.textContent = title;
+      card.appendChild(heading);
+
+      const body = document.createElement('div');
+      body.className = 'gm-learning-activity-body';
+      if (inlineRemainder) body.appendChild(inlineRemainder);
+      activityContent.forEach(content => body.appendChild(content));
+      if (body.childNodes.length) card.appendChild(body);
+      output.appendChild(card);
+      index = nextIndex - 1;
+    }
+
+    parent.replaceChildren(output);
+  }
+
+  function learningActivitiesHTML(value) {
+    const container = document.createElement('div');
+    container.innerHTML = value;
+    wrapLearningActivities(container);
+    return container.innerHTML;
+  }
 
 
   function htmlToEditorText(value) {
@@ -930,13 +1088,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+  const activityHeadings = [
+    'Ayo Mengamati!', 'Ayo Berpikir!', 'Ayo Berdiskusi!',
+    'Ayo Mencoba!', 'Ayo Refleksi!', 'Ayo Berlatih!'
+  ];
+
+  function readActivityFromHTML(content) {
+    if (!content) return null;
+    const parsed = new DOMParser().parseFromString(materialHTML(content), 'text/html');
+    const first = parsed.body.firstElementChild;
+    if (!first) return null;
+    const heading = first.textContent.trim();
+    const label = activityHeadings.find(value => value.toLowerCase() === heading.toLowerCase());
+    if (!label) return null;
+    first.remove();
+    return { title: label, body: htmlToEditorText(parsed.body.innerHTML) };
+  }
+
+  function saveActivityText(block) {
+    if (!block || !block.isActivity) return;
+    const title = $('gmActivityType')?.value || 'Ayo Mengamati!';
+    const body = $('gmActivityContent')?.value || '';
+    block.activityTitle = title;
+    block.activityBody = body;
+    block.content = '<p><strong>' + escapeHTML(title) + '</strong></p>'
+      + editorTextToHTML(body);
+  }
+
   function normalizeContentBlock(block) {
 
     const payload = block?.payload || {};
 
 
 
+    const activity = block?.type === 'text' ? readActivityFromHTML(payload.content || '') : null;
+
     return {
+
+      isActivity: Boolean(activity),
+      activityTitle: activity?.title || 'Ayo Mengamati!',
+      activityBody: activity?.body || '',
 
       clientKey: `content-block-${nextBlockKey++}`,
 
@@ -986,7 +1177,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    if (block.type === 'text') {
+    if (block.type === 'text' && block.isActivity) {
+      saveActivityText(block);
+    } else if (block.type === 'text') {
 
       syncEditor();
 
@@ -1080,7 +1273,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       heading.textContent = `${index + 1}. ${({
 
-        text: 'Teks penjelasan',
+        text: block.isActivity ? 'Aktivitas Pembelajaran' : 'Teks penjelasan',
 
         image: 'Gambar pembelajaran',
 
@@ -1229,8 +1422,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const mediaEditor = $('gmBlockMediaEditor');
 
     const textEditor = $('gmTextBlockEditor');
+    const activityEditor = $('gmActivityEditor');
+    if (activityEditor) activityEditor.hidden = true;
 
-    if (block?.type === 'text') {
+    if (block?.type === 'text' && block.isActivity) {
+      if (textEditor) textEditor.hidden = true;
+      if (calloutEditor) calloutEditor.hidden = true;
+      if (mediaEditor) mediaEditor.hidden = true;
+      if (activityEditor) activityEditor.hidden = false;
+      $('gmActivityType').value = block.activityTitle || 'Ayo Mengamati!';
+      $('gmActivityContent').value = block.activityBody || '';
+    } else if (block?.type === 'text') {
 
       loadEditor(block.content);
 
@@ -1453,6 +1655,7 @@ document.addEventListener('DOMContentLoaded', () => {
         $('gmTextBlockEditor').hidden = true;
 
         $('gmCalloutEditor').hidden = true;
+        if ($('gmActivityEditor')) $('gmActivityEditor').hidden = true;
 
         $('gmBlockMediaEditor').hidden = true;
 
@@ -1488,7 +1691,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    const type = $('gmContentBlockType').value;
+    const selectedType = $('gmContentBlockType').value;
+    const isActivity = selectedType === 'activity';
+    const type = isActivity ? 'text' : selectedType;
 
     if (type === 'image' || type === 'video') {
 
@@ -1527,6 +1732,9 @@ document.addEventListener('DOMContentLoaded', () => {
         id: null,
 
         type,
+        isActivity,
+        activityTitle: 'Ayo Mengamati!',
+        activityBody: '',
 
         content: '',
 
@@ -1547,6 +1755,21 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 
+
+  ['gmActivityType', 'gmActivityContent'].forEach(id => {
+    $(id)?.addEventListener('input', () => {
+      const block = activeContentBlock();
+      if (!block || !block.isActivity) return;
+      saveActivityText(block);
+      subchapterFormDirty = true;
+    });
+    $(id)?.addEventListener('change', () => {
+      const block = activeContentBlock();
+      if (!block || !block.isActivity) return;
+      saveActivityText(block);
+      subchapterFormDirty = true;
+    });
+  });
 
   ['gmCalloutTitle', 'gmCalloutContent'].forEach(id => {
 
@@ -1899,41 +2122,78 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
       chapters = Array.isArray(result.chapters)
-
         ? result.chapters
-
         : [];
-
-      imageLibrary = Array.isArray(result.image_library)
-
-        ? result.image_library
-
-        : [];
-
-      videoLibrary = Array.isArray(result.video_library)
-
-        ? result.video_library
-
-        : [];
-
-
-
-      updateMediaCatalogs();
-
-
-
+      renderHomeMaterials();
       renderChapters();
 
     } catch (e) {
-
       chapterList.textContent = e.message;
-
+      renderHomeMaterials(e.message);
       notify(e.message, true);
-
     }
-
   }
 
+  function renderHomeMaterials(errorMessage = null) {
+    if (homeMaterialTotal) {
+      homeMaterialTotal.textContent = errorMessage
+        ? '—'
+        : String(chapters.length);
+    }
+
+    if (!homeMaterialList) return;
+    homeMaterialList.replaceChildren();
+
+    if (errorMessage) {
+      const message = document.createElement('p');
+      message.className = 'gd-muted';
+      message.textContent = errorMessage;
+      homeMaterialList.appendChild(message);
+      return;
+    }
+
+    if (!chapters.length) {
+      const message = document.createElement('p');
+      message.className = 'gd-muted';
+      message.textContent = 'Belum ada Bab yang tersimpan.';
+      homeMaterialList.appendChild(message);
+      return;
+    }
+
+    chapters.forEach(chapter => {
+      const card = document.createElement('div');
+      card.className = 'gd-chapter';
+
+      const label = document.createElement('small');
+      label.textContent = `BAB ${chapter.nomor_bab}${chapter.is_published ? '' : ' · Draft'}`;
+
+      const title = document.createElement('h3');
+      title.textContent = chapter.judul || 'Bab tanpa judul';
+      card.append(label, title);
+
+      const subchapters = Array.isArray(chapter.subchapters)
+        ? chapter.subchapters
+        : [];
+      if (!subchapters.length) {
+        const empty = document.createElement('p');
+        empty.className = 'gd-muted';
+        empty.textContent = 'Belum ada Subbab.';
+        card.appendChild(empty);
+      } else {
+        subchapters.forEach(subchapter => {
+          const topic = document.createElement('div');
+          topic.className = 'gd-topic';
+          topic.textContent = `${chapter.nomor_bab}.${subchapter.nomor_subbab} ${subchapter.judul}`;
+          if (!subchapter.is_published) {
+            topic.textContent += ' · Draft';
+          }
+          card.appendChild(topic);
+        });
+      }
+
+      homeMaterialList.appendChild(card);
+    });
+  }
 
 
   function renderChapters() {
@@ -2110,13 +2370,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
         'Belum ada deskripsi Bab.';
 
-
-
-      $('gmDetailIntroduction').textContent =
-
-        selectedChapter.pengantar ||
-
-        'Belum ada pengantar Bab.';
+      const introductionImage = $('gmDetailIntroductionImage');
+      const introductionFigure = $('gmDetailIntroductionFigure');
+      const introductionCaption = $('gmDetailIntroductionCaption');
+      const introductionTitle = $('gmDetailIntroductionTitle');
+      const introductionLayout = introductionImage.closest(
+        '.gm-introduction-layout'
+      );
+      if (selectedChapter.gambar_pengenalan_url) {
+        introductionLayout.classList.add('has-image');
+        introductionFigure.hidden = false;
+        introductionImage.src = selectedChapter.gambar_pengenalan_url;
+        introductionImage.alt = `Gambar Pengenalan BAB ${selectedChapter.nomor_bab}`;
+        const title = String(
+          selectedChapter.gambar_pengenalan_judul || ''
+        ).trim();
+        introductionTitle.textContent = title;
+        introductionTitle.hidden = !title;
+        introductionCaption.hidden = !title;
+        introductionImage.onerror = () => {
+          introductionFigure.hidden = true;
+          introductionCaption.hidden = true;
+          introductionLayout.classList.remove('has-image');
+        };
+      } else {
+        introductionLayout.classList.remove('has-image');
+        introductionFigure.hidden = true;
+        introductionCaption.hidden = true;
+        introductionImage.removeAttribute('src');
+      }
 
 
 
@@ -2186,7 +2468,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         selectedChapter.pertanyaan_pemantik ||
 
-        'Belum ada pertanyaan pemantik.';
+        'Belum ada pertanyaan.';
 
 
 
@@ -2298,11 +2580,12 @@ document.addEventListener('DOMContentLoaded', () => {
     for (const source of lines) {
       const line = source.trim();
       if (!line) continue;
-      const num = line.match(/^([1-8])\.\s+(.+)$/);
+      const num = line.match(/^(?:\*\*)?(\d+)\.\s+(.+)$/);
       if (num) {
-        const label = num[2].match(/^\*\*(.+?):?\*\*\s*(.*)$/);
-        const heading = label ? label[1].replace(/:$/, '') : num[2].split(':')[0].trim();
-        const desc = label ? label[2] : (num[2].includes(':') ? num[2].slice(num[2].indexOf(':') + 1).trim() : '');
+        const remainder = num[2].replace(/\*\*$/, '');
+        const label = remainder.match(/^\*\*(.+?):?\*\*\s*(.*)$/);
+        const heading = label ? label[1].replace(/:$/, '') : remainder.split(':')[0].replace(/\*\*/g, '').trim();
+        const desc = label ? label[2] : (remainder.includes(':') ? remainder.slice(remainder.indexOf(':') + 1).trim() : '');
         items.push('<article class="gm-summary-item"><span class="gm-summary-number">' + num[1] + '</span><div><h5>' + inline(heading) + '</h5>' + (desc ? '<p>' + inline(desc) + '</p>' : '') + '</div></article>');
         continue;
       }
@@ -2317,30 +2600,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     flushItems();
-    return '<section class="gm-summary-card"><header class="gm-summary-header"><span class="gm-summary-symbol" aria-hidden="true">&#10003;</span><h4>' + title + '</h4></header><div class="gm-summary-body">' + (parts.join('') || '<p>Belum ada isi kesimpulan.</p>') + '</div></section>';
-  }
-
-  // Styling diinjeksikan sekali agar CSS lama SALUANG tidak perlu diganti.
-  if (!document.getElementById('gmSummaryCardStyles')) {
-    const style = document.createElement('style');
-    style.id = 'gmSummaryCardStyles';
-    style.textContent = `
-      #guruMaterialPage .gm-summary-card { margin: 22px auto; width: min(100%, 980px); box-sizing: border-box; overflow: hidden; border: 1px solid #c8e3d4; border-radius: 18px; background: #f8fdf9; box-shadow: 0 8px 22px rgba(20,81,64,.06); }
-      #guruMaterialPage .gm-summary-header { display: flex; align-items: center; justify-content: center; gap: 11px; padding: 18px 20px; background: #e3f4ea; border-bottom: 1px solid #cce7d9; text-align: center; }
-      #guruMaterialPage .gm-summary-header h4 { margin: 0; color: #175c47; font-size: 18px; font-weight: 700; }
-      #guruMaterialPage .gm-summary-symbol { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: #328b61; color: #fff; font-weight: bold; }
-      #guruMaterialPage .gm-summary-body { padding: 24px; }
-      #guruMaterialPage .gm-summary-heading { margin: 20px 0 12px; font-size: 16px; color: #135b76; font-weight: 700; text-align: center; }
-      #guruMaterialPage .gm-summary-heading:first-child { margin-top: 0; }
-      #guruMaterialPage .gm-summary-paragraph { margin: 0 0 14px; color: #315e68; text-align: justify; line-height: 1.85; }
-      #guruMaterialPage .gm-summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; margin: 20px 0 25px; }
-      #guruMaterialPage .gm-summary-item { display: flex; gap: 12px; align-items: flex-start; padding: 15px; background: #fff; border: 1px solid #d7e9e0; border-radius: 12px; min-width: 0; }
-      #guruMaterialPage .gm-summary-number { flex: 0 0 29px; display: grid; place-items: center; height: 29px; border-radius: 9px; background: #e6f4eb; color: #227148; font-weight: 700; }
-      #guruMaterialPage .gm-summary-item h5 { margin: 1px 0 7px; color: #135b76; font-size: 13px; font-weight: 700; }
-      #guruMaterialPage .gm-summary-item p { margin: 0; color: #456d77; font-size: 12px; line-height: 1.7; text-align: justify; }
-      @media (max-width: 680px) { #guruMaterialPage .gm-summary-grid { grid-template-columns: 1fr; } #guruMaterialPage .gm-summary-body { padding: 16px; } #guruMaterialPage .gm-summary-header h4 { font-size: 15px; } }
-    `;
-    document.head.appendChild(style);
+    return '<section class="gm-summary-card"><header class="gm-summary-header"><h4>' + title + '</h4></header><div class="gm-summary-body">' + (parts.join('') || '<p>Belum ada isi kesimpulan.</p>') + '</div></section>';
   }
 
   function renderSubchapters() {
@@ -2526,33 +2786,26 @@ document.addEventListener('DOMContentLoaded', () => {
         : [];
 
       if (blocks.length) {
-
         content.innerHTML = blocks.map(block => {
-
           const payload = block.payload || {};
 
           if (block.type === 'text') {
-
-            return materialHTML(payload.content || '');
-
+            return learningActivitiesHTML(
+              materialHTML(payload.content || '')
+            );
           }
 
           if (block.type === 'callout') {
-
             return renderCalloutHTML(payload);
-
           }
 
           return previewMediaHTML(block);
-
         }).join('');
 
       } else {
 
-        content.innerHTML = materialHTML(
-
-          item.konten || 'Belum ada isi materi.'
-
+        content.innerHTML = learningActivitiesHTML(
+          materialHTML(item.konten || 'Belum ada isi materi.')
         );
 
       }
@@ -2728,9 +2981,23 @@ document.addEventListener('DOMContentLoaded', () => {
   function openChapterForm(chapter = null) {
 
     chapterForm.reset();
+    if (chapterPreviewObjectUrl) {
+      URL.revokeObjectURL(chapterPreviewObjectUrl);
+      chapterPreviewObjectUrl = null;
+    }
 
-
-
+    chapterStoredImageUrl = chapter?.gambar_pengenalan_url || null;
+    $('gmChapterIntroductionTitle').value =
+      chapter?.gambar_pengenalan_judul || '';
+    chapterImagePreview.hidden = !chapterStoredImageUrl;
+    if (chapterStoredImageUrl) {
+      chapterImagePreview.src = chapterStoredImageUrl;
+      chapterImagePreview.onerror = () => {
+        chapterImagePreview.hidden = true;
+      };
+    } else {
+      chapterImagePreview.removeAttribute('src');
+    }
     $('gmChapterId').value =
 
       chapter?.id || '';
@@ -2752,12 +3019,6 @@ document.addEventListener('DOMContentLoaded', () => {
     $('gmChapterDescription').value =
 
       chapter?.deskripsi || '';
-
-
-
-    $('gmChapterIntroduction').value =
-
-      chapter?.pengantar || '';
 
 
 
@@ -2821,6 +3082,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
   }
 
+  chapterImageInput?.addEventListener('change', () => {
+    const file = chapterImageInput.files?.[0];
+    if (chapterPreviewObjectUrl) {
+      URL.revokeObjectURL(chapterPreviewObjectUrl);
+      chapterPreviewObjectUrl = null;
+    }
+
+    if (file) {
+      chapterPreviewObjectUrl = URL.createObjectURL(file);
+      chapterImagePreview.src = chapterPreviewObjectUrl;
+      chapterImagePreview.hidden = false;
+      return;
+    }
+
+    chapterImagePreview.hidden = !chapterStoredImageUrl;
+    if (chapterStoredImageUrl) {
+      chapterImagePreview.src = chapterStoredImageUrl;
+    } else {
+      chapterImagePreview.removeAttribute('src');
+    }
+  });
 
 
   chapterForm?.addEventListener(
@@ -2839,51 +3121,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-      const payload = {
+      const payload = new FormData();
+      payload.append(
+        'nomor_bab',
+        $('gmChapterNumber').value
+      );
+      payload.append(
+        'judul',
+        $('gmChapterTitle').value.trim()
+      );
+      payload.append(
+        'deskripsi',
+        $('gmChapterDescription').value.trim()
+      );
+      payload.append(
+        'gambar_pengenalan_judul',
+        $('gmChapterIntroductionTitle').value.trim()
+      );
+      objectiveValues().forEach((objective, index) => {
+        payload.append(`tujuan_pembelajaran[${index}]`, objective);
+      });
+      payload.append(
+        'pertanyaan_pemantik',
+        $('gmChapterTriggerQuestion').value.trim()
+      );
+      payload.append(
+        'is_published',
+        $('gmChapterPublished').checked ? '1' : '0'
+      );
 
-        nomor_bab: Number(
-
-          $('gmChapterNumber').value
-
-        ),
-
-
-
-        judul:
-
-          $('gmChapterTitle').value.trim(),
-
-
-
-        deskripsi:
-
-          $('gmChapterDescription').value.trim(),
-
-
-
-        pengantar:
-
-          $('gmChapterIntroduction').value.trim(),
-
-
-
-        tujuan_pembelajaran:
-
-          objectiveValues(),
-
-
-
-        pertanyaan_pemantik:
-
-          $('gmChapterTriggerQuestion').value.trim(),
-
-
-
-        is_published:
-
-          $('gmChapterPublished').checked
-
-      };
+      const image = chapterImageInput.files?.[0];
+      if (image) {
+        payload.append('introduction_image', image);
+      }
+      if (id) {
+        payload.append('_method', 'PUT');
+      }
 
 
 
@@ -2896,13 +3169,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const response = await api(
 
           id
-
             ? chapterUrl(id)
-
             : '/guru/chapters',
-
-          id ? 'PUT' : 'POST',
-
+          'POST',
           payload
 
         );
@@ -2963,618 +3232,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-  function updateMediaCatalogs() {
-
-    renderImageGallery();
-
-    renderVideoGallery();
-
-  }
-
-
-
-  function renderImageGallery() {
-
-    const gallery = $('gmImageGallery');
-
-    if (!gallery) return;
-
-
-
-    gallery.replaceChildren();
-
-    $('gmImageLibrary').value = '';
-
-
-
-    if (!imageLibrary.length) {
-
-      const empty = document.createElement('p');
-
-      empty.className = 'gm-media-empty';
-
-      empty.textContent = 'Belum ada gambar di galeri SALUANG.';
-
-      gallery.appendChild(empty);
-
-      return;
-
-    }
-
-
-
-    imageLibrary.forEach((image, index) => {
-
-      const label = document.createElement('label');
-
-      label.className = 'gm-media-gallery-card';
-
-
-
-      const radio = document.createElement('input');
-
-      radio.type = 'radio';
-
-      radio.name = 'gmImageLibraryChoice';
-
-      radio.value = image.path;
-
-      radio.dataset.imageUrl = image.url;
-
-
-
-      const preview = document.createElement('img');
-
-      preview.src = image.url;
-
-      preview.alt = '';
-
-      preview.loading = 'lazy';
-
-
-
-      const name = document.createElement('span');
-
-      name.textContent = image.name;
-
-
-
-      label.append(radio, preview, name);
-
-      gallery.appendChild(label);
-
-
-
-      radio.addEventListener('change', () => {
-
-        $('gmImageLibrary').value = radio.value;
-
-        showImagePreview(image.url, image.name);
-
-        updateMediaFields();
-
-      });
-
-
-
-      if (index === 0 && $('gmImageAction')?.value === 'library') {
-
-        radio.checked = true;
-
-        $('gmImageLibrary').value = image.path;
-
-      }
-
-    });
-
-  }
-
-
-
-  function renderVideoGallery() {
-
-    const gallery = $('gmVideoGallery');
-
-    if (!gallery) return;
-
-
-
-    gallery.replaceChildren();
-
-    $('gmVideoLibrary').value = '';
-
-
-
-    if (!videoLibrary.length) {
-
-      const empty = document.createElement('p');
-
-      empty.className = 'gm-media-empty';
-
-      empty.textContent = 'Belum ada video tersimpan di pustaka SALUANG.';
-
-      gallery.appendChild(empty);
-
-      return;
-
-    }
-
-
-
-    videoLibrary.forEach(video => {
-
-      const label = document.createElement('label');
-
-      label.className = 'gm-media-gallery-card gm-media-video-card';
-
-
-
-      const radio = document.createElement('input');
-
-      radio.type = 'radio';
-
-      radio.name = 'gmVideoLibraryChoice';
-
-      radio.value = String(video.id);
-
-
-
-      const icon = document.createElement('span');
-
-      icon.className = 'gm-media-video-card-icon';
-
-      icon.setAttribute('aria-hidden', 'true');
-
-      icon.innerHTML = '<i class="bi bi-play-circle"></i>';
-
-
-
-      const name = document.createElement('span');
-
-      name.textContent = video.title;
-
-
-
-      label.append(radio, icon, name);
-
-      gallery.appendChild(label);
-
-
-
-      radio.addEventListener('change', () => {
-
-        $('gmVideoLibrary').value = radio.value;
-
-        showVideoPreview(null, video.title, 'Video tersimpan di pustaka SALUANG.');
-
-        updateMediaFields();
-
-      });
-
-    });
-
-  }
-
-
-
-  function setMediaAction(type, action) {
-
-    const input = $(type === 'image' ? 'gmImageAction' : 'gmVideoAction');
-
-    const choice = document.querySelector(
-
-      `[data-media-choice="${type}"][value="${action}"]`
-
-    );
-
-
-
-    if (!input || !choice || choice.disabled) return;
-
-
-
-    input.value = action;
-
-    choice.checked = true;
-
-    updateMediaFields();
-
-  }
-
-
-
-  function showImagePreview(url, title = '') {
-
-    const preview = $('gmImagePreview');
-
-    const image = $('gmImagePreviewImage');
-
-
-
-    if (!preview || !image || !url) {
-
-      if (preview) preview.hidden = true;
-
-      return;
-
-    }
-
-
-
-    image.src = url;
-
-    image.alt = title || 'Pratinjau gambar Subbab';
-
-    $('gmImagePreviewCaption').textContent =
-
-      title ? `Pratinjau · ${title}` : 'Pratinjau gambar';
-
-    preview.hidden = false;
-
-  }
-
-
-
-  function showVideoPreview(url, title = '', note = '') {
-
-    const container = $('gmVideoCurrentPreview');
-
-    if (!container) return;
-
-
-
-    container.replaceChildren();
-
-
-
-    if (url) {
-
-      const video = document.createElement('video');
-
-      video.controls = true;
-
-      video.preload = 'metadata';
-
-      video.playsInline = true;
-
-
-
-      const source = document.createElement('source');
-
-      source.src = url;
-
-      source.type = 'video/mp4';
-
-      video.appendChild(source);
-
-      container.appendChild(video);
-
-    }
-
-
-
-    const detail = document.createElement('div');
-
-    detail.className = 'gm-media-current-video-copy';
-
-    const strong = document.createElement('strong');
-
-    strong.textContent = title || 'Video aktif';
-
-    const description = document.createElement('span');
-
-    description.textContent = note || 'Video akan tetap digunakan pada Subbab ini.';
-
-    detail.append(strong, description);
-
-    container.appendChild(detail);
-
-    container.hidden = false;
-
-  }
-
-
-
-  function updateMediaFields() {
-
-    const imageAction = $('gmImageAction')?.value;
-
-    const videoAction = $('gmVideoAction')?.value;
-
-
-
-    document.querySelectorAll('[data-image-action]').forEach(field => {
-
-      field.hidden = field.dataset.imageAction !== imageAction;
-
-    });
-
-
-
-    document.querySelectorAll('[data-video-action]').forEach(field => {
-
-      field.hidden = field.dataset.videoAction !== videoAction;
-
-    });
-
-
-
-    const imageLibraryField = $('gmImageGallery');
-
-    const videoLibraryField = $('gmVideoGallery');
-
-    if (imageLibraryField) {
-
-      imageLibraryField.hidden = imageAction !== 'library';
-
-    }
-
-    if (videoLibraryField) {
-
-      videoLibraryField.hidden = videoAction !== 'library';
-
-    }
-
-
-
-    const imageFile = $('gmImageFile');
-
-    const imageLibrary = $('gmImageLibrary');
-
-    const videoLibrary = $('gmVideoLibrary');
-
-    const videoFile = $('gmVideoFile');
-
-    const youtubeUrl = $('gmYoutubeUrl');
-
-    const imageMetadata = document.querySelector(
-
-      '[data-media-metadata="image"]'
-
-    );
-
-    const videoMetadata = document.querySelector(
-
-      '[data-media-metadata="video"]'
-
-    );
-
-    const imagePreview = $('gmImagePreview');
-
-    const videoPreview = $('gmVideoCurrentPreview');
-
-
-
-    if (imageLibrary) imageLibrary.required = false;
-
-    if (imageFile) imageFile.required = imageAction === 'upload';
-
-    if (videoLibrary) videoLibrary.required = false;
-
-    if (videoFile) videoFile.required = videoAction === 'upload';
-
-    if (youtubeUrl) youtubeUrl.required = videoAction === 'youtube';
-
-
-
-    const imageLibraryChoiceInput = document.querySelector(
-
-      'input[name="gmImageLibraryChoice"]'
-
-    );
-
-    const videoLibraryChoiceInput = document.querySelector(
-
-      'input[name="gmVideoLibraryChoice"]'
-
-    );
-
-    if (imageLibraryChoiceInput) {
-
-      imageLibraryChoiceInput.required = imageAction === 'library';
-
-    }
-
-    if (videoLibraryChoiceInput) {
-
-      videoLibraryChoiceInput.required = videoAction === 'library';
-
-    }
-
-
-
-    document.querySelectorAll('[data-needs-image]').forEach(option => {
-
-      const radio = option.querySelector('input[type="radio"]');
-
-      option.hidden = !activeImage;
-
-      if (radio) radio.disabled = !activeImage;
-
-    });
-
-    document.querySelectorAll('[data-needs-video]').forEach(option => {
-
-      const radio = option.querySelector('input[type="radio"]');
-
-      option.hidden = !activeVideo;
-
-      if (radio) radio.disabled = !activeVideo;
-
-    });
-
-
-
-    const imageLibraryChoice = document.querySelector(
-
-      '[data-image-library-choice]'
-
-    );
-
-    const imageLibraryRadio = imageLibraryChoice?.querySelector('input');
-
-    if (imageLibraryChoice) {
-
-      imageLibraryChoice.hidden = imageLibrary.length === 0;
-
-    }
-
-    if (imageLibraryRadio) {
-
-      imageLibraryRadio.disabled = imageLibrary.length === 0;
-
-    }
-
-
-
-    const videoLibraryChoice = document.querySelector(
-
-      '[data-video-library-choice]'
-
-    );
-
-    const videoLibraryRadio = videoLibraryChoice?.querySelector('input');
-
-    if (videoLibraryChoice) {
-
-      videoLibraryChoice.hidden = videoLibrary.length === 0;
-
-    }
-
-    if (videoLibraryRadio) {
-
-      videoLibraryRadio.disabled = videoLibrary.length === 0;
-
-    }
-
-
-
-    if (imageMetadata) {
-
-      imageMetadata.hidden = ['none', 'remove'].includes(imageAction);
-
-    }
-
-    if (videoMetadata) {
-
-      videoMetadata.hidden = ['none', 'remove'].includes(videoAction);
-
-    }
-
-    if (imageAction === 'keep' && activeImage?.url) {
-
-      showImagePreview(activeImage.url, activeImage.title || '');
-
-    } else if (imageAction === 'library') {
-
-      const selectedImage = document.querySelector(
-
-        'input[name="gmImageLibraryChoice"]:checked'
-
-      );
-
-      if (selectedImage?.dataset.imageUrl) {
-
-        const selected = imageLibrary.find(
-
-          image => image.path === selectedImage.value
-
-        );
-
-        showImagePreview(selectedImage.dataset.imageUrl, selected?.name || '');
-
-      } else if (imagePreview) {
-
-        imagePreview.hidden = true;
-
-      }
-
-    } else if (imageAction === 'upload' && imagePreviewUrl) {
-
-      showImagePreview(imagePreviewUrl, $('gmImageFile')?.files?.[0]?.name || '');
-
-    } else if (imagePreview) {
-
-      imagePreview.hidden = true;
-
-    }
-
-
-
-    if (videoAction === 'keep' && activeVideo) {
-
-      if (activeVideo.source === 'youtube') {
-
-        showVideoPreview(
-
-          null,
-
-          activeVideo.title || 'Video YouTube',
-
-          'Video ini menggunakan tautan YouTube dan akan ditampilkan sebagai pemutar tertanam.'
-
-        );
-
-      } else if (activeVideo.url) {
-
-        showVideoPreview(
-
-          activeVideo.url,
-
-          activeVideo.title || 'Video aktif'
-
-        );
-
-      } else {
-
-        showVideoPreview(
-
-          null,
-
-          activeVideo.title || 'Video aktif',
-
-          'Berkas video tersimpan dan akan dipertahankan.'
-
-        );
-
-      }
-
-    } else if (videoAction === 'library') {
-
-      const selectedVideo = document.querySelector(
-
-        'input[name="gmVideoLibraryChoice"]:checked'
-
-      );
-
-      if (!selectedVideo && videoPreview) {
-
-        videoPreview.hidden = true;
-
-      }
-
-    } else if (videoAction === 'upload' && videoPreviewUrl) {
-
-      showVideoPreview(
-
-        videoPreviewUrl,
-
-        $('gmVideoFile')?.files?.[0]?.name || '',
-
-        'Pratinjau video yang akan diunggah.'
-
-      );
-
-    } else if (videoPreview) {
-
-      videoPreview.hidden = true;
-
-    }
-
-  }
-
-
-
   function openSubchapterForm(item = null) {
 
     if (!selectedChapter) return;
@@ -3595,17 +3252,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
-
-    if (videoPreviewUrl) URL.revokeObjectURL(videoPreviewUrl);
-
-    imagePreviewUrl = null;
-
-    videoPreviewUrl = null;
-
     subchapterForm.reset();
-
-    updateMediaCatalogs();
 
 
 
@@ -3639,43 +3286,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    const image = item?.media?.find(media => media.media_type === 'image');
-
-    const video = item?.media?.find(media => media.media_type === 'video');
-
-    activeImage = image || null;
-
-    activeVideo = video || null;
-
     availableBlockMedia = item?.media || [];
-
-
-
-    setMediaAction('image', image ? 'keep' : 'none');
-
-    $('gmImageTitle').value = image?.title || '';
-
-    $('gmImageCaption').value = image?.caption || '';
-
-    setMediaAction('video', video ? 'keep' : 'none');
-
-    $('gmVideoTitle').value = video?.title || '';
-
-    $('gmVideoCaption').value = video?.caption || '';
-
-    $('gmYoutubeUrl').value = '';
-
-    $('gmImageLibrary').value = '';
-
-    $('gmVideoLibrary').value = '';
-
-    $('gmImagePreview').hidden = true;
-
-    $('gmVideoCurrentPreview').hidden = true;
-
-    updateMediaFields();
-
-
 
     nextBlockKey = 1;
 
@@ -3688,9 +3299,7 @@ document.addEventListener('DOMContentLoaded', () => {
       : [];
 
     if (!Array.isArray(item?.content_blocks)) {
-
       if (item?.konten) {
-
         contentBlocks.push(normalizeContentBlock({
 
           type: 'text',
@@ -3698,28 +3307,19 @@ document.addEventListener('DOMContentLoaded', () => {
           payload: { content: item.konten }
 
         }));
-
       }
-
       (item?.media || []).forEach(media => {
-
         contentBlocks.push(normalizeContentBlock({
-
           type: media.media_type,
-
           media_id: media.id,
-
           media,
-
-          payload: {}
-
+          payload: {
+            title: media.title || '',
+            caption: media.caption || ''
+          }
         }));
-
       });
-
     }
-
-
 
     loadEditor('');
 
@@ -3738,66 +3338,6 @@ document.addEventListener('DOMContentLoaded', () => {
     openModal(subchapterModal);
 
   }
-
-
-
-  document.querySelectorAll('[data-media-choice]').forEach(choice => {
-
-    choice.addEventListener('change', () => {
-
-      if (choice.checked) {
-
-        setMediaAction(choice.dataset.mediaChoice, choice.value);
-
-      }
-
-    });
-
-  });
-
-
-
-  $('gmImageFile')?.addEventListener('change', e => {
-
-    if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
-
-    const file = e.currentTarget.files?.[0];
-
-    imagePreviewUrl = file ? URL.createObjectURL(file) : null;
-
-    if (imagePreviewUrl) {
-
-      showImagePreview(imagePreviewUrl, file.name);
-
-    }
-
-  });
-
-
-
-  $('gmVideoFile')?.addEventListener('change', e => {
-
-    if (videoPreviewUrl) URL.revokeObjectURL(videoPreviewUrl);
-
-    const file = e.currentTarget.files?.[0];
-
-    videoPreviewUrl = file ? URL.createObjectURL(file) : null;
-
-    if (videoPreviewUrl) {
-
-      showVideoPreview(
-
-        videoPreviewUrl,
-
-        file.name,
-
-        'Pratinjau video yang akan diunggah.'
-
-      );
-
-    }
-
-  });
 
 
 
@@ -3918,60 +3458,6 @@ document.addEventListener('DOMContentLoaded', () => {
         $('gmSubchapterPublished').checked ? '1' : '0'
 
       );
-
-      payload.set('image_action', $('gmImageAction').value);
-
-      payload.set('image_title', $('gmImageTitle').value.trim());
-
-      payload.set('image_caption', $('gmImageCaption').value.trim());
-
-      payload.set('video_action', $('gmVideoAction').value);
-
-      payload.set('video_title', $('gmVideoTitle').value.trim());
-
-      payload.set('video_caption', $('gmVideoCaption').value.trim());
-
-
-
-      if ($('gmImageAction').value === 'library') {
-
-        payload.set('image_library_path', $('gmImageLibrary').value);
-
-      }
-
-
-
-      if ($('gmImageAction').value === 'upload') {
-
-        payload.set('image_file', $('gmImageFile').files[0]);
-
-      }
-
-
-
-      if ($('gmVideoAction').value === 'library') {
-
-        payload.set('video_library_id', $('gmVideoLibrary').value);
-
-      }
-
-
-
-      if ($('gmVideoAction').value === 'upload') {
-
-        payload.set('video_file', $('gmVideoFile').files[0]);
-
-      }
-
-
-
-      if ($('gmVideoAction').value === 'youtube') {
-
-        payload.set('youtube_url', $('gmYoutubeUrl').value.trim());
-
-      }
-
-
 
       if (id) {
 

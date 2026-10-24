@@ -1480,9 +1480,32 @@ body.sd-page [hidden] {
 
 }
 
+.sd-chapter-hero .sd-copy,
+
+#chapterPage .sd-objectives p,
+
+#chapterPage .sd-prompt,
+
+#chapterPage .sd-prompt .sd-copy {
+
+    font-size: 12.5px;
+
+    line-height: 1.5;
+
+    text-align: justify;
+
+}
+
+#chapterPage article > .sd-copy {
+
+    margin: 0 0 12px;
+
+}
 
 
 .sd-chapter-hero img {
+
+    display: block;
 
     width: 100%;
 
@@ -1491,6 +1514,57 @@ body.sd-page [hidden] {
     border-radius: 10px;
 
     object-fit: cover;
+
+}
+
+.sd-chapter-introduction-figure {
+
+    display: block;
+
+    min-width: 0;
+
+    margin: 0;
+
+    padding: 0;
+
+}
+
+.sd-chapter-introduction-caption {
+
+    margin: 6px 0 0;
+
+    padding: 0;
+
+    color: #356e7c;
+
+    font-size: 11px;
+
+    line-height: 1.5;
+
+    text-align: center;
+
+    overflow-wrap: anywhere;
+
+}
+
+.sd-chapter-introduction-caption strong {
+
+    display: block;
+
+    margin: 0;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    line-height: 1.5;
+
+}
+
+.sd-chapter-introduction-caption[hidden],
+.sd-chapter-introduction-figure[hidden] {
+
+    display: none;
 
 }
 
@@ -1554,12 +1628,17 @@ body.sd-page [hidden] {
 
     margin: 0;
 
-    font-size: 14px;
+    font-size: 12.5px;
 
-    line-height: 1.65;
+    line-height: 1.5;
 
 }
 
+#chapterPage .sd-objective p + p {
+
+    margin-top: 12px;
+
+}
 
 
 /* 24. PERTANYAAN PEMANTIK */
@@ -1576,9 +1655,9 @@ body.sd-page [hidden] {
 
     color: #294f57;
 
-    font-size: 16px;
+    font-size: 12.5px;
 
-    line-height: 1.7;
+    line-height: 1.5;
 
 }
 
@@ -1704,9 +1783,9 @@ body.sd-page [hidden] {
 
     color: var(--sd-muted);
 
-    font-size: 10px;
+    font-size: 12.5px;
 
-    line-height: 1.7;
+    line-height: 1.5;
 
     text-align: center;
 
@@ -2766,6 +2845,13 @@ body.sd-page [hidden] {
 
 }
 
+.sd-page .sd-material-chapter-topics > .sd-muted {
+
+    font-size: 12.5px;
+
+    line-height: 1.5;
+
+}
 
 
 .sd-page .sd-material-topic-button {
@@ -4599,8 +4685,8 @@ body.sd-page [hidden] {
     padding: 0 12px;
     max-width: 95%;
     color: #527883;
-    font-size: 12px;
-    line-height: 1.85;
+    font-size: 12.5px;
+    line-height: 1.5;
     text-align: center;
     text-align-last: center;
 }
@@ -4628,10 +4714,11 @@ body.sd-page [hidden] {
     font-weight: 700;
 }
 #lessonPage .sd-summary-body .sd-summary-paragraph,
-#lessonPage .sd-summary-item-content p {
+#lessonPage .sd-summary-item-content p,
+#lessonPage .sd-summary-body li {
     margin: 0 0 12px;
-    font-size: 13px;
-    line-height: 1.8;
+    font-size: 12.5px;
+    line-height: 1.5;
     text-align: justify;
 }
 #lessonPage .sd-summary-grid {
@@ -4695,7 +4782,7 @@ body.sd-page [hidden] {
 }
 
 #lessonContent {
-    padding: 0 10px !important;
+    padding: 0 !important;
     line-height: 1.5 !important;
 }
 
@@ -4710,12 +4797,14 @@ body.sd-page [hidden] {
 
 /* 3. Paragraf materi: justify dan spasi 1,5 */
 #lessonContent .sd-content-block:not(.sd-content-block-media) p {
+    font-size: 12.5px;
     text-align: justify;
     line-height: 1.5 !important;
     margin: 0 0 16px;
 }
 
 #lessonContent .sd-content-block li {
+    font-size: 12.5px;
     text-align: justify;
     line-height: 1.5 !important;
     margin-bottom: 10px;
@@ -4731,7 +4820,7 @@ body.sd-page [hidden] {
 /* 5. Card gambar seperti pratinjau Guru */
 #lessonContent .sd-media-item {
     box-sizing: border-box;
-    width: min(100%, 980px);
+    width: min(100%, 760px);
     margin: 0 auto !important;
     padding: 24px !important;
     border: 1px solid #dce9e6;
@@ -4745,7 +4834,7 @@ body.sd-page [hidden] {
     width: 100%;
     max-width: 100%;
     height: auto;
-    max-height: none;
+    max-height: 420px;
     margin: 0 auto !important;
     border-radius: 12px;
     object-fit: contain;
@@ -4757,6 +4846,7 @@ body.sd-page [hidden] {
     margin: 24px auto 0 !important;
     padding: 0 12px;
     text-align: center !important;
+    font-size: 12.5px;
     line-height: 1.5 !important;
 }
 
@@ -4773,6 +4863,40 @@ body.sd-page [hidden] {
     border-radius: 14px;
 }
 
+/* Aktivitas pembelajaran dibedakan dari paragraf materi biasa. */
+#lessonContent .sd-learning-activity {
+    box-sizing: border-box;
+    width: min(100%, 760px);
+    margin: 24px auto 32px;
+    padding: 24px;
+    border: 1px solid #cce4d6;
+    border-radius: 14px;
+    background: #eef8f3;
+    color: #315e68;
+    text-align: left;
+}
+
+#lessonContent .sd-learning-activity-title {
+    margin: 0 0 12px !important;
+    color: #075477;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+#lessonContent .sd-learning-activity-body :is(p, li) {
+    text-align: justify;
+    line-height: 1.5 !important;
+}
+
+#lessonContent .sd-learning-activity-body p {
+    margin: 0 0 12px !important;
+}
+
+#lessonContent .sd-learning-activity-body > :last-child {
+    margin-bottom: 0 !important;
+}
+
 /* 10. Responsif di HP */
 @media (max-width: 767.98px) {
     #lessonPage .sd-material-card {
@@ -4780,7 +4904,7 @@ body.sd-page [hidden] {
     }
 
     #lessonContent {
-        padding: 0 4px !important;
+        padding: 0 !important;
     }
 
     #lessonContent > .sd-content-block {
@@ -4791,8 +4915,271 @@ body.sd-page [hidden] {
         padding: 16px !important;
     }
 
+    #lessonContent .sd-learning-activity {
+        padding: 16px;
+    }
+
     #lessonContent .sd-media-caption {
         margin-top: 20px !important;
         padding: 0 4px;
+    }
+}
+
+#guruMaterialPage .gm-learning-activity,
+#lessonPage .sd-learning-activity {
+    display: block;
+    width: min(100%, 980px);
+    box-sizing: border-box;
+    margin: 26px auto 32px !important;
+    padding: 23px 28px !important;
+    background: #fff5dd !important;
+    border: 1px solid #e9c983 !important;
+    border-left: 5px solid #d49b37 !important;
+    border-radius: 15px !important;
+    color: #5c482e !important;
+    box-shadow: 0 3px 12px rgba(117, 87, 24, .05);
+}
+#guruMaterialPage .gm-learning-activity-title,
+#lessonPage .sd-learning-activity-title {
+    margin: 0 0 14px !important;
+    color: #865518 !important;
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    line-height: 1.5 !important;
+    text-align: left !important;
+}
+#guruMaterialPage .gm-learning-activity-body,
+#lessonPage .sd-learning-activity-body {
+    color: #4e5060 !important;
+    font-size: 14px;
+    line-height: 1.5 !important;
+    text-align: justify;
+}
+#guruMaterialPage .gm-learning-activity-body p,
+#lessonPage .sd-learning-activity-body p {
+    margin: 0 0 12px !important;
+    line-height: 1.5 !important;
+    text-align: justify !important;
+}
+#guruMaterialPage .gm-learning-activity-body p:last-child,
+#lessonPage .sd-learning-activity-body p:last-child {
+    margin-bottom: 0 !important;
+}
+#guruMaterialPage .gm-learning-activity-body ol,
+#guruMaterialPage .gm-learning-activity-body ul,
+#lessonPage .sd-learning-activity-body ol,
+#lessonPage .sd-learning-activity-body ul {
+    padding-left: 22px;
+    margin: 4px 0 0;
+    line-height: 1.5;
+}
+#guruMaterialPage .gm-learning-activity-body li,
+#lessonPage .sd-learning-activity-body li {
+    margin-bottom: 7px;
+    line-height: 1.5;
+}
+@media (max-width: 767.98px) {
+    #guruMaterialPage .gm-learning-activity,
+    #lessonPage .sd-learning-activity {
+        padding: 17px 19px !important;
+    }
+}
+
+
+/* PERBAIKAN FINAL UKURAN MATERI SISWA */
+
+/* Gambar tidak terlalu besar */
+#lessonPage #lessonContent .sd-media-item {
+    width: 100% !important;
+    max-width: 680px !important;
+    margin: 28px auto 32px !important;
+    padding: 18px !important;
+}
+
+#lessonPage #lessonContent .sd-media-picture {
+    width: 100% !important;
+    max-height: 370px !important;
+    object-fit: contain !important;
+}
+
+/* Judul Ayo: SAMA BESAR dengan isi materi */
+#lessonPage #lessonContent .sd-learning-activity-title {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    line-height: 1.5 !important;
+}
+
+/* Semua isi card Ayo: 14px */
+#lessonPage #lessonContent .sd-learning-activity-body,
+#lessonPage #lessonContent .sd-learning-activity-body p,
+#lessonPage #lessonContent .sd-learning-activity-body li {
+    font-size: 12.5px !important;
+    line-height: 1.5 !important;
+}
+
+/* Lebar card Ayo tetap sejajar dengan teks materi */
+#lessonPage #lessonContent .sd-learning-activity {
+    box-sizing: border-box;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 24px 0 28px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 24px auto 28px !important;
+    padding: 18px 22px !important;
+    border-radius: 16px !important;
+    background: #fff5dd !important;
+    border: 1px solid #e9c983 !important;
+    border-left: 5px solid #d49b37 !important;
+}
+
+#lessonPage #lessonContent .sd-learning-activity-title {
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+    margin: 0 0 10px !important;
+}
+
+#lessonPage #lessonContent .sd-learning-activity-body,
+#lessonPage #lessonContent .sd-learning-activity-body p,
+#lessonPage #lessonContent .sd-learning-activity-body li {
+    font-size: 12.5px !important;
+    line-height: 1.5 !important;
+}
+
+#lessonPage #lessonContent .sd-learning-activity-body p:last-child,
+#lessonPage #lessonContent .sd-learning-activity-body ul:last-child,
+#lessonPage #lessonContent .sd-learning-activity-body ol:last-child {
+    margin-bottom: 0 !important;
+}
+
+#lessonPage #lessonContent .sd-learning-activity-body :is(h1, h2, h3, h4, h5, h6, blockquote) {
+    color: inherit;
+    font-size: 12.5px !important;
+    line-height: 1.5 !important;
+}
+
+#lessonPage #lessonContent .sd-learning-activity {
+    margin: 24px 0 28px !important;
+}
+
+#lessonPage .sd-content-block:has(> .gm-summary-card) {
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+}
+
+#lessonPage .gm-summary-card {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid #c8e3d4;
+    border-radius: 16px;
+    background: #f8fdf9;
+    box-shadow: 0 4px 14px rgba(20, 81, 64, .06);
+}
+
+#lessonPage .gm-summary-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 13px 18px;
+    border-bottom: 1px solid #cce7d9;
+    background: #e3f4ea;
+    text-align: center;
+}
+
+#lessonPage .gm-summary-header h4 {
+    margin: 0;
+    color: #175c47;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+#lessonPage .gm-summary-body {
+    padding: 18px;
+}
+
+#lessonPage .gm-summary-heading {
+    margin: 16px 0 10px;
+    color: #135b76;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: left;
+}
+
+#lessonPage .gm-summary-heading:first-child {
+    margin-top: 0;
+}
+
+#lessonPage .gm-summary-paragraph {
+    margin: 0 0 12px;
+    color: #315e68;
+    font-size: 12.5px;
+    line-height: 1.5;
+    text-align: justify;
+}
+
+#lessonPage .gm-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin: 12px 0 16px;
+}
+
+#lessonPage .gm-summary-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid #d7e9e0;
+    border-radius: 11px;
+    background: #fff;
+}
+
+#lessonPage .gm-summary-number {
+    display: grid;
+    flex: 0 0 28px;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: #e6f4eb;
+    color: #227148;
+    font-size: 12.5px;
+    font-weight: 700;
+}
+
+#lessonPage .gm-summary-item h5 {
+    margin: 1px 0 5px;
+    color: #135b76;
+    font-size: 12.5px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+#lessonPage .gm-summary-item p {
+    margin: 0;
+    color: #456d77;
+    font-size: 12.5px;
+    line-height: 1.5;
+    text-align: justify;
+}
+
+#lessonContent > .sd-content-block > .sd-learning-activity {
+    margin: 0 !important;
+}
+
+@media (max-width: 767.98px) {
+    #lessonPage .gm-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #lessonPage .gm-summary-body {
+        padding: 16px;
     }
 }

@@ -708,3 +708,51 @@ body.sd-logout-open {
     opacity: .6;
     cursor: wait;
 }
+
+/* Typography standard for dashboard content, excluding titles and navigation. */
+.sd-content :where(
+    p, li, label, input, textarea, select, option, button, small, span,
+    strong, em, b, td, th, dd, dt, figcaption, legend, div, a
+):not(h1 *):not(h2 *):not(h3 *):not(h4 *):not(h5 *):not(h6 *)
+:not([class*="heading"])
+:not(.bi):not(i):not(svg):not(.sd-nav-btn):not(.sd-nav-btn *)
+:not(.gd-nav-btn):not(.gd-nav-btn *):not(.sd-breadcrumb):not(.sd-breadcrumb *)
+:not(.sd-material-overview-title):not(.sd-material-chapter-title)
+:not(.sd-material-topic-button):not(.sd-learning-activity-title)
+:not(.sd-summary-main-title):not(.sd-summary-subtitle)
+:not(.sd-summary-item-content strong):not(.sd-media-title)
+:not(.sd-chapter-introduction-caption):not(.sd-chapter-introduction-caption *) {
+    font-size: 12.5px !important;
+}
+
+.sd-content input::placeholder,
+.sd-content textarea::placeholder {
+    font-size: 12.5px !important;
+}
+
+.sd-content :where(p, li):not(figcaption p) {
+    line-height: 1.5 !important;
+    text-align: justify !important;
+}
+
+#lessonPage #lessonContent :where(
+    p, li, label, input, textarea, select, option, button, small, span,
+    strong, em, b, td, th, dd, dt, figcaption, legend, div, a
+):not(h1 *):not(h2 *):not(h3 *):not(h4 *):not(h5 *):not(h6 *)
+:not([class*="heading"])
+:not(.bi):not(i):not(svg):not(.sd-nav-btn):not(.sd-nav-btn *)
+:not(.sd-learning-activity-title):not(.sd-summary-main-title)
+:not(.sd-summary-subtitle):not(.sd-summary-item-content strong)
+:not(.sd-media-title):not(.sd-chapter-introduction-caption)
+:not(.sd-chapter-introduction-caption *) {
+    font-size: 12.5px !important;
+}
+
+#lessonPage #lessonContent .sd-learning-activity-body,
+#lessonPage #lessonContent .sd-learning-activity-body p,
+#lessonPage #lessonContent .sd-learning-activity-body li,
+#lessonPage #lessonContent .sd-summary-body .sd-summary-paragraph,
+#lessonPage #lessonContent .sd-summary-item-content p {
+    font-size: 12.5px !important;
+    line-height: 1.5 !important;
+}

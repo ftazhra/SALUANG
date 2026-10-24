@@ -15,8 +15,8 @@
 
     <link rel="stylesheet" href="{{ asset('css/guru.css') }}?v=6">
 
-    <link rel="stylesheet" href="{{ asset('css/guru-materi.css') }}?v=9">
-    <script src="{{ asset('js/guru-materi.js') }}?v=8" defer></script>
+    <link rel="stylesheet" href="{{ asset('css/guru-materi.css') }}?v=21">
+    <script src="{{ asset('js/guru-materi.js') }}?v=17" defer></script>
 
     <link rel="stylesheet" href="{{ asset('css/guru-kuis.css') }}?v=1">
     <script src="{{ asset('js/guru-kuis.js') }}?v=2" defer></script>
@@ -33,7 +33,7 @@
     <link rel="stylesheet" href="{{ asset('css/guru-orang-tua.css') }}?v=2">
     <script src="{{ asset('js/guru-orang-tua.js') }}?v=2" defer></script>
 
-    <link rel="stylesheet" href="{{ asset('css/guru-profil.css') }}?v=1">
+    <link rel="stylesheet" href="{{ asset('css/guru-profil.css') }}?v=3">
     <script src="{{ asset('js/guru-profil.js') }}?v=1" defer></script>
 
 
@@ -249,8 +249,8 @@
 
                     <article class="gd-card gd-stat">
                         <i class="bi bi-book"></i>
-                        <small>Total Materi</small>
-                        <strong>1</strong>
+                        <small>Total Materi (Bab tersimpan)</small>
+                        <strong id="gdTotalMaterials">—</strong>
                     </article>
 
                     <article class="gd-card gd-stat">
@@ -279,32 +279,13 @@
 
                     <h2>Materi Pembelajaran</h2>
 
-                    <div class="gd-chapter">
-
-                        <small>BAB 1</small>
-
-                        <h3>
-                            Karakteristik dan Klasifikasi Makhluk Hidup
-                        </h3>
-
-                        <div class="gd-topic">
-                            1.1 Makhluk Hidup atau Benda Mati?
-                        </div>
-
-                        <div class="gd-topic">
-                            1.2 Mengapa Makhluk Hidup Dikelompokkan?
-                        </div>
-
-                        <div class="gd-topic">
-                            1.3 Makhluk Hidup Beraneka Ragam
-                        </div>
-
-                        <button type="button" class="gd-primary" data-guru-page="materi">
-
-                            Kelola Materi
-                        </button>
-
+                    <div id="gdHomeMaterialList" aria-live="polite">
+                        <p class="gd-muted">Memuat materi dari database...</p>
                     </div>
+
+                    <button type="button" class="gd-primary" data-guru-page="materi">
+                        Kelola Materi
+                    </button>
 
                 </article>
 

@@ -16,6 +16,22 @@ class SubchapterContentBlocksTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_guru_subchapter_form_only_exposes_content_block_media_controls(): void
+    {
+        $guru = $this->createUser('guru');
+
+        $response = $this->actingAs($guru)->get('/dashboard');
+
+        $response->assertOk()
+            ->assertSee('gmContentBlockType')
+            ->assertSee('gmBlockMediaSource')
+            ->assertSee('gmBlockMediaFile')
+            ->assertSee('gmBlockYoutubeUrl')
+            ->assertDontSee('Media Pembelajaran')
+            ->assertDontSee('gmImageActionChoice')
+            ->assertDontSee('gmVideoActionChoice');
+    }
+
     public function test_content_block_migration_has_ordered_cascading_relations(): void
     {
         $columns = collect(Schema::getColumns('subchapter_content_blocks'))
@@ -242,6 +258,68 @@ class SubchapterContentBlocksTest extends TestCase
             );
     }
 
+    public function test_adjacent_text_blocks_remain_independent_in_guru_and_student_feeds(): void
+    {
+        $guru = $this->createUser('guru');
+        $student = $this->createUser('siswa');
+        $chapter = $this->createChapter($guru, true);
+        $subchapter = $chapter->subchapters()->create([
+            'nomor_subbab' => 1,
+            'judul' => 'Pengaruh lingkungan',
+            'is_published' => true,
+            'content_blocks_enabled' => true,
+        ]);
+        $contents = [
+            '<p><strong>Ayo Mengamati!</strong></p><p>Amati lingkungan rawa.</p>',
+            '<h2>Pengaruh Lingkungan terhadap Kehidupan Organisme</h2><p>Lingkungan berada di sekitar makhluk hidup.</p>',
+            '<h3>1. Komponen Lingkungan Abiotik</h3><p>Komponen abiotik adalah unsur tak hidup.</p>',
+        ];
+
+        foreach ($contents as $position => $content) {
+            $subchapter->contentBlocks()->create([
+                'type' => 'text',
+                'position' => $position + 1,
+                'payload' => ['content' => $content],
+            ]);
+        }
+
+        $this->actingAs($guru)
+            ->getJson('/guru/chapters')
+            ->assertOk()
+            ->assertJsonPath(
+                'chapters.0.subchapters.0.content_blocks.0.payload.content',
+                $contents[0]
+            )
+            ->assertJsonPath(
+                'chapters.0.subchapters.0.content_blocks.1.payload.content',
+                $contents[1]
+            )
+            ->assertJsonPath(
+                'chapters.0.subchapters.0.content_blocks.2.payload.content',
+                $contents[2]
+            );
+
+        $this->actingAs($student)
+            ->getJson('/siswa/materials')
+            ->assertOk()
+            ->assertJsonPath(
+                'chapters.0.subchapters.0.content_blocks.0.payload.content',
+                $contents[0]
+            )
+            ->assertJsonPath(
+                'chapters.0.subchapters.0.content_blocks.1.payload.content',
+                $contents[1]
+            )
+            ->assertJsonPath(
+                'chapters.0.subchapters.0.content_blocks.2.payload.content',
+                $contents[2]
+            )
+            ->assertJsonCount(
+                3,
+                'chapters.0.subchapters.0.content_blocks'
+            );
+    }
+
     public function test_removing_all_blocks_keeps_block_mode_and_legacy_media(): void
     {
         $guru = $this->createUser('guru');
@@ -289,6 +367,145 @@ class SubchapterContentBlocksTest extends TestCase
             ->assertJsonCount(
                 0,
                 'chapters.0.subchapters.0.content_blocks'
+            );
+    }
+
+    public function test_editing_blocks_retains_existing_media_and_uses_the_same_public_url(): void
+    {
+        Storage::fake('public');
+
+        $guru = $this->createUser('guru');
+        $student = $this->createUser('siswa');
+        $chapter = $this->createChapter($guru, true);
+        $subchapter = $chapter->subchapters()->create([
+            'nomor_subbab' => 1,
+            'judul' => 'Subbab media tersimpan',
+            'is_published' => true,
+            'content_blocks_enabled' => true,
+        ]);
+        $path = 'subchapter-media/gambar-tersimpan.jpg';
+        Storage::disk('public')->put($path, 'saved image bytes');
+        $media = $subchapter->media()->create([
+            'media_type' => 'image',
+            'source' => 'upload',
+            'storage_path' => $path,
+            'title' => 'Ilustrasi tersimpan',
+            'caption' => 'Keterangan gambar.',
+        ]);
+        $subchapter->contentBlocks()->create([
+            'type' => 'image',
+            'position' => 1,
+            'payload' => [
+                'title' => 'Ilustrasi tersimpan',
+                'caption' => 'Keterangan gambar.',
+            ],
+            'media_id' => $media->id,
+        ]);
+
+        $updated = $this->actingAs($guru)
+            ->withHeader('Accept', 'application/json')
+            ->post(
+                "/guru/chapters/{$chapter->id}/subchapters/{$subchapter->id}",
+                array_merge(
+                    $this->subchapterPayload([
+                        ['type' => 'text', 'content' => '<p>Materi diperbarui.</p>'],
+                        ['type' => 'image', 'media_id' => $media->id],
+                    ], true),
+                    [
+                        'image_title' => 'Ilustrasi tersimpan',
+                        'image_caption' => 'Keterangan gambar.',
+                    ]
+                )
+            );
+
+        $updated->assertOk()
+            ->assertJsonPath(
+                'subchapter.content_blocks.1.media_id',
+                $media->id
+            )
+            ->assertJsonPath(
+                'subchapter.content_blocks.1.media.url',
+                Storage::disk('public')->url($path)
+            );
+
+        Storage::disk('public')->assertExists($path);
+        $this->assertDatabaseHas('subchapter_content_blocks', [
+            'subchapter_id' => $subchapter->id,
+            'position' => 2,
+            'media_id' => $media->id,
+        ]);
+
+        $studentResponse = $this->actingAs($student)
+            ->getJson('/siswa/materials')
+            ->assertOk();
+
+        $studentResponse->assertJsonPath(
+            'chapters.0.subchapters.0.content_blocks.1.media.url',
+            Storage::disk('public')->url($path)
+        );
+        $this->assertFalse(
+            str_starts_with(
+                $studentResponse->json(
+                    'chapters.0.subchapters.0.content_blocks.1.media.url'
+                ),
+                'blob:'
+            )
+        );
+    }
+
+    public function test_block_only_edit_preserves_unreferenced_legacy_media(): void
+    {
+        Storage::fake('public');
+
+        $guru = $this->createUser('guru');
+        $student = $this->createUser('siswa');
+        $chapter = $this->createChapter($guru, true);
+        $subchapter = $chapter->subchapters()->create([
+            'nomor_subbab' => 1,
+            'judul' => 'Subbab dengan media lama',
+            'is_published' => true,
+            'content_blocks_enabled' => true,
+        ]);
+        $path = 'subchapter-media/media-lama.png';
+        Storage::disk('public')->put($path, 'existing image');
+        $media = $subchapter->media()->create([
+            'media_type' => 'image',
+            'source' => 'upload',
+            'storage_path' => $path,
+            'title' => 'Gambar lama',
+        ]);
+
+        $payload = $this->subchapterPayload([
+            ['type' => 'text', 'content' => '<p>Konten baru.</p>'],
+            ['type' => 'image', 'media_id' => $media->id],
+        ], true);
+        unset($payload['image_action'], $payload['video_action']);
+
+        $response = $this->actingAs($guru)
+            ->withHeader('Accept', 'application/json')
+            ->post(
+                "/guru/chapters/{$chapter->id}/subchapters/{$subchapter->id}",
+                $payload
+            );
+
+        $response->assertOk()
+            ->assertJsonPath('subchapter.content_blocks.1.media_id', $media->id)
+            ->assertJsonPath(
+                'subchapter.content_blocks.1.media.url',
+                Storage::disk('public')->url($path)
+            );
+        Storage::disk('public')->assertExists($path);
+        $this->assertDatabaseHas('subchapter_media', [
+            'id' => $media->id,
+            'storage_path' => $path,
+        ]);
+
+        $this->actingAs($student)
+            ->getJson('/siswa/materials')
+            ->assertOk()
+            ->assertJsonPath(
+                'chapters.0.subchapters.0.content_blocks.1.media.url',
+                Storage::disk('public')->url($path)
             );
     }
 

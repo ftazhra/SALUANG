@@ -59,9 +59,12 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
     const materialGrid = document.querySelector(
-
         '.sd-material-overview-grid'
-
+    );
+    const homeLessonTitle = get('sdHomeLessonTitle');
+    const achievementMaterialTitle = get('sdAchievementMaterialTitle');
+    const homeLessonLabel = document.querySelector(
+        '#homePage .sd-home-lesson .sd-pill'
     );
 
 
@@ -446,7 +449,158 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    function renderMaterialContent(container, value) {
+    const learningActivityTitles = new Map([
+        ['ayo berpikir', 'Ayo Berpikir!'],
+        ['ayo mengamati', 'Ayo Mengamati!'],
+        ['ayo berdiskusi', 'Ayo Berdiskusi!'],
+        ['ayo mencoba', 'Ayo Mencoba!'],
+        ['ayo refleksi', 'Ayo Refleksi!'],
+        ['ayo berlatih', 'Ayo Berlatih!']
+    ]);
+
+    function learningActivityTitle(node) {
+        if (node.nodeType !== Node.ELEMENT_NODE) return null;
+
+        const match = node.textContent
+            .replace(/\*\*/g, '')
+            .trim()
+            .match(/^Ayo\s+(Berpikir|Mengamati|Berdiskusi|Mencoba|Refleksi|Berlatih)!?(?=$|\s)/i);
+        if (!match) return null;
+
+        return learningActivityTitles.get(
+            `ayo ${match[1].toLocaleLowerCase('id')}`
+        ) || null;
+    }
+
+    function learningActivityRemainder(node) {
+        const prefix = node.textContent.match(
+            /^\s*Ayo\s+(?:Berpikir|Mengamati|Berdiskusi|Mencoba|Refleksi|Berlatih)!?/i
+        );
+        if (!prefix || !node.textContent.slice(prefix[0].length).trim()) {
+            return null;
+        }
+
+        const remainder = node.cloneNode(true);
+        let charactersToRemove = prefix[0].length;
+        const walker = document.createTreeWalker(
+            remainder,
+            NodeFilter.SHOW_TEXT
+        );
+        let textNode;
+
+        while (charactersToRemove > 0 && (textNode = walker.nextNode())) {
+            const count = Math.min(
+                charactersToRemove,
+                textNode.textContent.length
+            );
+            textNode.textContent = textNode.textContent.slice(count);
+            charactersToRemove -= count;
+        }
+
+        return remainder;
+    }
+
+    function isLearningActivityBoundary(node) {
+        if (node.nodeType !== Node.ELEMENT_NODE) return false;
+
+        const startsNumberedSection = /^H[1-3]$/.test(node.tagName)
+            && /^\s*\d+\.\s+/.test(node.textContent);
+
+        return startsNumberedSection
+            || ['FIGURE', 'IMG', 'VIDEO', 'IFRAME', 'HR', 'TABLE'].includes(node.tagName)
+            || node.matches(
+                '.gm-preview-media, .gm-summary-card, .sd-media-item, .sd-summary-panel'
+            )
+            || Boolean(node.querySelector(
+                'figure, img, video, iframe, hr, table, '
+                + '.gm-preview-media, .gm-summary-card, .sd-media-item, .sd-summary-panel'
+            ));
+    }
+
+    function isLearningActivityContent(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+            return Boolean(node.textContent.trim());
+        }
+
+        return node.nodeType === Node.ELEMENT_NODE
+            && !isLearningActivityBoundary(node)
+            && (/^H[1-6]$/.test(node.tagName)
+                || ['P', 'OL', 'UL', 'BLOCKQUOTE', 'DIV'].includes(node.tagName));
+    }
+
+    function wrapLearningActivities(parent) {
+        const nodes = [...parent.childNodes];
+        const output = document.createDocumentFragment();
+
+        for (let index = 0; index < nodes.length; index++) {
+            const node = nodes[index];
+            const title = learningActivityTitle(node);
+
+            if (!title) {
+                if (
+                    node.nodeType === Node.ELEMENT_NODE
+                    && ['DIV', 'SECTION', 'BLOCKQUOTE'].includes(node.tagName)
+                ) {
+                    wrapLearningActivities(node);
+                }
+                output.appendChild(node);
+                continue;
+            }
+
+            const inlineRemainder = node.tagName === 'P'
+                ? learningActivityRemainder(node)
+                : null;
+            const activityContent = [];
+            let nextIndex = index + 1;
+
+            while (nextIndex < nodes.length) {
+                const candidate = nodes[nextIndex];
+                if (
+                    learningActivityTitle(candidate)
+                    || isLearningActivityBoundary(candidate)
+                ) {
+                    break;
+                }
+
+                if (
+                    candidate.nodeType === Node.TEXT_NODE
+                    && !candidate.textContent.trim()
+                ) {
+                    activityContent.push(candidate);
+                    nextIndex++;
+                    continue;
+                }
+
+                if (!isLearningActivityContent(candidate)) break;
+                activityContent.push(candidate);
+                nextIndex++;
+            }
+
+            if (
+                !inlineRemainder
+                && !activityContent.some(content =>
+                    content.nodeType !== Node.TEXT_NODE
+                    || content.textContent.trim()
+                )
+            ) {
+                output.appendChild(node);
+                continue;
+            }
+
+            const card = el('section', 'sd-learning-activity');
+            card.appendChild(el('h3', 'sd-learning-activity-title', title));
+            const body = el('div', 'sd-learning-activity-body');
+            if (inlineRemainder) body.appendChild(inlineRemainder);
+            activityContent.forEach(content => body.appendChild(content));
+            if (body.childNodes.length) card.appendChild(body);
+            output.appendChild(card);
+            index = nextIndex - 1;
+        }
+
+        parent.replaceChildren(output);
+    }
+
+    function renderMaterialContent(container, value, applyActivityCards = true) {
 
         if (!container) return;
 
@@ -487,17 +641,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
             for (const node of parsed.body.childNodes) {
-
                 const safe = safeMaterialNode(node);
 
-
-
                 if (safe) container.appendChild(safe);
-
             }
 
-
-
+            if (applyActivityCards) wrapLearningActivities(container);
             return;
 
         }
@@ -546,12 +695,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 });
 
-
-
                 container.appendChild(p);
-
             });
 
+        if (applyActivityCards) wrapLearningActivities(container);
     }
 
 
@@ -1071,17 +1218,59 @@ document.addEventListener('DOMContentLoaded', function () {
             ),
 
             textOr(
-
-                chapter.pengantar ||
-
                 chapter.deskripsi,
-
-                'Pengantar Bab belum diisi Guru.'
-
+                'Bab ini belum memiliki deskripsi.'
             )
 
         );
+        const chapterImage = document.querySelector(
+            '#chapterPage .sd-chapter-hero img'
+        );
+        if (chapterImage) {
+            const introductionFigure = chapterImage.closest(
+                '.sd-chapter-introduction-figure'
+            );
+            const uploadedImage = chapter.gambar_pengenalan_url;
+            const legacyImage = Number(chapter.nomor_bab) === 1
+                ? images.living
+                : null;
+            const imageUrl = uploadedImage || legacyImage;
+            const introductionTitle = document.querySelector(
+                '#sdChapterIntroductionTitle'
+            );
+            const introductionCaption = document.querySelector(
+                '#sdChapterIntroductionCaption'
+            );
 
+            chapterImage.hidden = !imageUrl;
+            if (introductionFigure) {
+                introductionFigure.hidden = !imageUrl;
+            }
+            chapterImage.alt = `Gambar Pengenalan BAB ${chapter.nomor_bab}`;
+            chapterImage.onerror = () => {
+                chapterImage.hidden = true;
+                if (introductionFigure) {
+                    introductionFigure.hidden = true;
+                }
+                if (introductionCaption) {
+                    introductionCaption.hidden = true;
+                }
+            };
+            if (imageUrl) {
+                chapterImage.src = imageUrl;
+            } else {
+                chapterImage.removeAttribute('src');
+            }
+
+            const title = String(
+                chapter.gambar_pengenalan_judul || ''
+            ).trim();
+            if (introductionTitle && introductionCaption) {
+                introductionTitle.textContent = title;
+                introductionTitle.hidden = !title;
+                introductionCaption.hidden = !imageUrl || !title;
+            }
+        }
 
 
         renderObjectives(chapter);
@@ -1268,7 +1457,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 container.textContent =
 
-                    'Pertanyaan pemantik belum diisi Guru.';
+                    'Belum ada pertanyaan untuk dipikirkan.';
 
             } else {
 
@@ -1422,9 +1611,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 'sd-counter',
 
-                'Materi ' + (index + 1) +
-
-                ' dari ' + materialSteps.length
+                'Materi ' + (
+                    materialSteps
+                        .slice(0, index + 1)
+                        .filter(step => step.type === 'subchapter')
+                        .length
+                ) + ' dari ' + (
+                    materialSteps
+                        .filter(step => step.type === 'subchapter')
+                        .length
+                )
 
             );
 
@@ -1724,68 +1920,164 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // SALUANG_SISWA_PREVIEW_SYNC_V1: kartu informasi berbasis konten Guru.
     // Teks ditambahkan melalui textContent agar tidak menjalankan HTML mentah.
-    function renderStudentCallout(section, payload) {
-        section.classList.add('sd-content-block-callout', 'sd-summary-panel');
-        const title = el('h3', 'sd-summary-main-title', payload?.title || 'Informasi');
-        section.appendChild(title);
+    const activityNames = [
+        'Ayo Berpikir!', 'Ayo Mengamati!', 'Ayo Berdiskusi!',
+        'Ayo Mencoba!', 'Ayo Refleksi!', 'Ayo Berlatih!'
+    ];
+    function isStudentActivity(title) {
+        return activityNames.some(name =>
+            name.toLocaleLowerCase('id') === String(title || '').trim().toLocaleLowerCase('id')
+        );
+    }
+    function renderStudentActivity(section, payload) {
+        section.classList.add('sd-content-block-activity');
+        const card = el('section', 'sd-learning-activity sd-learning-activity-explicit');
+        card.appendChild(el('h3', 'sd-learning-activity-title', payload.title));
+        const body = el('div', 'sd-learning-activity-body');
+        renderMaterialContent(body, payload.content || '');
+        card.appendChild(body);
+        section.appendChild(card);
+    }
 
-        const body = el('div', 'sd-summary-body');
-        const text = String(payload?.content || '').replace(/\r\n?/g, '\n').trim();
-        const lines = text.split('\n');
-        const pending = [];
-        let grid = null;
-        function flush() {
-            if (pending.length) {
-                body.appendChild(el('p', 'sd-summary-paragraph', pending.join(' ').trim()));
-                pending.length = 0;
-            }
+    function summaryContentToText(value) {
+        if (!/<\/?(?:p|div|h[1-6]|ol|ul|li|br|strong|b|em|i)\b/i.test(value)) {
+            return value;
         }
-        for (const sourceLine of lines) {
-            const line = sourceLine.trim();
-            if (!line) { flush(); continue; }
-            const heading = line.match(/^#{2,3}\s+(.+)$/);
-            if (heading) {
-                flush();
-                body.appendChild(el('h4', 'sd-summary-subtitle', heading[1].replace(/\*\*/g, '')));
-                continue;
+
+        const parsed = new DOMParser().parseFromString(value, 'text/html');
+        const inline = node => {
+            if (node.nodeType === Node.TEXT_NODE) return node.nodeValue || '';
+            if (node.nodeType !== Node.ELEMENT_NODE) return '';
+
+            const content = [...node.childNodes].map(inline).join('');
+            if (node.tagName === 'BR') return '\n';
+            if (['B', 'STRONG'].includes(node.tagName)) return `**${content}**`;
+            if (['I', 'EM'].includes(node.tagName)) return `*${content}*`;
+            return content;
+        };
+        const block = node => {
+            if (node.nodeType === Node.TEXT_NODE) return node.nodeValue || '';
+            if (node.nodeType !== Node.ELEMENT_NODE) return '';
+
+            const content = [...node.childNodes].map(block).join('');
+            switch (node.tagName) {
+                case 'H1':
+                case 'H2':
+                    return `## ${content.trim()}\n\n`;
+                case 'H3':
+                case 'H4':
+                case 'H5':
+                case 'H6':
+                    return `### ${content.trim()}\n\n`;
+                case 'P':
+                case 'DIV':
+                    return `${content.trim()}\n\n`;
+                case 'UL':
+                    return [...node.children]
+                        .filter(child => child.tagName === 'LI')
+                        .map(child => `- ${inline(child).trim()}\n`)
+                        .join('') + '\n';
+                case 'OL':
+                    return [...node.children]
+                        .filter(child => child.tagName === 'LI')
+                        .map((child, index) => `${index + 1}. ${inline(child).trim()}\n`)
+                        .join('') + '\n';
+                default:
+                    return inline(node);
             }
-            const numbered = line.match(/^([1-8])\.\s+\*\*(.+?)\*\*\s*(.*)$/);
-            if (numbered) {
-                flush();
-                if (!grid) {
-                    grid = el('div', 'sd-summary-grid');
-                    body.appendChild(grid);
+        };
+
+        return [...parsed.body.childNodes]
+            .map(block)
+            .join('')
+            .replace(/\n{3,}/g, '\n\n')
+            .trim();
+    }
+
+    // Kesimpulan Siswa: struktur dan gaya identik dengan pratinjau Guru.
+    // Semua konten berasal dari database Guru; tidak mengubah data tersimpan.
+    function renderStudentCallout(section, payload) {
+        const card = el('section', 'gm-summary-card');
+        const header = el('header', 'gm-summary-header');
+        header.appendChild(el('h4', '', payload?.title || 'Informasi / Kesimpulan'));
+        card.appendChild(header);
+
+        const body = el('div', 'gm-summary-body');
+        const raw = String(payload?.content || '').replace(/\r\n?/g, '\n').trim();
+        const lines = summaryContentToText(raw).split('\n');
+        let items = [];
+        const flushItems = () => {
+            if (!items.length) return;
+            const grid = el('div', 'gm-summary-grid');
+            items.forEach(item => grid.appendChild(item));
+            body.appendChild(grid);
+            items = [];
+        };
+        const inline = (container, value) => {
+            String(value || '').split(/(\*\*[^*]+\*\*)/g).forEach(part => {
+                if (part.startsWith('**') && part.endsWith('**')) {
+                    container.appendChild(el('strong', '', part.slice(2, -2)));
+                } else if (part) {
+                    container.appendChild(document.createTextNode(part));
                 }
-                const item = el('article', 'sd-summary-item');
-                item.appendChild(el('span', 'sd-summary-number', numbered[1]));
-                const content = el('div', 'sd-summary-item-content');
-                content.appendChild(el('strong', '', numbered[2].replace(/:$/, '')));
-                if (numbered[3]) content.appendChild(el('p', '', numbered[3]));
+            });
+        };
+        for (const source of lines) {
+            const line = source.trim();
+            if (!line) continue;
+            const numbered = line.match(/^(?:\*\*)?(\d+)\.\s+(.+)$/);
+            if (numbered) {
+                const remainder = numbered[2].replace(/\*\*$/, '');
+                const label = remainder.match(/^\*\*(.+?):?\*\*\s*(.*)$/);
+                const heading = label ? label[1].replace(/:$/, '') : remainder.split(':')[0].replace(/\*\*/g, '').trim();
+                const description = label ? label[2] : (remainder.includes(':') ? remainder.slice(remainder.indexOf(':') + 1).trim() : '');
+                const item = el('article', 'gm-summary-item');
+                item.appendChild(el('span', 'gm-summary-number', numbered[1]));
+                const content = el('div');
+                const h = el('h5');
+                inline(h, heading);
+                content.appendChild(h);
+                if (description) {
+                    const p = el('p');
+                    inline(p, description);
+                    content.appendChild(p);
+                }
                 item.appendChild(content);
-                grid.appendChild(item);
+                items.push(item);
                 continue;
             }
-            const genericNumber = line.match(/^([1-8])\.\s+(.+?):\s*(.*)$/);
-            if (genericNumber) {
-                flush();
-                if (!grid) { grid = el('div', 'sd-summary-grid'); body.appendChild(grid); }
-                const item = el('article', 'sd-summary-item');
-                item.appendChild(el('span', 'sd-summary-number', genericNumber[1]));
-                const content = el('div', 'sd-summary-item-content');
-                content.appendChild(el('strong', '', genericNumber[2]));
-                if (genericNumber[3]) content.appendChild(el('p', '', genericNumber[3]));
-                item.appendChild(content); grid.appendChild(item);
-                continue;
+            flushItems();
+            const heading = line.match(/^#{2,3}\s+(.+)$/);
+            const knownHeading = /^(?:RANGKUMAN KARAKTERISTIK MAKHLUK HIDUP|MAKHLUK HIDUP DI SEKITAR KITA|KESIMPULAN|AYO REFLEKSI!?|AYO MENGINGAT KEMBALI!?)$/i.test(line.replace(/\*\*/g, ''));
+            if (heading || knownHeading) {
+                const h = el('h4', 'gm-summary-heading');
+                inline(h, heading ? heading[1] : line);
+                body.appendChild(h);
+            } else {
+                const p = el('p', 'gm-summary-paragraph');
+                inline(p, line);
+                body.appendChild(p);
             }
-            if (/^\*\*(Kesimpulan|Ayo Refleksi!?|Ayo Mengingat Kembali!?)\*\*$/i.test(line)) {
-                flush();
-                body.appendChild(el('h4', 'sd-summary-subtitle', line.replace(/\*\*/g, '')));
-                continue;
-            }
-            pending.push(line.replace(/\*\*/g, ''));
         }
-        flush();
-        section.appendChild(body);
+        flushItems();
+        if (!body.childNodes.length) body.appendChild(el('p', '', 'Belum ada isi kesimpulan.'));
+        card.appendChild(body);
+        section.appendChild(card);
+    }
+
+    // Media diperlebar tanpa mengubah URL, CRUD, atau mekanisme upload.
+    if (!document.getElementById('sdGuruParityStyles')) {
+        const style = document.createElement('style');
+        style.id = 'sdGuruParityStyles';
+        style.textContent = `
+          #lessonPage .sd-content-block:has(.sd-media-item) { width: 100% !important; max-width: none !important; }
+          #lessonPage .sd-media-item { width: min(100%, 980px) !important; max-width: 980px !important; margin: 24px auto 32px !important; padding: 24px !important; box-sizing: border-box; }
+          #lessonPage .sd-media-picture { width: 100% !important; max-width: 100% !important; max-height: none !important; height: auto !important; object-fit: contain !important; margin: 0 auto !important; }
+          #lessonPage .sd-media-title { text-align: center !important; margin: 0 0 18px !important; }
+          #lessonPage .sd-media-caption { text-align: center !important; margin: 24px auto 0 !important; line-height: 1.5 !important; }
+          @media (max-width: 680px) { #lessonPage .sd-media-item { padding: 16px !important; } }
+        `;
+        document.head.appendChild(style);
     }
 
     function renderMaterialBlocks(container, blocks) {
@@ -1813,64 +2105,41 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         blocks.forEach(block => {
-
-            const section = document.createElement('section');
-
-            section.className = 'sd-content-block';
-
-
-
             if (block.type === 'text') {
-
+                const section = el('section', 'sd-content-block');
                 renderMaterialContent(
-
                     section,
-
                     block.payload?.content || ''
-
                 );
-
-            } else if (block.type === 'callout') {
-
-renderStudentCallout(section, block.payload || {});
-
-            } else if (
-
-                (block.type === 'image' || block.type === 'video') &&
-
-                block.media
-
-            ) {
-
-                renderSubchapterMedia(section, [{
-
-                    ...block.media,
-
-                    title: block.payload?.title || block.media.title,
-
-                    caption: block.payload?.caption || block.media.caption
-
-                }]);
-
-            } else {
-
-                appendUnavailableMessage(
-
-                    section,
-
-                    'Blok materi tidak dapat ditampilkan.'
-
-                );
-
+                container.appendChild(section);
+                return;
             }
 
+            const section = el('section', 'sd-content-block');
 
-
+            if (block.type === 'callout') {
+                if (isStudentActivity(block.payload?.title)) {
+                    renderStudentActivity(section, block.payload || {});
+                } else {
+                    renderStudentCallout(section, block.payload || {});
+                }
+            } else if (
+                (block.type === 'image' || block.type === 'video') &&
+                block.media
+            ) {
+                renderSubchapterMedia(section, [{
+                    ...block.media,
+                    title: block.payload?.title || block.media.title,
+                    caption: block.payload?.caption || block.media.caption
+                }]);
+            } else {
+                appendUnavailableMessage(
+                    section,
+                    'Blok materi tidak dapat ditampilkan.'
+                );
+            }
             container.appendChild(section);
-
         });
-
-
 
         return true;
 
@@ -3212,6 +3481,20 @@ renderStudentCallout(section, block.payload || {});
 
 
 
+    function renderHomeMaterialSummary() {
+        const chapter = publishedChapters[0] || null;
+        const title = chapter
+            ? textOr(chapter.judul, 'Bab Tanpa Judul')
+            : 'Belum ada materi yang dipublikasikan Guru.';
+
+        setText(homeLessonTitle, title);
+        setText(achievementMaterialTitle, title);
+        setText(
+            homeLessonLabel,
+            chapter ? `BAB ${chapter.nomor_bab}` : 'MATERI PEMBELAJARAN'
+        );
+    }
+
     // ======================================================
 
     // 15. AMBIL MATERI DARI LARAVEL
@@ -3302,8 +3585,7 @@ renderStudentCallout(section, block.payload || {});
 
             });
 
-
-
+            renderHomeMaterialSummary();
             buildMaterialSteps();
 
             renderSidebar(desktopMenu);
@@ -3320,7 +3602,9 @@ renderStudentCallout(section, block.payload || {});
 
             console.error('SALUANG:', error);
 
-
+            renderHomeMaterialSummary();
+            setText(homeLessonTitle, error.message);
+            setText(achievementMaterialTitle, error.message);
 
             [
 
@@ -3550,7 +3834,7 @@ renderStudentCallout(section, block.payload || {});
 
                     button.classList.contains('next') ||
 
-                    button.dataset.materialNav === 'next'
+                        button.dataset.materialNav === 'next'
 
                         ? 'next'
 

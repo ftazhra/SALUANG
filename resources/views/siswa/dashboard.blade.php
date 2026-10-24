@@ -38,7 +38,7 @@
     ====================================================== -->
     <link
         rel="stylesheet"
-        href="{{ asset('css/siswa.css') }}?v=25"
+        href="{{ asset('css/siswa.css') }}?v=34"
     >
 
     <link
@@ -48,7 +48,7 @@
 
     <link
         rel="stylesheet"
-        href="{{ asset('css/siswa-profil.css') }}?v=2"
+        href="{{ asset('css/siswa-profil.css') }}?v=3"
     >
 
     <!-- =====================================================
@@ -867,8 +867,8 @@
                                         MATERI PEMBELAJARAN
                                     </span>
 
-                                    <h3>
-                                        Karakteristik dan Klasifikasi Makhluk Hidup
+                                    <h3 id="sdHomeLessonTitle">
+                                        Memuat materi...
                                     </h3>
 
                                     <span class="sd-muted">
@@ -940,8 +940,8 @@
                                 IPA Kelas VII
                             </span>
 
-                            <h3 class="sd-achievement-title">
-                                Karakteristik dan Klasifikasi Makhluk Hidup
+                            <h3 class="sd-achievement-title" id="sdAchievementMaterialTitle">
+                                Memuat materi...
                             </h3>
 
                             <span class="sd-muted">
@@ -1076,15 +1076,20 @@
                         </h1>
 
                         <p class="sd-copy">
-                            Memuat pengantar Bab...
+                            Memuat informasi Bab...
                         </p>
                     </div>
 
-                    <img
-                        src="{{ asset('images/lesson-interaksi-makhluk-hidup.png') }}"
-                        alt="Ilustrasi kehidupan lahan basah"
-                        loading="lazy"
-                    >
+                    <figure class="sd-chapter-introduction-figure">
+                        <img
+                            src="{{ asset('images/lesson-interaksi-makhluk-hidup.png') }}"
+                            alt="Ilustrasi kehidupan lahan basah"
+                            loading="lazy"
+                        >
+                        <figcaption class="sd-chapter-introduction-caption" id="sdChapterIntroductionCaption" hidden>
+                            <strong id="sdChapterIntroductionTitle" hidden></strong>
+                        </figcaption>
+                    </figure>
 
                 </div>
 
@@ -1132,17 +1137,17 @@
 
                 </article>
 
-                <!-- Pertanyaan Pemantik -->
+                <!-- Yuk, Pikirkan -->
                 <article class="sd-card mt-3">
 
                     <h2 class="sd-heading">
                         <i class="bi bi-lightbulb"></i>
-                        Pertanyaan Pemantik
+                        Yuk, Pikirkan!
                     </h2>
 
                     <div class="sd-prompt">
                         <div class="sd-copy mb-0">
-                            Memuat pertanyaan pemantik...
+                            Memuat pertanyaan...
                         </div>
 
                     </div>
@@ -3462,7 +3467,7 @@
     ></script>
 
     <script
-        src="{{ asset('js/siswa.js') }}?v=32"
+        src="{{ asset('js/siswa.js') }}?v=39"
         defer
     ></script>
 

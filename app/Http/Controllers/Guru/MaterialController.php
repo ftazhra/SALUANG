@@ -34,6 +34,25 @@ class MaterialController extends Controller
         );
     }
 
+    private function introductionImageValidationRules(): array
+    {
+        return [
+            'introduction_image' => [
+                'sometimes',
+                'nullable',
+                'file',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'extensions:jpg,jpeg,png,webp',
+                'max:4096',
+            ],
+            'remove_introduction_image' => [
+                'sometimes',
+                'boolean',
+            ],
+        ];
+    }
+
     /*
     |--------------------------------------------------------------------------
     | AMBIL BAB MILIK GURU
@@ -108,6 +127,15 @@ class MaterialController extends Controller
                 'nullable',
                 'string',
             ],
+            'gambar_pengenalan_judul' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'gambar_pengenalan_keterangan' => [
+                'nullable',
+                'string',
+            ],
             'pengantar' => [
                 'nullable',
                 'string',
@@ -130,11 +158,33 @@ class MaterialController extends Controller
                 'sometimes',
                 'boolean',
             ],
+            ...$this->introductionImageValidationRules(),
         ]);
 
         $data['user_id'] = $request->user()->id;
 
-        $chapter = Chapter::create($data);
+        $introductionImage = $data['introduction_image'] ?? null;
+        unset($data['introduction_image'], $data['remove_introduction_image']);
+
+        $storedPath = $introductionImage
+            ? $introductionImage->store('chapters/introduction', 'public')
+            : null;
+        if ($introductionImage && !is_string($storedPath)) {
+            throw new RuntimeException(
+                'Gambar Pengenalan Bab gagal disimpan ke storage.'
+            );
+        }
+
+        if ($storedPath) {
+            $data['gambar_pengenalan_path'] = $storedPath;
+        }
+
+        try {
+            $chapter = Chapter::create($data);
+        } catch (Throwable $exception) {
+            $this->deleteStoredFiles([$storedPath]);
+            throw $exception;
+        }
 
         return response()->json([
             'message' => 'Bab berhasil ditambahkan.',
@@ -208,6 +258,15 @@ class MaterialController extends Controller
                 'nullable',
                 'string',
             ],
+            'gambar_pengenalan_judul' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'gambar_pengenalan_keterangan' => [
+                'nullable',
+                'string',
+            ],
             'pengantar' => [
                 'nullable',
                 'string',
@@ -238,9 +297,46 @@ class MaterialController extends Controller
                 'sometimes',
                 'boolean',
             ],
+            ...$this->introductionImageValidationRules(),
         ]);
 
-        $chapter->update($data);
+        $introductionImage = $data['introduction_image'] ?? null;
+        $removeIntroductionImage = filter_var(
+            $data['remove_introduction_image'] ?? false,
+            FILTER_VALIDATE_BOOLEAN
+        );
+        unset($data['introduction_image'], $data['remove_introduction_image']);
+
+        $storedPath = $introductionImage
+            ? $introductionImage->store('chapters/introduction', 'public')
+            : null;
+        if ($introductionImage && !is_string($storedPath)) {
+            throw new RuntimeException(
+                'Gambar Pengenalan Bab gagal disimpan ke storage.'
+            );
+        }
+
+        $oldPath = $chapter->gambar_pengenalan_path;
+        if ($storedPath) {
+            $data['gambar_pengenalan_path'] = $storedPath;
+        } elseif ($removeIntroductionImage) {
+            $data['gambar_pengenalan_path'] = null;
+        }
+
+        try {
+            $chapter->update($data);
+        } catch (Throwable $exception) {
+            $this->deleteStoredFiles([$storedPath]);
+            throw $exception;
+        }
+
+        if (
+            ($storedPath || $removeIntroductionImage)
+            && $oldPath
+            && $oldPath !== $storedPath
+        ) {
+            $this->deleteOrphanedFiles([$oldPath]);
+        }
 
         return response()->json([
             'message' => 'Bab berhasil diperbarui.',
@@ -270,6 +366,7 @@ class MaterialController extends Controller
             ->flatMap(fn (Subchapter $subchapter) =>
                 $subchapter->media->pluck('storage_path')
             )
+            ->push($chapter->gambar_pengenalan_path)
             ->filter()
             ->all();
 
@@ -515,7 +612,7 @@ class MaterialController extends Controller
                 'boolean',
             ],
             'image_action' => [
-                'required',
+                'sometimes',
                 Rule::in(['keep', 'none', 'remove', 'library', 'upload']),
             ],
             'image_file' => [
@@ -536,7 +633,7 @@ class MaterialController extends Controller
             'image_title' => ['nullable', 'string', 'max:160'],
             'image_caption' => ['nullable', 'string', 'max:500'],
             'video_action' => [
-                'required',
+                'sometimes',
                 Rule::in(['keep', 'none', 'remove', 'upload', 'library', 'youtube']),
             ],
             'video_file' => [
@@ -951,6 +1048,19 @@ class MaterialController extends Controller
         $operations = [];
         $newPaths = [];
 
+        $mediaTypes = array_filter(
+            ['image', 'video'],
+            fn (string $mediaType) =>
+                array_key_exists($mediaType . '_action', $data)
+        );
+
+        if ($mediaTypes === []) {
+            return [
+                'operations' => [],
+                'new_paths' => [],
+            ];
+        }
+
         if (($data['image_action'] ?? null) === 'library') {
             abort_unless(
                 in_array(
@@ -990,7 +1100,7 @@ class MaterialController extends Controller
         }
 
         try {
-            foreach (['image', 'video'] as $mediaType) {
+            foreach ($mediaTypes as $mediaType) {
                 $action = $data[$mediaType . '_action'];
                 $operation = [
                     'action' => $action,
@@ -1179,6 +1289,9 @@ class MaterialController extends Controller
                 !$path
                 || SubchapterMedia::query()
                     ->where('storage_path', $path)
+                    ->exists()
+                || Chapter::query()
+                    ->where('gambar_pengenalan_path', $path)
                     ->exists()
             ) {
                 continue;
