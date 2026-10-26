@@ -1312,7 +1312,7 @@
 
                     <div class="gm-field">
 
-                        <label for="gmBlockMediaSource">Sumber media</label>
+                        <label id="gmBlockMediaSourceLabel" for="gmBlockMediaSource">Sumber media</label>
 
                         <select id="gmBlockMediaSource"></select>
 
@@ -1320,7 +1320,7 @@
 
                     <div class="gm-field" id="gmBlockExistingMediaField" hidden>
 
-                        <label for="gmBlockExistingMedia">Pilih media Subbab</label>
+                        <label id="gmBlockExistingMediaLabel" for="gmBlockExistingMedia">Pilih media tersimpan</label>
 
                         <select id="gmBlockExistingMedia"></select>
 
@@ -1328,7 +1328,7 @@
 
                     <div class="gm-field" id="gmBlockUploadField" hidden>
 
-                        <label for="gmBlockMediaFile">Pilih berkas</label>
+                        <label id="gmBlockMediaFileLabel" for="gmBlockMediaFile">Pilih berkas</label>
 
                         <input type="file" id="gmBlockMediaFile">
 

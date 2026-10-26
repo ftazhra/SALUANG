@@ -35,6 +35,7 @@ class User extends Authenticatable
         'nomor_telepon',
         'hubungan_anak',
         'foto_profil',
+        'profile_photo_path',
         'is_approved',
         'identity_verified_at',
         'email_verified_at',

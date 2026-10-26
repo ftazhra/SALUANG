@@ -1203,7 +1203,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (block.source === 'existing') {
 
-        block.mediaId = Number($('gmBlockExistingMedia')?.value) || null;
+        block.mediaId = block.type === 'video'
+          ? (Number(block.mediaId) || null)
+          : (Number($('gmBlockExistingMedia')?.value) || Number(block.mediaId) || null);
 
         block.media = availableBlockMedia.find(
 
@@ -1508,11 +1510,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     sourceSelect.replaceChildren();
 
-    const sources = type === 'video'
-
-      ? [['upload', 'Unggah MP4'], ['youtube', 'YouTube'], ['existing', 'Pilih media tersimpan']]
-
-      : [['upload', 'Unggah gambar'], ['existing', 'Pilih media tersimpan']];
+    const isImage = type === 'image';
+    const mediaLabel = isImage ? 'Gambar' : 'Video';
+    const sources = isImage
+      ? [['upload', 'Unggah gambar baru'], ['existing', 'Pilih gambar tersimpan']]
+      : [['upload', 'Unggah video MP4'], ['youtube', 'Tautan YouTube'], ...(block.mediaId ? [['existing', 'Gunakan video saat ini']] : [])];
 
     sources.forEach(([value, label]) => {
 
@@ -1564,9 +1566,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     sourceSelect.value = source;
 
-    existingField.hidden = source !== 'existing';
+    // Gambar memakai unggah baru, tetapi referensi gambar lama tetap tersimpan.
+    // Dropdown gambar tersimpan sengaja tidak ditampilkan kepada Guru.
+    sourceSelect.closest('.gm-field').hidden = isImage;
+    existingField.hidden = true; // Pemilihan media lama tidak ditampilkan untuk gambar maupun video.
 
-    uploadField.hidden = source !== 'upload';
+    uploadField.hidden = !isImage && source !== 'upload';
 
     youtubeField.hidden = source !== 'youtube';
 
@@ -1579,11 +1584,13 @@ document.addEventListener('DOMContentLoaded', () => {
     $('gmBlockMediaCaption').value = block.caption || block.media?.caption || '';
 
     $('gmBlockMediaHelp').textContent = type === 'image'
-
       ? 'Pilih gambar yang akan tampil pada posisi blok ini.'
-
       : 'Pilih berkas MP4, tautan YouTube, atau video tersimpan.';
-
+    $('gmBlockMediaSourceLabel').textContent = `Sumber ${mediaLabel}`;
+    $('gmBlockExistingMediaLabel').textContent = `Pilih ${mediaLabel} Tersimpan`;
+    $('gmBlockMediaFileLabel').textContent = isImage
+      ? 'Unggah Gambar Baru'
+      : 'Unggah Video MP4';
     $('gmBlockMediaFileHelp').textContent = type === 'image'
 
       ? 'JPG, PNG, atau WebP · maksimal 5 MB.'
@@ -1817,7 +1824,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (block.source === 'existing') {
 
-        block.mediaId = Number($('gmBlockExistingMedia').value) || null;
+        block.mediaId = Number(block.mediaId) || null;
 
       } else {
 
@@ -1880,6 +1887,8 @@ document.addEventListener('DOMContentLoaded', () => {
       block.file = event.currentTarget.files?.[0] || null;
 
       block.source = 'upload';
+      // Pastikan commitActiveContentBlock tidak mengembalikan sumber ke 'existing'.
+      if ($('gmBlockMediaSource')) $('gmBlockMediaSource').value = 'upload';
 
       renderContentBlocks();
 
@@ -2741,13 +2750,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
           ${label}
 
+
+
         `;
-
-
 
         if (action === 'view-subchapter') {
           b.setAttribute('aria-expanded', 'false');
-          // Tidak menambahkan ikon dropdown pada tombol Lihat Materi.
         }
         actions.appendChild(b);
 
@@ -3845,7 +3853,6 @@ document.addEventListener('DOMContentLoaded', () => {
         button.innerHTML = content.hidden
 
           ? '<i class="bi bi-eye"></i> Lihat Materi'
-
           : '<i class="bi bi-eye-slash"></i> Tutup Materi';
 
       }

@@ -243,6 +243,7 @@ class StudentGradeController extends Controller
 
         $student->load([
             'assessmentResults.chapter',
+            'assessmentResults.subchapter',
         ]);
 
         $results = $student->assessmentResults
@@ -255,6 +256,8 @@ class StudentGradeController extends Controller
                         $result->assessment_type,
 
                     'chapter_id' => $result->chapter_id,
+                    'subchapter_id' => $result->subchapter_id,
+                    'subchapter_name' => $result->subchapter?->judul,
 
                     'chapter_name' =>
                         $result->chapter?->title

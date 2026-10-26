@@ -9,6 +9,7 @@ use App\Http\Controllers\Siswa\DiscussionController;
 use App\Http\Controllers\Siswa\ProfileController;
 use App\Http\Controllers\Siswa\QuizController;
 use App\Http\Controllers\Siswa\MaterialController as SiswaMaterialController;
+use App\Http\Controllers\Siswa\ProgressController as SiswaProgressController;
 use App\Http\Controllers\Guru\MaterialController;
 use App\Http\Controllers\Guru\QuizQuestionController;
 use App\Http\Controllers\Guru\EvaluationController;
@@ -372,6 +373,21 @@ Route::middleware('auth')
             '/materials',
             [SiswaMaterialController::class, 'index']
         )->name('materials.index');
+
+        Route::get(
+            '/progress',
+            [SiswaProgressController::class, 'index']
+        )->name('progress.index');
+
+        Route::post(
+            '/subchapters/{subchapter}/open',
+            [SiswaProgressController::class, 'openMaterial']
+        )->whereNumber('subchapter')->name('subchapters.open');
+
+        Route::post(
+            '/subchapters/{subchapter}/complete',
+            [SiswaProgressController::class, 'completeMaterial']
+        )->whereNumber('subchapter')->name('subchapters.complete');
     });
 
 /*
@@ -391,6 +407,12 @@ Route::middleware('auth')
     ->group(function () {
 
         // 01. AMBIL SOAL BERDASARKAN BAB DAN SUBBAB
+        Route::get(
+            '/quiz/subchapters/{subchapter}/questions',
+            [QuizController::class, 'questionsForSubchapter']
+        )->whereNumber('subchapter')
+            ->name('quiz.subchapters.questions');
+
         Route::get(
             '/quiz/chapters/{chapterNumber}/subchapters/{subchapterNumber}/questions',
             [QuizController::class, 'questions']

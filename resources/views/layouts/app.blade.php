@@ -14,6 +14,7 @@
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <link rel="stylesheet" href="{{ asset('css/saluang.css') }}?v=2">
+    <link rel="stylesheet" href="{{ asset('css/saluang-selects.css') }}?v=1">
 
     <script src="{{ asset('js/saluang.js') }}" defer></script>
     <script src="{{ asset('js/saluang-panduan.js') }}?v=1" defer></script>

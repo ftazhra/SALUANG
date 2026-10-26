@@ -37,11 +37,88 @@ document.addEventListener('DOMContentLoaded', function () {
     let deletingDiscussionId = null;
     let listRequestNumber = 0;
 
-    const subchapterNames = {
-        '1.1': 'Makhluk Hidup atau Benda Mati?',
-        '1.2': 'Mengapa Makhluk Hidup Dikelompokkan?',
-        '1.3': 'Makhluk Hidup Beraneka Ragam',
-    };
+    // Mengikuti sumber data yang sama dengan sidebar Materi Siswa.
+    // Nilai forum tetap menggunakan kode lama: bab-N dan N.M.
+    let forumChapters = [];
+    const chapterLabels = new Map();
+    const subchapterLabels = new Map();
+
+    function chapterCode(chapter) {
+        return 'bab-' + String(chapter.nomor_bab);
+    }
+
+    function subchapterCode(chapter, subchapter) {
+        return String(chapter.nomor_bab) + '.' + String(subchapter.nomor_subbab);
+    }
+
+    function chapterLabel(code) {
+        return chapterLabels.get(String(code)) || String(code || 'Bab');
+    }
+
+    function subchapterLabel(code) {
+        return subchapterLabels.get(String(code)) || String(code || 'Subbab');
+    }
+
+    function fillChapterSelect(id, placeholder, chosen = '') {
+        const select = $(id);
+        if (!select) return;
+        select.replaceChildren(new Option(placeholder, ''));
+        forumChapters.forEach(chapter => {
+            const code = chapterCode(chapter);
+            select.add(new Option(chapterLabels.get(code), code));
+        });
+        select.value = chosen;
+    }
+
+    function fillSubchapterSelect(id, selectedChapter = '', chosen = '') {
+        const select = $(id);
+        if (!select) return;
+        const filter = id === 'forumSubchapterFilter';
+        select.replaceChildren(new Option(filter ? 'Semua Subbab' : 'Pilih Subbab', ''));
+        forumChapters
+            .filter(chapter => !selectedChapter || chapterCode(chapter) === selectedChapter)
+            .forEach(chapter => {
+                (chapter.subchapters || []).forEach(subchapter => {
+                    const code = subchapterCode(chapter, subchapter);
+                    select.add(new Option(subchapterLabel(code), code));
+                });
+            });
+        select.value = chosen;
+    }
+
+    async function loadForumMaterials() {
+        const filters = ['forumChapterFilter', 'forumSubchapterFilter',
+            'forumCreateChapter', 'forumCreateSubchapter'];
+        filters.forEach(id => { if ($(id)) $(id).disabled = true; });
+        try {
+            const result = await request('/siswa/materials');
+            if (!Array.isArray(result.chapters)) {
+                throw new Error('Daftar Bab dari Guru tidak tersedia.');
+            }
+            forumChapters = result.chapters.slice().sort(
+                (a, b) => Number(a.nomor_bab) - Number(b.nomor_bab)
+            );
+            chapterLabels.clear();
+            subchapterLabels.clear();
+            forumChapters.forEach(chapter => {
+                chapterLabels.set(chapterCode(chapter),
+                    `BAB ${chapter.nomor_bab} – ${chapter.judul}`);
+                (chapter.subchapters || []).forEach(subchapter => {
+                    const code = subchapterCode(chapter, subchapter);
+                    subchapterLabels.set(code, `${code} ${subchapter.judul}`);
+                });
+            });
+            fillChapterSelect('forumChapterFilter', 'Semua Bab');
+            fillSubchapterSelect('forumSubchapterFilter');
+            fillChapterSelect('forumCreateChapter', 'Pilih Bab');
+            fillSubchapterSelect('forumCreateSubchapter', '');
+        } catch (error) {
+            console.error('Gagal memuat Bab/Subbab forum:', error);
+            showMessage('forumListMessage', error.message, true);
+        } finally {
+            filters.forEach(id => { if ($(id)) $(id).disabled = false; });
+        }
+    }
 
     /* 02. FUNGSI BANTUAN */
 
@@ -146,14 +223,14 @@ document.addEventListener('DOMContentLoaded', function () {
         const topic = makeElement(
             'div',
             'sd-forum-topic',
-            'BAB 1 — Karakteristik dan Klasifikasi Makhluk Hidup'
+            chapterLabel(discussion.chapter)
         );
 
         const meta = makeElement(
             'p',
             'sd-forum-card-meta',
             'Subbab ' + discussion.subchapter +
-            ' ' + (subchapterNames[discussion.subchapter] || '') +
+            ' ' + (subchapterLabels.get(String(discussion.subchapter)) || '') +
             ' · ' + (discussion.user?.name || 'Siswa') +
             ' · ' + formatDate(discussion.created_at)
         );
@@ -253,7 +330,7 @@ document.addEventListener('DOMContentLoaded', function () {
         $('forumCreateForm').reset();
 
         $('forumCreateChapter').value = discussion.chapter;
-        $('forumCreateSubchapter').value = discussion.subchapter;
+        fillSubchapterSelect('forumCreateSubchapter', discussion.chapter, discussion.subchapter);
         $('forumCreateTitle').value = discussion.title;
         $('forumCreateBody').value = discussion.body;
 
@@ -554,6 +631,7 @@ document.addEventListener('DOMContentLoaded', function () {
             editingDiscussionId = null;
 
             $('forumCreateForm').reset();
+            fillSubchapterSelect('forumCreateSubchapter', '');
 
             screens.create.querySelector(
                 '.sd-forum-screen-header h2'
@@ -653,8 +731,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 makeElement(
                     'p',
                     'sd-forum-card-meta',
-                    'BAB 1 · Subbab ' +
-                    discussion.subchapter +
+                    chapterLabel(discussion.chapter) + ' · Subbab ' +
+                    subchapterLabel(discussion.subchapter) +
                     ' · ' +
                     (discussion.user?.name || 'Siswa') +
                     ' · ' +
@@ -808,9 +886,14 @@ document.addEventListener('DOMContentLoaded', function () {
     $('forumChapterFilter').addEventListener(
         'change',
         function () {
+            fillSubchapterSelect('forumSubchapterFilter', this.value);
             loadDiscussions(1);
         }
     );
+
+    $('forumCreateChapter').addEventListener('change', function () {
+        fillSubchapterSelect('forumCreateSubchapter', this.value);
+    });
 
     $('forumSubchapterFilter').addEventListener(
         'change',
@@ -845,8 +928,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /* 09. DIPANGGIL DARI siswa.js */
 
-    window.saluangForumLoad = function () {
+    let materialsReady = loadForumMaterials();
+
+    window.saluangForumLoad = async function () {
         selectedDiscussionId = null;
+        await materialsReady;
         loadDiscussions(1);
     };
 });

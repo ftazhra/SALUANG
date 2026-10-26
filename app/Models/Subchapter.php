@@ -40,6 +40,16 @@ class Subchapter extends Model
             ->orderBy('position');
     }
 
+    public function quizQuestions(): HasMany
+    {
+        return $this->hasMany(QuizQuestion::class);
+    }
+
+    public function studentProgress(): HasMany
+    {
+        return $this->hasMany(StudentSubchapterProgress::class);
+    }
+
     public function materialBlocks(): array
     {
         if ($this->content_blocks_enabled) {

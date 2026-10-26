@@ -4,25 +4,59 @@ namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
 use App\Models\Discussion;
+use App\Models\Chapter;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class DiscussionController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | 01. KONFIGURASI BAB DAN SUBBAB
-    |--------------------------------------------------------------------------
-    */
+    /**
+     * Menggunakan materi Guru yang dipublikasikan sebagai sumber validasi.
+     * Format disimpan tetap "bab-N" dan "N.M" agar data Forum lama kompatibel.
+     *
+     * @return array<string, list<string>>
+     */
+    private function publishedForumOptions(): array
+    {
+        $chapters = Chapter::query()
+            ->where('is_published', true)
+            ->with(['subchapters' => function ($query) {
+                $query->where('is_published', true);
+            }])
+            ->get();
 
-    private const CHAPTER = 'bab-1';
+        $options = [];
 
-    private const SUBCHAPTERS = [
-        '1.1',
-        '1.2',
-        '1.3',
-    ];
+        foreach ($chapters as $chapter) {
+            $chapterNumber = (string) $chapter->nomor_bab;
+            $chapterCode = 'bab-' . $chapterNumber;
+            $options[$chapterCode] = [];
+
+            foreach ($chapter->subchapters as $subchapter) {
+                $options[$chapterCode][] = $chapterNumber . '.' . (string) $subchapter->nomor_subbab;
+            }
+        }
+
+        return $options;
+    }
+
+    /** @param array<string, mixed> $data
+     *  @param array<string, list<string>> $options
+     */
+    private function validateChapterPair(array $data, array $options): void
+    {
+        if (!isset($data['chapter'], $data['subchapter'])) {
+            return;
+        }
+
+        if (!in_array($data['subchapter'], $options[$data['chapter']] ?? [], true)) {
+            throw ValidationException::withMessages([
+                'subchapter' => 'Subbab tidak sesuai dengan Bab yang dipilih.',
+            ]);
+        }
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -55,15 +89,17 @@ class DiscussionController extends Controller
     {
         $this->ensureStudent($request);
 
+        $forumOptions = $this->publishedForumOptions();
+
         $filters = $request->validate([
             'chapter' => [
                 'nullable',
-                Rule::in([self::CHAPTER]),
+                Rule::in(array_keys($forumOptions)),
             ],
 
             'subchapter' => [
                 'nullable',
-                Rule::in(self::SUBCHAPTERS),
+                Rule::in(array_values(array_unique(array_merge([], ...array_values($forumOptions))))),
             ],
 
             'search' => [
@@ -81,6 +117,8 @@ class DiscussionController extends Controller
                 ]),
             ],
         ]);
+
+        $this->validateChapterPair($filters, $forumOptions);
 
         $query = Discussion::query()
             ->with('user:id,name')
@@ -164,15 +202,17 @@ class DiscussionController extends Controller
         $this->ensureStudent($request);
 
         // 04.1. Validasi data pertanyaan
+        $forumOptions = $this->publishedForumOptions();
+
         $data = $request->validate([
             'chapter' => [
                 'required',
-                Rule::in([self::CHAPTER]),
+                Rule::in(array_keys($forumOptions)),
             ],
 
             'subchapter' => [
                 'required',
-                Rule::in(self::SUBCHAPTERS),
+                Rule::in(array_values(array_unique(array_merge([], ...array_values($forumOptions))))),
             ],
 
             'title' => [
@@ -189,6 +229,8 @@ class DiscussionController extends Controller
                 'max:5000',
             ],
         ]);
+
+        $this->validateChapterPair($data, $forumOptions);
 
         // 04.2. Simpan ke tabel discussions
         $discussion = $request->user()
@@ -310,15 +352,17 @@ class DiscussionController extends Controller
         );
 
         // Validasi isi diskusi yang diperbarui.
+        $forumOptions = $this->publishedForumOptions();
+
         $data = $request->validate([
             'chapter' => [
                 'required',
-                Rule::in([self::CHAPTER]),
+                Rule::in(array_keys($forumOptions)),
             ],
 
             'subchapter' => [
                 'required',
-                Rule::in(self::SUBCHAPTERS),
+                Rule::in(array_values(array_unique(array_merge([], ...array_values($forumOptions))))),
             ],
 
             'title' => [
@@ -335,6 +379,8 @@ class DiscussionController extends Controller
                 'max:5000',
             ],
         ]);
+
+        $this->validateChapterPair($data, $forumOptions);
 
         // Simpan perubahan ke tabel discussions.
         $discussion->update($data);

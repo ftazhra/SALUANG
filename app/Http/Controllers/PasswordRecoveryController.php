@@ -42,11 +42,12 @@ class PasswordRecoveryController extends Controller
             ],
         ]);
 
-        $email = trim($data['email']);
+        $email = strtolower(trim($data['email']));
 
         /*
         | Cari akun SALUANG berdasarkan Email.
         | Tidak dibatasi untuk satu peran tertentu.
+        | Normalisasi ke huruf kecil agar pencarian tidak sensitif terhadap casing.
         */
         $user = User::query()
             ->whereIn('role', [
@@ -54,7 +55,7 @@ class PasswordRecoveryController extends Controller
                 'guru',
                 'orang_tua',
             ])
-            ->where('email', $email)
+            ->whereRaw('LOWER(email) = ?', [$email])
             ->first();
 
         /*

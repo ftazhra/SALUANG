@@ -1,0 +1,324 @@
+﻿#lessonPage .sd-material-card {
+            width: 100%;
+            padding: 12px;
+            overflow: hidden;
+            border-radius: 14px;
+        }
+
+        #lessonPage .sd-material-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 12px;
+            width: 100%;
+            min-width: 0;
+        }
+
+        #lessonPage .sd-material-text {
+            width: 100%;
+            max-width: none;
+            min-width: 0;
+        }
+
+        #lessonPage .sd-title {
+            margin: 8px 0 10px;
+            font-size: 18px;
+            line-height: 1.4;
+        }
+
+        #lessonPage .sd-material-heading {
+            margin-bottom: 8px;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        #lessonPage #lessonContent {
+            display: block;
+            width: 100%;
+            min-width: 0;
+            color: #294f57;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 1.55;
+            overflow-wrap: anywhere;
+            white-space: normal;
+        }
+
+        #lessonPage #lessonContent p {
+            margin: 0 0 7px;
+            font-size: inherit;
+            line-height: inherit;
+        }
+
+        #lessonPage #lessonContent h2 {
+            margin: 12px 0 6px;
+            color: #075b70;
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.5;
+        }
+
+        #lessonPage #lessonContent h3 {
+            margin: 10px 0 5px;
+            color: #126779;
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1.55;
+        }
+
+        #lessonPage #lessonContent strong,
+        #lessonPage #lessonContent b {
+            font-weight: 700;
+        }
+
+        #lessonPage #lessonContent em,
+        #lessonPage #lessonContent i {
+            font-style: italic;
+        }
+
+        #lessonPage #lessonContent u {
+            text-decoration: underline;
+        }
+
+        #lessonPage #lessonContent ol {
+            list-style-type: decimal;
+            list-style-position: outside;
+        }
+
+        #lessonPage #lessonContent ul {
+            list-style-type: disc;
+            list-style-position: outside;
+        }
+
+        #lessonPage #lessonContent ol,
+        #lessonPage #lessonContent ul {
+            margin: 6px 0 8px;
+            padding-left: 20px;
+        }
+
+        #lessonPage #lessonContent li {
+            display: list-item;
+            margin-bottom: 3px;
+            padding-left: 2px;
+            font-size: inherit;
+            line-height: 1.55;
+        }
+
+        #lessonPage .sd-material-media {
+            width: 100%;
+            max-width: 350px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        #lessonPage .sd-media-picture {
+            display: block;
+            width: 100%;
+            max-width: 350px;
+            height: auto;
+            object-fit: contain;
+            margin-inline: auto;
+            border-radius: 10px;
+        }
+
+        #lessonPage .sd-media-caption {
+            margin: 10px 0 0;
+            color: #69828b;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        #lessonPage .sd-media-item + .sd-media-item {
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid #e2ece7;
+        }
+
+        #lessonPage .sd-media-title {
+            margin: 0 0 7px;
+            color: #19566a;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        #lessonPage .sd-media-video,
+        #lessonPage .sd-media-youtube {
+            display: block;
+            width: 100%;
+            max-width: 350px;
+            aspect-ratio: 16 / 9;
+            margin-inline: auto;
+            border: 0;
+            border-radius: 10px;
+            background: #10252b;
+        }
+
+        #lessonPage .sd-media-video {
+            height: auto;
+            object-fit: contain;
+        }
+
+        #lessonPage .sd-media-unavailable,
+        #lessonPage .sd-media-note {
+            margin: 8px 0 0;
+            color: #69828b;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        #lessonPage .sd-content-block + .sd-content-block {
+            margin-top: 12px;
+        }
+
+        #lessonPage .sd-content-block-callout {
+            padding: 11px 12px;
+            border-left: 3px solid #4f9d69;
+            border-radius: 8px;
+            background: #f0f8f2;
+        }
+
+        #lessonPage .sd-content-block-callout > strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #19566a;
+        }
+
+        #chapterPage .sd-objectives {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 6px;
+        }
+
+        #chapterPage > .sd-card {
+            padding: 12px;
+        }
+
+        #chapterPage > .sd-card.mt-3 {
+            margin-top: 10px !important;
+        }
+
+        #chapterPage .sd-heading {
+            margin-bottom: 8px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        #chapterPage > .sd-card > .sd-copy {
+            margin-bottom: 8px;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        #chapterPage .sd-objective {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            min-width: 0;
+            padding: 9px 10px;
+            border-radius: 10px;
+            line-height: 1.5;
+        }
+
+        #chapterPage .sd-objective-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 25px;
+            width: 25px;
+            height: 25px;
+            border-radius: 7px;
+            background: #dff2e7;
+            color: #176447;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        #chapterPage .sd-objective-body {
+            min-width: 0;
+            flex: 1;
+        }
+
+        #chapterPage .sd-objective-body p {
+            margin: 2px 0 0;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        #chapterPage .sd-prompt-image {
+            display: block;
+            width: min(100%, 350px);
+            height: auto;
+            object-fit: contain;
+            margin: 10px auto 0;
+            border-radius: 10px;
+        }
+
+        #lessonPage [hidden],
+        #chapterPage [hidden] {
+            display: none !important;
+        }
+
+        #chapterPage .sd-prompt {
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            font-size: 12px;
+        }
+
+        #chapterPage .sd-prompt .sd-copy {
+            margin: 0;
+            color: #294f57;
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+        @media (max-width: 767.98px) {
+            #lessonPage .sd-material-grid {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 10px;
+            }
+
+            #lessonPage .sd-material-card {
+                padding: 10px;
+            }
+
+            #lessonPage #lessonContent {
+                font-size: 13px;
+                line-height: 1.55;
+            }
+
+            #lessonPage #lessonContent p {
+                margin-bottom: 7px;
+            }
+
+            #lessonPage #lessonContent h2 {
+                font-size: 15px;
+            }
+
+            #lessonPage #lessonContent h3 {
+                font-size: 13px;
+            }
+
+            #lessonPage #lessonContent ol,
+            #lessonPage #lessonContent ul {
+                padding-left: 24px;
+            }
+
+            #chapterPage .sd-objective {
+                padding: 8px 9px;
+                gap: 7px;
+            }
+
+            #chapterPage .sd-objective-body p {
+                font-size: 13px;
+            }
+
+            #chapterPage .sd-prompt .sd-copy {
+                font-size: 13px;
+            }
+
+            #chapterPage .sd-prompt {
+                font-size: 13px;
+            }
+        }

@@ -13,7 +13,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
 
-    <link rel="stylesheet" href="{{ asset('css/guru.css') }}?v=6">
+    <link rel="stylesheet" href="{{ asset('css/guru.css') }}?v=7">
 
     <link rel="stylesheet" href="{{ asset('css/guru-materi.css') }}?v=21">
     <script src="{{ asset('js/guru-materi.js') }}?v=17" defer></script>
@@ -36,7 +36,9 @@
     <link rel="stylesheet" href="{{ asset('css/guru-profil.css') }}?v=3">
     <script src="{{ asset('js/guru-profil.js') }}?v=1" defer></script>
 
+    <link rel="stylesheet" href="{{ asset('css/saluang-selects.css') }}?v=1">
 
+    <script src="{{ asset('js/guru-logout.js') }}?v=1" defer></script>
 </head>
 
 <body class="gd-page">
@@ -120,7 +122,7 @@
         {{-- LOGOUT --}}
         <div class="gd-footer">
             @auth
-                <form action="{{ route('logout') }}" method="POST">
+                <form action="{{ route('logout') }}" method="POST" data-gd-logout-form>
                     @csrf
 
                     <button type="submit" class="gd-exit">
@@ -201,7 +203,7 @@
 
                         <div class="gd-dropdown-divider"></div>
 
-                        <form action="{{ route('logout') }}" method="POST">
+                        <form action="{{ route('logout') }}" method="POST" data-gd-logout-form>
                             @csrf
 
                             <button type="submit" class="gd-dropdown-item gd-dropdown-danger">
@@ -636,6 +638,25 @@
 
         });
     </script>
+
+    {{-- Modal konfirmasi Keluar Guru (berlaku untuk sidebar dan dropdown profil) --}}
+    <div id="gdLogoutModal" class="gd-logout-modal" hidden>
+        <div class="gd-logout-backdrop" data-gd-logout-cancel></div>
+        <div class="gd-logout-dialog" role="dialog" aria-modal="true"
+            aria-labelledby="gdLogoutTitle" aria-describedby="gdLogoutDescription" tabindex="-1">
+            <button type="button" class="gd-logout-close" aria-label="Tutup" data-gd-logout-cancel>
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <img class="gd-logout-mascot" src="{{ asset('images/bekantan-logout-ceria.png') }}"
+                alt="Bekantan SALUANG melambaikan tangan">
+            <h2 id="gdLogoutTitle">Yakin ingin keluar?</h2>
+            <p id="gdLogoutDescription">Kamu akan keluar dari akun SALUANG. Pastikan semua aktivitas telah disimpan sebelum melanjutkan.</p>
+            <div class="gd-logout-actions">
+                <button type="button" class="gd-logout-cancel" data-gd-logout-cancel>Batal</button>
+                <button type="button" class="gd-logout-confirm" id="gdLogoutConfirm">Ya, Keluar</button>
+            </div>
+        </div>
+    </div>
 
 </body>
 

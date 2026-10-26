@@ -1146,7 +1146,7 @@
 
 .sd-page .sd-eval-confirm-info {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 11px;
 
     margin-bottom: 22px;
@@ -1164,8 +1164,18 @@
 }
 
 .sd-page .sd-eval-confirm-info i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     flex: 0 0 auto;
     font-size: 19px;
+    line-height: 1;
+}
+
+.sd-page .sd-eval-confirm-info span {
+    display: block;
+    margin: 0;
+    line-height: 1.6;
 }
 
 /* 02.4.10. Area dua tombol */

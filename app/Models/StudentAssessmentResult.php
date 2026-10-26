@@ -25,6 +25,7 @@ class StudentAssessmentResult extends Model
         'user_id',
         'assessment_type',
         'chapter_id',
+        'subchapter_id',
         'total_questions',
         'correct_answers',
         'score',
@@ -40,6 +41,7 @@ class StudentAssessmentResult extends Model
     protected $casts = [
         'user_id' => 'integer',
         'chapter_id' => 'integer',
+        'subchapter_id' => 'integer',
         'total_questions' => 'integer',
         'correct_answers' => 'integer',
         'score' => 'decimal:2',
@@ -72,5 +74,10 @@ class StudentAssessmentResult extends Model
             Chapter::class,
             'chapter_id'
         );
+    }
+
+    public function subchapter(): BelongsTo
+    {
+        return $this->belongsTo(Subchapter::class);
     }
 }

@@ -1815,7 +1815,7 @@
 
     margin: 0;
 
-    font-size: 13px;
+    font-size: 12.5px !important;
 
     font-weight: 600;
 
@@ -2097,6 +2097,7 @@
 
 }
 
+
 #guruMaterialPage .gm-preview-chevron {
 
     font-size: 12px;
@@ -2113,13 +2114,13 @@
 
 #gmSubchapterModal .gm-content-block-add>label:not(.visually-hidden) {
 
-    font-size: 13px !important;
+    font-size: 12.5px !important;
 
 }
 
 #gmSubchapterModal #gmContentBlockType {
 
-    font-size: 13px !important;
+    font-size: 12.5px !important;
 
     background-position: right 16px center;
 
@@ -2145,36 +2146,6 @@
 
 }
 
-#gmSubchapterModal .gm-content-block-add::after {
-
-    content: '';
-
-    width: 8px;
-
-    height: 8px;
-
-    border-right: 2px solid #075477;
-
-    border-bottom: 2px solid #075477;
-
-    transform: rotate(45deg);
-
-    grid-column: 2;
-
-    grid-row: 1;
-
-    justify-self: end;
-
-    margin-right: 20px;
-
-    margin-top: -4px;
-
-    pointer-events: none;
-
-    z-index: 1;
-
-}
-
 #gmSubchapterModal .gm-content-block-add #gmContentBlockType {
 
     grid-column: 2;
@@ -2190,8 +2161,6 @@
     appearance: none !important;
 
     -webkit-appearance: none !important;
-
-    background-image: none !important;
 
     font-size: 13px !important;
 
@@ -2215,7 +2184,7 @@
 
     grid-row: 1;
 
-    font-size: 13px !important;
+    font-size: 12.5px !important;
 
     font-weight: 600;
 
@@ -2901,4 +2870,18 @@
 
 #gmChapterModal #gmChapterIntroductionPreview.gm-introduction-preview[hidden] {
     display: none;
+}
+
+/* SALUANG: ukuran tulisan label "Jenis blok" (bukan isi dropdown). */
+#gmSubchapterModal .gm-content-block-add {
+    font-size: 13px !important;
+}
+#gmSubchapterModal .gm-content-block-add > :is(label, span, .gm-content-block-label) {
+    font-size: 13px !important;
+    line-height: 1.5;
+}
+/* Ukuran pilihan dan tombol tidak ikut dikecilkan. */
+#gmSubchapterModal .gm-content-block-add #gmContentBlockType,
+#gmSubchapterModal .gm-content-block-add > .gm-btn {
+    font-size: 13px !important;
 }
