@@ -1,48 +1,37 @@
-
 /* =====================================================
    SALUANG — PROFIL GURU
    File: public/css/guru-profil.css
    Mengikuti desain Profil Siswa SALUANG
    ===================================================== */
-
 /* 01. HALAMAN */
-
 .gp-profile-page {
     width: 100%;
     min-width: 0;
 }
-
 .gp-profile-page[hidden],
 .gp-profile-page [hidden] {
     display: none !important;
 }
-
 .gp-profile-container {
     width: min(100%, 920px);
     margin: 22px auto 45px;
 }
-
 /* 02. JUDUL */
-
 .gp-profile-heading {
     margin-bottom: 18px;
 }
-
 .gp-profile-heading h1 {
     margin: 0 0 6px;
     color: #075477;
     font-size: 27px;
     font-weight: 600;
 }
-
 .gp-profile-heading p {
     margin: 0;
     color: #7594a1;
     font-size: 12px;
 }
-
 /* 03. KARTU DASAR */
-
 .gp-profile-card {
     margin-bottom: 15px;
     padding: 24px;
@@ -51,16 +40,13 @@
     background: #ffffff;
     box-shadow: 0 3px 12px rgba(7, 84, 119, .025);
 }
-
 /* 04. IDENTITAS GURU */
-
 .gp-profile-identity {
     display: flex;
     align-items: center;
     gap: 22px;
     min-height: 135px;
 }
-
 .gp-profile-avatar {
     display: flex;
     align-items: center;
@@ -75,7 +61,6 @@
     font-size: 23px;
     font-weight: 700;
 }
-
 .gp-profile-avatar img {
     display: block;
     width: 100%;
@@ -83,11 +68,9 @@
     border-radius: 50%;
     object-fit: cover;
 }
-
 .gp-profile-identity-info {
     min-width: 0;
 }
-
 .gp-profile-identity-info h2 {
     margin: 0 0 4px;
     color: #075477;
@@ -95,27 +78,22 @@
     font-weight: 600;
     overflow-wrap: anywhere;
 }
-
 .gp-profile-identity-info p {
     margin: 0 0 12px;
     color: #7594a1;
     font-size: 11px;
 }
-
 .gp-profile-photo-actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 12px;
 }
-
 .gp-profile-photo-filename {
     color: #7594a1;
     font-size: 10px;
 }
-
 /* 05. HEADER KARTU */
-
 .gp-profile-card-header {
     display: flex;
     align-items: center;
@@ -123,23 +101,19 @@
     gap: 15px;
     margin-bottom: 20px;
 }
-
 .gp-profile-card-header h2 {
     margin: 0;
     color: #075477;
     font-size: 16px;
     font-weight: 600;
 }
-
 /* 06. INFORMASI PRIBADI */
-
 .gp-profile-info-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: 24px;
     row-gap: 14px;
 }
-
 .gp-profile-info-item {
     display: flex;
     flex-direction: column;
@@ -148,13 +122,11 @@
     padding: 0 0 11px;
     border-bottom: 1px solid #e1eceb;
 }
-
 .gp-profile-info-item span,
 .gp-profile-password-summary span {
     color: #7594a1;
     font-size: 10px;
 }
-
 .gp-profile-info-item strong,
 .gp-profile-password-summary strong {
     color: #075477;
@@ -162,34 +134,27 @@
     font-weight: 600;
     overflow-wrap: anywhere;
 }
-
 /* 07. PENGATURAN KATA SANDI */
-
 .gp-profile-password-summary {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 16px;
 }
-
 .gp-profile-password-summary > div {
     display: flex;
     flex-direction: column;
     gap: 6px;
 }
-
 /* 08. FORM EDIT */
-
 .gp-profile-form {
     margin-top: 19px;
 }
-
 .gp-profile-form-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
 }
-
 .gp-profile-form-grid label {
     display: flex;
     flex-direction: column;
@@ -199,7 +164,6 @@
     font-size: 11px;
     font-weight: 500;
 }
-
 .gp-profile-form-grid input {
     width: 100%;
     height: 41px;
@@ -212,17 +176,14 @@
     font-family: Poppins, sans-serif;
     font-size: 11px;
 }
-
 .gp-profile-form-grid input:focus {
     border-color: #80b6c1;
     box-shadow: 0 0 0 3px rgba(7, 84, 119, .08);
 }
-
 .gp-profile-form-grid input[readonly] {
     background: #f4f8f7;
     color: #78949d;
 }
-
 .gp-profile-form-actions,
 .gp-profile-password-actions {
     display: flex;
@@ -231,20 +192,16 @@
     gap: 10px;
     margin-top: 14px;
 }
-
 .gp-profile-message {
     margin: 10px 0 0;
     color: #537f8c;
     font-size: 11px;
     line-height: 1.7;
 }
-
 .gp-profile-message.is-error {
     color: #c44545;
 }
-
 /* 09. TOMBOL */
-
 .gp-profile-page .gp-profile-outline,
 .gp-profile-page .gp-profile-primary,
 .gp-profile-page .gp-profile-delete-photo {
@@ -264,117 +221,94 @@
         box-shadow .2s ease,
         transform .2s ease;
 }
-
 .gp-profile-page .gp-profile-outline {
     border: 1px solid #cde0df;
     background: #ffffff;
     color: #075477;
 }
-
 .gp-profile-page .gp-profile-outline:hover {
     background: #e9f5f7;
     border-color: #91bac7;
     transform: translateY(-1px);
 }
-
 .gp-profile-page .gp-profile-primary {
     border: 1px solid #075477;
     background: #075477;
     color: #ffffff;
 }
-
 .gp-profile-page .gp-profile-primary:hover {
     background: #043f5b;
     box-shadow: 0 4px 12px rgba(7, 84, 119, .14);
     transform: translateY(-1px);
 }
-
 .gp-profile-page .gp-profile-delete-photo {
     border: 1px solid #f0bfc1;
     background: #fff3f3;
     color: #c4434d;
 }
-
 .gp-profile-page .gp-profile-delete-photo:hover {
     background: #ffe3e5;
 }
-
 .gp-profile-page button:disabled {
     opacity: .6;
     cursor: not-allowed;
 }
-
 /* 10. FORM UBAH KATA SANDI */
-
 .gp-profile-password-form .gp-profile-form-grid {
     display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: 14px;
 }
-
 .gp-profile-password-form .gp-profile-form-grid label {
     width: 100%;
 }
-
 .gp-profile-password-form .gp-profile-form-grid input {
     width: 100%;
     height: 44px;
 }
-
 .gp-profile-password-back {
     align-self: flex-start;
     width: fit-content;
 }
-
 .gp-profile-settings-card {
     scroll-margin-top: 90px;
 }
-
 /* 11. RESPONSIVE */
-
 @media (max-width: 767.98px) {
     .gp-profile-container {
         margin-top: 12px;
     }
-
     .gp-profile-card {
         padding: 18px;
     }
-
     .gp-profile-info-grid,
     .gp-profile-form-grid {
         grid-template-columns: 1fr;
     }
-
     .gp-profile-identity {
         align-items: flex-start;
         gap: 15px;
     }
-
     .gp-profile-avatar {
         width: 60px;
         height: 60px;
         font-size: 19px;
     }
-
     .gp-profile-heading h1 {
         font-size: 23px;
     }
 }
-
 @media (max-width: 480px) {
     .gp-profile-identity {
         flex-direction: column;
     }
-
     .gp-profile-card-header,
     .gp-profile-password-summary {
         align-items: flex-start;
         flex-direction: column;
     }
 }
-
 @media (prefers-reduced-motion: reduce) {
     .gp-profile-page .gp-profile-outline,
     .gp-profile-page .gp-profile-primary,
@@ -383,7 +317,6 @@
         transform: none;
     }
 }
-
 /* Typography standard for dashboard content, excluding titles and navigation. */
 #guruMain .gd-content :where(
     p, li, label, input, textarea, select, option, button, small, span,
@@ -400,17 +333,14 @@
 :not(.gm-introduction-caption):not(.gm-introduction-caption *) {
     font-size: 12.5px !important;
 }
-
 #guruMain .gd-content input::placeholder,
 #guruMain .gd-content textarea::placeholder {
     font-size: 12.5px !important;
 }
-
 #guruMain .gd-content :where(p, li):not(figcaption p):not(.gm-preview-media figcaption p) {
     line-height: 1.5 !important;
     text-align: justify !important;
 }
-
 #guruMain #guruMaterialPage .gm-learning-activity-body,
 #guruMain #guruMaterialPage .gm-learning-activity-body p,
 #guruMain #guruMaterialPage .gm-learning-activity-body li,
@@ -419,19 +349,16 @@
     font-size: 12.5px !important;
     line-height: 1.5 !important;
 }
-
 #guruMain #gmChapterModal #gmChapterForm :where(
     label, input, textarea, select, option, button, span
 ) {
     font-size: 13px !important;
     line-height: 1.5 !important;
 }
-
 #guruMain #gmChapterModal #gmChapterForm :where(small, p) {
     font-size: 12.5px !important;
     line-height: 1.5 !important;
 }
-
 #guruMain #gmChapterModal #gmChapterForm input::placeholder,
 #guruMain #gmChapterModal #gmChapterForm textarea::placeholder {
     font-size: 13px !important;

@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* 02. ELEMEN FOTO */
     const avatar = byId('gpProfileAvatar');
+    const topbarAvatar = byId('gdTopbarAvatar');
     const photoButton = byId('gpProfilePhotoButton');
     const photoInput = byId('gpProfilePhotoInput');
     const deletePhotoButton = byId('gpProfileDeletePhotoButton');
@@ -81,7 +82,59 @@ document.addEventListener('DOMContentLoaded', () => {
         return firstError || result?.message || fallback;
     }
 
-    /* 04. REQUEST KE LARAVEL */
+
+    // Avatar topbar dan halaman Profil selalu menunjukkan foto yang sama.
+    function initialFromName(name) {
+        return Array.from(String(name || '').trim())[0]?.toLocaleUpperCase('id-ID') || 'G';
+    }
+
+    function setAvatarInitial(name) {
+        const initial = initialFromName(name);
+        const largeInitial = document.createElement('span');
+        largeInitial.id = 'gpProfileAvatarInitial';
+        largeInitial.textContent = initial;
+        avatar.replaceChildren(largeInitial);
+        if (topbarAvatar) {
+            topbarAvatar.dataset.initial = initial;
+            topbarAvatar.textContent = initial;
+        }
+    }
+
+    function setAvatarPhoto(url) {
+        if (typeof url !== 'string' || !url.trim()) {
+            throw new Error('URL foto dari server kosong.');
+        }
+        // Tempatkan gambar ke avatar besar dan kecil; jika gagal, inisial tetap terlihat.
+        const large = document.createElement('img');
+        large.id = 'gpProfileAvatarImage';
+        large.alt = 'Foto profil Guru';
+        large.src = url;
+        large.addEventListener('error', () => {
+            setAvatarInitial(displayName?.textContent || 'G');
+            showMessage(photoFilename, 'Foto sudah disimpan, tetapi gagal ditampilkan. Periksa php artisan storage:link.', true);
+        }, { once: true });
+        avatar.replaceChildren(large);
+
+        if (topbarAvatar) {
+            const small = document.createElement('img');
+            small.alt = 'Foto profil Guru';
+            small.src = url;
+            small.addEventListener('error', () => {
+                topbarAvatar.textContent = topbarAvatar.dataset.initial || 'G';
+            }, { once: true });
+            topbarAvatar.replaceChildren(small);
+        }
+    }
+
+    // Bila foto lama hilang dari storage, tampilkan inisial nama.
+    topbarAvatar?.querySelector('img')?.addEventListener('error', () => {
+        topbarAvatar.textContent = topbarAvatar.dataset.initial || 'G';
+    }, { once: true });
+    avatar?.querySelector('img')?.addEventListener('error', () => {
+        setAvatarInitial(displayName?.textContent || 'G');
+    }, { once: true });
+
+        /* 04. REQUEST KE LARAVEL */
     async function requestApi(url, method, data, isFile = false) {
         const headers = {
             'Accept': 'application/json',
@@ -161,6 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
             infoPhone.textContent = valueOrDash(data.nomor_telepon);
 
             displayName.textContent = valueOrDash(data.name);
+            if (!avatar.querySelector('img')) setAvatarInitial(data.name);
 
             identitySubtitle.textContent =
                 `${valueOrDash(data.sekolah)} · ` +
@@ -227,13 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 true
             );
 
-            const image = document.createElement('img');
-
-            image.id = 'gpProfileAvatarImage';
-            image.alt = 'Foto profil Guru';
-            image.src = result.photo_url;
-
-            avatar.replaceChildren(image);
+            setAvatarPhoto(result.photo_url);
 
             deletePhotoButton.hidden = false;
             deletePhotoButton.disabled = false;
@@ -270,14 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 'DELETE'
             );
 
-            const initial = document.createElement('span');
-            initial.id = 'gpProfileAvatarInitial';
-
-            const name = displayName.textContent.trim();
-            initial.textContent =
-                Array.from(name)[0]?.toUpperCase() || 'G';
-
-            avatar.replaceChildren(initial);
+            setAvatarInitial(displayName.textContent.trim());
 
             deletePhotoButton.hidden = true;
             photoFilename.textContent =

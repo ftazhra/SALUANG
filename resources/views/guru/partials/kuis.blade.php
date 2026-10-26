@@ -5,8 +5,7 @@
 
 <section class="gq-page" data-guru-section="kuis" id="guruQuizPage" hidden>
 
-
-    {{-- 01. NAVIGASI ATAS HALAMAN KUIS --}}
+{{-- 01. NAVIGASI ATAS HALAMAN KUIS --}}
     <div class="gd-page-navigation">
 
         <button type="button" class="gd-nav-btn" data-guru-previous>
@@ -99,8 +98,7 @@
         </button>
     </div>
 
-
-    {{-- =====================================================
+{{-- =====================================================
          06. MODAL TAMBAH / EDIT SOAL
          ===================================================== --}}
     <div class="gq-modal" id="gqQuestionModal" hidden>
@@ -190,8 +188,7 @@
         </div>
     </div>
 
-
-    {{-- =====================================================
+{{-- =====================================================
          07. MODAL PRATINJAU SOAL
          ===================================================== --}}
     <div class="gq-modal" id="gqPreviewModal" hidden>
@@ -220,8 +217,7 @@
         </div>
     </div>
 
-
-    {{-- =====================================================
+{{-- =====================================================
          08. MODAL KONFIRMASI HAPUS
          ===================================================== --}}
     <div class="gq-modal" id="gqDeleteModal" hidden>
@@ -254,8 +250,7 @@
         </div>
     </div>
 
-
-    {{-- =====================================================
+{{-- =====================================================
          09. PESAN HASIL CRUD
          ===================================================== --}}
     <div class="gq-toast" id="gqToast" role="status" aria-live="polite" hidden>

@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers\Siswa;
-
 use App\Http\Controllers\Controller;
 use App\Models\Chapter;
 use App\Models\QuizQuestion;
@@ -10,13 +8,11 @@ use App\Models\StudentSubchapterProgress;
 use App\Models\Subchapter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-
 class ProgressController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
         $this->ensureSiswa($request);
-
         $chapter = Chapter::query()
             ->where('is_published', true)
             ->whereHas('guru', fn ($query) => $query->where('role', 'guru'))
@@ -27,13 +23,11 @@ class ProgressController extends Controller
             ->orderByRaw('CASE WHEN nomor_bab = 6 THEN 0 ELSE 1 END')
             ->orderBy('nomor_bab')
             ->first();
-
         $progress = collect();
         $completedCount = 0;
         $totalCount = 0;
         $percentage = 0;
         $status = 'Belum Dimulai';
-
         if ($chapter) {
             $subchapterIds = $chapter->subchapters->pluck('id');
             $progress = StudentSubchapterProgress::query()
@@ -46,20 +40,17 @@ class ProgressController extends Controller
             $percentage = $totalCount > 0
                 ? (int) round(($completedCount / $totalCount) * 100)
                 : 0;
-
             if ($totalCount > 0 && $completedCount === $totalCount) {
                 $status = 'Selesai';
             } elseif ($progress->isNotEmpty()) {
                 $status = 'Sedang Dipelajari';
             }
         }
-
         $results = StudentAssessmentResult::query()
             ->where('user_id', $request->user()->id)
             ->with(['subchapter', 'chapter'])
             ->orderByDesc('completed_at')
             ->get();
-
         $activities = $progress->map(function (StudentSubchapterProgress $item) {
             return [
                 'type' => $item->status === 'completed' ? 'material_completed' : 'material_opened',
@@ -75,7 +66,6 @@ class ProgressController extends Controller
                 'occurred_at' => $result->completed_at,
             ];
         }))->sortByDesc(fn (array $activity) => $activity['occurred_at'])->take(5)->values();
-
         return response()->json([
             'chapter' => $chapter ? [
                 'id' => $chapter->id,
@@ -95,12 +85,10 @@ class ProgressController extends Controller
             ])->values(),
         ]);
     }
-
     public function openMaterial(Request $request, Subchapter $subchapter): JsonResponse
     {
         $this->ensureSiswa($request);
         $this->ensurePublishedSubchapter($subchapter);
-
         $progress = StudentSubchapterProgress::query()->firstOrCreate(
             [
                 'user_id' => $request->user()->id,
@@ -111,26 +99,21 @@ class ProgressController extends Controller
                 'opened_at' => now(),
             ]
         );
-
         if (!$progress->opened_at) {
             $progress->opened_at = now();
             $progress->save();
         }
-
         return response()->json(['status' => $progress->status]);
     }
-
     public function completeMaterial(Request $request, Subchapter $subchapter): JsonResponse
     {
         $this->ensureSiswa($request);
         $this->ensurePublishedSubchapter($subchapter);
-
         abort_if(
             $subchapter->quizQuestions()->where('is_published', true)->exists(),
             422,
             'Subbab ini harus diselesaikan melalui kuis wajib.'
         );
-
         $progress = StudentSubchapterProgress::query()->firstOrCreate(
             [
                 'user_id' => $request->user()->id,
@@ -141,19 +124,15 @@ class ProgressController extends Controller
                 'opened_at' => now(),
             ]
         );
-
         $progress->status = 'completed';
         $progress->completed_at = now();
         $progress->save();
-
         return response()->json(['status' => 'completed']);
     }
-
     private function ensureSiswa(Request $request): void
     {
         abort_unless($request->user()?->role === 'siswa', 403);
     }
-
     private function ensurePublishedSubchapter(Subchapter $subchapter): void
     {
         abort_unless(

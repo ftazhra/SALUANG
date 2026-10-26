@@ -1,14 +1,11 @@
 <?php
-
 namespace App\Http\Controllers\Guru;
-
 use App\Http\Controllers\Controller;
 use App\Models\EvaluationQuestion;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
-
 class EvaluationController extends Controller
 {
     /*
@@ -16,7 +13,6 @@ class EvaluationController extends Controller
     | AKSES KHUSUS GURU
     |--------------------------------------------------------------------------
     */
-
     private function ensureGuru(Request $request): void
     {
         abort_unless(
@@ -25,13 +21,11 @@ class EvaluationController extends Controller
             'Fitur ini hanya dapat diakses oleh Guru.'
         );
     }
-
     /*
     |--------------------------------------------------------------------------
     | MEMASTIKAN SOAL MILIK GURU YANG LOGIN
     |--------------------------------------------------------------------------
     */
-
     private function ownedQuestion(
         Request $request,
         int $question
@@ -40,13 +34,11 @@ class EvaluationController extends Controller
             ->where('user_id', $request->user()->id)
             ->findOrFail($question);
     }
-
     /*
     |--------------------------------------------------------------------------
     | JENIS SOAL BERDASARKAN NOMOR
     |--------------------------------------------------------------------------
     */
-
     private function questionType(int $number): string
     {
         return match (true) {
@@ -58,19 +50,16 @@ class EvaluationController extends Controller
             ]),
         };
     }
-
     /*
     |--------------------------------------------------------------------------
     | VALIDASI ISI SOAL
     |--------------------------------------------------------------------------
     */
-
     private function validateQuestion(
         Request $request,
         ?EvaluationQuestion $existing = null
     ): array {
         $userId = $request->user()->id;
-
         $data = $request->validate([
             'nomor_soal' => [
                 'required',
@@ -110,17 +99,14 @@ class EvaluationController extends Controller
                 'boolean',
             ],
         ]);
-
         $number = (int) $data['nomor_soal'];
         $expectedType = $this->questionType($number);
-
         if ($data['tipe_soal'] !== $expectedType) {
             throw ValidationException::withMessages([
                 'tipe_soal' =>
                 "Soal nomor {$number} harus menggunakan tipe {$expectedType}.",
             ]);
         }
-
         /*
          * Pilihan ganda membutuhkan 4 pilihan
          * dan satu kunci A, B, C, atau D.
@@ -152,11 +138,9 @@ class EvaluationController extends Controller
                     Rule::in(['A', 'B', 'C', 'D']),
                 ],
             ]);
-
             $data['konten_soal'] = $validated['konten_soal'];
             $data['kunci_jawaban'] = $validated['kunci_jawaban'];
         }
-
         /*
          * Soal interaktif:
          *
@@ -213,14 +197,11 @@ class EvaluationController extends Controller
                     'min:1',
                 ],
             ]);
-
             $items = collect($validated['konten_soal']['items']);
             $targets = collect($validated['konten_soal']['targets']);
             $pairs = $validated['kunci_jawaban']['pairs'];
-
             $itemIds = $items->pluck('id')->all();
             $targetIds = $targets->pluck('id')->all();
-
             if (
                 count($itemIds) !== count(array_unique($itemIds)) ||
                 count($targetIds) !== count(array_unique($targetIds))
@@ -229,7 +210,6 @@ class EvaluationController extends Controller
                     'konten_soal' => 'ID item dan target harus unik.',
                 ]);
             }
-
             if (
                 count($pairs) !== count($itemIds) ||
                 array_diff($itemIds, array_keys($pairs)) ||
@@ -241,29 +221,23 @@ class EvaluationController extends Controller
                     'Setiap item harus memiliki pasangan target yang valid.',
                 ]);
             }
-
             $data['konten_soal'] = $validated['konten_soal'];
             $data['kunci_jawaban'] = $validated['kunci_jawaban'];
         }
-
         return $data;
     }
-
     /*
     |--------------------------------------------------------------------------
     | 01. DAFTAR SOAL EVALUASI
     |--------------------------------------------------------------------------
     */
-
     public function index(Request $request): JsonResponse
     {
         $this->ensureGuru($request);
-
         $questions = EvaluationQuestion::query()
             ->where('user_id', $request->user()->id)
             ->orderBy('nomor_soal')
             ->get();
-
         return response()->json([
             'questions' => $questions,
             'total' => $questions->count(),
@@ -272,102 +246,78 @@ class EvaluationController extends Controller
                 ->count(),
         ]);
     }
-
     /*
     |--------------------------------------------------------------------------
     | 02. TAMBAH SOAL
     |--------------------------------------------------------------------------
     */
-
     public function store(Request $request): JsonResponse
     {
         $this->ensureGuru($request);
-
         $data = $this->validateQuestion($request);
-
         $data['user_id'] = $request->user()->id;
-
         $question = EvaluationQuestion::create($data);
-
         return response()->json([
             'message' => 'Soal evaluasi berhasil ditambahkan.',
             'question' => $question,
         ], 201);
     }
-
     /*
     |--------------------------------------------------------------------------
     | 03. DETAIL SOAL
     |--------------------------------------------------------------------------
     */
-
     public function show(
         Request $request,
         int $question
     ): JsonResponse {
         $this->ensureGuru($request);
-
         return response()->json([
             'question' => $this->ownedQuestion($request, $question),
         ]);
     }
-
     /*
     |--------------------------------------------------------------------------
     | 04. EDIT SOAL
     |--------------------------------------------------------------------------
     */
-
     public function update(
         Request $request,
         int $question
     ): JsonResponse {
         $this->ensureGuru($request);
-
         $existing = $this->ownedQuestion($request, $question);
-
         $data = $this->validateQuestion($request, $existing);
-
         $existing->update($data);
-
         return response()->json([
             'message' => 'Soal evaluasi berhasil diperbarui.',
             'question' => $existing->fresh(),
         ]);
     }
-
     /*
     |--------------------------------------------------------------------------
     | 05. HAPUS SOAL
     |--------------------------------------------------------------------------
     */
-
     public function destroy(
         Request $request,
         int $question
     ): JsonResponse {
         $this->ensureGuru($request);
-
         $existing = $this->ownedQuestion($request, $question);
-
         $existing->delete();
-
         return response()->json([
             'message' => 'Soal evaluasi berhasil dihapus.',
         ]);
     }
-
-
     /*
     |--------------------------------------------------------------------------
     | 06. UPLOAD GAMBAR SOAL EVALUASI
     |--------------------------------------------------------------------------
     */
-
     public function uploadImage(Request $request): JsonResponse
     {
         $this->ensureGuru($request);
-
         $request->validate([
             'image' => [
                 'required',
@@ -377,12 +327,10 @@ class EvaluationController extends Controller
                 'max:2048',
             ],
         ]);
-
         $path = $request->file('image')->store(
             'evaluation-images',
             'public'
         );
-
         return response()->json([
             'message' => 'Gambar berhasil diunggah.',
             'path' => $path,

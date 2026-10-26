@@ -1,13 +1,10 @@
 <?php
-
 namespace App\Http\Controllers;
-
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
-
 class PasswordRecoveryController extends Controller
 {
     /*
@@ -15,12 +12,10 @@ class PasswordRecoveryController extends Controller
     | TAMPILKAN HALAMAN LUPA KATA SANDI
     |--------------------------------------------------------------------------
     */
-
     public function show(): View
     {
         return view('auth.forgot-password');
     }
-
     /*
     |--------------------------------------------------------------------------
     | SIMPAN PERMINTAAN PEMULIHAN MELALUI EMAIL
@@ -31,7 +26,6 @@ class PasswordRecoveryController extends Controller
     | bukan proses reset password secara otomatis.
     |
     */
-
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
@@ -41,9 +35,7 @@ class PasswordRecoveryController extends Controller
                 'max:255',
             ],
         ]);
-
         $email = strtolower(trim($data['email']));
-
         /*
         | Cari akun SALUANG berdasarkan Email.
         | Tidak dibatasi untuk satu peran tertentu.
@@ -57,20 +49,17 @@ class PasswordRecoveryController extends Controller
             ])
             ->whereRaw('LOWER(email) = ?', [$email])
             ->first();
-
         /*
         | Jika akun ditemukan, simpan permintaan.
         | Hindari membuat permintaan pending berulang.
         */
         if ($user) {
             DB::transaction(function () use ($user) {
-
                 $existing = DB::table('password_recovery_requests')
                     ->where('user_id', $user->id)
                     ->where('status', 'pending')
                     ->lockForUpdate()
                     ->first();
-
                 if (!$existing) {
                     DB::table('password_recovery_requests')->insert([
                         'user_id' => $user->id,
@@ -82,7 +71,6 @@ class PasswordRecoveryController extends Controller
                 }
             });
         }
-
         /*
         | Pesan dibuat sama, baik akun ditemukan
         | maupun tidak, untuk melindungi informasi akun.

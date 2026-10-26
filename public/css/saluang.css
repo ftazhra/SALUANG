@@ -1,11 +1,8 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&display=swap');
-
 /* =========================================
    SALUANG - BERANDA LARAVEL BLADE
    CSS UTAMA
 ========================================= */
-
 :root {
     --navy: #0f5b78;
     --ink: #16445a;
@@ -17,18 +14,15 @@
     --line: #d7e8e5;
     --white: #ffffff;
 }
-
 *,
 *::before,
 *::after {
     box-sizing: border-box;
 }
-
 html {
     scroll-behavior: smooth;
     scroll-padding-top: 80px;
 }
-
 body {
     margin: 0;
     min-width: 320px;
@@ -36,52 +30,43 @@ body {
     color: var(--ink);
     font-family: 'Nunito', sans-serif;
 }
-
 img {
     display: block;
     max-width: 100%;
 }
-
 a {
     color: inherit;
     text-decoration: none;
 }
-
 button,
 input,
 select,
 textarea {
     font: inherit;
 }
-
 button,
 a,
 summary {
     -webkit-tap-highlight-color: transparent;
 }
-
 button:focus-visible,
 a:focus-visible,
 summary:focus-visible {
     outline: 3px solid var(--green);
     outline-offset: 4px;
 }
-
 .container,
 .nav-container,
 .hero-container {
     width: min(1200px, calc(100% - 64px));
     margin-inline: auto;
 }
-
 [id] {
     scroll-margin-top: 90px;
 }
-
 /* =========================================
    1. NAVBAR
 ========================================= */
-
 .site-header {
     position: sticky;
     top: 0;
@@ -90,23 +75,19 @@ summary:focus-visible {
     border-bottom: 1px solid rgba(15, 91, 120, 0.1);
     backdrop-filter: blur(12px);
 }
-
 .nav-container {
     min-height: 70px;
     display: flex;
     align-items: center;
     gap: 0;
 }
-
 /* Logo di kiri seperti Figma */
-
 .site-logo {
     display: flex;
     align-items: center;
     flex-shrink: 0;
     margin-right: auto;
 }
-
 .site-logo img {
     width: 175px;
     height: auto;
@@ -114,9 +95,7 @@ summary:focus-visible {
     object-fit: contain;
     object-position: left center;
 }
-
 /* Menu berkumpul di sebelah kanan */
-
 .main-nav {
     position: relative;
     display: flex;
@@ -126,7 +105,6 @@ summary:focus-visible {
     margin-right: 24px;
     flex-shrink: 0;
 }
-
 .main-nav a {
     position: relative;
     display: inline-flex;
@@ -138,21 +116,16 @@ summary:focus-visible {
     white-space: nowrap;
     transition: color 0.3s ease;
 }
-
 .main-nav a:hover,
 .main-nav a.active {
     color: var(--navy);
 }
-
 /* Matikan garis lama supaya tidak muncul dua garis */
-
 .main-nav a::after,
 .main-nav a.active::after {
     content: none;
 }
-
 /* Satu garis bergerak mengikuti menu aktif */
-
 .nav-indicator {
     position: absolute;
     bottom: 0;
@@ -167,16 +140,13 @@ summary:focus-visible {
         transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
         width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
-
 /* Tombol Masuk dan Daftar */
-
 .nav-auth {
     display: flex;
     align-items: center;
     gap: 12px;
     flex-shrink: 0;
 }
-
 .nav-login,
 .nav-register {
     display: inline-flex;
@@ -194,33 +164,27 @@ summary:focus-visible {
         color 0.25s ease,
         transform 0.25s ease;
 }
-
 .nav-login {
     border: 1px solid var(--navy);
     color: var(--navy);
     background: white;
 }
-
 .nav-login:hover {
     background: var(--mist);
     transform: translateY(-2px);
 }
-
 .nav-register {
     border: 1px solid var(--navy);
     color: white;
     background: var(--navy);
 }
-
 .nav-register:hover {
     background: #084662;
     transform: translateY(-2px);
 }
-
 /* =========================================
    2. TOMBOL UMUM
 ========================================= */
-
 .btn {
     display: inline-flex;
     align-items: center;
@@ -237,44 +201,35 @@ summary:focus-visible {
         background 0.25s ease,
         box-shadow 0.25s ease;
 }
-
 .btn:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(15, 91, 120, 0.12);
 }
-
 .btn-blue {
     color: white;
     background: var(--navy);
 }
-
 .btn-blue:hover {
     background: #084662;
 }
-
 .btn-white {
     color: var(--navy);
     background: white;
     border: 1.5px solid var(--navy);
 }
-
 .btn-white:hover {
     background: var(--mist);
 }
-
 .btn-yellow {
     background: var(--yellow);
     color: #173b4a;
 }
-
 .btn-yellow:hover {
     background: #ffd166;
 }
-
 /* =========================================
    3. HERO SALUANG
 ========================================= */
-
 .hero-saluang {
     position: relative;
     display: flex;
@@ -294,17 +249,14 @@ summary:focus-visible {
     background-position: center;
     background-repeat: no-repeat;
 }
-
 .hero-container {
     position: relative;
     z-index: 1;
 }
-
 .hero-copy {
     width: min(465px, 100%);
     padding-block: 58px;
 }
-
 .eyebrow {
     display: flex;
     align-items: center;
@@ -314,7 +266,6 @@ summary:focus-visible {
     font-weight: 900;
     letter-spacing: 1.8px;
 }
-
 .eyebrow-dot {
     width: 8px;
     height: 8px;
@@ -322,7 +273,6 @@ summary:focus-visible {
     border-radius: 50%;
     background: var(--yellow);
 }
-
 .hero-copy h1 {
     margin: 22px 0 17px;
     color: #091b27;
@@ -332,7 +282,6 @@ summary:focus-visible {
     line-height: 1.11;
     letter-spacing: -1.8px;
 }
-
 .hero-copy h1 span {
     display: inline-block;
     margin-top: 3px;
@@ -340,7 +289,6 @@ summary:focus-visible {
     font-size: 1.43em;
     letter-spacing: -2.5px;
 }
-
 .hero-copy h2 {
     max-width: 400px;
     margin: 0 0 18px;
@@ -350,7 +298,6 @@ summary:focus-visible {
     line-height: 1.4;
     font-weight: 800;
 }
-
 .hero-copy > p {
     max-width: 430px;
     margin: 0;
@@ -358,14 +305,12 @@ summary:focus-visible {
     font-size: 14px;
     line-height: 1.75;
 }
-
 .hero-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 13px;
     margin-top: 24px;
 }
-
 .hero-note {
     display: flex;
     align-items: center;
@@ -375,20 +320,16 @@ summary:focus-visible {
     font-size: 11px;
     font-weight: 800;
 }
-
 .hero-note span {
     color: var(--green);
     font-size: 17px;
 }
-
 /* =========================================
    4. SECTION UMUM
 ========================================= */
-
 .section {
     padding: 90px 0;
 }
-
 .section-label {
     margin-bottom: 10px;
     color: var(--green);
@@ -396,15 +337,12 @@ summary:focus-visible {
     font-weight: 900;
     letter-spacing: 2px;
 }
-
 .section-heading {
     margin-bottom: 35px;
 }
-
 .section-heading.center {
     text-align: center;
 }
-
 .section-heading h2,
 .about-copy h2 {
     margin: 0 0 15px;
@@ -415,12 +353,10 @@ summary:focus-visible {
     line-height: 1.17;
     letter-spacing: -1px;
 }
-
 .section-heading h2 span,
 .about-copy h2 span {
     color: var(--green);
 }
-
 .section-heading p {
     max-width: 710px;
     margin: 0;
@@ -428,36 +364,29 @@ summary:focus-visible {
     font-size: 14px;
     line-height: 1.8;
 }
-
 .section-heading.center p {
     margin-inline: auto;
 }
-
 /* =========================================
    5. TENTANG SALUANG
 ========================================= */
-
 .about-grid {
     display: grid;
     grid-template-columns: 1fr 1.12fr;
     align-items: center;
     gap: 75px;
 }
-
 .about-visual {
     position: relative;
     max-width: 480px;
 }
-
 .about-visual > img {
     width: 100%;
     height: 410px;
     object-fit: cover;
     border-radius: 24px;
 }
-
 /* Kartu Ikan Saluang */
-
 .about-float {
     position: absolute;
     right: -19px;
@@ -473,7 +402,6 @@ summary:focus-visible {
     border-radius: 20px;
     box-shadow: 0 12px 30px rgba(15, 91, 120, 0.14);
 }
-
 .about-float-icon {
     display: flex;
     align-items: center;
@@ -485,18 +413,15 @@ summary:focus-visible {
     border-radius: 50%;
     background: #eef8f4;
 }
-
 .about-float-icon img {
     display: block;
     width: 46px;
     height: 46px;
     object-fit: contain;
 }
-
 .about-float-text {
     min-width: 0;
 }
-
 .about-float-text strong,
 .about-float strong {
     display: block;
@@ -505,7 +430,6 @@ summary:focus-visible {
     font-weight: 900;
     line-height: 1.3;
 }
-
 .about-float-text small,
 .about-float small {
     display: block;
@@ -514,14 +438,12 @@ summary:focus-visible {
     font-size: 11px;
     line-height: 1.4;
 }
-
 .about-copy > p {
     max-width: 530px;
     color: var(--muted);
     font-size: 14px;
     line-height: 1.8;
 }
-
 .about-highlight {
     display: flex;
     align-items: flex-start;
@@ -531,7 +453,6 @@ summary:focus-visible {
     border-radius: 16px;
     background: #eaf5eb;
 }
-
 .highlight-icon {
     display: grid;
     place-items: center;
@@ -542,19 +463,16 @@ summary:focus-visible {
     background: white;
     font-size: 19px;
 }
-
 .about-highlight strong {
     color: #34734a;
     font-size: 13px;
 }
-
 .about-highlight p {
     margin: 8px 0 0;
     color: var(--muted);
     font-size: 12px;
     line-height: 1.7;
 }
-
 .about-acronym {
     display: flex;
     flex-wrap: wrap;
@@ -563,61 +481,47 @@ summary:focus-visible {
     margin-top: 17px;
     font-size: 11px;
 }
-
 .about-acronym strong {
     color: var(--navy);
     letter-spacing: 1px;
 }
-
 .about-acronym span {
     color: #34734a;
     font-weight: 700;
 }
-
 /* =========================================
    6. MENGAPA SALUANG
 ========================================= */
-
 .benefits-section {
     position: relative;
     overflow: hidden;
-
     padding: 85px 0 115px;
-
     background-color: #fffdf5;
     background-image: url('/images/features-wetland-bg.png');
     background-position: center center;
     background-repeat: no-repeat;
     background-size: cover;
 }
-
 /* Semua konten berada di atas ilustrasi latar */
-
 .benefits-section > .container {
     position: relative;
     z-index: 1;
 }
-
 .benefits-section .section-heading {
     margin-bottom: 42px;
 }
-
 .benefits-section .section-heading p {
     max-width: 680px;
     margin-inline: auto;
 }
-
 /* Susunan empat kartu */
-
 .benefit-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     align-items: stretch;
     gap: 20px;
 }
-
 /* Kartu utama */
-
 .benefit-card {
     position: relative;
     min-height: 340px;
@@ -625,26 +529,20 @@ summary:focus-visible {
     border: 1px solid rgba(15, 91, 120, 0.08);
     border-radius: 22px;
     text-align: center;
-
     transition:
         transform 0.35s ease,
         box-shadow 0.35s ease;
 }
-
 .benefit-green {
     background: #eaf5ed;
 }
-
 .benefit-blue {
     background: #e8f8fc;
 }
-
 .benefit-yellow {
     background: #fff8e6;
 }
-
 /* Ilustrasi asli setiap kartu */
-
 .benefit-image {
     display: flex;
     align-items: center;
@@ -652,99 +550,78 @@ summary:focus-visible {
     height: 145px;
     margin-bottom: 20px;
 }
-
 .benefit-image img {
     width: 100%;
     max-width: 185px;
     height: 140px;
     object-fit: contain;
-
     transition: transform 0.35s ease;
 }
-
 /* Tulisan */
-
 .benefit-card h3 {
     min-height: 55px;
     margin: 0 0 12px;
-
     color: #0f5b78;
     font-family: 'Poppins', sans-serif;
     font-size: 16px;
     line-height: 1.35;
     font-weight: 800;
 }
-
 .benefit-card p {
     margin: 0;
     color: #57747c;
     font-size: 12px;
     line-height: 1.7;
 }
-
 /* Interaksi saat mouse diarahkan */
-
 .benefit-card:hover {
     transform: translateY(-9px);
     box-shadow: 0 18px 35px rgba(15, 91, 120, 0.12);
 }
-
 .benefit-card:hover .benefit-image img {
     transform: scale(1.05);
 }
-
 /* Responsif tablet */
-
 @media (max-width: 1000px) {
     .benefit-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
-
 /* Responsif HP */
-
 @media (max-width: 600px) {
     .benefits-section {
         padding: 65px 0 90px;
         background-position: center bottom;
     }
-
     .benefit-grid {
         grid-template-columns: 1fr;
         gap: 16px;
     }
-
     .benefit-card {
         min-height: auto;
     }
 }
-
 @media (prefers-reduced-motion: reduce) {
     .benefit-card,
     .benefit-image img {
         transition: none;
     }
 }
-
 /* =========================================
    7. FITUR SALUANG
 ========================================= */
-
 .features-section {
     background: var(--cream);
 }
-
 .features-section .section-label {
     color: var(--navy);
 }
-
 .feature-links {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     margin-bottom: 25px;
 }
-
 .feature-links a {
     padding: 11px 15px;
     border: 1px solid var(--line);
@@ -757,17 +634,14 @@ summary:focus-visible {
         background 0.25s ease,
         transform 0.25s ease;
 }
-
 .feature-links a:hover {
     background: var(--mist);
     transform: translateY(-2px);
 }
-
 .feature-list {
     display: grid;
     gap: 17px;
 }
-
 .feature-row {
     display: flex;
     gap: 20px;
@@ -780,13 +654,11 @@ summary:focus-visible {
         box-shadow 0.3s ease,
         border-color 0.3s ease;
 }
-
 .feature-row:hover {
     transform: translateY(-5px);
     border-color: #a9d9be;
     box-shadow: 0 14px 32px rgba(15, 91, 120, 0.08);
 }
-
 .feature-icon {
     display: grid;
     place-items: center;
@@ -798,7 +670,6 @@ summary:focus-visible {
     color: var(--green);
     font-size: 20px;
 }
-
 .feature-row h3 {
     margin: 0 0 5px;
     color: var(--navy);
@@ -806,12 +677,10 @@ summary:focus-visible {
     font-size: 17px;
     font-weight: 800;
 }
-
 .feature-row strong {
     color: var(--navy);
     font-size: 12px;
 }
-
 .feature-row p {
     max-width: 790px;
     margin: 12px 0;
@@ -819,38 +688,30 @@ summary:focus-visible {
     font-size: 12px;
     line-height: 1.75;
 }
-
 .feature-row a {
     color: var(--green);
     font-size: 11px;
     font-weight: 900;
 }
-
 .feature-row a:hover {
     text-decoration: underline;
 }
-
 /* =========================================
    8. PANDUAN PENGGUNAAN
 ========================================= */
-
 .guide-section {
     background: #eff8f5;
 }
-
 .guide-section .section-label {
     color: #0f5b78;
 }
-
 .guide-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 23px;
     align-items: start;
 }
-
 /* Kartu panduan */
-
 .guide-card {
     display: flex;
     flex-direction: column;
@@ -858,19 +719,15 @@ summary:focus-visible {
     padding: 26px;
     border-radius: 18px;
     background: #ffffff;
-
     transition:
         transform 0.3s ease,
         box-shadow 0.3s ease;
 }
-
 .guide-card:hover {
     transform: translateY(-6px);
     box-shadow: 0 15px 30px rgba(15, 91, 120, 0.1);
 }
-
 /* Ikon */
-
 .guide-icon {
     display: grid;
     place-items: center;
@@ -880,9 +737,7 @@ summary:focus-visible {
     background: #eff8f5;
     font-size: 19px;
 }
-
 /* Judul dan deskripsi */
-
 .guide-card h3 {
     margin: 16px 0 3px;
     color: #0f5b78;
@@ -890,140 +745,106 @@ summary:focus-visible {
     font-size: 17px;
     font-weight: 800;
 }
-
 .guide-card strong {
     color: #0f5b78;
     font-size: 12px;
 }
-
 .guide-card > p {
     margin: 11px 0 19px;
     color: #57747c;
     font-size: 12px;
     line-height: 1.65;
 }
-
 /* Area buka/tutup panduan */
-
 .panduan-toggle {
     margin-top: auto;
 }
-
 .panduan-toggle summary {
     display: flex;
     align-items: center;
     justify-content: center;
-
     min-height: 43px;
     padding: 12px;
-
     border-radius: 9px;
     background: #0f5b78;
     color: #ffffff;
-
     text-align: center;
     font-size: 12px;
     font-weight: 900;
-
     cursor: pointer;
     user-select: none;
     list-style: none;
-
     transition:
         background 0.25s ease,
         transform 0.25s ease;
 }
-
 /* Hilangkan tanda segitiga bawaan */
-
 .panduan-toggle summary::-webkit-details-marker {
     display: none;
 }
-
 .panduan-toggle summary::marker {
     content: "";
 }
-
 .panduan-toggle summary:hover {
     background: #084662;
 }
-
 .panduan-toggle summary:focus-visible {
     outline: 3px solid #4f9d69;
     outline-offset: 3px;
 }
-
 /* Teks tombol ketika panduan ditutup */
-
 .panduan-label-buka {
     display: inline;
 }
-
 .panduan-label-tutup {
     display: none;
 }
-
 /* Teks tombol ketika panduan dibuka */
-
 .panduan-toggle[open] .panduan-label-buka {
     display: none;
 }
-
 .panduan-toggle[open] .panduan-label-tutup {
     display: inline;
 }
-
 .panduan-toggle[open] summary {
     background: #34734a;
 }
-
 .panduan-toggle[open] summary:hover {
     background: #285d3b;
 }
-
 /* Isi panduan */
-
 .guide-detail {
     padding: 16px 4px 2px;
 }
-
 .guide-detail p {
     margin: 8px 0;
     color: #16445a;
     font-size: 12px;
     line-height: 1.7;
 }
-
 /* Responsive */
-
 @media (max-width: 700px) {
     .guide-grid {
         grid-template-columns: 1fr;
     }
-
     .guide-card {
         min-height: auto;
     }
 }
-
 /* Menghormati pengaturan pengurangan animasi */
-
 @media (prefers-reduced-motion: reduce) {
     .guide-card,
     .panduan-toggle summary {
         transition: none;
     }
 }
-
 /* =========================================
    9. BANNER AJAKAN BELAJAR
 ========================================= */
-
 .cta-section {
     padding: 50px 0 90px;
     background: var(--cream);
 }
-
 .cta-banner {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1033,7 +854,6 @@ summary:focus-visible {
     border-radius: 22px;
     background: var(--navy);
 }
-
 .cta-illustration {
     display: flex;
     align-items: flex-end;
@@ -1041,7 +861,6 @@ summary:focus-visible {
     height: 355px;
     overflow: hidden;
 }
-
 .cta-illustration img {
     width: 100%;
     max-width: 520px;
@@ -1049,18 +868,15 @@ summary:focus-visible {
     object-fit: contain;
     object-position: bottom;
 }
-
 .cta-content {
     padding: 40px 45px 40px 15px;
     color: white;
 }
-
 .cta-content > span {
     font-size: 11px;
     font-weight: 900;
     letter-spacing: 1.8px;
 }
-
 .cta-content h2 {
     margin: 10px 0 15px;
     font-family: 'Poppins', sans-serif;
@@ -1068,7 +884,6 @@ summary:focus-visible {
     font-weight: 900;
     line-height: 1.2;
 }
-
 .cta-content p {
     max-width: 405px;
     margin-bottom: 23px;
@@ -1076,17 +891,14 @@ summary:focus-visible {
     font-size: 13px;
     line-height: 1.7;
 }
-
 /* =========================================
    10. FOOTER
 ========================================= */
-
 .site-footer {
     padding: 35px 0 17px;
     background: #16445a;
     color: white;
 }
-
 .footer-top {
     display: flex;
     align-items: center;
@@ -1094,31 +906,26 @@ summary:focus-visible {
     gap: 30px;
     padding-bottom: 30px;
 }
-
 .footer-top img {
     width: 180px;
     max-height: 70px;
     object-fit: contain;
     object-position: left center;
 }
-
 .footer-top nav {
     display: flex;
     flex-wrap: wrap;
     gap: 24px;
 }
-
 .footer-top nav a {
     color: white;
     font-size: 12px;
     font-weight: 800;
     transition: opacity 0.2s ease;
 }
-
 .footer-top nav a:hover {
     opacity: 0.7;
 }
-
 .footer-bottom {
     display: flex;
     align-items: center;
@@ -1129,11 +936,9 @@ summary:focus-visible {
     color: #b9d0da;
     font-size: 10px;
 }
-
 /* =========================================
    11. ANIMASI MUNCUL SAAT SCROLL
 ========================================= */
-
 .reveal-on-scroll {
     opacity: 0;
     transform: translateY(25px);
@@ -1141,85 +946,66 @@ summary:focus-visible {
         opacity 0.65s ease,
         transform 0.65s ease;
 }
-
 .reveal-on-scroll.is-visible {
     opacity: 1;
     transform: translateY(0);
 }
-
 /* =========================================
    12. RESPONSIVE - TABLET
 ========================================= */
-
 @media (max-width: 1000px) {
-
     .nav-container {
         flex-wrap: wrap;
         padding-block: 12px;
         row-gap: 10px;
     }
-
     .site-logo {
         margin-right: auto;
     }
-
     .main-nav {
         gap: 17px;
         margin-right: 15px;
     }
-
     .main-nav a {
         font-size: 13px;
     }
-
     .about-grid {
         gap: 40px;
     }
-
     .benefit-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-
     .hero-saluang {
         background-position: 56% center;
     }
 }
-
 /* =========================================
    13. RESPONSIVE - MOBILE
 ========================================= */
-
 @media (max-width: 700px) {
-
     .container,
     .nav-container,
     .hero-container {
         width: min(100% - 36px, 1200px);
     }
-
     .site-header {
         position: sticky;
         top: 0;
     }
-
     .nav-container {
         justify-content: space-between;
         gap: 12px;
     }
-
     .site-logo {
         margin-right: 0;
     }
-
     .site-logo img {
         width: 145px;
     }
-
     .nav-auth {
         margin-left: auto;
         gap: 8px;
     }
-
     .main-nav {
         order: 3;
         width: 100%;
@@ -1228,19 +1014,16 @@ summary:focus-visible {
         gap: clamp(12px, 4vw, 24px);
         margin-right: 0;
     }
-
     .main-nav a {
         font-size: 12px;
         padding-block: 8px;
     }
-
     .nav-login,
     .nav-register {
         min-height: 34px;
         padding: 8px 12px;
         font-size: 12px;
     }
-
     .hero-saluang {
         min-height: 620px;
         align-items: flex-start;
@@ -1254,40 +1037,31 @@ summary:focus-visible {
             url('/images/wetland-hero.png');
         background-position: center;
     }
-
     .hero-copy {
         padding-block: 40px;
     }
-
     .hero-copy h1 {
         font-size: clamp(32px, 7vw, 43px);
     }
-
     .hero-copy h1 span {
         font-size: 1.26em;
     }
-
     .hero-copy h2 {
         font-size: 16px;
     }
-
     .section {
         padding: 65px 0;
     }
-
     .about-grid,
     .cta-banner {
         grid-template-columns: 1fr;
     }
-
     .about-visual {
         max-width: none;
     }
-
     .about-visual > img {
         height: 340px;
     }
-
     .about-float {
         right: 12px;
         left: auto;
@@ -1295,89 +1069,69 @@ summary:focus-visible {
         max-width: calc(100% - 24px);
         padding: 12px 15px;
     }
-
     .about-float-icon {
         width: 45px;
         height: 45px;
     }
-
     .about-float-icon img {
         width: 40px;
         height: 40px;
     }
-
     .guide-grid {
         grid-template-columns: 1fr;
     }
-
     .cta-illustration {
         height: 260px;
     }
-
     .cta-illustration img {
         max-height: 260px;
     }
-
     .cta-content {
         padding: 15px 28px 35px;
     }
-
     .footer-top,
     .footer-bottom {
         flex-direction: column;
         align-items: flex-start;
     }
 }
-
 /* =========================================
    14. RESPONSIVE - LAYAR KECIL
 ========================================= */
-
 @media (max-width: 470px) {
-
     .site-logo img {
         width: 130px;
     }
-
     .nav-login,
     .nav-register {
         padding: 8px 10px;
         font-size: 11px;
     }
-
     .benefit-grid {
         grid-template-columns: 1fr;
     }
-
     .hero-actions {
         gap: 9px;
     }
-
     .hero-actions .btn {
         padding: 12px 15px;
         font-size: 12px;
     }
-
     .feature-row {
         padding: 20px 16px;
         gap: 12px;
     }
-
     .feature-links a {
         font-size: 11px;
     }
 }
-
 /* =========================================
    15. AKSESIBILITAS ANIMASI
 ========================================= */
-
 @media (prefers-reduced-motion: reduce) {
-
     html {
         scroll-behavior: auto;
     }
-
     .nav-indicator,
     .benefit-card,
     .benefit-image img,
@@ -1388,29 +1142,22 @@ summary:focus-visible {
         transition: none;
         animation: none;
     }
-
     .reveal-on-scroll {
         opacity: 1;
         transform: none;
     }
 }
-
 @media (hover: none) {
-
     .benefit-card:hover,
     .feature-row:hover,
     .guide-card:hover {
         transform: none;
     }
-
     .benefit-card:hover .benefit-image img {
         transform: none;
     }
 }
-
-
 /* HALAMAN AUTENTIKASI SALUANG */
-
 .auth-page {
     min-height: 100vh;
     display: flex;
@@ -1419,7 +1166,6 @@ summary:focus-visible {
     padding: 50px 20px;
     background: #eff8f5;
 }
-
 .auth-card {
     width: 100%;
     max-width: 470px;
@@ -1429,7 +1175,6 @@ summary:focus-visible {
     border-radius: 20px;
     box-shadow: 0 12px 35px rgba(15,91,120,.08);
 }
-
 .auth-back {
     display: inline-block;
     margin-bottom: 24px;
@@ -1437,20 +1182,17 @@ summary:focus-visible {
     font-size: 13px;
     font-weight: 800;
 }
-
 .auth-card h1 {
     margin: 0 0 10px;
     color: #0f5b78;
     font-family: 'Poppins', sans-serif;
     font-size: 27px;
 }
-
 .auth-card > p {
     margin-bottom: 25px;
     color: #57747c;
     font-size: 14px;
 }
-
 .auth-card form label {
     display: block;
     margin: 16px 0 7px;
@@ -1458,7 +1200,6 @@ summary:focus-visible {
     font-size: 13px;
     font-weight: 800;
 }
-
 .auth-card input,
 .auth-card select {
     display: block;
@@ -1470,13 +1211,11 @@ summary:focus-visible {
     color: #16445a;
     font-size: 14px;
 }
-
 .auth-card input:focus,
 .auth-card select:focus {
     outline: 2px solid #4f9d69;
     outline-offset: 1px;
 }
-
 .auth-submit {
     width: 100%;
     margin-top: 25px;
@@ -1488,21 +1227,17 @@ summary:focus-visible {
     font-weight: 900;
     cursor: pointer;
 }
-
 .auth-submit:hover {
     background: #084662;
 }
-
 .auth-bottom {
     margin-top: 22px;
     text-align: center;
 }
-
 .auth-bottom a {
     color: #0f5b78;
     font-weight: 900;
 }
-
 .auth-error {
     padding: 13px;
     background: #fff0f0;
@@ -1511,21 +1246,16 @@ summary:focus-visible {
     color: #9b2424;
     font-size: 13px;
 }
-
 .auth-error ul {
     margin: 8px 0 0;
     padding-left: 20px;
 }
-
 [hidden] {
     display: none !important;
 }
-
-
 /* =====================================================
    16. PANDUAN LENGKAP SALUANG — SESUAI FIGMA
    ===================================================== */
-
 /* 16.1. Tombol Lihat Panduan */
 .saluang-guide-open {
     display: flex;
@@ -1535,287 +1265,230 @@ summary:focus-visible {
     min-height: 45px;
     margin-top: auto;
     padding: 12px 18px;
-
     border: 1px solid #0f5b78;
     border-radius: 10px;
     background: #0f5b78;
-
     color: #ffffff;
     font-family: 'Nunito', sans-serif;
     font-size: 13px;
     font-weight: 900;
-
     cursor: pointer;
     transition:
         background-color .22s ease,
         box-shadow .22s ease,
         transform .22s ease;
 }
-
 .saluang-guide-open:hover {
     background: #084662;
     box-shadow: 0 5px 15px rgba(15, 91, 120, .16);
     transform: translateY(-2px);
 }
-
 /* 16.2. Halaman panduan lengkap */
 .saluang-guide-page {
     max-width: 850px;
     margin: 0 auto;
 }
-
 .saluang-guide-page[hidden],
 #saluangGuideHome[hidden] {
     display: none !important;
 }
-
 /* 16.3. Tombol Kembali */
 .saluang-guide-back {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
     min-height: 39px;
     margin-bottom: 25px;
     padding: 9px 19px;
-
     border: 1px solid #a9ccd3;
     border-radius: 9px;
     background: #ffffff;
-
     color: #0f5b78;
     font-family: 'Nunito', sans-serif;
     font-size: 12px;
     font-weight: 800;
-
     cursor: pointer;
     transition:
         background-color .2s ease,
         border-color .2s ease,
         transform .2s ease;
 }
-
 .saluang-guide-back:hover {
     background: #e5f3f6;
     border-color: #6bafbc;
     transform: translateY(-1px);
 }
-
 /* 16.4. Daftar langkah vertikal */
 .saluang-guide-steps {
     display: flex;
     flex-direction: column;
     gap: 15px;
 }
-
 /* 16.5. Kartu langkah */
 .saluang-guide-step {
     display: flex;
     align-items: flex-start;
     gap: 18px;
-
     padding: 23px 25px;
-
     border: 1px solid #d2e5e1;
     border-radius: 15px;
     background: #ffffff;
-
     transition:
         border-color .2s ease,
         box-shadow .2s ease,
         transform .2s ease;
 }
-
 .saluang-guide-step:hover {
     border-color: #a3d0b4;
     box-shadow: 0 7px 20px rgba(15, 91, 120, .06);
     transform: translateY(-2px);
 }
-
 /* 16.6. Nomor 01, 02, 03 */
 .saluang-guide-number {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-
     width: 43px;
     min-height: 43px;
-
     border-radius: 10px;
     background: #4f9d69;
-
     color: #ffffff;
     font-family: 'Nunito', sans-serif;
     font-size: 13px;
     font-weight: 900;
 }
-
 /* 16.7. Judul dan instruksi */
 .saluang-guide-step-content {
     flex: 1;
     min-width: 0;
 }
-
 .saluang-guide-step-content h3 {
     margin: 1px 0 11px;
-
     color: #0f5b78;
     font-family: 'Poppins', sans-serif;
     font-size: 16px;
     font-weight: 800;
     line-height: 1.5;
 }
-
 .saluang-guide-step-content ul {
     margin: 0;
     padding-left: 19px;
 }
-
 .saluang-guide-step-content li {
     margin: 0 0 7px;
-
     color: #57747c;
     font-size: 12px;
     line-height: 1.8;
 }
-
 .saluang-guide-step-content li:last-child {
     margin-bottom: 0;
 }
-
 .saluang-guide-step-content li::marker {
     color: #4f9d69;
 }
-
 /* 16.8. Tombol kembali di bawah daftar */
 .saluang-guide-back-bottom {
     margin-top: 25px;
     margin-bottom: 0;
 }
-
 /* 16.9. Jarak menu Fitur dengan kartu penjelasan */
 #fitur .feature-links {
     margin-top: 8px;
     margin-bottom: 25px;
 }
-
 #fitur .feature-row {
     scroll-margin-top: 105px;
 }
-
 /* 16.10. Responsive tablet dan HP */
 @media (max-width: 700px) {
     .saluang-guide-step {
         gap: 12px;
         padding: 18px 15px;
     }
-
     .saluang-guide-number {
         width: 36px;
         min-height: 36px;
         font-size: 11px;
     }
-
     .saluang-guide-step-content h3 {
         font-size: 14px;
     }
-
     .saluang-guide-step-content li {
         font-size: 12px;
     }
-
     #fitur .feature-links {
         gap: 8px;
     }
 }
-
 @media (prefers-reduced-motion: reduce) {
     .saluang-guide-open,
     .saluang-guide-back,
     .saluang-guide-step {
         transition: none;
     }
-
     .saluang-guide-open:hover,
     .saluang-guide-back:hover,
     .saluang-guide-step:hover {
         transform: none;
     }
 }
-
-
 /* =====================================================
    17. INTERAKSI FITUR SALUANG
    ===================================================== */
-
 /* Tombol pilihan Fitur */
 #fitur .feature-links a {
     display: inline-flex;
     align-items: center;
     gap: 9px;
-
     color: #0f5b78;
     text-decoration: none;
-
     transition:
         color .22s ease,
         background-color .22s ease,
         border-color .22s ease,
         transform .22s ease;
 }
-
 #fitur .feature-links a i {
     font-size: 16px;
 }
-
 #fitur .feature-links a:hover {
     color: #287e50;
     background-color: #e9f6ed;
     border-color: #a0d1b0;
     transform: translateY(-2px);
 }
-
 /* Warna saat tombol ditekan */
 #fitur .feature-links a:active {
     color: #ffffff;
     background-color: #4f9d69;
     transform: scale(.98);
 }
-
 /* Pilihan Fitur yang sedang aktif */
 #fitur .feature-links a.is-active {
     color: #ffffff;
     background-color: #0f5b78;
     border-color: #0f5b78;
 }
-
 /* Ikon kartu penjelasan Fitur */
 #fitur .feature-icon i {
     font-size: 21px;
 }
-
 /* Kembali ke Fitur — TANPA garis bawah */
 #fitur .feature-row a {
     display: inline-flex;
     align-items: center;
-
     padding: 7px 12px;
     margin-left: -12px;
-
     border-radius: 8px;
-
     color: #287e50;
     background-color: transparent;
-
     text-decoration: none !important;
-
     transition:
         background-color .2s ease,
         color .2s ease,
         transform .2s ease;
 }
-
 /* Hover Kembali ke Fitur */
 #fitur .feature-row a:hover {
     color: #0f5b78;
@@ -1823,7 +1496,6 @@ summary:focus-visible {
     text-decoration: none !important;
     transform: translateY(-1px);
 }
-
 /* Ketika diklik */
 #fitur .feature-row a:active {
     color: #ffffff;
@@ -1831,7 +1503,6 @@ summary:focus-visible {
     text-decoration: none !important;
     transform: translateY(0);
 }
-
 /* Fokus keyboard */
 #fitur .feature-row a:focus-visible,
 #fitur .feature-links a:focus-visible {

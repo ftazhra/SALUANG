@@ -1,26 +1,18 @@
-
 {{-- =====================================================
      SALUANG — FORUM DISKUSI GURU
      File: resources/views/guru/partials/forum.blade.php
      ===================================================== --}}
 
-<section class="gf-page"
-    id="guruForumPage"
-    data-guru-section="forum"
-    hidden>
+<section class="gf-page" id="guruForumPage" data-guru-section="forum" hidden>
 
     {{-- NAVIGASI ATAS --}}
     <div class="gd-page-navigation">
-        <button type="button"
-            class="gd-nav-btn"
-            data-guru-previous>
+        <button type="button" class="gd-nav-btn" data-guru-previous>
             <i class="bi bi-chevron-left"></i>
             Previous
         </button>
 
-        <button type="button"
-            class="gd-nav-btn gd-nav-btn-next"
-            data-guru-next>
+        <button type="button" class="gd-nav-btn gd-nav-btn-next" data-guru-next>
             Next
             <i class="bi bi-chevron-right"></i>
         </button>
@@ -38,9 +30,7 @@
                 </p>
             </div>
 
-            <button type="button"
-                class="gf-btn gf-btn-primary"
-                id="gfAddDiscussion">
+            <button type="button" class="gf-btn gf-btn-primary" id="gfAddDiscussion">
                 <i class="bi bi-plus-lg"></i>
                 Tambah Diskusi
             </button>
@@ -80,41 +70,28 @@
         {{-- PENCARIAN --}}
         <div class="gf-field">
             <label for="gfSearch">Cari Diskusi</label>
-            <input type="search"
-                id="gfSearch"
-                maxlength="200"
-                placeholder="Cari pertanyaan atau judul diskusi">
+            <input type="search" id="gfSearch" maxlength="200" placeholder="Cari pertanyaan atau judul diskusi">
         </div>
 
         {{-- FILTER STATUS --}}
-        <div class="gf-status-filters"
-            role="group"
-            aria-label="Filter status diskusi">
+        <div class="gf-status-filters" role="group" aria-label="Filter status diskusi">
 
-            <button type="button"
-                class="gf-filter-btn is-active"
-                data-gf-filter="all">
+            <button type="button" class="gf-filter-btn is-active" data-gf-filter="all">
                 Terbaru
             </button>
 
-            <button type="button"
-                class="gf-filter-btn"
-                data-gf-filter="answered">
+            <button type="button" class="gf-filter-btn" data-gf-filter="answered">
                 Sudah Terjawab
             </button>
 
-            <button type="button"
-                class="gf-filter-btn"
-                data-gf-filter="unanswered">
+            <button type="button" class="gf-filter-btn" data-gf-filter="unanswered">
                 Belum Terjawab
             </button>
 
         </div>
 
         {{-- DAFTAR DISKUSI --}}
-        <div class="gf-discussion-list"
-            id="gfDiscussionList"
-            aria-live="polite">
+        <div class="gf-discussion-list" id="gfDiscussionList" aria-live="polite">
 
             <div class="gf-empty">
                 <i class="bi bi-arrow-repeat"></i>
@@ -124,22 +101,16 @@
         </div>
 
         {{-- PAGINASI --}}
-        <div class="gf-pagination"
-            id="gfPagination"
-            hidden>
+        <div class="gf-pagination" id="gfPagination" hidden>
 
-            <button type="button"
-                class="gf-btn gf-btn-outline"
-                id="gfPrevPage">
+            <button type="button" class="gf-btn gf-btn-outline" id="gfPrevPage">
                 <i class="bi bi-chevron-left"></i>
                 Sebelumnya
             </button>
 
             <span id="gfPageInfo"></span>
 
-            <button type="button"
-                class="gf-btn gf-btn-outline"
-                id="gfNextPage">
+            <button type="button" class="gf-btn gf-btn-outline" id="gfNextPage">
                 Berikutnya
                 <i class="bi bi-chevron-right"></i>
             </button>
@@ -149,16 +120,12 @@
 
     {{-- NAVIGASI BAWAH --}}
     <div class="gd-page-navigation gd-navigation-bottom">
-        <button type="button"
-            class="gd-nav-btn"
-            data-guru-previous>
+        <button type="button" class="gd-nav-btn" data-guru-previous>
             <i class="bi bi-chevron-left"></i>
             Previous
         </button>
 
-        <button type="button"
-            class="gd-nav-btn gd-nav-btn-next"
-            data-guru-next>
+        <button type="button" class="gd-nav-btn gd-nav-btn-next" data-guru-next>
             Next
             <i class="bi bi-chevron-right"></i>
         </button>
@@ -168,27 +135,18 @@
          MODAL TAMBAH / EDIT DISKUSI
          ========================================= --}}
 
-    <div class="gf-modal"
-        id="gfDiscussionModal"
-        hidden>
+    <div class="gf-modal" id="gfDiscussionModal" hidden>
 
-        <div class="gf-modal-backdrop"
-            data-gf-close></div>
+        <div class="gf-modal-backdrop" data-gf-close></div>
 
-        <div class="gf-modal-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="gfDiscussionModalTitle">
+        <div class="gf-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="gfDiscussionModalTitle">
 
             <div class="gf-modal-header">
                 <h2 id="gfDiscussionModalTitle">
                     Tambah Diskusi
                 </h2>
 
-                <button type="button"
-                    class="gf-modal-close"
-                    data-gf-close
-                    aria-label="Tutup">
+                <button type="button" class="gf-modal-close" data-gf-close aria-label="Tutup">
                     <i class="bi bi-x-lg"></i>
                 </button>
             </div>
@@ -219,34 +177,22 @@
 
                 <div class="gf-field">
                     <label for="gfFormTitle">Judul Diskusi</label>
-                    <input type="text"
-                        id="gfFormTitle"
-                        minlength="5"
-                        maxlength="200"
-                        placeholder="Masukkan judul diskusi"
-                        required>
+                    <input type="text" id="gfFormTitle" minlength="5" maxlength="200"
+                        placeholder="Masukkan judul diskusi" required>
                 </div>
 
                 <div class="gf-field">
                     <label for="gfFormBody">Isi Diskusi</label>
-                    <textarea id="gfFormBody"
-                        rows="5"
-                        minlength="10"
-                        maxlength="5000"
-                        placeholder="Tuliskan pertanyaan atau topik diskusi..."
-                        required></textarea>
+                    <textarea id="gfFormBody" rows="5" minlength="10" maxlength="5000"
+                        placeholder="Tuliskan pertanyaan atau topik diskusi..." required></textarea>
                 </div>
 
                 <div class="gf-form-actions">
-                    <button type="button"
-                        class="gf-btn gf-btn-outline"
-                        data-gf-close>
+                    <button type="button" class="gf-btn gf-btn-outline" data-gf-close>
                         Batal
                     </button>
 
-                    <button type="submit"
-                        class="gf-btn gf-btn-primary"
-                        id="gfSaveDiscussion">
+                    <button type="submit" class="gf-btn gf-btn-primary" id="gfSaveDiscussion">
                         Simpan Diskusi
                     </button>
                 </div>
@@ -259,25 +205,17 @@
          MODAL DETAIL DAN BALAS DISKUSI
          ========================================= --}}
 
-    <div class="gf-modal"
-        id="gfDetailModal"
-        hidden>
+    <div class="gf-modal" id="gfDetailModal" hidden>
 
-        <div class="gf-modal-backdrop"
-            data-gf-close></div>
+        <div class="gf-modal-backdrop" data-gf-close></div>
 
-        <div class="gf-modal-dialog gf-modal-dialog-large"
-            role="dialog"
-            aria-modal="true"
+        <div class="gf-modal-dialog gf-modal-dialog-large" role="dialog" aria-modal="true"
             aria-labelledby="gfDetailTitle">
 
             <div class="gf-modal-header">
                 <h2 id="gfDetailTitle">Detail Diskusi</h2>
 
-                <button type="button"
-                    class="gf-modal-close"
-                    data-gf-close
-                    aria-label="Tutup">
+                <button type="button" class="gf-modal-close" data-gf-close aria-label="Tutup">
                     <i class="bi bi-x-lg"></i>
                 </button>
             </div>
@@ -292,24 +230,16 @@
 
                 <div class="gf-field">
                     <label for="gfReplyBody">Tulis Tanggapan</label>
-                    <textarea id="gfReplyBody"
-                        rows="4"
-                        minlength="2"
-                        maxlength="5000"
-                        placeholder="Tuliskan tanggapan untuk diskusi ini..."
-                        required></textarea>
+                    <textarea id="gfReplyBody" rows="4" minlength="2" maxlength="5000"
+                        placeholder="Tuliskan tanggapan untuk diskusi ini..." required></textarea>
                 </div>
 
                 <div class="gf-form-actions">
-                    <button type="button"
-                        class="gf-btn gf-btn-outline"
-                        data-gf-close>
+                    <button type="button" class="gf-btn gf-btn-outline" data-gf-close>
                         Tutup
                     </button>
 
-                    <button type="submit"
-                        class="gf-btn gf-btn-primary"
-                        id="gfSendReply">
+                    <button type="submit" class="gf-btn gf-btn-primary" id="gfSendReply">
                         <i class="bi bi-send"></i>
                         Kirim Tanggapan
                     </button>
@@ -323,16 +253,11 @@
          MODAL KONFIRMASI HAPUS
          ========================================= --}}
 
-    <div class="gf-modal"
-        id="gfDeleteModal"
-        hidden>
+    <div class="gf-modal" id="gfDeleteModal" hidden>
 
-        <div class="gf-modal-backdrop"
-            data-gf-close></div>
+        <div class="gf-modal-backdrop" data-gf-close></div>
 
-        <div class="gf-modal-dialog gf-modal-dialog-small"
-            role="dialog"
-            aria-modal="true"
+        <div class="gf-modal-dialog gf-modal-dialog-small" role="dialog" aria-modal="true"
             aria-labelledby="gfDeleteTitle">
 
             <div class="gf-delete-icon">
@@ -347,15 +272,11 @@
             </p>
 
             <div class="gf-form-actions">
-                <button type="button"
-                    class="gf-btn gf-btn-outline"
-                    data-gf-close>
+                <button type="button" class="gf-btn gf-btn-outline" data-gf-close>
                     Batal
                 </button>
 
-                <button type="button"
-                    class="gf-btn gf-btn-danger"
-                    id="gfConfirmDelete">
+                <button type="button" class="gf-btn gf-btn-danger" id="gfConfirmDelete">
                     Ya, Hapus
                 </button>
             </div>
@@ -364,10 +285,6 @@
     </div>
 
     {{-- NOTIFIKASI --}}
-    <div class="gf-toast"
-        id="gfToast"
-        role="status"
-        aria-live="polite"
-        hidden></div>
+    <div class="gf-toast" id="gfToast" role="status" aria-live="polite" hidden></div>
 
 </section>

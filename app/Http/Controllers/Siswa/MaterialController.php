@@ -1,12 +1,9 @@
 <?php
-
 namespace App\Http\Controllers\Siswa;
-
 use App\Http\Controllers\Controller;
 use App\Models\Chapter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-
 class MaterialController extends Controller
 {
     public function index(Request $request): JsonResponse
@@ -16,7 +13,6 @@ class MaterialController extends Controller
             403,
             'Hanya Siswa yang dapat mengakses materi.'
         );
-
         $chapters = Chapter::query()
             ->where('is_published', true)
             ->whereHas('guru', function ($query) {
@@ -45,7 +41,6 @@ class MaterialController extends Controller
                 'tujuan_pembelajaran',
                 'pertanyaan_pemantik',
             ]);
-
         $chapters->each(function (Chapter $chapter) {
             $chapter->subchapters->each(function ($subchapter) {
                 $subchapter->media->each(function ($media) {
@@ -70,7 +65,6 @@ class MaterialController extends Controller
                 );
             });
         });
-
         return response()->json([
             'chapters' => $chapters,
         ]);

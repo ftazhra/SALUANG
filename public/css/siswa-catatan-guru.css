@@ -1,0 +1,6 @@
+/* Catatan dari Guru pada Profil Siswa */
+.sd-teacher-notes-card h2 { margin: 0 0 15px; font-size:16px; font-weight:600; color:#075477; }
+.sd-teacher-notes-content { color:#537f8c; font-size:12px; line-height:1.65; }
+.sd-teacher-note { padding: 13px 0; border-top:1px solid #e1eceb; }
+.sd-teacher-note strong { color:#075477; font-size:12px; }
+.sd-teacher-note p { margin:7px 0 0; white-space:pre-wrap; overflow-wrap:anywhere; }

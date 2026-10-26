@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers\Siswa;
-
 use App\Http\Controllers\Controller;
 use App\Models\Chapter;
 use App\Models\QuizQuestion;
@@ -13,7 +11,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-
 class QuizController extends Controller
 {
     /*
@@ -21,7 +18,6 @@ class QuizController extends Controller
     | AKSES SISWA
     |--------------------------------------------------------------------------
     */
-
     private function ensureSiswa(Request $request): void
     {
         abort_unless(
@@ -30,7 +26,6 @@ class QuizController extends Controller
             'Fitur kuis hanya dapat diakses oleh Siswa.'
         );
     }
-
     /*
     |--------------------------------------------------------------------------
     | DAFTAR SOAL BERDASARKAN NOMOR BAB DAN SUBBAB
@@ -41,14 +36,12 @@ class QuizController extends Controller
     | Hanya mengirim soal yang telah dipublikasikan.
     | Kunci jawaban dan pembahasan TIDAK dikirim.
     */
-
     public function questions(
         Request $request,
         int $chapterNumber,
         int $subchapterNumber
     ): JsonResponse {
         $this->ensureSiswa($request);
-
         $chapters = Chapter::query()
             ->where('nomor_bab', $chapterNumber)
             ->where('is_published', true)
@@ -58,19 +51,15 @@ class QuizController extends Controller
             })
             ->orderBy('id')
             ->get();
-
         $questions = collect();
-
         foreach ($chapters as $chapter) {
             $subchapter = $chapter->subchapters()
                 ->where('nomor_subbab', $subchapterNumber)
                 ->where('is_published', true)
                 ->first();
-
             if (!$subchapter) {
                 continue;
             }
-
             $chapterQuestions = QuizQuestion::query()
                 ->where('subchapter_id', $subchapter->id)
                 ->where('is_published', true)
@@ -84,17 +73,14 @@ class QuizController extends Controller
                     'pilihan_c',
                     'pilihan_d',
                 ]);
-
             $questions = $questions->concat($chapterQuestions);
         }
-
         return response()->json([
             'chapter_number' => $chapterNumber,
             'subchapter_number' => $subchapterNumber,
             'questions' => $questions->values(),
         ]);
     }
-
     public function questionsForSubchapter(
         Request $request,
         Subchapter $subchapter
@@ -106,7 +92,6 @@ class QuizController extends Controller
                 && $subchapter->chapter?->guru?->role === 'guru',
             404
         );
-
         $questions = $subchapter->quizQuestions()
             ->where('is_published', true)
             ->orderBy('nomor_soal')
@@ -121,13 +106,11 @@ class QuizController extends Controller
                 'kunci_jawaban',
                 'pembahasan',
             ]);
-
         $answers = StudentQuizAnswer::query()
             ->where('user_id', $request->user()->id)
             ->whereIn('quiz_question_id', $questions->pluck('id'))
             ->get()
             ->keyBy('quiz_question_id');
-
         $questions->each(function (QuizQuestion $question) use ($answers) {
             $answer = $answers->get($question->id);
             $correctAnswer = $question->kunci_jawaban;
@@ -136,7 +119,6 @@ class QuizController extends Controller
             if (!$answer) {
                 return;
             }
-
             $question->setAttribute('student_answer', [
                 'answer' => $answer->answer,
                 'correct' => $answer->is_correct,
@@ -144,14 +126,12 @@ class QuizController extends Controller
                 'explanation' => $explanation,
             ]);
         });
-
         return response()->json([
             'chapter_number' => $subchapter->chapter->nomor_bab,
             'subchapter_number' => $subchapter->nomor_subbab,
             'questions' => $questions,
         ]);
     }
-
     /*
     |--------------------------------------------------------------------------
     | PERIKSA JAWABAN SISWA
@@ -159,20 +139,17 @@ class QuizController extends Controller
     | Siswa mengirim ID soal dan jawaban A/B/C/D.
     | Server memeriksa kunci, lalu mengirim hasilnya.
     */
-
     public function checkAnswer(
         Request $request,
         int $question
     ): JsonResponse {
         $this->ensureSiswa($request);
-
         $data = $request->validate([
             'jawaban' => [
                 'required',
                 Rule::in(['A', 'B', 'C', 'D']),
             ],
         ]);
-
         $quizQuestion = QuizQuestion::query()
             ->whereKey($question)
             ->where('is_published', true)
@@ -184,10 +161,8 @@ class QuizController extends Controller
                     });
             })
             ->firstOrFail();
-
         $subchapter = $quizQuestion->subchapter;
         $isCorrect = $data['jawaban'] === $quizQuestion->kunci_jawaban;
-
         $result = DB::transaction(function () use (
             $request,
             $quizQuestion,
@@ -202,13 +177,11 @@ class QuizController extends Controller
                 ])
                 ->lockForUpdate()
                 ->first();
-
             abort_unless(
                 $progress?->opened_at,
                 422,
                 'Buka dan pelajari materi Subbab ini sebelum mengerjakan kuis.'
             );
-
             StudentQuizAnswer::query()->updateOrCreate(
                 [
                     'user_id' => $request->user()->id,
@@ -220,7 +193,6 @@ class QuizController extends Controller
                     'is_correct' => $isCorrect,
                 ]
             );
-
             $requiredQuestionIds = $subchapter->quizQuestions()
                 ->where('is_published', true)
                 ->pluck('id');
@@ -232,7 +204,6 @@ class QuizController extends Controller
             $totalQuestions = $requiredQuestionIds->count();
             $isComplete = $totalQuestions > 0
                 && $answers->pluck('quiz_question_id')->unique()->count() === $totalQuestions;
-
             if (!$isComplete) {
                 return [
                     'completed' => false,
@@ -241,11 +212,9 @@ class QuizController extends Controller
                     'total_questions' => $totalQuestions,
                 ];
             }
-
             $correctAnswers = $answers->where('is_correct', true)->count();
             $score = round(($correctAnswers / $totalQuestions) * 100, 2);
             $now = now();
-
             StudentSubchapterProgress::query()
                 ->where('user_id', $request->user()->id)
                 ->where('subchapter_id', $subchapter->id)
@@ -254,13 +223,11 @@ class QuizController extends Controller
                     'completed_at' => $now,
                     'updated_at' => $now,
                 ]);
-
             $assessment = StudentAssessmentResult::query()
                 ->where('user_id', $request->user()->id)
                 ->where('assessment_type', 'quiz')
                 ->where('subchapter_id', $subchapter->id)
                 ->first();
-
             if (!$assessment) {
                 $assessment = new StudentAssessmentResult([
                     'user_id' => $request->user()->id,
@@ -269,14 +236,12 @@ class QuizController extends Controller
                     'subchapter_id' => $subchapter->id,
                 ]);
             }
-
             $assessment->fill([
                 'total_questions' => $totalQuestions,
                 'correct_answers' => $correctAnswers,
                 'score' => $score,
                 'completed_at' => $now,
             ])->save();
-
             return [
                 'completed' => true,
                 'score' => $score,
@@ -284,7 +249,6 @@ class QuizController extends Controller
                 'total_questions' => $totalQuestions,
             ];
         });
-
         return response()->json([
             'correct' => $isCorrect,
             'correct_answer' => $quizQuestion->kunci_jawaban,

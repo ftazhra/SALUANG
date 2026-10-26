@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers\Guru;
-
 use App\Http\Controllers\Controller;
 use App\Models\StudentAssessmentResult;
 use App\Models\User;
@@ -9,7 +7,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
-
 class StudentGradeController extends Controller
 {
     /*
@@ -17,7 +14,6 @@ class StudentGradeController extends Controller
     | 01. PEMERIKSAAN AKSES GURU
     |--------------------------------------------------------------------------
     */
-
     private function ensureGuru(Request $request): void
     {
         abort_unless(
@@ -26,13 +22,11 @@ class StudentGradeController extends Controller
             'Halaman Nilai Siswa hanya tersedia untuk Guru.'
         );
     }
-
     /*
     |--------------------------------------------------------------------------
     | 02. PEMERIKSAAN KOLOM DATA SISWA
     |--------------------------------------------------------------------------
     */
-
     private function studentColumns(): array
     {
         return [
@@ -40,13 +34,11 @@ class StudentGradeController extends Controller
             'has_kelas' => Schema::hasColumn('users', 'kelas'),
         ];
     }
-
     /*
     |--------------------------------------------------------------------------
     | 03. MENGAMBIL HASIL TERBARU
     |--------------------------------------------------------------------------
     */
-
     private function latestResult(
         Collection $results,
         string $type
@@ -56,69 +48,55 @@ class StudentGradeController extends Controller
             ->sortByDesc('completed_at')
             ->first();
     }
-
     /*
     |--------------------------------------------------------------------------
     | 04. MENYUSUN NILAI SISWA
     |--------------------------------------------------------------------------
     */
-
     private function studentGrade(
         User $student,
         array $columns
     ): array {
         $results = $student->assessmentResults;
-
         $quiz = $this->latestResult(
             $results,
             'quiz'
         );
-
         $evaluation = $this->latestResult(
             $results,
             'evaluation'
         );
-
         return [
             'id' => $student->id,
             'name' => $student->name,
-
             'nisn' => $columns['has_nisn']
                 ? $student->nisn
                 : null,
-
             'class' => $columns['has_kelas']
                 ? $student->kelas
                 : null,
-
             'quiz_score' => $quiz !== null
                 ? (float) $quiz->score
                 : null,
-
             'evaluation_score' => $evaluation !== null
                 ? (float) $evaluation->score
                 : null,
-
             // Belum dihitung sampai aturan penilaian ditetapkan.
             'final_score' => null,
             'completion_status' => 'belum_dinilai',
-
             'quiz_completed_at' => $quiz?->completed_at,
             'evaluation_completed_at' =>
                 $evaluation?->completed_at,
         ];
     }
-
     /*
     |--------------------------------------------------------------------------
     | 05. DAFTAR NILAI SISWA
     |--------------------------------------------------------------------------
     */
-
     public function index(Request $request): JsonResponse
     {
         $this->ensureGuru($request);
-
         $filters = $request->validate([
             'search' => [
                 'nullable',
@@ -135,9 +113,7 @@ class StudentGradeController extends Controller
                 'in:tuntas,belum_tuntas,belum_dinilai',
             ],
         ]);
-
         $columns = $this->studentColumns();
-
         $query = User::query()
             ->where('role', 'siswa')
             ->with([
@@ -145,11 +121,9 @@ class StudentGradeController extends Controller
                     $builder->orderByDesc('completed_at');
                 },
             ]);
-
         // Filter nama siswa atau NISN.
         if (!empty($filters['search'])) {
             $keyword = $filters['search'];
-
             $query->where(function ($builder) use (
                 $keyword,
                 $columns
@@ -159,7 +133,6 @@ class StudentGradeController extends Controller
                     'like',
                     "%{$keyword}%"
                 );
-
                 if ($columns['has_nisn']) {
                     $builder->orWhere(
                         'nisn',
@@ -169,7 +142,6 @@ class StudentGradeController extends Controller
                 }
             });
         }
-
         // Filter kelas.
         if (!empty($filters['class'])) {
             if ($columns['has_kelas']) {
@@ -181,16 +153,13 @@ class StudentGradeController extends Controller
                 $query->whereRaw('1 = 0');
             }
         }
-
         $students = $query
             ->orderBy('name')
             ->get();
-
         $grades = $students->map(
             fn (User $student) =>
                 $this->studentGrade($student, $columns)
         );
-
         // Filter ketuntasan.
         if (!empty($filters['completion'])) {
             $grades = $grades->filter(
@@ -199,7 +168,6 @@ class StudentGradeController extends Controller
                     $filters['completion']
             );
         }
-
         // Daftar kelas untuk dropdown.
         $classes = $columns['has_kelas']
             ? User::query()
@@ -210,7 +178,6 @@ class StudentGradeController extends Controller
                 ->orderBy('kelas')
                 ->pluck('kelas')
             : collect();
-
         return response()->json([
             'data' => $grades->values(),
             'total' => $grades->count(),
@@ -220,32 +187,26 @@ class StudentGradeController extends Controller
                 'Nilai akhir dan ketuntasan belum dikonfigurasi.',
         ]);
     }
-
     /*
     |--------------------------------------------------------------------------
     | 06. DETAIL NILAI SATU SISWA
     |--------------------------------------------------------------------------
     */
-
     public function show(
         Request $request,
         User $student
     ): JsonResponse {
         $this->ensureGuru($request);
-
         abort_unless(
             $student->role === 'siswa',
             404,
             'Data siswa tidak ditemukan.'
         );
-
         $columns = $this->studentColumns();
-
         $student->load([
             'assessmentResults.chapter',
             'assessmentResults.subchapter',
         ]);
-
         $results = $student->assessmentResults
             ->sortByDesc('completed_at')
             ->values()
@@ -254,43 +215,33 @@ class StudentGradeController extends Controller
                     'id' => $result->id,
                     'assessment_type' =>
                         $result->assessment_type,
-
                     'chapter_id' => $result->chapter_id,
                     'subchapter_id' => $result->subchapter_id,
                     'subchapter_name' => $result->subchapter?->judul,
-
                     'chapter_name' =>
                         $result->chapter?->title
                         ?? $result->chapter?->name
                         ?? null,
-
                     'score' => (float) $result->score,
-
                     'total_questions' =>
                         $result->total_questions,
-
                     'correct_answers' =>
                         $result->correct_answers,
-
                     'completed_at' =>
                         $result->completed_at,
                 ];
             });
-
         return response()->json([
             'student' => [
                 'id' => $student->id,
                 'name' => $student->name,
-
                 'nisn' => $columns['has_nisn']
                     ? $student->nisn
                     : null,
-
                 'class' => $columns['has_kelas']
                     ? $student->kelas
                     : null,
             ],
-
             'results' => $results,
         ]);
     }

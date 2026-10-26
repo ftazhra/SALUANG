@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers;
-
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -10,7 +8,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
-
 class AuthController extends Controller
 {
     /*
@@ -18,29 +15,24 @@ class AuthController extends Controller
     | HALAMAN LOGIN
     |--------------------------------------------------------------------------
     */
-
     public function showLogin(): View
     {
         return view('auth.login');
     }
-
     /*
     |--------------------------------------------------------------------------
     | HALAMAN DAFTAR
     |--------------------------------------------------------------------------
     */
-
     public function showRegister(): View
     {
         return view('auth.register');
     }
-
     /*
     |--------------------------------------------------------------------------
     | REGISTRASI SISWA, GURU, DAN ORANG TUA
     |--------------------------------------------------------------------------
     */
-
     public function register(Request $request): RedirectResponse
     {
         // Validasi berdasarkan peran yang dipilih.
@@ -49,20 +41,17 @@ class AuthController extends Controller
                 'required',
                 Rule::in(['siswa', 'guru', 'orang_tua']),
             ],
-
             'name' => [
                 'required',
                 'string',
                 'max:255',
             ],
-
             'username' => [
                 'required',
                 'alpha_dash:ascii',
                 'max:50',
                 Rule::unique('users', 'username'),
             ],
-
             // Khusus Siswa
             'nisn' => [
                 'required_if:role,siswa',
@@ -70,8 +59,6 @@ class AuthController extends Controller
                 'digits:10',
                 Rule::unique('users', 'nisn'),
             ],
-
-
             // Email siswa
             'email' => [
                 'required_if:role,siswa',
@@ -80,7 +67,6 @@ class AuthController extends Controller
                 'max:255',
                 Rule::unique('users', 'email'),
             ],
-
             // Kelas siswa
             'kelas' => [
                 'required_if:role,siswa',
@@ -88,7 +74,6 @@ class AuthController extends Controller
                 'string',
                 'max:20',
             ],
-
             // Sekolah siswa
             'sekolah' => [
                 'required_if:role,siswa',
@@ -96,7 +81,6 @@ class AuthController extends Controller
                 'string',
                 'max:255',
             ],
-
             // Khusus Guru
             'nip_nipk' => [
                 'required_if:role,guru',
@@ -105,7 +89,6 @@ class AuthController extends Controller
                 'max:50',
                 Rule::unique('users', 'nip_nipk'),
             ],
-
             // Khusus Orang Tua
             'nomor_telepon' => [
                 'required_if:role,orang_tua',
@@ -113,13 +96,11 @@ class AuthController extends Controller
                 'string',
                 'max:20',
             ],
-
             'nisn_anak' => [
                 'required_if:role,orang_tua',
                 'nullable',
                 'digits:10',
             ],
-
             // Semua peran
             'password' => [
                 'required',
@@ -128,9 +109,7 @@ class AuthController extends Controller
                 'confirmed',
             ],
         ]);
-
         $role = $data['role'];
-
         /*
         |--------------------------------------------------------------------------
         | VERIFIKASI AWAL NISN ANAK
@@ -142,15 +121,12 @@ class AuthController extends Controller
         | Hubungan tidak langsung disetujui.
         |
         */
-
         $student = null;
-
         if ($role === 'orang_tua') {
             $student = User::query()
                 ->where('role', 'siswa')
                 ->where('nisn', $data['nisn_anak'])
                 ->first();
-
             if (!$student) {
                 return back()
                     ->withErrors([
@@ -165,40 +141,32 @@ class AuthController extends Controller
                     );
             }
         }
-
         /*
         |--------------------------------------------------------------------------
         | SIMPAN AKUN KE DATABASE
         |--------------------------------------------------------------------------
         */
-
         $user = DB::transaction(function () use (
             $data,
             $role,
             $student
         ) {
             $user = new User();
-
             $user->name = $data['name'];
             $user->username = $data['username'];
-
             // Formulir Figma tidak menggunakan Email.
             // Email diambil dari pendaftaran siswa.
             $user->email = $role === 'siswa'
                 ? $data['email']
                 : null;
-
             // Password disimpan sebagai hash.
             $user->password = Hash::make($data['password']);
-
             $user->role = $role;
             $user->sekolah = $role === 'siswa'
                 ? $data['sekolah']
                 : 'SMP Negeri 21 Banjarmasin';
-
             // Akun belum diverifikasi identitasnya.
             $user->is_approved = false;
-
             /*
             | DATA KHUSUS SISWA
             */
@@ -206,23 +174,19 @@ class AuthController extends Controller
                 $user->nisn = $data['nisn'];
                 $user->kelas = $data['kelas'];
             }
-
             /*
             | DATA KHUSUS GURU
             */
             if ($role === 'guru') {
                 $user->nip_nipk = $data['nip_nipk'];
             }
-
             /*
             | DATA KHUSUS ORANG TUA
             */
             if ($role === 'orang_tua') {
                 $user->nomor_telepon = $data['nomor_telepon'];
             }
-
             $user->save();
-
             /*
             |--------------------------------------------------------------------------
             | HUBUNGKAN ORANG TUA DENGAN SISWA
@@ -232,7 +196,6 @@ class AuthController extends Controller
             | Pihak sekolah perlu memverifikasinya.
             |
             */
-
             if ($role === 'orang_tua' && $student) {
                 DB::table('student_guardians')->insert([
                     'student_id' => $student->id,
@@ -244,16 +207,13 @@ class AuthController extends Controller
                     'updated_at' => now(),
                 ]);
             }
-
             return $user;
         });
-
         /*
         |--------------------------------------------------------------------------
         | SETELAH PENDAFTARAN
         |--------------------------------------------------------------------------
         */
-
         /*
 |--------------------------------------------------------------------------
 | SETELAH PENDAFTARAN BERHASIL
@@ -263,7 +223,6 @@ class AuthController extends Controller
 | Tidak otomatis masuk ke Dashboard.
 |
 */
-
         return redirect()
             ->route('login')
             ->with(
@@ -271,13 +230,11 @@ class AuthController extends Controller
                 'Pendaftaran berhasil! Silakan masuk menggunakan akun yang baru didaftarkan.'
             );
     }
-
     /*
     |--------------------------------------------------------------------------
     | LOGIN SISWA, GURU, DAN ORANG TUA
     |--------------------------------------------------------------------------
     */
-
     public function login(Request $request): RedirectResponse
     {
         $data = $request->validate([
@@ -285,27 +242,22 @@ class AuthController extends Controller
                 'required',
                 Rule::in(['siswa', 'guru', 'orang_tua']),
             ],
-
             'identifier' => [
                 'required',
                 'string',
             ],
-
             'password' => [
                 'required',
                 'string',
             ],
-
             'nisn_anak' => [
                 'required_if:role,orang_tua',
                 'nullable',
                 'digits:10',
             ],
         ]);
-
         $role = $data['role'];
         $identifier = trim($data['identifier']);
-
         /*
         |--------------------------------------------------------------------------
         | IDENTITAS LOGIN SESUAI FIGMA
@@ -316,10 +268,8 @@ class AuthController extends Controller
         | Orang Tua : No. HP atau Username
         |
         */
-
         $userQuery = User::query()
             ->where('role', $role);
-
         if ($role === 'siswa') {
             $userQuery->where('nisn', $identifier);
         } elseif ($role === 'guru') {
@@ -333,15 +283,12 @@ class AuthController extends Controller
                 }
             );
         }
-
         $user = $userQuery->first();
-
         /*
         |--------------------------------------------------------------------------
         | PERIKSA KATA SANDI
         |--------------------------------------------------------------------------
         */
-
         if (
             !$user ||
             !Hash::check($data['password'], $user->password)
@@ -357,13 +304,11 @@ class AuthController extends Controller
                     'nisn_anak'
                 );
         }
-
         /*
         |--------------------------------------------------------------------------
         | HUBUNGAN ORANG TUA DAN ANAK
         |--------------------------------------------------------------------------
         */
-
         if ($role === 'orang_tua') {
             $linked = DB::table('student_guardians')
                 ->join(
@@ -389,7 +334,6 @@ class AuthController extends Controller
                     ['pending', 'approved']
                 )
                 ->exists();
-
             if (!$linked) {
                 return back()
                     ->withErrors([
@@ -402,7 +346,6 @@ class AuthController extends Controller
                         'nisn_anak'
                     );
             }
-
             /*
             | Status pending hanya mengizinkan
             | login ke akun Orang Tua.
@@ -411,35 +354,26 @@ class AuthController extends Controller
             | mensyaratkan status approved.
             */
         }
-
         /*
         |--------------------------------------------------------------------------
         | LOGIN BERHASIL
         |--------------------------------------------------------------------------
         */
-
         Auth::login($user);
-
         $request->session()->regenerate();
-
         return redirect()
             ->intended(route('dashboard'));
     }
-
     /*
     |--------------------------------------------------------------------------
     | LOGOUT
     |--------------------------------------------------------------------------
     */
-
     public function logout(Request $request): RedirectResponse
     {
         Auth::logout();
-
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
-
         return redirect()->route('beranda');
     }
 }

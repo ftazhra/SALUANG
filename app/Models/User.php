@@ -1,26 +1,20 @@
 <?php
-
 namespace App\Models;
-
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
-
     /*
     |--------------------------------------------------------------------------
     | 01. ATRIBUT YANG BOLEH DIISI
     |--------------------------------------------------------------------------
     */
-
     protected $fillable = [
         'name',
         'email',
@@ -41,24 +35,20 @@ class User extends Authenticatable
         'email_verified_at',
         'remember_token',
     ];
-
     /*
     |--------------------------------------------------------------------------
     | 02. ATRIBUT YANG DISEMBUNYIKAN
     |--------------------------------------------------------------------------
     */
-
     protected $hidden = [
         'password',
         'remember_token',
     ];
-
     /*
     |--------------------------------------------------------------------------
     | 03. KONVERSI TIPE DATA
     |--------------------------------------------------------------------------
     */
-
     protected function casts(): array
     {
         return [
@@ -66,13 +56,11 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-
     /*
     |--------------------------------------------------------------------------
     | 04. RELASI FORUM DISKUSI SALUANG
     |--------------------------------------------------------------------------
     */
-
     // Diskusi yang dibuat pengguna.
     public function discussions(): HasMany
     {
@@ -81,7 +69,6 @@ class User extends Authenticatable
             'user_id'
         );
     }
-
     // Tanggapan diskusi yang dikirim pengguna.
     public function discussionReplies(): HasMany
     {
@@ -90,13 +77,11 @@ class User extends Authenticatable
             'user_id'
         );
     }
-
     /*
     |--------------------------------------------------------------------------
     | 05. RELASI HASIL PENILAIAN SISWA
     |--------------------------------------------------------------------------
     */
-
     // Riwayat hasil Kuis dan Evaluasi siswa.
     public function assessmentResults(): HasMany
     {

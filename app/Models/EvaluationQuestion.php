@@ -1,10 +1,7 @@
 <?php
-
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
 class EvaluationQuestion extends Model
 {
     /*
@@ -12,7 +9,6 @@ class EvaluationQuestion extends Model
     | KOLOM YANG BOLEH DISIMPAN
     |--------------------------------------------------------------------------
     */
-
     protected $fillable = [
         'user_id',
         'nomor_soal',
@@ -23,26 +19,22 @@ class EvaluationQuestion extends Model
         'pembahasan',
         'is_published',
     ];
-
     /*
     |--------------------------------------------------------------------------
     | KONVERSI TIPE DATA
     |--------------------------------------------------------------------------
     */
-
     protected $casts = [
         'nomor_soal' => 'integer',
         'konten_soal' => 'array',
         'kunci_jawaban' => 'array',
         'is_published' => 'boolean',
     ];
-
     /*
     |--------------------------------------------------------------------------
     | RELASI KE GURU
     |--------------------------------------------------------------------------
     */
-
     public function guru(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');

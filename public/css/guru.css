@@ -1,1792 +1,753 @@
 :root {
-
     --gd-navy: #075474;
-
     --gd-green: #4f9d69;
-
     --gd-cream: #fffdf5;
-
     --gd-line: #d6e7e3;
-
 }
-
-
-
 * {
-
     box-sizing: border-box;
-
 }
-
-
-
 body.gd-page {
-
     margin: 0;
-
     font-family: 'Poppins', sans-serif;
-
     color: var(--gd-navy);
-
     background: #f6faf8;
-
 }
-
-
-
 .gd-sidebar {
-
     position: fixed;
-
     inset: 0 auto 0 0;
-
     z-index: 1030;
-
     display: flex;
-
     flex-direction: column;
-
     width: 245px;
-
     padding: 17px 10px;
-
     border-right: 1px solid #dfebe6;
-
     background: #fffdf6;
-
     overflow-y: auto;
-
     overflow-x: hidden;
-
     scrollbar-width: thin;
-
     transition: width .25s ease;
-
 }
-
-
-
 .gd-brand {
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
     min-height: 65px;
-
     margin-bottom: 10px;
-
 }
-
-
-
 .gd-brand img {
-
     display: block;
-
     width: 175px;
-
     max-width: 100%;
-
     height: auto;
-
 }
-
-
-
 .gd-nav {
-
     display: flex;
-
     flex-direction: column;
-
     gap: 4px;
-
 }
-
-
-
 .gd-fold {
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
     flex-shrink: 0;
-
     width: 30px;
-
     height: 30px;
-
     min-height: 30px;
-
     margin: 2px 0 10px;
-
     padding: 0;
-
     border: 1px solid transparent;
-
     border-radius: 8px;
-
     background: #f0f1f1;
-
     color: #777d80;
-
     cursor: pointer;
-
     transition: background-color .2s ease, color .2s ease, transform .2s ease;
-
 }
-
-
-
 .gd-fold i {
-
     display: inline-flex;
-
     align-items: center;
-
     justify-content: center;
-
     width: 17px;
-
     height: 17px;
-
     font-size: 17px;
-
     line-height: 1;
-
 }
-
-
-
 .gd-fold:hover {
-
     background: #d7eafa;
-
     color: #075477;
-
     border-color: #a2d1eb;
-
     transform: scale(1.07);
-
 }
-
-
-
 .gd-menu {
-
     display: flex;
-
     align-items: center;
-
     gap: 10px;
-
     width: 100%;
-
     min-height: 40px;
-
     padding: 10px;
-
     border: 0;
-
     border-radius: 9px;
-
     background: transparent;
-
     color: #075477;
-
     font-family: Poppins, sans-serif;
-
     font-size: 12px;
-
     font-weight: 600;
-
     text-align: left;
-
     cursor: pointer;
-
     transition: background-color .22s ease, color .22s ease, transform .22s ease;
-
 }
-
-
-
 .gd-menu i {
-
     display: inline-flex;
-
     align-items: center;
-
     justify-content: center;
-
     flex: 0 0 17px;
-
     width: 17px;
-
     font-size: 16px;
-
 }
-
-
-
 .gd-menu:hover {
-
     background: #d2eaf8;
-
     color: #075477;
-
     transform: translateX(3px);
-
     box-shadow: inset 3px 0 0 #328ab7;
-
 }
-
-
-
 .gd-menu.active:not(:hover) {
-
     background: #e6f5ea;
-
     color: #21784c;
-
 }
-
-
-
 .gd-menu.active:hover {
-
     background: #c5e7f6;
-
     color: #064e70;
-
 }
-
-
-
 .gd-footer {
-
     margin-top: auto;
-
     padding: 22px 9px 3px;
-
 }
-
-
-
 .gd-footer form {
-
     margin: 0;
-
 }
-
-
-
 .gd-exit {
-
     display: flex;
-
     align-items: center;
-
     gap: 9px;
-
     width: 100%;
-
     padding: 5px 0;
-
     border: 0;
-
     background: transparent;
-
     color: #df4646;
-
     font-family: Poppins, sans-serif;
-
     font-size: 10px;
-
     font-weight: 600;
-
     text-align: left;
-
     cursor: pointer;
-
 }
-
-
-
 .gd-exit i {
-
     font-size: 14px;
-
     flex-shrink: 0;
-
 }
-
-
-
 .gd-exit:hover {
-
     color: #b52b2b;
-
     transform: translateX(3px);
-
 }
-
-
-
 .gd-sidebar.collapsed {
-
     width: 60px;
-
     padding-left: 7px;
-
     padding-right: 7px;
-
 }
-
-
-
 .gd-sidebar.collapsed .gd-brand {
-
     min-height: 48px;
-
     margin-bottom: 6px;
-
 }
-
-
-
 .gd-sidebar.collapsed .gd-brand img {
-
     width: 38px;
-
 }
-
-
-
 .gd-sidebar.collapsed .gd-fold {
-
     align-self: center;
-
 }
-
-
-
 .gd-sidebar.collapsed .gd-menu {
-
     justify-content: center;
-
     gap: 0;
-
     padding: 9px 0;
-
 }
-
-
-
 .gd-sidebar.collapsed .gd-menu span,
-
 .gd-sidebar.collapsed .gd-exit span {
-
     display: none;
-
 }
-
-
-
 .gd-sidebar.collapsed .gd-footer {
-
     padding-right: 0;
-
     padding-left: 0;
-
 }
-
-
-
 .gd-sidebar.collapsed .gd-exit {
-
     justify-content: center;
-
 }
-
-
-
 .gd-main {
-
     margin-left: 245px;
-
     min-height: 100vh;
-
     transition: margin-left .25s ease;
-
 }
-
-
-
 .gd-main.expanded {
-
     margin-left: 60px;
-
 }
-
-
-
 .gd-topbar {
-
     min-height: 65px;
-
     padding: 16px 24px;
-
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
 }
-
-
-
 .gd-topbar>strong {
-
     font-size: 14px;
-
 }
-
-
-
 .gd-user {
-
     display: flex;
-
     align-items: center;
-
     gap: 10px;
-
 }
-
-
-
 .gd-avatar {
-
     width: 35px;
-
     height: 35px;
-
     display: grid;
-
     place-items: center;
-
     background: #cbeef0;
-
     border-radius: 50%;
-
     font-weight: 700;
-
     font-size: 12px;
-
 }
-
-
-
 .gd-user-info {
-
     display: flex;
-
     flex-direction: column;
-
     font-size: 11px;
-
 }
-
-
-
 .gd-user-info small {
-
     color: #608299;
-
 }
-
-
-
 .gd-content {
-
     padding: 12px 24px 32px;
-
 }
-
-
-
 .gd-hero {
-
     min-height: 170px;
-
     padding: 35px 32px;
-
     border-radius: 15px;
-
     overflow: hidden;
-
-
-
     background-color: #eaf5f2;
-
     background-image:
-
-        linear-gradient(90deg,
-
+        linear-gradient(
+            90deg,
             rgba(255, 253, 245, .92) 0%,
-
             rgba(255, 253, 245, .68) 35%,
-
-            rgba(255, 253, 245, .05) 75%),
-
+            rgba(255, 253, 245, .05) 75%
+        ),
         url('/images/student-dashboard-hero.png');
-
-
-
     background-position: center;
-
     background-size: cover;
-
     background-repeat: no-repeat;
-
 }
-
-
-
 .gd-hero>span {
-
     font-size: 10px;
-
     font-weight: 700;
-
     letter-spacing: .12em;
-
     color: #25844f;
-
 }
-
-
-
 .gd-hero h1 {
-
     margin: 8px 0;
-
     font-size: 25px;
-
 }
-
-
-
 .gd-hero p {
-
     max-width: 400px;
-
     margin: 0;
-
     font-size: 13px;
-
 }
-
-
-
 .gd-stats {
-
     display: grid;
-
     grid-template-columns: repeat(4, minmax(0, 1fr));
-
     gap: 12px;
-
     margin-top: 18px;
-
 }
-
-
-
 .gd-card {
-
     border: 1px solid var(--gd-line);
-
     border-radius: 13px;
-
     background: white;
-
 }
-
-
-
 .gd-stat {
-
     display: flex;
-
     flex-direction: column;
-
     gap: 10px;
-
     min-height: 128px;
-
     padding: 20px;
-
 }
-
-
-
 .gd-stat i {
-
     color: var(--gd-green);
-
     font-size: 21px;
-
 }
-
-
-
 .gd-stat small {
-
     font-size: 11px;
-
     color: #608299;
-
 }
-
-
-
 .gd-stat strong {
-
     font-size: 21px;
-
 }
-
-
-
 .gd-material {
-
     padding: 22px;
-
     margin-top: 20px;
-
 }
-
-
-
 .gd-material h2 {
-
     margin: 0 0 18px;
-
     font-size: 16px;
-
 }
-
-
-
 .gd-chapter {
-
     max-width: 850px;
-
     background: #edf7f3;
-
     padding: 18px;
-
     border-radius: 12px;
-
 }
-
-
-
 .gd-chapter>small {
-
     color: #228650;
-
     font-weight: 700;
-
 }
-
-
-
 .gd-chapter h3 {
-
     font-size: 15px;
-
     margin: 12px 0 15px;
-
 }
-
-
-
 .gd-topic {
-
     background: white;
-
     padding: 12px;
-
     border-radius: 7px;
-
     margin-bottom: 8px;
-
     font-size: 12px;
-
 }
-
-
-
 .gd-primary {
-
     margin-top: 8px;
-
     border: 0;
-
     background: var(--gd-green);
-
     color: white;
-
     padding: 12px 17px;
-
     border-radius: 9px;
-
     font-weight: 600;
-
     cursor: pointer;
-
 }
-
-
-
 .gd-primary:hover {
-
     background: #398b56;
-
 }
-
-
-
 .gd-placeholder {
-
     background: white;
-
     border: 1px solid var(--gd-line);
-
     border-radius: 15px;
-
     padding: 25px;
-
 }
-
-
-
 .gd-placeholder h1 {
-
     font-size: 23px;
-
 }
-
-
-
-
-
 /* =====================================================
-
    INTERAKSI DASHBOARD GURU
-
    ===================================================== */
-
-
-
 /* 01. TOPBAR */
-
 .gd-topbar {
-
     position: relative;
-
     z-index: 100;
-
     background: #f9fcfa;
-
 }
-
-
-
 .gd-topbar-tools {
-
     display: flex;
-
     align-items: center;
-
     gap: 14px;
-
 }
-
-
-
 /* 02. TOMBOL NOTIFIKASI */
-
 .gd-icon-btn {
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
     width: 35px;
-
     height: 35px;
-
     padding: 0;
-
     border: 0;
-
     border-radius: 9px;
-
     background: transparent;
-
     color: #075477;
-
     font-size: 18px;
-
     cursor: pointer;
-
-    transition: *background* .2s, color .2s;
-
+    transition: background .2s, color .2s;
 }
-
-
-
 .gd-icon-btn:hover {
-
     background: #d7eafa;
-
     color: #075477;
-
 }
-
-
-
 /* 03. TOMBOL PROFIL TOPBAR */
-
 .gd-user-button {
-
     padding: 4px 7px;
-
     border: 0;
-
     border-radius: 9px;
-
     background: transparent;
-
     color: #075477;
-
     font: inherit;
-
     cursor: pointer;
-
-    transition: *background* .2s;
-
+    transition: background .2s;
 }
-
-
-
 .gd-user-button:hover {
-
     background: transparent;
-
 }
-
-
-
 /* Panah dropdown profil */
-
-.gd-user-button>.bi-chevron-down {
-
+.gd-user-button > .bi-chevron-down {
     display: inline-flex;
-
     align-items: center;
-
     justify-content: center;
-
-
-
     width: 28px;
-
     height: 28px;
-
     margin-left: 5px;
-
-
-
     border-radius: 8px;
-
     font-size: 13px;
-
-
-
     transition:
-
         background-color .2s ease,
-
         color .2s ease;
-
 }
-
-
-
 /* Hanya panah yang berubah ketika di-hover */
-
-.gd-user-button>.bi-chevron-down:hover {
-
+.gd-user-button > .bi-chevron-down:hover {
     background: #d7eafa;
-
     color: #075477;
-
 }
-
-
-
-.gd-user-button>.bi-chevron-down {
-
+.gd-user-button > .bi-chevron-down {
     margin-left: 5px;
-
     font-size: 12px;
-
 }
-
-
-
 /* 04. PANEL DROPDOWN */
-
 .gd-dropdown {
-
     position: relative;
-
 }
-
-
-
 .gd-dropdown-menu {
-
     position: absolute;
-
     top: calc(100% + 9px);
-
     right: 0;
-
     z-index: 200;
-
-
-
     width: 235px;
-
     padding: 9px;
-
-
-
     border: 1px solid #dce9e6;
-
     border-radius: 11px;
-
     background: #fffdf6;
-
-
-
     box-shadow: 0 8px 24px rgba(7, 84, 119, .12);
-
 }
-
-
-
 .gd-dropdown-menu[hidden] {
-
     display: none !important;
-
 }
-
-
-
 .gd-notif-menu {
-
     padding: 16px;
-
 }
-
-
-
-.gd-notif-menu>strong {
-
+.gd-notif-menu > strong {
     display: block;
-
     margin-bottom: 9px;
-
     font-size: 12px;
-
 }
-
-
-
 .gd-notif-menu p {
-
     margin: 0;
-
     color: #7d9ba5;
-
     font-size: 11px;
-
     line-height: 1.7;
-
 }
-
-
-
 /* 05. PILIHAN DROPDOWN PROFIL */
-
 .gd-dropdown-item {
-
     display: flex;
-
     align-items: center;
-
     gap: 9px;
-
-
-
     width: 100%;
-
     padding: 11px 12px;
-
-
-
     border: 0;
-
     border-radius: 7px;
-
     background: transparent;
-
-
-
     color: #075477;
-
     font-family: Poppins, sans-serif;
-
     font-size: 11px;
-
     text-align: left;
-
     cursor: pointer;
-
-
-
-    transition: *background* .2s, transform .2s;
-
+    transition: background .2s, transform .2s;
 }
-
-
-
 .gd-dropdown-item:hover {
-
     background: #cfeaf9;
-
     transform: translateX(3px);
-
 }
-
-
-
 .gd-dropdown-item i {
-
     font-size: 15px;
-
 }
-
-
-
 .gd-dropdown-divider {
-
     margin: 7px 0;
-
     border-top: 1px solid #dce9e6;
-
 }
-
-
-
 .gd-dropdown-danger {
-
     color: #df4646;
-
 }
-
-
-
 .gd-dropdown-danger:hover {
-
     background: #ffe1e1;
-
 }
-
-
-
 /* 06. PREVIOUS DAN NEXT */
-
 .gd-page-navigation {
-
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     gap: 12px;
-
     margin-bottom: 17px;
-
 }
-
-
-
 .gd-nav-btn {
-
     display: inline-flex;
-
     align-items: center;
-
     justify-content: center;
-
     gap: 8px;
-
-
-
     min-height: 36px;
-
     padding: 9px 15px;
-
-
-
     border: 1px solid #ccded9;
-
     border-radius: 8px;
-
     background: #ffffff;
-
-
-
     color: #075477;
-
     font-family: Poppins, sans-serif;
-
     font-size: 10px;
-
     font-weight: 600;
-
-
-
     cursor: pointer;
-
     transition:
-
-        *background* .2s,
-
+        background .2s,
         border-color .2s,
-
         transform .2s;
-
 }
-
-
-
 .gd-nav-btn:not(:disabled):hover {
-
     background: #d7eafa;
-
     border-color: #7ab9dd;
-
     transform: translateY(-2px);
-
 }
-
-
-
 .gd-nav-btn-next {
-
     background: #209265;
-
     border-color: #209265;
-
     color: white;
-
 }
-
-
-
 .gd-nav-btn-next:not(:disabled):hover {
-
     background: #075477;
-
     border-color: #075477;
-
 }
-
-
-
 .gd-nav-btn:disabled {
-
     opacity: .4;
-
     cursor: not-allowed;
-
 }
-
-
-
 /* 07. HOVER MENU SIDEBAR */
-
 .gd-menu {
-
     transition:
-
         background-color .22s ease,
-
         color .22s ease,
-
         transform .22s ease,
-
         box-shadow .22s ease;
-
 }
-
-
-
 .gd-menu:hover {
-
     background-color: #d2eaf8;
-
     color: #075477;
-
     transform: translateX(3px);
-
     box-shadow: inset 3px 0 0 #328ab7;
-
 }
-
-
-
 .gd-menu.active:not(:hover) {
-
     background-color: #e6f5ea;
-
     color: #21784c;
-
 }
-
-
-
 .gd-menu.active:hover {
-
     background-color: #c5e7f6;
-
     color: #064e70;
-
 }
-
-
-
 /* 08. HOVER KARTU BERANDA */
-
 .gd-card {
-
     transition:
-
         border-color .22s ease,
-
         box-shadow .22s ease;
-
 }
-
-
-
 .gd-card:hover {
-
     border-color: #a9cfdc;
-
     box-shadow: 0 5px 18px rgba(7, 84, 119, .07);
-
 }
-
-
-
 /* 09. AKSESIBILITAS */
-
 .gd-page button:focus-visible {
-
     outline: 3px solid #329ecb;
-
     outline-offset: 3px;
-
 }
-
-
-
-
-
 [hidden] {
-
     display: none !important;
-
 }
-
-
-
 @media (max-width: 1050px) {
-
     .gd-stats {
-
         grid-template-columns: repeat(2, minmax(0, 1fr));
-
     }
-
 }
-
-
-
 @media (max-width: 700px) {
-
-
-
     .gd-sidebar,
-
     .gd-sidebar.collapsed {
-
         width: 60px;
-
         padding-left: 7px;
-
         padding-right: 7px;
-
     }
-
-
-
     .gd-sidebar .gd-brand img {
-
         width: 38px;
-
     }
-
-
-
     .gd-sidebar .gd-menu span,
-
     .gd-sidebar .gd-exit span {
-
         display: none;
-
     }
-
-
-
     .gd-sidebar .gd-menu {
-
         justify-content: center;
-
         padding: 9px 0;
-
     }
-
-
-
     .gd-sidebar .gd-fold {
-
         align-self: center;
-
     }
-
-
-
     .gd-main,
-
     .gd-main.expanded {
-
         margin-left: 60px;
-
     }
-
-
-
     .gd-topbar {
-
         padding: 15px;
-
     }
-
-
-
     .gd-content {
-
         padding: 12px;
-
     }
-
-
-
     .gd-user-info {
-
         display: none;
-
     }
-
-
-
     .gd-stats {
-
         grid-template-columns: 1fr;
-
     }
-
-
-
     .gd-hero {
-
         padding: 23px;
-
     }
-
 }
-
-
-
 /* NAVIGASI DASHBOARD GURU */
-
-
-
 .gd-page-navigation {
-
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     gap: 12px;
-
     margin: 17px 0;
-
 }
-
-
-
 /* Beranda: Next hanya di kanan bawah */
-
 .gd-navigation-home {
-
     justify-content: flex-end;
-
     margin-top: 18px;
-
 }
-
-
-
 /* Halaman lain: tombol bawah setelah konten */
-
 .gd-navigation-bottom {
-
     margin-top: 28px;
-
 }
-
-
-
 .gd-placeholder-content {
-
     min-height: 240px;
-
     padding: 18px 0;
-
 }
-
-
-
 /* Hover sama seperti Sidebar Siswa */
-
 .gd-page .gd-menu:hover {
-
     background-color: #d2eaf8;
-
     color: #075477;
-
     transform: translateX(3px);
-
     box-shadow: inset 3px 0 0 #328ab7;
-
 }
-
-
-
 .gd-page .gd-menu.active:not(:hover) {
-
     background-color: #e6f5ea;
-
     color: #21784c;
-
     transform: none;
-
     box-shadow: none;
-
 }
-
-
-
 .gd-page .gd-menu.active:hover {
-
     background-color: #c5e7f6;
-
     color: #064e70;
-
     transform: translateX(3px);
-
     box-shadow: inset 3px 0 0 #328ab7;
-
 }
-
-
-
 .gm-content-block-editor {
-
     margin: 14px 0 20px;
-
     padding: 14px;
-
     border: 1px solid #d6e7e3;
-
     border-radius: 12px;
-
     background: #fffdf5;
-
 }
-
-
-
 .gm-content-block-heading h3 {
-
     margin: 0;
-
     color: #075474;
-
     font-size: 15px;
-
 }
-
-
-
 .gm-content-block-heading p,
-
 .gm-content-block-help,
-
 .gm-content-block-empty {
-
     margin: 5px 0 0;
-
     color: #57747c;
-
     font-size: 12px;
-
 }
-
-
-
 .gm-content-block-add {
-
     display: flex;
-
     flex-wrap: wrap;
-
     gap: 8px;
-
     margin-top: 12px;
-
 }
-
-
-
 .gm-content-block-add select {
-
     min-width: 190px;
-
     flex: 1;
-
 }
-
-
-
 .gm-content-block-list {
-
     display: grid;
-
     gap: 8px;
-
     margin: 12px 0 0;
-
     padding: 0;
-
     list-style: none;
-
 }
-
-
-
 .gm-content-block-card {
-
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     gap: 10px;
-
     padding: 10px;
-
     border: 1px solid #d6e7e3;
-
     border-radius: 9px;
-
     background: #fff;
-
 }
-
-
-
 .gm-content-block-card.is-selected {
-
     border-color: #4f9d69;
-
     box-shadow: 0 0 0 2px rgb(79 157 105 / 12%);
-
 }
-
-
-
 .gm-content-block-summary {
-
     display: grid;
-
     min-width: 0;
-
     gap: 3px;
-
     color: #16445a;
-
 }
-
-
-
 .gm-content-block-summary strong {
-
     font-size: 13px;
-
 }
-
-
-
 .gm-content-block-summary span {
-
     overflow: hidden;
-
     color: #57747c;
-
     font-size: 12px;
-
     text-overflow: ellipsis;
-
     white-space: nowrap;
-
 }
-
-
-
 .gm-content-block-actions {
-
     display: flex;
-
     flex-wrap: wrap;
-
     justify-content: flex-end;
-
     gap: 5px;
-
 }
-
-
-
 .gm-content-block-actions .gm-btn {
-
     padding: 6px 9px;
-
 }
-
-
-
 .gm-content-block-callout {
-
     margin-bottom: 18px;
-
     padding: 12px;
-
     border: 1px solid #d6e7e3;
-
     border-radius: 10px;
-
     background: #f6faf8;
-
 }
-
-
-
 .gm-content-block-media-editor {
-
     margin-bottom: 18px;
-
     padding: 12px;
-
     border: 1px solid #d6e7e3;
-
     border-radius: 10px;
-
     background: #f6faf8;
-
 }
-
-
-
 @media (max-width: 600px) {
-
     .gm-content-block-card {
-
         align-items: flex-start;
-
         flex-direction: column;
-
     }
-
-
-
     .gm-content-block-actions {
-
         justify-content: flex-start;
-
     }
-
 }
-
 /* Modal logout Guru — visual konsisten dengan halaman Siswa */
 body.gd-logout-open {
     overflow: hidden;
 }
-
 .gd-logout-modal {
     position: fixed;
     inset: 0;
@@ -1796,18 +757,15 @@ body.gd-logout-open {
     justify-content: center;
     padding: 20px;
 }
-
 .gd-logout-modal[hidden] {
     display: none !important;
 }
-
 .gd-logout-backdrop {
     position: absolute;
     inset: 0;
     background: rgba(18, 36, 49, .55);
     backdrop-filter: blur(4px);
 }
-
 .gd-logout-dialog {
     position: relative;
     z-index: 1;
@@ -1820,7 +778,6 @@ body.gd-logout-open {
     text-align: center;
     animation: gdLogoutAppear .25s ease;
 }
-
 .gd-logout-close {
     position: absolute;
     top: 15px;
@@ -1833,12 +790,10 @@ body.gd-logout-open {
     color: #75909b;
     cursor: pointer;
 }
-
 .gd-logout-close:hover {
     background: #e4eff2;
     color: #075477;
 }
-
 .gd-logout-mascot {
     display: block;
     width: min(100%, 270px);
@@ -1846,14 +801,12 @@ body.gd-logout-open {
     object-fit: contain;
     margin: 0 auto 12px;
 }
-
 .gd-logout-dialog h2 {
     margin: 0 0 12px;
     color: #075477;
     font-size: 23px;
     font-weight: 700;
 }
-
 .gd-logout-dialog p {
     max-width: 360px;
     margin: 0 auto 24px;
@@ -1861,13 +814,11 @@ body.gd-logout-open {
     font-size: 12px;
     line-height: 1.8;
 }
-
 .gd-logout-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
 }
-
 .gd-logout-cancel,
 .gd-logout-confirm {
     min-height: 44px;
@@ -1882,70 +833,54 @@ body.gd-logout-open {
         transform .2s ease,
         box-shadow .2s ease;
 }
-
 .gd-logout-cancel {
     border: 1px solid #c9dee4;
     background: white;
     color: #075477;
 }
-
 .gd-logout-cancel:hover {
     background: #edf7fa;
     transform: translateY(-2px);
 }
-
 .gd-logout-confirm {
     border: 1px solid #d3484d;
     background: #d3484d;
     color: white;
 }
-
 .gd-logout-confirm:hover:not(:disabled) {
     background: #b9343c;
     box-shadow: 0 5px 14px rgba(211, 72, 77, .2);
     transform: translateY(-2px);
 }
-
 .gd-logout-confirm:disabled {
     opacity: .65;
     cursor: wait;
 }
-
 @keyframes gdLogoutAppear {
     from {
         opacity: 0;
         transform: translateY(12px) scale(.97);
     }
-
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
     }
 }
-
 @media (max-width: 480px) {
     .gd-logout-dialog {
         padding: 25px 18px;
     }
-
     .gd-logout-dialog h2 {
         font-size: 19px;
     }
-
     .gd-logout-mascot {
         height: 190px;
     }
 }
-
 /* Hanya panah profil yang memperoleh latar saat dihover, bukan keseluruhan kartu */
-.gd-user-button:hover,
-.gd-user-button:focus-visible {
-    background: transparent;
-    box-shadow: none;
-}
-
-.gd-user-button>.bi-chevron-down:hover,
-.gd-user-button:focus-visible>.bi-chevron-down {
-    background: #d7eafa;
-    color: #075477;
-}
+.gd-user-button:hover, .gd-user-button:focus-visible { background: transparent; box-shadow: none; }
+.gd-user-button > .bi-chevron-down:hover,
+.gd-user-button:focus-visible > .bi-chevron-down { background: #d7eafa; color: #075477; }
+/* Foto profil Guru pada topbar: sama proporsi dengan avatar Siswa. */
+.gd-avatar { overflow: hidden; flex-shrink: 0; }
+.gd-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }

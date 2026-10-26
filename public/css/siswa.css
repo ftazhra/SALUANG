@@ -1,615 +1,269 @@
-
-
 /* =====================================================
-
    SALUANG — CSS DASHBOARD SISWA
-
    ===================================================== */
-
-
-
 /* 01. VARIABEL DAN PENGATURAN DASAR */
-
 :root {
-
     --sd-blue: #075477;
-
     --sd-green: #258452;
-
     --sd-cream: #fffdf6;
-
     --sd-bg: #f4f9f7;
-
     --sd-border: #dfebe6;
-
     --sd-muted: #7d9ba5;
-
     --sd-sidebar: 245px;
-
     --sd-sidebar-folded: 60px;
-
 }
-
-
-
 *, *::before, *::after {
-
     box-sizing: border-box;
-
 }
-
-
-
 html {
-
     scroll-behavior: smooth;
-
 }
-
-
-
 body.sd-page {
-
     margin: 0;
-
     background: var(--sd-bg);
-
     color: var(--sd-blue);
-
     font-family: Poppins, sans-serif;
-
     font-size: 11px;
-
 }
-
-
-
 body.sd-page button,
-
 body.sd-page input {
-
     font: inherit;
-
 }
-
-
-
 body.sd-page button {
-
     cursor: pointer;
-
 }
-
-
-
 body.sd-page [hidden] {
-
     display: none !important;
-
 }
-
-
-
 /* 02. SIDEBAR UTAMA */
-
 .sd-sidebar {
-
     position: fixed;
-
     inset: 0 auto 0 0;
-
     z-index: 1030;
-
     display: flex;
-
     flex-direction: column;
-
     width: var(--sd-sidebar);
-
     padding: 17px 10px;
-
     border-right: 1px solid var(--sd-border);
-
     background: var(--sd-cream);
-
     overflow-y: auto;
-
     overflow-x: hidden;
-
     scrollbar-width: thin;
-
     transition: width .25s ease;
-
 }
-
-
-
 /* 03. LOGO */
-
 .sd-brand {
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
     min-height: 65px;
-
     margin-bottom: 10px;
-
 }
-
-
-
 .sd-brand img {
-
     display: block;
-
     width: 175px;
-
     max-width: 100%;
-
     height: auto;
-
 }
-
-
-
 /* 04. TOMBOL PANEL SIDEBAR — 30 X 30 PX */
-
 .sd-fold {
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
     flex-shrink: 0;
-
     width: 30px;
-
     height: 30px;
-
     min-height: 30px;
-
     margin: 2px 0 10px;
-
     padding: 0;
-
     border: 1px solid transparent;
-
     border-radius: 8px;
-
     background: #f0f1f1;
-
     color: #777d80;
-
     transition:
-
         background-color .2s ease,
-
         color .2s ease,
-
         transform .2s ease;
-
 }
-
-
-
 .sd-fold i {
-
     display: inline-flex;
-
     align-items: center;
-
     justify-content: center;
-
     width: 17px;
-
     height: 17px;
-
     font-size: 17px;
-
     line-height: 1;
-
 }
-
-
-
 .sd-fold:hover {
-
     background: #e5eeee;
-
     color: var(--sd-blue);
-
 }
-
-
-
 .sd-fold:active {
-
     transform: scale(.96);
-
 }
-
-
-
 .sd-fold:focus-visible {
-
     outline: 3px solid #6eb7be;
-
     outline-offset: 2px;
-
 }
-
-
-
 /* 05. MENU NAVIGASI */
-
 .sd-nav {
-
     display: flex;
-
     flex-direction: column;
-
     gap: 4px;
-
 }
-
-
-
 .sd-menu {
-
     display: flex;
-
     align-items: center;
-
     gap: 10px;
-
     width: 100%;
-
     min-height: 40px;
-
     padding: 10px;
-
     border: 0;
-
     border-radius: 9px;
-
     background: transparent;
-
     color: var(--sd-blue);
-
     font-size: 12px;
-
     font-weight: 600;
-
     text-align: left;
-
     transition: background .2s, color .2s;
-
 }
-
-
-
 .sd-menu i {
-
     display: inline-flex;
-
     align-items: center;
-
     justify-content: center;
-
     flex: 0 0 17px;
-
     width: 17px;
-
     font-size: 16px;
-
 }
-
-
-
 .sd-menu span {
-
     min-width: 0;
-
 }
-
-
-
 .sd-menu:hover,
-
 .sd-menu.active {
-
     background: #e6f5ea;
-
     color: #21784c;
-
 }
-
-
-
 /* 06. DAFTAR ISI MATERI */
-
 .sd-submenu {
-
     margin: 3px 0 12px 15px;
-
     padding-left: 10px;
-
     padding-right: 4px;
-
     border-left: 1px solid #cbdfe0;
-
 }
-
-
-
 /* 07. JUDUL BAB 1 */
-
 .sd-chapter-button {
-
     display: flex;
-
     flex-direction: column;
-
     align-items: flex-start;
-
     gap: 5px;
-
     width: 100%;
-
     margin: 0 0 7px;
-
     padding: 10px 9px;
-
     border: 0;
-
     border-radius: 8px;
-
     background: transparent;
-
     color: var(--sd-blue);
-
     text-align: left;
-
     line-height: 1.5;
-
     transition: background .2s, color .2s;
-
 }
-
-
-
 .sd-chapter-button strong {
-
     color: #20794d;
-
     font-size: 11px;
-
     font-weight: 700;
-
     letter-spacing: .4px;
-
 }
-
-
-
 .sd-chapter-button span {
-
     width: 100%;
-
     min-width: 0;
-
     font-size: 11px;
-
     font-weight: 400;
-
     line-height: 1.55;
-
     overflow-wrap: normal;
-
     word-break: normal;
-
 }
-
-
-
 .sd-chapter-button:hover,
-
 .sd-chapter-button.active {
-
     background: #e7f5eb;
-
     color: #207c50;
-
 }
-
-
-
 /* 08. SUBBAB TANPA BULLET */
-
 .sd-topic {
-
     display: block;
-
     width: 100%;
-
     margin: 2px 0;
-
     padding: 10px 11px;
-
     border: 0;
-
     border-radius: 8px;
-
     background: transparent;
-
     color: #809ba5;
-
     font-size: 11px;
-
     font-weight: 400;
-
     line-height: 1.55;
-
     text-align: left;
-
     overflow-wrap: normal;
-
     word-break: normal;
-
     transition: background .2s, color .2s;
-
 }
-
-
-
 .sd-topic:hover {
-
     background: #edf8ef;
-
     color: #21794d;
-
 }
-
-
-
 .sd-topic.active {
-
     background: #e6f5e9;
-
     color: #21794d;
-
     font-weight: 500;
-
 }
-
-
-
 /* 09. TOMBOL KELUAR */
-
 .sd-footer {
-
     margin-top: auto;
-
     padding: 22px 9px 3px;
-
 }
-
-
-
 .sd-exit {
-
     display: flex;
-
     align-items: center;
-
     gap: 9px;
-
     padding: 5px 0;
-
     border: 0;
-
     background: transparent;
-
     color: #df4646;
-
     font-size: 10px;
-
     font-weight: 600;
-
     text-decoration: none;
-
 }
-
-
-
 .sd-exit:hover {
-
     color: #b82d2d;
-
 }
-
-
-
 /* 10. SIDEBAR SAAT DILIPAT */
-
 .sd-sidebar.folded {
-
     width: var(--sd-sidebar-folded);
-
     padding-left: 7px;
-
     padding-right: 7px;
-
 }
-
-
-
 .sd-sidebar.folded .sd-brand {
-
     min-height: 48px;
-
     margin-bottom: 6px;
-
 }
-
-
-
 .sd-sidebar.folded .sd-brand img {
-
     width: 38px;
-
 }
-
-
-
 .sd-sidebar.folded .sd-fold {
-
     align-self: center;
-
 }
-
-
-
 .sd-sidebar.folded .sd-menu {
-
     justify-content: center;
-
     gap: 0;
-
     padding: 9px 0;
-
 }
-
-
-
 .sd-sidebar.folded .sd-menu span,
-
 .sd-sidebar.folded .sd-submenu,
-
 .sd-sidebar.folded .sd-exit span {
-
     display: none;
-
 }
-
-
-
 .sd-sidebar.folded .sd-footer {
-
     padding-right: 0;
-
     padding-left: 0;
-
 }
-
-
-
 .sd-sidebar.folded .sd-exit {
     width: 100%;
     min-height: 40px;
@@ -618,939 +272,385 @@ body.sd-page [hidden] {
     margin: 0;
     gap: 0;
 }
-
 .sd-sidebar.folded .sd-exit i {
     margin: 0;
 }
-
-
-
 /* 11. KONTEN UTAMA */
-
 .sd-main {
-
     min-width: 0;
-
     min-height: 100vh;
-
     margin-left: var(--sd-sidebar);
-
     transition: margin-left .25s ease;
-
 }
-
-
-
 .sd-main.expanded {
-
     margin-left: var(--sd-sidebar-folded);
-
 }
-
-
-
 .sd-content {
-
     padding: 0 21px 30px;
-
 }
-
-
-
 /* 12. TOPBAR */
-
 .sd-topbar {
-
     position: relative;
-
     z-index: 1020;
-
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     gap: 12px;
-
     min-height: 49px;
-
     padding: 9px 21px;
-
     background: #f9fcfa;
-
 }
-
-
-
 /* 13. PENCARIAN */
-
 .sd-search {
-
     display: flex;
-
     align-items: center;
-
     gap: 9px;
-
     width: min(340px, 100%);
-
     height: 31px;
-
     padding: 0 11px;
-
     border-radius: 8px;
-
     background: #edf4f5;
-
 }
-
-
-
 .sd-search input {
-
     flex: 1;
-
     width: 100%;
-
     min-width: 0;
-
     border: 0;
-
     outline: 0;
-
     background: transparent;
-
     color: var(--sd-blue);
-
     font-size: 9px;
-
 }
-
-
-
 .sd-search input::placeholder {
-
     color: #809ca7;
-
 }
-
-
-
 /* 14. NOTIFIKASI DAN PROFIL */
-
 .sd-tools {
-
     display: flex;
-
     align-items: center;
-
     gap: 14px;
-
 }
-
-
-
 .sd-icon,
-
 .sd-user {
-
     border: 0;
-
     background: transparent;
-
     color: var(--sd-blue);
-
 }
-
-
-
 .sd-icon {
-
     font-size: 17px;
-
 }
-
-
-
 .sd-user {
-
     display: flex;
-
     align-items: center;
-
     gap: 8px;
-
     text-align: left;
-
 }
-
-
-
 .sd-avatar {
-
     display: grid;
-
     place-items: center;
-
     width: 29px;
-
     height: 29px;
-
     border-radius: 50%;
-
     background: #bce9ef;
-
     font-weight: 700;
-
 }
-
-
-
 .sd-user small {
-
     display: block;
-
     color: var(--sd-muted);
-
     font-size: 8px;
-
 }
-
-
-
-
-
 /* 14.1. Tampilan dropdown profil */
-
 .sd-dropdown {
-
     min-width: 200px;
-
     padding: 7px;
-
     border: 1px solid #dce9e6;
-
     border-radius: 11px;
-
     background: #fffdf6;
-
     box-shadow: 0 8px 24px rgba(7, 84, 119, .12);
-
     font-size: 11px;
-
 }
-
-
-
 /* 14.2. Pilihan di dalam dropdown */
-
 .sd-dropdown .dropdown-item {
-
     display: flex;
-
     align-items: center;
-
     gap: 5px;
-
-
-
     padding: 10px 12px;
-
     border-radius: 7px;
-
-
-
     background: transparent;
-
     color: #075477;
-
-
-
     font-size: 11px;
-
     transition:
-
         background-color .2s ease,
-
         color .2s ease,
-
         transform .2s ease;
-
 }
-
-
-
 /* 14.3. HOVER: Profil Saya, Pengaturan, Bantuan */
-
 .sd-dropdown .dropdown-item:not(.text-danger):hover,
-
 .sd-dropdown .dropdown-item:not(.text-danger):focus-visible {
-
     background: #cfeaf9;
-
     color: #064968;
-
     transform: translateX(3px);
-
 }
-
-
-
 /* 14.4. HOVER: Keluar */
-
 .sd-dropdown .dropdown-item.text-danger:hover,
-
 .sd-dropdown .dropdown-item.text-danger:focus-visible {
-
     background: #ffe1e1;
-
     color: #bd2937 !important;
-
     transform: translateX(3px);
-
 }
-
-
-
 /* 14.5. Garis pemisah sebelum Keluar */
-
 .sd-dropdown .dropdown-divider {
-
     margin: 7px 0;
-
     border-color: #dce9e6;
-
 }
-
-
-
 /* 14.6. Tombol profil di topbar tetap stabil */
-
 /* Hover profil ditangani dalam bagian interaksi topbar di bawah. */
-
-
-
 /* 14.7. Untuk pengguna yang mengurangi animasi */
-
 @media (prefers-reduced-motion: reduce) {
-
     .sd-dropdown .dropdown-item {
-
         transition: none;
-
     }
-
-
-
     .sd-dropdown .dropdown-item:hover {
-
         transform: none;
-
     }
-
 }
-
-
-
 /* 15. KARTU UMUM */
-
 .sd-card {
-
     padding: 19px;
-
     border: 1px solid var(--sd-border);
-
     border-radius: 13px;
-
     background: var(--sd-cream);
-
 }
-
-
-
 .sd-pill {
-
     display: inline-block;
-
     padding: 5px 8px;
-
     border-radius: 6px;
-
     background: #e4f5eb;
-
     color: #207950;
-
     font-size: 8px;
-
     font-weight: 700;
-
 }
-
-
-
 .sd-muted {
-
     color: var(--sd-muted);
-
     font-size: 9px;
-
 }
-
-
-
 .sd-heading {
-
     margin: 0 0 15px;
-
     font-size: 13px;
-
     font-weight: 600;
-
 }
-
-
-
 .sd-heading i {
-
     margin-right: 8px;
-
 }
-
-
-
 /* 20. NAVIGASI PREVIOUS / NEXT */
-
 .sd-navigation {
-
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     gap: 12px;
-
     margin: 17px 0;
-
 }
-
-
-
 .sd-nav-btn {
-
     display: inline-flex;
-
     align-items: center;
-
     justify-content: center;
-
     gap: 8px;
-
     min-height: 36px;
-
     padding: 9px 15px;
-
     border: 1px solid #ccded9;
-
     border-radius: 8px;
-
     background: #fff;
-
     color: var(--sd-blue);
-
     font-size: 10px;
-
     font-weight: 600;
-
 }
-
-
-
 .sd-nav-btn.next {
-
     border-color: #209265;
-
     background: #209265;
-
     color: #fff;
-
 }
-
-
-
 .sd-nav-btn:hover {
-
     filter: brightness(.97);
-
 }
-
-
-
 .sd-nav-btn:disabled {
-
     opacity: .4;
-
     cursor: not-allowed;
-
 }
-
-
-
 .sd-counter {
-
     color: var(--sd-muted);
-
     font-size: 9px;
-
     text-align: center;
-
 }
-
-
-
 /* 21. JUDUL DAN TEKS */
-
 .sd-breadcrumb {
-
     margin: 19px 0 12px;
-
     color: var(--sd-muted);
-
     font-size: 9px;
-
 }
-
-
-
 .sd-title {
-
     margin: 11px 0 13px;
-
     font-size: clamp(20px, 2vw, 26px);
-
     font-weight: 600;
-
     line-height: 1.4;
-
 }
-
-
-
 .sd-copy {
-
     color: #356e7c;
-
     font-size: 11px;
-
     line-height: 1.9;
-
 }
-
-
-
 .sd-copy p:last-child {
-
     margin-bottom: 0;
-
 }
-
-
-
 /* 30. SIDEBAR MOBILE */
-
 .sd-offcanvas {
-
     --bs-offcanvas-width: 250px;
-
     background: var(--sd-cream);
-
 }
-
-
-
 /* 31. RESPONSIVE TABLET */
-
 @media (max-width: 991.98px) {
-
     .sd-sidebar {
-
         display: none;
-
     }
-
-
-
     .sd-main,
-
     .sd-main.expanded {
-
         margin-left: 0;
-
     }
-
 }
-
-
-
 /* 32. RESPONSIVE HANDPHONE */
-
 @media (max-width: 767.98px) {
-
     .sd-content {
-
         padding: 0 12px 25px;
-
     }
-
-
-
     .sd-topbar {
-
         padding: 9px 12px;
-
     }
-
-
-
     .sd-user-meta {
-
         display: none;
-
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     .sd-nav-btn {
-
         padding: 9px 11px;
-
     }
-
 }
-
-
-
 /* 33. AKSESIBILITAS */
-
 @media (prefers-reduced-motion: reduce) {
-
     *,
-
     *::before,
-
     *::after {
-
         scroll-behavior: auto !important;
-
         transition-duration: 0s !important;
-
     }
-
 }
-
-
-
-
-
 /* =====================================================
-
    34. HOVER DAN INTERAKSI DASHBOARD SISWA
-
    ===================================================== */
-
-
-
 /* 34.1. Beranda hanya memiliki tombol Next */
-
-
-
-
-
 /* 34.2. Transisi untuk tombol yang dapat diklik */
-
 .sd-page .sd-menu,
-
 .sd-page .sd-topic,
-
 .sd-page .sd-chapter-button,
-
 .sd-page .sd-fold,
-
 .sd-page .sd-nav-btn,
-
 .sd-page .sd-primary,
-
 .sd-page .sd-choice,
-
 .sd-page .sd-icon,
-
 .sd-page .sd-user,
-
 .sd-page .sd-exit {
-
     transition:
-
         background-color .22s ease,
-
         border-color .22s ease,
-
         color .22s ease,
-
         box-shadow .22s ease,
-
         transform .22s ease;
-
 }
-
-
-
 /* 34.3. Hover menu utama di sidebar */
-
 .sd-page .sd-menu:hover {
-
     background-color: #d2eaf8;
-
     color: #075477;
-
     transform: translateX(3px);
-
     box-shadow: inset 3px 0 0 #328ab7;
-
 }
-
-
-
 /* Menu aktif tetap hijau pada keadaan normal */
-
 .sd-page .sd-menu.active:not(:hover) {
-
     background-color: #e6f5ea;
-
     color: #21784c;
-
 }
-
-
-
 /* Menu aktif juga punya hover berbeda */
-
 .sd-page .sd-menu.active:hover {
-
     background-color: #c5e7f6;
-
     color: #064e70;
-
 }
-
-
-
 /* 34.4. Hover judul Bab 1 */
-
 .sd-page .sd-chapter-button:hover {
-
     background-color: #d7ebf8;
-
     color: #075477;
-
     transform: translateX(3px);
-
     box-shadow: inset 3px 0 0 #328ab7;
-
 }
-
-
-
 /* 34.5. Hover subbab 1.1, 1.2, 1.3 */
-
 .sd-page .sd-topic:hover {
-
     background-color: #d6ebf8;
-
     color: #075477;
-
     transform: translateX(3px);
-
     box-shadow: inset 3px 0 0 #328ab7;
-
 }
-
-
-
 /* Subbab aktif tetap hijau saat tidak di-hover */
-
 .sd-page .sd-topic.active:not(:hover) {
-
     background-color: #e6f5e9;
-
     color: #21794d;
-
 }
-
-
-
 /* Subbab aktif juga berubah biru saat di-hover */
-
 .sd-page .sd-topic.active:hover {
-
     background-color: #c9e6f7;
-
     color: #075477;
-
 }
-
-
-
 /* 34.6. Hover tombol panel sidebar */
-
 .sd-page .sd-fold:hover {
-
     background-color: #d7eafa;
-
     color: #075477;
-
     border-color: #a2d1eb;
-
     transform: scale(1.07);
-
     box-shadow: 0 3px 10px rgba(7, 84, 119, .12);
-
 }
-
-
-
 /* 34.7. Hover tombol Previous */
-
 .sd-page .sd-nav-btn:not(.next):not(:disabled):hover {
-
     background-color: #d7eafa;
-
     border-color: #7ab9dd;
-
     color: #075477;
-
     transform: translateY(-2px);
-
     box-shadow: 0 5px 12px rgba(7, 84, 119, .12);
-
 }
-
-
-
 /* 34.8. Hover tombol Next */
-
 .sd-page .sd-nav-btn.next:not(:disabled):hover {
-
     background-color: #075477;
-
     border-color: #075477;
-
     color: white;
-
     transform: translateY(-2px);
-
     box-shadow: 0 6px 14px rgba(7, 84, 119, .22);
-
 }
-
-
-
 /* 34.9. Hover tombol Lihat Materi */
-
 .sd-page .sd-primary:hover {
-
     background-color: #187ba1;
-
     color: white;
-
     transform: translateY(-2px);
-
     box-shadow: 0 6px 14px rgba(7, 84, 119, .2);
-
 }
-
-
-
 /* 34.10. Hover pilihan jawaban kuis */
-
 .sd-page .sd-choice:not(.correct):not(.wrong):hover {
-
     background-color: #e4f2ff;
-
     border-color: #77b9e1;
-
     color: #075477;
-
     transform: translateX(3px);
-
 }
-
-
-
 /* Jawaban benar dan salah tidak berubah warna
-
    ketika kursor diarahkan ke pilihan */
-
 .sd-page .sd-choice.correct:hover {
-
     background-color: #e3f5e8;
-
     border-color: #3b9b68;
-
 }
-
-
-
 .sd-page .sd-choice.wrong:hover {
-
     background-color: #fff0e9;
-
     border-color: #e09a77;
-
 }
-
-
-
 /* 34.11. Topbar siswa: profil polos, hanya panah dan lonceng yang memiliki hover biru. */
 .sd-page .sd-tools .sd-user,
 .sd-page .sd-tools .sd-user:hover,
@@ -1561,11 +661,9 @@ body.sd-page [hidden] {
     border-color: transparent;
     transform: none;
 }
-
 .sd-page .sd-tools .sd-user {
     padding: 5px 7px;
 }
-
 .sd-page .sd-tools .sd-user > i:last-child {
     display: inline-flex;
     align-items: center;
@@ -1576,14 +674,12 @@ body.sd-page [hidden] {
     color: #075477;
     transition: background-color .18s ease, color .18s ease;
 }
-
 .sd-page .sd-tools .sd-user:hover > i:last-child,
 .sd-page .sd-tools .sd-user:focus-visible > i:last-child,
 .sd-page .sd-tools .sd-user[aria-expanded="true"] > i:last-child {
     background-color: #cfeaf9;
     color: #064968;
 }
-
 .sd-page .sd-tools .sd-icon {
     display: inline-flex;
     align-items: center;
@@ -1594,7 +690,6 @@ body.sd-page [hidden] {
     border-radius: 9px;
     transition: background-color .18s ease, color .18s ease;
 }
-
 .sd-page .sd-tools .sd-icon:hover,
 .sd-page .sd-tools .sd-icon:focus-visible {
     background-color: #cfeaf9;
@@ -1602,177 +697,83 @@ body.sd-page [hidden] {
     box-shadow: none;
     transform: none;
 }
-
 .sd-page .sd-tools .sd-icon:focus-visible,
 .sd-page .sd-tools .sd-user:focus-visible {
     outline: 2px solid #77b4d3;
     outline-offset: 2px;
 }
-
 /* 34.12. Hover tombol Keluar */
-
 .sd-page .sd-exit:hover {
-
     color: #b52b2b;
-
     transform: translateX(3px);
-
 }
-
-
-
 /* 34.13. Hover kartu informasi
-
    Hanya efek visual, bukan tombol navigasi */
-
 .sd-page .sd-card {
-
     transition:
-
         border-color .22s ease,
-
         box-shadow .22s ease,
-
         transform .22s ease;
-
 }
-
-
-
 .sd-page .sd-card:hover {
-
     border-color: #a9cfdc;
-
     box-shadow: 0 5px 18px rgba(7, 84, 119, .07);
-
 }
-
-
-
 /* 34.14. Fokus keyboard */
-
 .sd-page button:focus-visible,
-
 .sd-page a:focus-visible,
-
 .sd-page input:focus-visible {
-
     outline: 3px solid #329ecb;
-
     outline-offset: 3px;
-
 }
-
-
-
 /* 34.15. Jangan beri efek hover pada tombol nonaktif */
-
 .sd-page .sd-nav-btn:disabled {
-
     transform: none;
-
     box-shadow: none;
-
     cursor: not-allowed;
-
 }
-
-
-
 /* 34.16. Kurangi animasi sesuai pengaturan pengguna */
-
 @media (prefers-reduced-motion: reduce) {
-
     .sd-page .sd-menu,
-
     .sd-page .sd-topic,
-
     .sd-page .sd-chapter-button,
-
     .sd-page .sd-fold,
-
     .sd-page .sd-nav-btn,
-
     .sd-page .sd-primary,
-
     .sd-page .sd-choice,
-
     .sd-page .sd-icon,
-
     .sd-page .sd-user,
-
     .sd-page .sd-exit,
-
     .sd-page .sd-card {
-
         transition: none;
-
     }
-
-
-
     .sd-page .sd-menu:hover,
-
     .sd-page .sd-topic:hover,
-
     .sd-page .sd-chapter-button:hover,
-
     .sd-page .sd-fold:hover,
-
     .sd-page .sd-nav-btn:hover,
-
     .sd-page .sd-primary:hover,
-
     .sd-page .sd-choice:hover,
-
     .sd-page .sd-icon:hover,
-
     .sd-page .sd-user:hover,
-
     .sd-page .sd-exit:hover {
-
         transform: none;
-
     }
-
 }
-
-
-
-
-
 /* =====================================================
-
    FOTO PROFIL TOPBAR SESUAI AKUN LOGIN
-
    ===================================================== */
-
-
-
 .sd-topbar-avatar-img {
-
     display: block;
-
     width: 100%;
-
     height: 100%;
-
     border-radius: 50%;
-
     object-fit: cover;
-
 }
-
-
-
 .sd-user .sd-avatar {
-
     overflow: hidden;
-
     flex-shrink: 0;
-
 }
-
 /* Ukuran ikon Keluar diselaraskan dengan ikon navigasi Siswa. */
 .sd-page .sd-sidebar .sd-exit i,
 .sd-page .sd-sidebar .sd-exit svg {
@@ -1784,4 +785,34 @@ body.sd-page [hidden] {
     height: 19px;
     font-size: 15px;
     line-height: 1;
+}
+/* =====================================================
+   SIDEBAR MATERI — SATU TOMBOL DENGAN PANAH DI KANAN
+   Seluruh area Materi membuka halaman Materi Pembelajaran
+   sekaligus membuka/menutup daftar Bab dan Subbab.
+   ===================================================== */
+.sd-menu.sd-material-menu {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+}
+.sd-menu.sd-material-menu > span {
+    flex: 1 1 auto;
+    text-align: left;
+}
+.sd-menu.sd-material-menu .sd-material-chevron {
+    flex: 0 0 auto;
+    margin-left: auto;
+    font-size: 13px;
+    transition: transform .2s ease;
+}
+.sd-menu.sd-material-menu[aria-expanded="true"] .sd-material-chevron {
+    transform: rotate(180deg);
+}
+.sd-sidebar.folded .sd-menu.sd-material-menu .sd-material-chevron {
+    display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+    .sd-menu.sd-material-menu .sd-material-chevron { transition: none; }
 }

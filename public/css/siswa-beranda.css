@@ -1,205 +1,92 @@
 /* CSS Beranda dan progres belajar Dashboard Siswa. */
-
 /* 16. BANNER BERANDA */
-
 .sd-hero {
-
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     gap: 18px;
-
     min-height: 145px;
-
     padding: 23px 27px;
-
     border-radius: 12px;
-
     background:
-
         linear-gradient(
-
             90deg,
-
             rgba(255, 253, 245, .68),
-
             rgba(255, 253, 245, 0) 76%
-
         ),
-
         url('/images/student-dashboard-hero.png')
-
         center / cover no-repeat;
-
 }
-
-
-
 .sd-hero h1 {
-
     margin: 0 0 8px;
-
     font-size: 26px;
-
     font-weight: 400;
-
 }
-
-
-
 .sd-hero p {
-
     max-width: 400px;
-
     margin: 0;
-
     font-size: 10px;
-
     line-height: 1.7;
-
 }
-
-
-
 .sd-quote {
-
     max-width: 190px;
-
     padding: 12px;
-
     border-radius: 9px;
-
     background: rgba(255, 253, 245, .91);
-
     color: #2c7950;
-
     font-size: 9px;
-
     line-height: 1.6;
-
 }
-
-
-
 /* 17. KARTU STATISTIK */
-
 .sd-stat {
-
     display: flex;
-
     align-items: center;
-
     gap: 11px;
-
     height: 100%;
-
     min-height: 88px;
-
 }
-
-
-
 .sd-stat img {
-
     flex: 0 0 66px;
-
     width: 66px;
-
     height: 65px;
-
     object-fit: contain;
-
 }
-
-
-
 .sd-stat small {
-
     display: block;
-
     font-size: 9px;
-
 }
-
-
-
 .sd-stat strong {
-
     display: block;
-
     font-size: 22px;
-
 }
-
-
-
 .sd-stat p {
-
     margin: 0;
-
     color: var(--sd-muted);
-
     font-size: 8px;
-
 }
-
-
-
 /* 18. LANJUTKAN BELAJAR */
-
 .sd-home-lesson {
-
     display: flex;
-
     align-items: center;
-
     gap: 15px;
-
 }
-
-
-
 .sd-home-lesson > img {
-
     width: 36%;
-
     height: 115px;
-
     border-radius: 9px;
-
     object-fit: cover;
-
 }
-
-
-
 .sd-home-lesson h3 {
-
     margin: 7px 0 4px;
-
     font-size: 12px;
-
     font-weight: 500;
-
 }
-
-
-
 .sd-progress {
-
     height: 6px;
-
     margin: 10px 0;
-
     border-radius: 20px;
-
     background: #dce9ed;
-
 }
-
 .sd-progress > span {
     display: block;
     width: 0;
@@ -208,99 +95,45 @@
     background: #16835a;
     transition: width .25s ease;
 }
-
-
-
 .sd-primary {
-
     padding: 9px 14px;
-
     border: 0;
-
     border-radius: 7px;
-
     background: #0b5b7a;
-
     color: #fff;
-
     font-size: 10px;
-
     font-weight: 600;
-
 }
-
-
-
 .sd-primary:hover {
-
     background: #084762;
-
 }
-
-
-
 /* 19. AKTIVITAS DAN PENCAPAIAN */
-
 .sd-empty {
-
     display: flex;
-
     flex-direction: column;
-
     align-items: center;
-
     justify-content: center;
-
     gap: 6px;
-
     min-height: 117px;
-
     font-size: 9px;
-
     font-weight: 600;
-
     text-align: center;
-
 }
-
-
-
 .sd-empty img {
-
     width: 65px;
-
     height: 55px;
-
     object-fit: contain;
-
 }
-
-
-
 .sd-achievement-heading {
-
     font-size: 14px;
-
 }
-
-
-
 .sd-achievement-title {
-
     font-size: 11px;
-
     font-weight: 600;
-
 }
-
-
-
 .sd-status {
-
     font-size: 10px;
-
 }
-
 .sd-activity-list {
     display: grid;
     gap: 8px;
@@ -309,65 +142,38 @@
     list-style: none;
     font-size: 9px;
 }
-
 .sd-activity-list li {
     padding: 7px 9px;
     border-radius: 8px;
     background: #f4f8f5;
 }
-
 .sd-activity-list time {
     display: block;
     margin-top: 3px;
     color: var(--sd-muted);
     font-size: 8px;
 }
-
-
-
-
-
 /* Responsive Beranda rules moved from the shared stylesheet. */
 @media (max-width: 767.98px) {
     .sd-quote {
-
         display: none;
-
     }
-
     .sd-hero {
-
         min-height: 150px;
-
         padding: 18px;
-
     }
-
     .sd-hero h1 {
-
         font-size: 21px;
-
     }
-
     .sd-home-lesson {
-
         flex-direction: column;
-
         align-items: stretch;
-
     }
-
     .sd-home-lesson > img {
-
         width: 100%;
-
         height: 150px;
-
     }
 }
-
 .sd-navigation-home {
-
     justify-content: flex-end;
-
 }
