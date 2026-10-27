@@ -32,14 +32,13 @@
 
     <link rel="stylesheet" href="{{ asset('css/siswa-materi.css') }}?v=1">
 
-    <link rel="stylesheet" href="{{ asset('css/siswa-evaluasi.css') }}?v=49">
+    <link rel="stylesheet" href="{{ asset('css/siswa-evaluasi.css') }}?v=52">
 
     <link rel="stylesheet" href="{{ asset('css/siswa-forum.css') }}?v=1">
 
     <link rel="stylesheet" href="{{ asset('css/siswa-profil.css') }}?v=3">
 
     <link rel="stylesheet" href="{{ asset('css/saluang-selects.css') }}?v=1">
-    <link rel="stylesheet" href="{{ asset('css/siswa-catatan-guru.css') }}?v=1">
 </head>
 
 <body class="sd-page">
@@ -847,7 +846,7 @@
 
                                             <div>
                                                 <span>Jumlah Soal</span>
-                                                <strong>20 Soal</strong>
+                                                <strong>15 Soal</strong>
                                             </div>
 
                                         </div>
@@ -919,7 +918,7 @@
                                         </li>
 
                                         <li>
-                                            Evaluasi terdiri dari 20 soal:
+                                            Evaluasi terdiri dari 15 soal:
                                             pilihan ganda, drag-and-drop,
                                             menghubungkan pasangan,
                                             dan memilih gambar.
@@ -991,6 +990,13 @@
                                     </p>
                                 </div>
 
+                                <div id="sd-eval-locked-message" class="se-locked-note" hidden>
+                                    <i class="bi bi-shield-check"></i>
+                                    <div><strong>Evaluasi sudah tuntas</strong>
+                                        <p>Kamu telah mencapai KKM. Kamu bisa melihat hasil, tetapi tidak dapat mengerjakan ulang.</p>
+                                    </div>
+                                </div>
+
                                 <div class="sd-eval-intro-start">
 
                                     <button type="button" class="sd-eval-primary" data-eval-open="quiz">
@@ -1046,7 +1052,7 @@
                                 <div class="sd-eval-question-meta">
 
                                     <span id="sd-eval-current-number">
-                                        Soal 1 dari 20
+                                        Soal 1 dari 15
                                     </span>
 
                                     <span id="sd-eval-current-type">
@@ -1180,7 +1186,7 @@
                         </h2>
 
                         <p class="sd-eval-confirm-description" id="sd-eval-confirm-description">
-                            Kamu akan mengerjakan 20 soal
+                            Kamu akan mengerjakan 15 soal
                             selama 45 menit.
                         </p>
 
@@ -1212,297 +1218,6 @@
                 </div>
 
                 {{-- =================================================
-                     12.4 EVALUASI INTERAKTIF SOAL 1
-                     KLASIFIKASI BIOTIK DAN ABIOTIK
-                ================================================== --}}
-                <div class="sd-eval-screen" data-eval-screen="q1">
-
-                    <div class="sd-eval-time">
-                        <i class="bi bi-clock"></i>
-                        Waktu pengerjaan: ± 30 menit
-                    </div>
-
-                    <article class="sd-card sd-eval-card">
-
-                        <div class="sd-eval-overview-header">
-
-                            <div>
-                                <h1 class="sd-eval-heading">
-                                    Evaluasi — Karakteristik dan
-                                    Klasifikasi Makhluk Hidup
-                                </h1>
-
-                                <p class="sd-eval-description">
-                                    BAB 1 — Karakteristik dan Klasifikasi
-                                    Makhluk Hidup
-                                </p>
-                            </div>
-
-                            <button type="button" class="sd-eval-outline" data-eval-open="overview">
-                                Kembali ke Evaluasi
-                            </button>
-
-                        </div>
-
-                        <div class="sd-eval-topic">
-                            1.1 Makhluk Hidup atau Benda Mati?
-                        </div>
-
-                        <p class="sd-eval-number">
-                            Soal 1 dari 2
-                        </p>
-
-                        <h2 class="sd-eval-question">
-                            Kelompokkan gambar komponen lahan basah
-                            ke target yang benar.
-                        </h2>
-
-                        <p class="sd-eval-description">
-                            Seret gambar ke Biotik atau Abiotik.
-                            Pada layar sentuh, ketuk gambar
-                            lalu ketuk target.
-                        </p>
-
-                        <div class="sd-eval-classification sd-eval-q1-layout">
-
-                            <!-- Sumber gambar -->
-                            <div class="sd-eval-items sd-eval-image-items">
-
-                                <button type="button" class="sd-eval-item sd-eval-image-item" data-eval-item
-                                    data-question="q1" data-item="ikan_saluang" aria-label="Ikan saluang"
-                                    title="Ikan saluang">
-                                    <span class="sd-eval-emoji">
-                                        <img src="{{ asset('images/evaluasi/saluang.png') }}" alt="Ikan saluang"
-                                            draggable="false">
-                                    </span>
-                                </button>
-
-                                <button type="button" class="sd-eval-item sd-eval-image-item" data-eval-item
-                                    data-question="q1" data-item="air_sungai" aria-label="Air sungai"
-                                    title="Air sungai">
-                                    <span class="sd-eval-emoji">
-                                        <img src="{{ asset('images/evaluasi/air-sungai.png') }}" alt="Air sungai"
-                                            draggable="false">
-                                    </span>
-                                </button>
-
-                                <button type="button" class="sd-eval-item sd-eval-image-item" data-eval-item
-                                    data-question="q1" data-item="tumbuhan_purun" aria-label="Tumbuhan purun"
-                                    title="Tumbuhan purun">
-                                    <span class="sd-eval-emoji">
-                                        <img src="{{ asset('images/evaluasi/purun.png') }}" alt="Tumbuhan purun"
-                                            draggable="false">
-                                    </span>
-                                </button>
-
-                            </div>
-
-                            <!-- Target -->
-                            <div class="sd-eval-targets">
-
-                                <button type="button" class="sd-eval-target" data-eval-target data-question="q1"
-                                    data-target="biotik">
-                                    <strong>Biotik</strong>
-                                    <small>Komponen makhluk hidup</small>
-
-                                    <span class="sd-eval-chips" data-target-box="q1:biotik"></span>
-                                </button>
-
-                                <button type="button" class="sd-eval-target" data-eval-target data-question="q1"
-                                    data-target="abiotik">
-                                    <strong>Abiotik</strong>
-                                    <small>Komponen benda tak hidup</small>
-
-                                    <span class="sd-eval-chips" data-target-box="q1:abiotik"></span>
-                                </button>
-
-                            </div>
-
-                        </div>
-
-                        <div class="sd-eval-feedback" data-eval-feedback="q1" role="status" aria-live="polite"
-                            hidden></div>
-
-                        <div class="sd-eval-navigation">
-
-                            <button type="button" class="sd-nav-btn" data-eval-open="overview">
-                                <i class="bi bi-chevron-left"></i>
-                                Previous
-                            </button>
-
-                            <button type="button" class="sd-nav-btn next" data-eval-open="q2" data-next-for="q1"
-                                hidden>
-                                Next
-                                <i class="bi bi-chevron-right"></i>
-                            </button>
-
-                        </div>
-
-                    </article>
-
-                </div>
-
-                {{-- =================================================
-                     12.5 EVALUASI INTERAKTIF SOAL 2
-                     MENGHUBUNGKAN PASANGAN
-                ================================================== --}}
-                <div class="sd-eval-screen" data-eval-screen="q2">
-
-                    <div class="sd-eval-time">
-                        <i class="bi bi-clock"></i>
-                        Waktu pengerjaan: ± 30 menit
-                    </div>
-
-                    <article class="sd-card sd-eval-card">
-
-                        <div class="sd-eval-overview-header">
-
-                            <div>
-                                <h1 class="sd-eval-heading">
-                                    Evaluasi — Karakteristik dan
-                                    Klasifikasi Makhluk Hidup
-                                </h1>
-
-                                <p class="sd-eval-description">
-                                    BAB 1 — Karakteristik dan Klasifikasi
-                                    Makhluk Hidup
-                                </p>
-                            </div>
-
-                            <button type="button" class="sd-eval-outline" data-eval-open="overview">
-                                Kembali ke Evaluasi
-                            </button>
-
-                        </div>
-
-                        <div class="sd-eval-topic">
-                            1.2 Mengapa Makhluk Hidup Dikelompokkan?
-                        </div>
-
-                        <p class="sd-eval-number">
-                            Soal 2 dari 2
-                        </p>
-
-                        <h2 class="sd-eval-question">
-                            Hubungkan organisme lahan basah
-                            dengan kelompoknya: hewan atau tumbuhan.
-                        </h2>
-
-                        <p class="sd-eval-description">
-                            Klik bullet hijau pada gambar,
-                            lalu klik bullet pada kelompok
-                            Hewan atau Tumbuhan.
-                        </p>
-
-                        <div class="sd-eval-classification sd-eval-match-layout" id="sdMatchQ2">
-
-                            <svg class="sd-eval-lines" id="sdMatchLinesQ2" aria-hidden="true"></svg>
-
-                            <!-- Sumber -->
-                            <div class="sd-eval-items sd-eval-match-items">
-
-                                <div class="sd-eval-match-row" data-match-row="ikan">
-                                    <img src="{{ asset('images/evaluasi/saluang.png') }}" alt="Ikan"
-                                        title="Ikan" class="sd-eval-match-image">
-
-                                    <button type="button" class="sd-eval-bullet sd-eval-bullet-source" data-eval-item
-                                        data-question="q2" data-item="ikan" aria-label="Hubungkan ikan"
-                                        title="Ikan"></button>
-                                </div>
-
-                                <div class="sd-eval-match-row" data-match-row="burung">
-                                    <img src="{{ asset('images/evaluasi/burung-rangkong.png') }}"
-                                        alt="Burung rangkong" title="Burung rangkong" class="sd-eval-match-image">
-
-                                    <button type="button" class="sd-eval-bullet sd-eval-bullet-source" data-eval-item
-                                        data-question="q2" data-item="burung" aria-label="Hubungkan burung"
-                                        title="Burung"></button>
-                                </div>
-
-                                <div class="sd-eval-match-row" data-match-row="katak">
-                                    <img src="{{ asset('images/evaluasi/katak.png') }}" alt="Katak"
-                                        title="Katak" class="sd-eval-match-image">
-
-                                    <button type="button" class="sd-eval-bullet sd-eval-bullet-source" data-eval-item
-                                        data-question="q2" data-item="katak" aria-label="Hubungkan katak"
-                                        title="Katak"></button>
-                                </div>
-
-                                <div class="sd-eval-match-row" data-match-row="teratai">
-                                    <img src="{{ asset('images/evaluasi/teratai.png') }}" alt="Teratai"
-                                        title="Teratai" class="sd-eval-match-image">
-
-                                    <button type="button" class="sd-eval-bullet sd-eval-bullet-source" data-eval-item
-                                        data-question="q2" data-item="teratai" aria-label="Hubungkan teratai"
-                                        title="Teratai"></button>
-                                </div>
-
-                                <div class="sd-eval-match-row" data-match-row="purun">
-                                    <img src="{{ asset('images/evaluasi/purun.png') }}" alt="Purun"
-                                        title="Purun" class="sd-eval-match-image">
-
-                                    <button type="button" class="sd-eval-bullet sd-eval-bullet-source" data-eval-item
-                                        data-question="q2" data-item="purun" aria-label="Hubungkan purun"
-                                        title="Purun"></button>
-                                </div>
-
-                            </div>
-
-                            <!-- Target -->
-                            <div class="sd-eval-targets sd-eval-match-targets">
-
-                                <div class="sd-eval-match-target">
-
-                                    <button type="button" class="sd-eval-bullet sd-eval-bullet-target"
-                                        data-eval-target data-question="q2" data-target="hewan"
-                                        aria-label="Hubungkan ke Hewan" title="Hewan"></button>
-
-                                    <div class="sd-eval-match-target-label">
-                                        <strong>Hewan</strong>
-                                        <small>Kelompok organisme hewan</small>
-                                    </div>
-
-                                </div>
-
-                                <div class="sd-eval-match-target">
-
-                                    <button type="button" class="sd-eval-bullet sd-eval-bullet-target"
-                                        data-eval-target data-question="q2" data-target="tumbuhan"
-                                        aria-label="Hubungkan ke Tumbuhan" title="Tumbuhan"></button>
-
-                                    <div class="sd-eval-match-target-label">
-                                        <strong>Tumbuhan</strong>
-                                        <small>Kelompok organisme tumbuhan</small>
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        <div class="sd-eval-feedback" data-eval-feedback="q2" role="status" aria-live="polite"
-                            hidden></div>
-
-                        <div class="sd-eval-navigation">
-
-                            <button type="button" class="sd-nav-btn" data-eval-open="q1">
-                                <i class="bi bi-chevron-left"></i>
-                                Previous
-                            </button>
-
-                            <button type="button" class="sd-eval-primary" id="sd-eval-finish" hidden>
-                                Selesai Evaluasi
-                                <i class="bi bi-check2-circle"></i>
-                            </button>
-
-                        </div>
-
-                    </article>
-
-                </div>
-
-                {{-- =================================================
                      12.6 HASIL EVALUASI
                 ================================================== --}}
                 <div class="sd-eval-screen" data-eval-screen="result">
@@ -1512,7 +1227,7 @@
                         <div class="sd-eval-overview-header">
 
                             <h1 class="sd-eval-heading">
-                                Evaluasi Bab 1 Selesai!
+                                Evaluasi Bab VI Selesai!
                             </h1>
 
                             <button type="button" class="sd-eval-outline" data-eval-open="overview">
@@ -1521,61 +1236,33 @@
 
                         </div>
 
-                        <div class="sd-eval-result">
-
-                            <div class="sd-eval-result-text">
-
-                                <span class="sd-pill">
-                                    HASIL EVALUASI
-                                </span>
-
-                                <h2 id="sd-eval-result-heading">
-                                    Selamat sudah menyelesaikan evaluasi!
-                                </h2>
-
-                                <div class="sd-eval-score">
-
-                                    <span>Nilai kamu</span>
-
-                                    <strong id="sd-eval-final-score">
-                                        0
-                                    </strong>
-
-                                    <small id="sd-eval-final-summary">
-                                        0 benar · 0 salah
-                                    </small>
-
+                        <div class="sd-eval-result se-results-v2" id="sd-eval-result-panel">
+                            <div class="se-results-hero">
+                                <div class="se-results-copy">
+                                    <span class="se-results-eyebrow"><i class="bi bi-patch-check"></i> HASIL EVALUASI BAB VI</span>
+                                    <span class="se-results-state" id="sd-eval-result-status">HASIL EVALUASI</span>
+                                    <h2 id="sd-eval-result-heading">Evaluasi selesai!</h2>
+                                    <p id="sd-eval-final-message">Hasil belajarmu telah tersimpan.</p>
+                                    <div class="se-results-score">
+                                        <span>Nilai Akhir</span>
+                                        <div><strong id="sd-eval-final-score">0</strong><small>/ 100</small></div>
+                                        <small id="sd-eval-final-summary">0 benar · 0 salah</small>
+                                    </div>
                                 </div>
-
-                                <p id="sd-eval-final-message">
-                                    Terus semangat belajar bersama SALUANG!
-                                </p>
-
-                                <div class="sd-eval-result-actions">
-
-                                    <button type="button" class="sd-eval-outline" id="sd-eval-retry">
-                                        Coba Lagi
-                                    </button>
-
-                                    <button type="button" class="sd-eval-primary" data-page="6">
-                                        Lanjut ke Forum Diskusi
-                                        <i class="bi bi-arrow-right"></i>
-                                    </button>
-
+                                <div class="se-results-visual">
+                                    <img src="{{ asset('images/evaluasi/bekantan-juara-transparan.png') }}"
+                                         alt="Bekantan SALUANG mengangkat piala emas bersama buku, tumbuhan, dan papan evaluasi">
                                 </div>
-
                             </div>
-
-                            <div class="sd-eval-result-illustration">
-
-                                <img src="{{ asset('images/evaluasi/hasil-evaluasi.png') }}"
-                                    alt="Ilustrasi keberhasilan evaluasi">
-
-                                <p>
-                                    Terus jelajahi keanekaragaman hayati
-                                    lahan basah bersama SALUANG!
-                                </p>
-
+                            <div class="se-results-stats" aria-label="Ringkasan nilai evaluasi">
+                                <div class="se-stat"><span>Skor</span><strong id="sd-eval-summary-score">0</strong><small>dari 100</small></div>
+                                <div class="se-stat se-stat-good"><span>Jawaban Benar</span><strong id="sd-eval-summary-correct">0</strong><small>dari 15 soal</small></div>
+                                <div class="se-stat se-stat-wrong"><span>Jawaban Salah</span><strong id="sd-eval-summary-wrong">0</strong><small>dari 15 soal</small></div>
+                                <div class="se-stat"><span>KKM</span><strong id="sd-eval-result-kkm">70</strong><small>nilai minimum tuntas</small></div>
+                            </div>
+                            <div class="sd-eval-result-actions se-results-actions">
+                                <button type="button" class="sd-eval-outline" id="sd-eval-retry">Coba Lagi</button>
+                                <button type="button" class="sd-eval-primary" data-page="6">Lanjut ke Forum Diskusi</button>
                             </div>
 
                         </div>
@@ -2360,7 +2047,7 @@
 
     <script src="{{ asset('js/siswa.js') }}?v=38" defer></script>
 
-    <script src="{{ asset('js/siswa-evaluasi.js') }}?v=50" defer></script>
+    <script src="{{ asset('js/siswa-evaluasi.js') }}?v=53" defer></script>
 
     <script src="{{ asset('js/siswa-forum.js') }}?v=3" defer></script>
 
@@ -2411,7 +2098,6 @@
 
     </div>
 
-    <script src="{{ asset('js/siswa-catatan-guru.js') }}?v=1" defer></script>
 </body>
 
 </html>

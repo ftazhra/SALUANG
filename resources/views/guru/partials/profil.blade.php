@@ -9,6 +9,63 @@
     $fotoProfil = $guru?->profile_photo_path;
 @endphp
 
+
+<style>
+    #guruProfilePage .gp-profile-quick-actions {
+        display: grid;
+        gap: 16px;
+        margin-top: 20px;
+    }
+
+    #guruProfilePage .gp-profile-quick-actions form {
+        margin: 0;
+        padding: 0;
+    }
+
+    #guruProfilePage .gp-profile-quick-actions .gp-profile-quick-logout,
+    #guruProfilePage .gp-profile-quick-actions .gp-profile-quick-home {
+        box-sizing: border-box !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        height: 46px !important;
+        min-height: 46px !important;
+        max-height: 46px !important;
+        margin: 0 !important;
+        padding: 0 16px !important;
+        border-radius: 13px !important;
+        font-family: 'Poppins', sans-serif !important;
+        font-size: 11px !important;
+        font-weight: 500 !important;
+        line-height: 1.4 !important;
+        text-align: center !important;
+        text-transform: none !important;
+        cursor: pointer;
+        transition: background-color .2s ease, border-color .2s ease;
+    }
+
+    #guruProfilePage .gp-profile-quick-actions .gp-profile-quick-logout {
+        border: 1px solid #f0cbcb !important;
+        background: #fff4f4 !important;
+        color: #c34149 !important;
+    }
+
+    #guruProfilePage .gp-profile-quick-actions .gp-profile-quick-logout:hover {
+        background: #ffe8e8 !important;
+    }
+
+    #guruProfilePage .gp-profile-quick-actions .gp-profile-quick-home {
+        border: 1px solid #d5e6e3 !important;
+        background: #fff !important;
+        color: #005076 !important;
+    }
+
+    #guruProfilePage .gp-profile-quick-actions .gp-profile-quick-home:hover {
+        background: #f4fbfa !important;
+    }
+</style>
+
 <section id="guruProfilePage" class="gp-profile-page" data-guru-section="profil" hidden>
 
     {{-- 01. NAVIGASI ATAS --}}
@@ -274,6 +331,22 @@
             </form>
 
         </article>
+
+        {{-- AKSI PROFIL GURU --}}
+        <div class="gp-profile-quick-actions">
+            @auth
+                <form action="{{ route('logout') }}" method="POST" data-gd-logout-form>
+                    @csrf
+                    <button type="submit" class="gp-profile-quick-logout">
+                        Keluar dari Akun
+                    </button>
+                </form>
+            @endauth
+
+            <button type="button" class="gp-profile-quick-home" data-guru-page="beranda">
+                Kembali ke Beranda
+            </button>
+        </div>
 
     </div>
 

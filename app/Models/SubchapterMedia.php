@@ -45,7 +45,7 @@ class SubchapterMedia extends Model
             $this->storage_path
             && Storage::disk('public')->exists($this->storage_path)
         ) {
-            return asset('storage/' . ltrim($this->storage_path, '/'));
+            return Storage::disk('public')->url($this->storage_path);
         }
         return null;
     }

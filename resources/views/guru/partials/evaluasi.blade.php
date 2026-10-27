@@ -22,7 +22,7 @@
             <div>
                 <h1>Kelola Evaluasi</h1>
                 <p>
-                    Kelola 20 soal Evaluasi Akhir yang akan
+                    Kelola 15 soal Evaluasi Akhir yang akan
                     dikerjakan oleh Siswa.
                 </p>
             </div>
@@ -38,7 +38,7 @@
                 <i class="bi bi-list-ol"></i>
                 <span>Jumlah Soal</span>
                 <strong>
-                    <span id="geTotalQuestions">0</span>/20
+                    <span id="geTotalQuestions">0</span>/15
                 </strong>
             </div>
             <div class="ge-summary-card">
@@ -75,10 +75,6 @@
                     <li>
                         <strong>Nomor 11–15:</strong>
                         Menghubungkan Pasangan Gambar
-                    </li>
-                    <li>
-                        <strong>Nomor 16–20:</strong>
-                        Memilih Gambar
                     </li>
                 </ul>
             </div>
@@ -170,7 +166,7 @@
                         </label>
                         <select id="geQuestionNumber" required>
                             <option value="">Pilih Nomor</option>
-                            @for ($nomor = 1; $nomor <= 20; $nomor++)
+                            @for ($nomor = 1; $nomor <= 15; $nomor++)
                                 <option value="{{ $nomor }}">
                                     Soal {{ $nomor }}
                                 </option>
@@ -193,9 +189,6 @@
                             </option>
                             <option value="menghubungkan">
                                 Menghubungkan Pasangan
-                            </option>
-                            <option value="pilih_gambar">
-                                Memilih Gambar
                             </option>
                         </select>
                     </div>

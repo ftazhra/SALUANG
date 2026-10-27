@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 class AuthController extends Controller
 {
@@ -30,7 +31,7 @@ class AuthController extends Controller
     }
     /*
     |--------------------------------------------------------------------------
-    | REGISTRASI SISWA, GURU, DAN ORANG TUA
+    | REGISTRASI SISWA, GURU (TOKEN), DAN ORANG TUA
     |--------------------------------------------------------------------------
     */
     public function register(Request $request): RedirectResponse
@@ -81,13 +82,19 @@ class AuthController extends Controller
                 'string',
                 'max:255',
             ],
-            // Khusus Guru
+            // Guru: NIP/NIPK dan token undangan wajib diisi.
             'nip_nipk' => [
                 'required_if:role,guru',
                 'nullable',
                 'string',
                 'max:50',
                 Rule::unique('users', 'nip_nipk'),
+            ],
+            'guru_token' => [
+                'required_if:role,guru',
+                'nullable',
+                'string',
+                'max:32',
             ],
             // Khusus Orang Tua
             'nomor_telepon' => [
@@ -109,6 +116,14 @@ class AuthController extends Controller
                 'confirmed',
             ],
         ]);
+        // Kode pendaftaran Guru tetap yang diminta untuk SALUANG.
+        // Dibatasi hanya pada registrasi, bukan login.
+        if (($data['role'] ?? null) === 'guru' &&
+            !hash_equals('SMPN21', (string) ($data['guru_token'] ?? ''))) {
+            throw ValidationException::withMessages([
+                'guru_token' => 'Kode pendaftaran Guru salah.',
+            ]);
+        }
         $role = $data['role'];
         /*
         |--------------------------------------------------------------------------
@@ -187,6 +202,7 @@ class AuthController extends Controller
                 $user->nomor_telepon = $data['nomor_telepon'];
             }
             $user->save();
+
             /*
             |--------------------------------------------------------------------------
             | HUBUNGKAN ORANG TUA DENGAN SISWA

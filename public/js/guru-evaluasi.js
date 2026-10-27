@@ -32,8 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const TYPE_LABELS = {
         pilihan_ganda: 'Pilihan Ganda A–D',
         drag_drop: 'Drag-and-Drop Gambar',
-        menghubungkan: 'Menghubungkan Pasangan',
-        pilih_gambar: 'Memilih Gambar'
+        menghubungkan: 'Menghubungkan Pasangan'
     };
     /* =========================================
        01. HELPER
@@ -51,9 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (number >= 11 && number <= 15) {
             return 'menghubungkan';
-        }
-        if (number >= 16 && number <= 20) {
-            return 'pilih_gambar';
         }
         return '';
     }
@@ -191,11 +187,11 @@ document.addEventListener('DOMContentLoaded', () => {
             );
     }
     /* =========================================
-       03. DAFTAR NOMOR SOAL 1–20
+       03. DAFTAR NOMOR SOAL 1–15
        ========================================= */
     function renderGrid() {
         grid.replaceChildren();
-        for (let number = 1; number <= 20; number++) {
+        for (let number = 1; number <= 15; number++) {
             const question = questions.find(
                 item => Number(item.nomor_soal) === number
             );
@@ -251,11 +247,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderVisualQuestion(container, question) {
         const content = question.konten_soal || {};
         const answer = question.kunci_jawaban || {};
-        const items = question.tipe_soal === 'pilih_gambar'
-            ? content.options || []
-            : content.items || [];
+        const items = content.items || [];
         const targets = content.targets || [];
-        if (question.tipe_soal !== 'pilih_gambar') {
+        {
             const heading = makeElement(
                 'strong',
                 'Kategori / Target Jawaban'
@@ -297,15 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 item.label || 'Tanpa nama'
             );
             let correctText = '';
-            if (question.tipe_soal === 'pilih_gambar') {
-                const isCorrect = answer.jawaban === item.id;
-                if (isCorrect) {
-                    card.classList.add('is-correct');
-                }
-                correctText = isCorrect
-                    ? '✓ Jawaban Benar'
-                    : 'Pilihan Gambar';
-            } else {
+            {
                 const targetId = answer.pairs?.[item.id];
                 const target = targets.find(
                     value => value.id === targetId
@@ -510,20 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         const type = getTypeByNumber(numberInput.value);
         fields.append(nameLabel, name, fileLabel, file);
-        if (type === 'pilih_gambar') {
-            const correctLabel = document.createElement('label');
-            correctLabel.className = 'ge-image-correct';
-            const radio = document.createElement('input');
-            radio.type = 'radio';
-            radio.name = 'geVisualCorrectImage';
-            radio.value = row.dataset.itemId;
-            radio.checked = correctAnswer === row.dataset.itemId;
-            correctLabel.append(
-                radio,
-                document.createTextNode(' Jadikan jawaban benar')
-            );
-            fields.appendChild(correctLabel);
-        } else {
+        {
             const answerLabel = document.createElement('label');
             answerLabel.textContent = 'Kategori / Pasangan Benar';
             const select = document.createElement('select');
@@ -550,20 +523,17 @@ document.addEventListener('DOMContentLoaded', () => {
     function setupVisualEditor(question = null) {
         resetVisualEditor();
         const type = getTypeByNumber(numberInput.value);
-        targetsSection.hidden = type === 'pilih_gambar';
+        targetsSection.hidden = false;
         byId('geInteractiveTitle').textContent =
             TYPE_LABELS[type] || 'Pengaturan Soal Bergambar';
-        byId('geItemsHeading').textContent =
-            type === 'pilih_gambar'
-                ? 'Gambar Pilihan Jawaban'
-                : 'Daftar Gambar Soal';
-        if (!['drag_drop', 'menghubungkan', 'pilih_gambar']
+        byId('geItemsHeading').textContent = 'Daftar Gambar Soal';
+        if (!['drag_drop', 'menghubungkan']
             .includes(type)) {
             return;
         }
         const content = question?.konten_soal || {};
         const answer = question?.kunci_jawaban || {};
-        if (type !== 'pilih_gambar') {
+        {
             const targets = content.targets || [];
             if (targets.length) {
                 targets.forEach(addTargetRow);
@@ -572,14 +542,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 addTargetRow();
             }
         }
-        const items = type === 'pilih_gambar'
-            ? content.options || []
-            : content.items || [];
+        const items = content.items || [];
         if (items.length) {
             items.forEach(item => {
-                const correct = type === 'pilih_gambar'
-                    ? answer.jawaban
-                    : answer.pairs?.[item.id] || '';
+                const correct = answer.pairs?.[item.id] || '';
                 addImageRow(item, correct);
             });
         } else {
@@ -601,7 +567,7 @@ document.addEventListener('DOMContentLoaded', () => {
         typeInput.value = type;
         multipleFields.hidden = type !== 'pilihan_ganda';
         interactiveFields.hidden =
-            !['drag_drop', 'menghubungkan', 'pilih_gambar']
+            !['drag_drop', 'menghubungkan']
                 .includes(type);
     }
     numberInput.addEventListener('change', () => {
@@ -714,24 +680,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 image
             });
         }
-        if (type === 'pilih_gambar') {
-            const selected = imagesList.querySelector(
-                'input[name="geVisualCorrectImage"]:checked'
-            );
-            if (!selected) {
-                throw new Error(
-                    'Pilih satu gambar sebagai jawaban benar.'
-                );
-            }
-            return {
-                konten_soal: {
-                    options: items
-                },
-                kunci_jawaban: {
-                    jawaban: selected.value
-                }
-            };
-        }
         const targets = Array.from(
             targetsList.querySelectorAll('.ge-target-row')
         ).map(row => ({
@@ -776,7 +724,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const number = Number(numberInput.value);
         const type = getTypeByNumber(number);
         if (!type) {
-            throw new Error('Pilih nomor soal 1 sampai 20.');
+            throw new Error('Pilih nomor soal 1 sampai 15.');
         }
         const payload = {
             nomor_soal: number,

@@ -162,6 +162,27 @@
                         </div>
                     </div>
 
+
+
+                    {{-- TOKEN: KHUSUS GURU --}}
+                    <div class="sl-field" data-sl-only="guru" hidden>
+                        <label for="guru_token">Token Guru</label>
+
+                        <div class="sl-input">
+                            <span class="sl-input-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="5" y="10" width="14" height="11" rx="2" />
+                                    <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+                                    <circle cx="12" cy="15.5" r="1" />
+                                </svg>
+                            </span>
+
+                            <input type="text" id="guru_token" name="guru_token" maxlength="32" autocomplete="off"
+                                spellcheck="false" placeholder="Masukkan token guru">
+                        </div>
+                    </div>
+
                     {{-- NO HP: KHUSUS ORANG TUA --}}
                     <div class="sl-field" data-sl-only="orang_tua" hidden>
                         <label for="nomor_telepon">No. HP</label>

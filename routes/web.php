@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\BerandaController;
+use App\Http\Middleware\EnsureUserIsGuru;
+use App\Http\Middleware\EnsureUserIsSiswa;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PasswordRecoveryController;
 use App\Http\Controllers\Siswa\DiscussionController;
@@ -10,6 +12,7 @@ use App\Http\Controllers\Siswa\ProfileController;
 use App\Http\Controllers\Siswa\QuizController;
 use App\Http\Controllers\Siswa\MaterialController as SiswaMaterialController;
 use App\Http\Controllers\Siswa\ProgressController as SiswaProgressController;
+use App\Http\Controllers\Siswa\EvaluationController as SiswaEvaluationController;
 use App\Http\Controllers\Guru\MaterialController;
 use App\Http\Controllers\Guru\QuizQuestionController;
 use App\Http\Controllers\Guru\EvaluationController;
@@ -45,7 +48,9 @@ Route::middleware('guest')->group(function () {
     Route::get('/daftar', [AuthController::class, 'showRegister'])->name('register');
 
     // 02.4. Proses Daftar
-    Route::post('/daftar', [AuthController::class, 'register'])->name('register.store');
+    Route::post('/daftar', [AuthController::class, 'register'])
+        ->middleware('throttle:5,1')
+        ->name('register.store');
 
     // 02.5. Halaman Lupa Kata Sandi
     Route::get('/lupa-kata-sandi', [PasswordRecoveryController::class, 'show'])->name('password.request');
@@ -190,11 +195,11 @@ Route::middleware('auth')
 */
 
 Route::post('/siswa/profil/foto', [ProfileController::class, 'updatePhoto'])
-    ->middleware('auth')
+    ->middleware(['auth', EnsureUserIsSiswa::class])
     ->name('siswa.profile.photo');
 
 Route::delete('/siswa/profil/foto', [ProfileController::class, 'destroyPhoto'])
-    ->middleware('auth')
+    ->middleware(['auth', EnsureUserIsSiswa::class])
     ->name('siswa.profile.photo.destroy');
 
 /*
@@ -208,7 +213,7 @@ Route::delete('/siswa/profil/foto', [ProfileController::class, 'destroyPhoto'])
 |
 */
 
-Route::middleware('auth')
+Route::middleware(['auth', EnsureUserIsGuru::class])
     ->prefix('guru')
     ->name('guru.')
     ->group(function () {
@@ -248,7 +253,7 @@ Route::middleware('auth')
 |
 */
 
-Route::middleware('auth')
+Route::middleware(['auth', EnsureUserIsGuru::class])
     ->prefix('guru')
     ->name('guru.')
     ->group(function () {
@@ -278,7 +283,7 @@ Route::middleware('auth')
 | Siswa mengambil Bab dan Subbab yang dipublikasikan Guru.
 */
 
-Route::middleware('auth')
+Route::middleware(['auth', EnsureUserIsSiswa::class])
     ->prefix('siswa')
     ->name('siswa.')
     ->group(function () {
@@ -306,7 +311,7 @@ Route::middleware('auth')
 |
 */
 
-Route::middleware('auth')
+Route::middleware(['auth', EnsureUserIsSiswa::class])
     ->prefix('siswa')
     ->name('siswa.')
     ->group(function () {
@@ -328,6 +333,25 @@ Route::middleware('auth')
 
 /*
 |--------------------------------------------------------------------------
+| 08.1. EVALUASI AKHIR SISWA — BAB VI SALUANG
+|--------------------------------------------------------------------------
+| Mengambil 15 soal yang dipublikasikan Guru, memulai sesi,
+| menyimpan jawaban, dan menghitung hasil di server.
+| Hanya dapat diakses pengguna dengan role Siswa.
+*/
+
+Route::middleware(['auth', EnsureUserIsSiswa::class])
+    ->prefix('siswa/evaluations')
+    ->name('siswa.evaluations.')
+    ->group(function () {
+        Route::get('/state', [SiswaEvaluationController::class, 'state'])->name('state');
+        Route::post('/start', [SiswaEvaluationController::class, 'start'])->name('start');
+        Route::put('/answers', [SiswaEvaluationController::class, 'save'])->name('answers');
+        Route::post('/finish', [SiswaEvaluationController::class, 'finish'])->name('finish');
+    });
+
+/*
+|--------------------------------------------------------------------------
 | 09. CRUD KELOLA EVALUASI GURU — SALUANG
 |--------------------------------------------------------------------------
 |
@@ -337,7 +361,7 @@ Route::middleware('auth')
 |
 */
 
-Route::middleware('auth')
+Route::middleware(['auth', EnsureUserIsGuru::class])
     ->prefix('guru')
     ->name('guru.')
     ->group(function () {
@@ -373,7 +397,7 @@ Route::middleware('auth')
 | Menggunakan database diskusi yang sama dengan Forum Siswa.
 */
 
-Route::middleware('auth')
+Route::middleware(['auth', EnsureUserIsGuru::class])
     ->prefix('guru')
     ->name('guru.')
     ->group(function () {
@@ -411,7 +435,7 @@ Route::middleware('auth')
 | Daftar nilai dan detail hasil belajar siswa.
 */
 
-Route::middleware('auth')
+Route::middleware(['auth', EnsureUserIsGuru::class])
     ->prefix('guru')
     ->name('guru.')
     ->group(function () {
@@ -437,7 +461,7 @@ Route::middleware('auth')
 |
 */
 
-Route::middleware('auth')
+Route::middleware(['auth', EnsureUserIsGuru::class])
     ->prefix('guru')
     ->name('guru.')
     ->group(function () {
@@ -481,7 +505,7 @@ Route::middleware('auth')
 |
 */
 
-Route::middleware('auth')
+Route::middleware(['auth', EnsureUserIsGuru::class])
     ->prefix('guru')
     ->name('guru.')
     ->group(function () {
@@ -503,7 +527,7 @@ Route::middleware('auth')
 |
 */
 
-Route::middleware('auth')
+Route::middleware(['auth', EnsureUserIsGuru::class])
     ->prefix('guru')
     ->name('guru.')
     ->group(function () {
@@ -524,9 +548,12 @@ Route::middleware('auth')
 Route::middleware('auth')->group(function () {
     Route::get('/guru/student-grades/{student}/feedback', [\App\Http\Controllers\Guru\StudentFeedbackController::class, 'show'])
         ->whereNumber('student')
+        ->middleware(EnsureUserIsGuru::class)
         ->name('guru.student-feedback.show');
     Route::put('/guru/student-grades/{student}/feedback', [\App\Http\Controllers\Guru\StudentFeedbackController::class, 'update'])
         ->whereNumber('student')
+        ->middleware(EnsureUserIsGuru::class)
         ->name('guru.student-feedback.update');
-    Route::get('/siswa/teacher-notes', [\App\Http\Controllers\Siswa\TeacherNoteController::class, 'index'])->name('siswa.teacher-notes.index');
+    Route::get('/siswa/teacher-notes', [\App\Http\Controllers\Siswa\TeacherNoteController::class, 'index'])->middleware(EnsureUserIsSiswa::class)
+        ->name('siswa.teacher-notes.index');
 });

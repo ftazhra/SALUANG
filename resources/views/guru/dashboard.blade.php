@@ -170,7 +170,7 @@
                             <i class="bi bi-person"></i>
                             Profil Saya
                         </button>
-                        <button type="button" class="gd-dropdown-item" data-guru-page="profil">
+                        <button type="button" class="gd-dropdown-item" data-guru-page="profil" data-guru-scroll-settings>
                             <i class="bi bi-gear"></i>
                             Pengaturan
                         </button>
@@ -210,6 +210,30 @@
                 </div>
 
                 {{-- 05.2 KARTU STATISTIK --}}
+                @php
+                    // Hitung dari database setiap kali dashboard dimuat, bukan angka tetap.
+                    $guruId = auth()->id();
+                    $quizModel = new \App\Models\QuizQuestion();
+                    $evaluationModel = new \App\Models\EvaluationQuestion();
+                    $quizTable = $quizModel->getTable();
+                    $evaluationTable = $evaluationModel->getTable();
+                    $quizCount = \Illuminate\Support\Facades\Schema::hasTable($quizTable)
+                        ? \App\Models\QuizQuestion::query()
+                            ->when(
+                                \Illuminate\Support\Facades\Schema::hasColumn($quizTable, 'user_id'),
+                                fn ($query) => $query->where('user_id', $guruId)
+                            )->count()
+                        : 0;
+                    $evaluationCount = \Illuminate\Support\Facades\Schema::hasTable($evaluationTable)
+                        ? \App\Models\EvaluationQuestion::query()
+                            ->when(
+                                \Illuminate\Support\Facades\Schema::hasColumn($evaluationTable, 'user_id'),
+                                fn ($query) => $query->where('user_id', $guruId)
+                            )->count()
+                        : 0;
+                    // Terdaftar berbeda dari online/aktif saat ini; belum ada pelacakan sesi aktif.
+                    $registeredStudentCount = \App\Models\User::query()->where('role', 'siswa')->count();
+                @endphp
                 <div class="gd-stats">
                     <article class="gd-card gd-stat">
                         <i class="bi bi-book"></i>
@@ -219,17 +243,17 @@
                     <article class="gd-card gd-stat">
                         <i class="bi bi-clipboard-check"></i>
                         <small>Total Soal Kuis</small>
-                        <strong>0</strong>
+                        <strong id="gdTotalQuizQuestions">{{ $quizCount }}</strong>
                     </article>
                     <article class="gd-card gd-stat">
                         <i class="bi bi-mortarboard"></i>
-                        <small>Total Siswa Aktif</small>
-                        <strong>—</strong>
+                        <small>Total Siswa Terdaftar</small>
+                        <strong id="gdTotalStudents">{{ $registeredStudentCount }}</strong>
                     </article>
                     <article class="gd-card gd-stat">
                         <i class="bi bi-check2-circle"></i>
-                        <small>Total Evaluasi</small>
-                        <strong>0</strong>
+                        <small>Total Soal Evaluasi</small>
+                        <strong id="gdTotalEvaluations">{{ $evaluationCount }}</strong>
                     </article>
                 </div>
 
@@ -440,6 +464,21 @@
                     showGuruPage(
                         button.dataset.guruPage
                     );
+                    if (button.hasAttribute('data-guru-scroll-settings')) {
+                        // Konten Profil baru terlihat setelah showGuruPage().
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                const settings = document.querySelector(
+                                    '#guruProfilePage .gp-profile-settings-card, ' +
+                                    '#guruProfilePage #gpProfileSettingsCard'
+                                );
+                                settings?.scrollIntoView({
+                                    behavior: 'smooth',
+                                    block: 'start'
+                                });
+                            });
+                        });
+                    }
                 });
             });
             /* =============================================

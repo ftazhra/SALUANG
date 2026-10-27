@@ -1,9 +1,12 @@
 <?php
+
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
+
 class Chapter extends Model
 {
     /*
@@ -43,8 +46,9 @@ class Chapter extends Model
     public function getGambarPengenalanUrlAttribute(): ?string
     {
         $path = $this->getAttribute('gambar_pengenalan_path');
+
         return is_string($path) && $path !== ''
-            ? asset('storage/' . ltrim($path, '/'))
+            ? Storage::disk('public')->url($path)
             : null;
     }
     /*

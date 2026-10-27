@@ -42,11 +42,11 @@ class EvaluationController extends Controller
     private function questionType(int $number): string
     {
         return match (true) {
-            $number >= 1 && $number <= 15 => 'pilihan_ganda',
-            $number >= 16 && $number <= 17 => 'drag_drop',
-            $number >= 18 && $number <= 20 => 'menghubungkan',
+            $number >= 1 && $number <= 5 => 'pilihan_ganda',
+            $number >= 6 && $number <= 10 => 'drag_drop',
+            $number >= 11 && $number <= 15 => 'menghubungkan',
             default => throw ValidationException::withMessages([
-                'nomor_soal' => 'Nomor soal harus antara 1 sampai 20.',
+                'nomor_soal' => 'Nomor soal harus antara 1 sampai 15.',
             ]),
         };
     }
@@ -64,7 +64,7 @@ class EvaluationController extends Controller
             'nomor_soal' => [
                 'required',
                 'integer',
-                'between:1,20',
+                'between:1,15',
                 Rule::unique('evaluation_questions', 'nomor_soal')
                     ->where('user_id', $userId)
                     ->ignore($existing?->id),
@@ -148,8 +148,6 @@ class EvaluationController extends Controller
          * targets = daftar kategori atau pasangan tujuan
          * pairs   = pemetaan ID item ke ID target benar
          *
-         * Untuk memilih gambar, gunakan satu item jawaban
-         * dengan key "jawaban" pada kunci_jawaban.
          */
         if (in_array($expectedType, [
             'drag_drop',
