@@ -22,6 +22,7 @@ use App\Http\Controllers\Guru\StudentGradeController;
 use App\Http\Controllers\Guru\StudentGradeExportController;
 use App\Http\Controllers\Guru\StudentGradePdfController;
 use App\Http\Controllers\Guru\ParentContactController;
+use App\Http\Controllers\Guru\ParentContactChatController;
 use App\Http\Controllers\Guru\ProfileController as GuruProfileController;
 
 /*
@@ -515,6 +516,14 @@ Route::middleware(['auth', EnsureUserIsGuru::class])
         Route::get('/parent-contacts/{studentGuardian}', [ParentContactController::class, 'show'])
             ->whereNumber('studentGuardian')
             ->name('parent-contacts.show');
+
+        Route::get('/parent-contacts/{studentGuardian}/messages', [ParentContactChatController::class, 'messages'])
+            ->whereNumber('studentGuardian')
+            ->name('parent-contacts.messages.index');
+
+        Route::post('/parent-contacts/{studentGuardian}/messages', [ParentContactChatController::class, 'store'])
+            ->whereNumber('studentGuardian')
+            ->name('parent-contacts.messages.store');
     });
 
 /*
@@ -545,6 +554,12 @@ Route::middleware(['auth', EnsureUserIsGuru::class])
 
 /* CATATAN GURU — hanya pengguna terautentikasi, role diverifikasi controller */
 Route::middleware('auth')->group(function () {
+    Route::prefix('orang-tua/chat')->name('orang-tua.chat.')->group(function () {
+        Route::get('/teachers', [\App\Http\Controllers\OrangTua\ChatController::class, 'teachers'])->name('teachers');
+        Route::get('/messages', [\App\Http\Controllers\OrangTua\ChatController::class, 'messages'])->name('messages.index');
+        Route::post('/messages', [\App\Http\Controllers\OrangTua\ChatController::class, 'store'])->name('messages.store');
+    });
+
     Route::get('/guru/student-grades/{student}/feedback', [\App\Http\Controllers\Guru\StudentFeedbackController::class, 'show'])
         ->whereNumber('student')
         ->middleware(EnsureUserIsGuru::class)

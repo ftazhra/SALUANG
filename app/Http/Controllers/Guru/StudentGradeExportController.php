@@ -1,9 +1,8 @@
 <?php
 namespace App\Http\Controllers\Guru;
 use App\Http\Controllers\Controller;
-use App\Models\StudentAssessmentResult;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Collection;
+use App\Services\EvaluationResultService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -16,7 +15,7 @@ class StudentGradeExportController extends Controller
     | 01. UNDUH LAPORAN EXCEL
     |--------------------------------------------------------------------------
     */
-    public function excel(Request $request): StreamedResponse
+    public function excel(Request $request, EvaluationResultService $evaluationResults): StreamedResponse
     {
         abort_unless(
             $request->user()?->role === 'guru',
@@ -33,9 +32,16 @@ class StudentGradeExportController extends Controller
         ]);
         $hasNisn = Schema::hasColumn('users', 'nisn');
         $hasKelas = Schema::hasColumn('users', 'kelas');
+        $teacherId = (int) $request->user()->id;
+        $quizResults = $evaluationResults->latestQuizByStudentForTeacher($teacherId);
+        $evaluationAttempts = $evaluationResults->latestByStudentForTeacher($teacherId);
+        $studentIds = array_values(array_unique([
+            ...array_keys($quizResults),
+            ...array_keys($evaluationAttempts),
+        ]));
         $query = User::query()
             ->where('role', 'siswa')
-            ->with('assessmentResults');
+            ->whereIn('id', $studentIds);
         if (!empty($filters['search'])) {
             $keyword = $filters['search'];
             $query->where(function ($builder) use (
@@ -104,12 +110,8 @@ class StudentGradeExportController extends Controller
         */
         $row = 4;
         foreach ($students as $student) {
-            $results = $student->assessmentResults;
-            $quiz = $this->latestResult($results, 'quiz');
-            $evaluation = $this->latestResult(
-                $results,
-                'evaluation'
-            );
+            $quiz = $quizResults[$student->id] ?? null;
+            $evaluation = $evaluationAttempts[$student->id] ?? null;
             $sheet->setCellValue("A{$row}", $student->name);
             // NISN disimpan sebagai teks agar angka nol awal aman.
             $sheet->setCellValueExplicit(
@@ -124,13 +126,13 @@ class StudentGradeExportController extends Controller
             if ($quiz !== null) {
                 $sheet->setCellValue(
                     "D{$row}",
-                    (float) $quiz->score
+                    (float) $quiz['score']
                 );
             }
             if ($evaluation !== null) {
                 $sheet->setCellValue(
                     "E{$row}",
-                    (float) $evaluation->score
+                    (float) $evaluation['score']
                 );
             }
             // Belum ada rumus Nilai Akhir.
@@ -186,19 +188,5 @@ class StudentGradeExportController extends Controller
                     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             ]
         );
-    }
-    /*
-    |--------------------------------------------------------------------------
-    | 06. HASIL TERBARU BERDASARKAN JENIS
-    |--------------------------------------------------------------------------
-    */
-    private function latestResult(
-        Collection $results,
-        string $type
-    ): ?StudentAssessmentResult {
-        return $results
-            ->where('assessment_type', $type)
-            ->sortByDesc('completed_at')
-            ->first();
     }
 }

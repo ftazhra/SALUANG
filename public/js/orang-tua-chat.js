@@ -12,6 +12,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
   const api = '/orang-tua/chat';
   let teacherId = null;
+  let studentId = null;
+  let teacherThreads = [];
+  let pendingMessage = null;
+  let messageRequestVersion = 0;
   function notify(text) { errorBox.textContent = text; errorBox.hidden = !text; }
   async function call(path, method = 'GET', body = null) {
     const opts = { method, credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrf } };
@@ -24,25 +28,51 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadTeachers() {
     try {
       const result = await call('/teachers');
-      const teachers = Array.isArray(result.teachers) ? result.teachers : [];
-      if (!teachers.length) { name.textContent = 'Belum ada Guru IPA yang tersedia'; return; }
-      teacherId = teachers[0].id;
-      name.textContent = teachers[0].name;
+      teacherThreads = Array.isArray(result.teachers) ? result.teachers : [];
+      if (!teacherThreads.length) { name.textContent = 'Belum ada Guru IPA yang tersedia'; return; }
+      selectThread(teacherThreads[0]);
       open.disabled = false;
-      if (teachers.length > 1) {
+      if (teacherThreads.length > 1) {
         const select = document.createElement('select');
         select.className = 'pc-teacher-select';
-        select.setAttribute('aria-label', 'Pilih Guru');
-        teachers.forEach(t => select.add(new Option(t.name, t.id)));
+        select.setAttribute('aria-label', 'Pilih Guru dan Siswa');
+        teacherThreads.forEach(thread => select.add(new Option(
+          `${thread.name} · ${thread.student_name} (${thread.class_name})`,
+          `${thread.student_id}:${thread.id}`
+        )));
         select.style.cssText = 'display:block;max-width:300px;margin:12px 0 0;padding:9px;border:1px solid #d3e6e2;border-radius:7px;background:#fff;color:#075477;font:inherit;font-size:11px';
-        select.addEventListener('change', () => { teacherId = Number(select.value); name.textContent = teachers.find(t => t.id === teacherId)?.name || 'Guru IPA'; pane.hidden = true; });
+        select.addEventListener('change', () => {
+          const thread = teacherThreads.find(item => `${item.student_id}:${item.id}` === select.value);
+          if (!thread) return;
+          selectThread(thread);
+          pane.hidden = true;
+          notify('');
+        });
         card.querySelector('div').append(select);
       }
     } catch (e) { name.textContent = 'Belum dapat memuat Guru'; notify(e.message); }
   }
+  function selectThread(thread) {
+    teacherId = Number(thread.id);
+    studentId = Number(thread.student_id);
+    name.textContent = thread.name;
+    messageRequestVersion += 1;
+  }
+  function newMessageId() {
+    if (window.crypto?.randomUUID) return window.crypto.randomUUID();
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, character => {
+      const random = Math.floor(Math.random() * 16);
+      return (character === 'x' ? random : (random & 3) | 8).toString(16);
+    });
+  }
   async function loadMessages() {
-    if (!teacherId) return;
-    const result = await call('/messages?teacher_id=' + encodeURIComponent(teacherId));
+    if (!teacherId || !studentId) return;
+    const requestVersion = ++messageRequestVersion;
+    const selectedStudentId = studentId;
+    const selectedTeacherId = teacherId;
+    const params = new URLSearchParams({ student_id: String(studentId), teacher_id: String(teacherId) });
+    const result = await call('/messages?' + params.toString());
+    if (requestVersion !== messageRequestVersion || selectedStudentId !== studentId || selectedTeacherId !== teacherId) return;
     messages.replaceChildren();
     if (!result.messages?.length) { const empty = document.createElement('p'); empty.className = 'pc-empty'; empty.textContent = 'Belum ada pesan. Mulai percakapan dengan Guru.'; messages.append(empty); return; }
     result.messages.forEach(m => {
@@ -57,9 +87,13 @@ document.addEventListener('DOMContentLoaded', () => {
   open.addEventListener('click', async () => { notify(''); pane.hidden = false; try { await loadMessages(); } catch (e) { notify(e.message); } });
   document.getElementById('pcChatClose')?.addEventListener('click', () => { pane.hidden = true; });
   form.addEventListener('submit', async (e) => {
-    e.preventDefault(); if (!teacherId || !input.value.trim()) return;
+    e.preventDefault(); if (!teacherId || !studentId || !input.value.trim()) return;
+    const body = input.value.trim();
+    if (!pendingMessage || pendingMessage.body !== body || pendingMessage.studentId !== studentId || pendingMessage.teacherId !== teacherId) {
+      pendingMessage = { body, studentId, teacherId, id: newMessageId() };
+    }
     send.disabled = true; notify('');
-    try { await call('/messages', 'POST', { teacher_id: teacherId, body: input.value.trim() }); input.value = ''; await loadMessages(); }
+    try { await call('/messages', 'POST', { student_id: studentId, teacher_id: teacherId, body, client_message_id: pendingMessage.id }); pendingMessage = null; input.value = ''; await loadMessages(); }
     catch (err) { notify(err.message); } finally { send.disabled = false; }
   });
   loadTeachers();

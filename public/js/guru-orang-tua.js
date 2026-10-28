@@ -28,12 +28,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatMessages = byId('gpChatMessages');
     const selectedRelationshipId = byId('gpSelectedRelationshipId');
     const chatForm = byId('gpChatForm');
+    const chatInput = byId('gpMessageInput');
+    const sendButton = byId('gpSendMessage');
     let selectedClass = null;
     let selectedId = null;
     let contacts = [];
     let searchTimer = null;
     let activeRequest = null;
     let requestVersion = 0;
+    let chatRequestVersion = 0;
+    let pendingMessage = null;
     /* 02. HELPER */
     function displayValue(value) {
         const text = String(value ?? '').trim();
@@ -56,12 +60,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function resetContactDetail(message) {
         selectedId = null;
+        chatRequestVersion += 1;
+        pendingMessage = null;
         selectedRelationshipId.value = '';
         contactDetail.hidden = true;
         whatsappLink.hidden = true;
         whatsappLink.removeAttribute('href');
         chatSubtitle.textContent =
             'Pilih narahubung untuk melihat detail kontak.';
+        chatInput.disabled = true;
+        sendButton.disabled = true;
         chatMessages.replaceChildren(
             showMessage(message)
         );
@@ -93,6 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         selectedId = Number(contact.relationship_id);
+        pendingMessage = null;
         selectedRelationshipId.value = String(selectedId);
         contactDetail.hidden = false;
         setText(guardianName, guardian.name);
@@ -114,12 +123,9 @@ document.addEventListener('DOMContentLoaded', () => {
             `Narahubung: ${displayValue(guardian.name)} — ` +
             `${displayValue(guardian.relationship)}`
         );
-        chatMessages.replaceChildren(
-            showMessage(
-                'Kontak berhasil dipilih. Riwayat chat internal ' +
-                'akan tersedia setelah API pesan dibuat.'
-            )
-        );
+        chatInput.disabled = false;
+        sendButton.disabled = false;
+        loadConversation();
         renderContacts();
     }
     /* 05. TAMPILKAN DAFTAR KONTAK */
@@ -300,9 +306,79 @@ document.addEventListener('DOMContentLoaded', () => {
             loadContacts();
         }, 350);
     });
-    /* 09. CHAT INTERNAL BELUM DIAKTIFKAN */
-    chatForm.addEventListener('submit', (event) => {
+    function newMessageId() {
+        if (window.crypto?.randomUUID) return window.crypto.randomUUID();
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, character => {
+            const random = Math.floor(Math.random() * 16);
+            return (character === 'x' ? random : (random & 3) | 8).toString(16);
+        });
+    }
+    async function loadConversation() {
+        if (!selectedId) return;
+        const selectedRelationship = selectedId;
+        const version = ++chatRequestVersion;
+        chatMessages.replaceChildren(showMessage('Memuat riwayat percakapan...'));
+        try {
+            const response = await fetch(`${API}/${encodeURIComponent(selectedRelationship)}/messages`, {
+                credentials: 'same-origin',
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(result.message || `Gagal memuat pesan (HTTP ${response.status}).`);
+            if (version !== chatRequestVersion || selectedRelationship !== selectedId) return;
+            const rows = Array.isArray(result.messages) ? result.messages : [];
+            chatMessages.replaceChildren();
+            if (!rows.length) {
+                chatMessages.append(showMessage('Belum ada pesan. Mulai percakapan dengan Orang Tua.'));
+                return;
+            }
+            rows.forEach(message => {
+                const item = document.createElement('div');
+                item.className = 'gp-chat-notice';
+                const meta = document.createElement('strong');
+                meta.textContent = `${String(message.sender_name ?? 'Pengguna')} · ${String(message.created_at ?? '')}`;
+                const body = document.createElement('p');
+                body.textContent = String(message.body ?? '');
+                item.append(body, meta);
+                chatMessages.append(item);
+            });
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        } catch (error) {
+            if (version !== chatRequestVersion) return;
+            chatMessages.replaceChildren(showMessage(error.message));
+        }
+    }
+    /* 09. KIRIM BALASAN CHAT INTERNAL */
+    chatForm.addEventListener('submit', async (event) => {
         event.preventDefault();
+        const body = chatInput.value.trim();
+        if (!selectedId || !body) return;
+        if (!pendingMessage || pendingMessage.body !== body || pendingMessage.relationshipId !== selectedId) {
+            pendingMessage = { body, relationshipId: selectedId, id: newMessageId() };
+        }
+        sendButton.disabled = true;
+        try {
+            const response = await fetch(`${API}/${encodeURIComponent(selectedId)}/messages`, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                },
+                body: JSON.stringify({ body, client_message_id: pendingMessage.id })
+            });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(Object.values(result.errors || {}).flat()[0] || result.message || `Gagal mengirim pesan (HTTP ${response.status}).`);
+            pendingMessage = null;
+            chatInput.value = '';
+            await loadConversation();
+        } catch (error) {
+            chatMessages.replaceChildren(showMessage(error.message));
+        } finally {
+            if (selectedId) sendButton.disabled = false;
+        }
     });
     /* 10. TAMPILAN AWAL */
     resetContactDetail(

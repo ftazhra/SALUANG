@@ -4,6 +4,8 @@ use App\Http\Controllers\Controller;
 use App\Models\StudentGuardian;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 class ParentContactController extends Controller
 {
     /*
@@ -31,6 +33,13 @@ class ParentContactController extends Controller
             'search' => ['nullable', 'string', 'max:200'],
             'class'  => ['required', 'in:VII A,VII B,VII C,VII D,VII E'],
         ]);
+        abort_unless(Schema::hasTable('teacher_class_assignments'), 503, 'Penugasan Guru-kelas belum dikonfigurasi.');
+        $assignedClass = DB::table('teacher_class_assignments')
+            ->where('teacher_id', $request->user()->id)
+            ->where('class_name', $filters['class'])
+            ->exists();
+        abort_unless($assignedClass, 403, 'Guru tidak ditugaskan pada kelas tersebut.');
+
         $query = StudentGuardian::query()
             ->where('status', 'approved')
             ->whereHas('student', function ($builder) {
@@ -76,7 +85,7 @@ class ParentContactController extends Controller
         $contacts = $query
             ->orderBy('student_id')
             ->get()
-            ->map(function (StudentGuardian $relation) {
+            ->map(function ($relation) {
                 return [
                     'relationship_id' => $relation->id,
                     'student' => [
@@ -113,10 +122,19 @@ class ParentContactController extends Controller
         StudentGuardian $studentGuardian
     ): JsonResponse {
         $this->ensureGuru($request);
+        abort_unless(Schema::hasTable('teacher_class_assignments'), 503, 'Penugasan Guru-kelas belum dikonfigurasi.');
+        $assignedClasses = DB::table('teacher_class_assignments')
+            ->where('teacher_id', $request->user()->id)
+            ->pluck('class_name');
         abort_unless(
-            $studentGuardian->status === 'approved',
+            $studentGuardian->status === 'approved'
+                && $assignedClasses->isNotEmpty()
+                && $studentGuardian->student()
+                    ->where('role', 'siswa')
+                    ->whereIn('kelas', $assignedClasses)
+                    ->exists(),
             404,
-            'Hubungan orang tua belum terverifikasi.'
+            'Hubungan atau kewenangan kelas tidak valid.'
         );
         $studentGuardian->load([
             'student:id,name,nisn,kelas,role',

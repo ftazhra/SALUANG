@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Guru;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\EvaluationResultService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -12,7 +13,7 @@ class StudentGradePdfController extends Controller
     | 01. UNDUH LAPORAN NILAI PDF
     |--------------------------------------------------------------------------
     */
-    public function download(Request $request)
+    public function download(Request $request, EvaluationResultService $evaluationResults)
     {
         // Hanya Guru yang boleh mengunduh laporan.
         abort_unless(
@@ -35,6 +36,13 @@ class StudentGradePdfController extends Controller
         ]);
         $hasNisn = Schema::hasColumn('users', 'nisn');
         $hasKelas = Schema::hasColumn('users', 'kelas');
+        $teacherId = (int) $request->user()->id;
+        $quizResults = $evaluationResults->latestQuizByStudentForTeacher($teacherId);
+        $evaluationAttempts = $evaluationResults->latestByStudentForTeacher($teacherId);
+        $studentIds = array_values(array_unique([
+            ...array_keys($quizResults),
+            ...array_keys($evaluationAttempts),
+        ]));
         /*
         |--------------------------------------------------------------------------
         | 03. AMBIL DATA SISWA DARI DATABASE
@@ -42,7 +50,7 @@ class StudentGradePdfController extends Controller
         */
         $query = User::query()
             ->where('role', 'siswa')
-            ->with('assessmentResults');
+            ->whereIn('id', $studentIds);
         // Filter nama siswa atau NISN.
         if (!empty($filters['search'])) {
             $keyword = $filters['search'];
@@ -92,17 +100,8 @@ class StudentGradePdfController extends Controller
         */
         $rows = [];
         foreach ($students as $student) {
-            $results = $student->assessmentResults;
-            // Nilai kuis terbaru.
-            $quiz = $results
-                ->where('assessment_type', 'quiz')
-                ->sortByDesc('completed_at')
-                ->first();
-            // Nilai evaluasi terbaru.
-            $evaluation = $results
-                ->where('assessment_type', 'evaluation')
-                ->sortByDesc('completed_at')
-                ->first();
+            $quiz = $quizResults[$student->id] ?? null;
+            $evaluation = $evaluationAttempts[$student->id] ?? null;
             $rows[] = [
                 'name' => $student->name,
                 'nisn' => $hasNisn
@@ -112,10 +111,10 @@ class StudentGradePdfController extends Controller
                     ? $student->kelas
                     : null,
                 'quiz' => $quiz !== null
-                    ? (float) $quiz->score
+                    ? (float) $quiz['score']
                     : null,
                 'evaluation' => $evaluation !== null
-                    ? (float) $evaluation->score
+                    ? (float) $evaluation['score']
                     : null,
             ];
         }

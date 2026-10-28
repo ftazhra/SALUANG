@@ -78,21 +78,6 @@ class ParentDashboardService
 
         $chapters = DB::table('chapters');
         if ($this->has('chapters', 'is_published')) $chapters->where('is_published', true);
-        if ($this->has('chapters', 'nomor_bab')) {
-            $chapters->where('nomor_bab', 6);
-        } elseif ($this->has('chapters', 'chapter_number')) {
-            $chapters->where('chapter_number', 6);
-        } elseif ($this->has('chapters', 'judul')) {
-            $chapters->where(function ($q) {
-                $q->where('judul', 'like', 'Bab VI%')->orWhere('judul', 'like', 'BAB 6%');
-            });
-        } elseif ($this->has('chapters', 'title')) {
-            $chapters->where(function ($q) {
-                $q->where('title', 'like', 'Bab VI%')->orWhere('title', 'like', 'BAB 6%');
-            });
-        } else {
-            return [];
-        }
         $chapters->orderBy('id');
 
         $result = [];
@@ -105,6 +90,7 @@ class ParentDashboardService
             foreach ($subQuery->get() as $subchapter) {
                 $subchapters[] = [
                     'id' => (int) $subchapter->id,
+                    'number' => isset($subchapter->nomor_subbab) ? (int) $subchapter->nomor_subbab : null,
                     'title' => $subchapter->judul ?? $subchapter->title ?? $subchapter->name ?? ('Subbab ' . $subchapter->id),
                     'done' => $this->isSubchapterDone($studentId, (int) $subchapter->id),
                 ];
@@ -114,6 +100,7 @@ class ParentDashboardService
             $total = count($subchapters);
             $result[] = [
                 'id' => (int) $chapter->id,
+                'number' => isset($chapter->nomor_bab) ? (int) $chapter->nomor_bab : (isset($chapter->chapter_number) ? (int) $chapter->chapter_number : null),
                 'title' => $chapter->judul ?? $chapter->title ?? $chapter->name ?? 'Bab VI',
                 'subchapters' => $subchapters,
                 'finished' => $finished,
@@ -150,14 +137,29 @@ class ParentDashboardService
     private function scores(int $studentId): array
     {
         $table = 'student_assessment_results';
-        if (!Schema::hasTable($table) || !$this->has($table, 'user_id')) return [];
-        foreach (['score', 'nilai', 'final_score', 'percentage'] as $column) {
-            if ($this->has($table, $column)) {
-                return DB::table($table)->where('user_id', $studentId)->whereNotNull($column)
-                    ->pluck($column)->filter(fn($value) => is_numeric($value))->map(fn($value) => (float) $value)->all();
+        $scores = [];
+        if (Schema::hasTable($table) && $this->has($table, 'user_id')) {
+            foreach (['score', 'nilai', 'final_score', 'percentage'] as $column) {
+                if ($this->has($table, $column)) {
+                    $query = DB::table($table)->where('user_id', $studentId)->whereNotNull($column);
+                    if ($this->has($table, 'assessment_type')) {
+                        $query->where('assessment_type', '!=', 'evaluation');
+                    }
+                    $scores = $query->pluck($column)
+                        ->filter(fn($value) => is_numeric($value))
+                        ->map(fn($value) => (float) $value)
+                        ->all();
+                    break;
+                }
             }
         }
-        return [];
+
+        $evaluationScores = collect(app(EvaluationResultService::class)->completedForStudent($studentId))
+            ->filter(fn (array $result) => $result['chapter_id'] !== null)
+            ->pluck('score')
+            ->all();
+
+        return [...$scores, ...$evaluationScores];
     }
 
     private function activities(int $studentId): array
@@ -176,18 +178,55 @@ class ParentDashboardService
     {
         $events = [];
         $chapterMap = [];
+        $chapterNumberMap = [];
         $subchapterMap = [];
+        $forumSubchapterMap = [];
         foreach ($chapters as $chapter) {
-            $chapterMap[(int) $chapter['id']] = $chapter['title'];
+            $chapterId = (int) $chapter['id'];
+            $chapterMap[$chapterId] = $chapter['title'];
+            if (isset($chapter['number'])) {
+                $chapterNumberMap[(int) $chapter['number']] = $chapterId;
+            }
             foreach ($chapter['subchapters'] as $subchapter) {
                 $subchapterMap[(int) $subchapter['id']] = [
-                    'chapter_id' => (int) $chapter['id'],
+                    'chapter_id' => $chapterId,
                     'chapter_title' => $chapter['title'],
                     'subchapter_title' => $subchapter['title'],
                 ];
+                if (isset($chapter['number'], $subchapter['number'])) {
+                    $forumSubchapterMap[(int) $chapter['number'] . '.' . (int) $subchapter['number']] = (int) $subchapter['id'];
+                }
             }
         }
-        if (!$subchapterMap) return [];
+        $forumContext = function (?string $chapterCode, ?string $subchapterCode) use ($chapterMap, $chapterNumberMap, $forumSubchapterMap, $subchapterMap): array {
+            $chapterId = null;
+            $chapterNumber = null;
+            if (is_string($chapterCode) && preg_match('/^bab-(\d+)$/i', $chapterCode, $chapterMatch) === 1) {
+                $chapterNumber = (int) $chapterMatch[1];
+                $chapterId = $chapterNumberMap[$chapterNumber] ?? null;
+            }
+
+            $subchapterId = null;
+            if (
+                $chapterId !== null
+                && $chapterNumber !== null
+                && is_string($subchapterCode)
+                && preg_match('/^(\d+)\.(\d+)$/', $subchapterCode, $subchapterMatch) === 1
+                && (int) $subchapterMatch[1] === $chapterNumber
+            ) {
+                $candidateId = $forumSubchapterMap[$chapterNumber . '.' . (int) $subchapterMatch[2]] ?? null;
+                if ($candidateId !== null && ($subchapterMap[$candidateId]['chapter_id'] ?? null) === $chapterId) {
+                    $subchapterId = $candidateId;
+                }
+            }
+
+            return [
+                'chapter_id' => $chapterId,
+                'chapter_title' => $chapterId === null ? null : ($chapterMap[$chapterId] ?? null),
+                'subchapter_id' => $subchapterId,
+                'subchapter_title' => $subchapterId === null ? null : ($subchapterMap[$subchapterId]['subchapter_title'] ?? null),
+            ];
+        };
 
         if (
             Schema::hasTable('student_subchapter_progress') &&
@@ -206,10 +245,12 @@ class ParentDashboardService
                     (isset($row->status) && in_array(strtolower((string)$row->status), ['completed', 'selesai', 'done'], true));
                 $date = $row->completed_at ?? $row->updated_at ?? $row->created_at ?? null;
                 $events[] = array_merge($meta, [
+                    'id' => (int) $row->id,
                     'subchapter_id' => $id,
                     'type' => 'materi',
                     'title' => $done ? 'Menyelesaikan materi' : 'Membuka materi',
                     'detail' => $done ? 'Materi selesai' : 'Materi dipelajari',
+                    'status' => $done ? 'completed' : 'in_progress',
                     'date' => $date,
                 ]);
             }
@@ -230,34 +271,134 @@ class ParentDashboardService
                 foreach ($query->get() as $row) {
                     $id = (int) $row->linked_subchapter_id;
                     $events[] = array_merge($subchapterMap[$id], [
+                        'id' => (int) $row->id,
                         'subchapter_id' => $id,
                         'type' => 'kuis',
                         'title' => 'Menjawab soal kuis',
-                        'detail' => 'Jawaban kuis tercatat',
+                        'detail' => (bool) $row->is_correct ? 'Jawaban benar' : 'Jawaban perlu dipelajari',
+                        'status' => (bool) $row->is_correct ? 'correct' : 'incorrect',
                         'date' => $row->updated_at ?? $row->created_at ?? null,
                     ]);
                 }
             }
         }
 
-        // Hasil evaluasi/diskusi tidak direka: perlu FK bab/siswa yang terverifikasi.
+        foreach (app(EvaluationResultService::class)->completedForStudent($studentId) as $attempt) {
+            $chapterId = $attempt['chapter_id'];
+            if ($chapterId === null || !isset($chapterMap[$chapterId])) continue;
+            $events[] = [
+                'id' => $attempt['id'],
+                'chapter_id' => $chapterId,
+                'chapter_title' => $attempt['chapter_title'] ?? $chapterMap[$chapterId],
+                'subchapter_id' => null,
+                'subchapter_title' => null,
+                'type' => 'evaluasi',
+                'title' => 'Menyelesaikan evaluasi',
+                'detail' => 'Nilai ' . rtrim(rtrim(number_format($attempt['score'], 2, '.', ''), '0'), '.')
+                    . ' · ' . $attempt['correct_answers'] . ' dari ' . $attempt['total_questions'] . ' benar',
+                'status' => 'completed',
+                'score' => $attempt['score'],
+                'date' => $attempt['completed_at'],
+            ];
+        }
+
+        if (
+            Schema::hasTable('discussions')
+            && $this->has('discussions', 'user_id')
+            && $this->has('discussions', 'chapter')
+            && $this->has('discussions', 'subchapter')
+        ) {
+            foreach (DB::table('discussions')->where('user_id', $studentId)->orderBy('created_at')->get() as $row) {
+                $events[] = array_merge($forumContext($row->chapter, $row->subchapter), [
+                    'id' => (int) $row->id,
+                    'type' => 'diskusi',
+                    'title' => 'Membuat diskusi',
+                    'detail' => (string) $row->title,
+                    'status' => 'created',
+                    'date' => $row->created_at,
+                ]);
+            }
+        }
+
+        if (
+            Schema::hasTable('discussion_replies')
+            && Schema::hasTable('discussions')
+            && $this->has('discussion_replies', 'user_id')
+            && $this->has('discussion_replies', 'discussion_id')
+        ) {
+            foreach (
+                DB::table('discussion_replies as reply')
+                    ->join('discussions as discussion', 'discussion.id', '=', 'reply.discussion_id')
+                    ->where('reply.user_id', $studentId)
+                    ->orderBy('reply.created_at')
+                    ->get([
+                        'reply.id',
+                        'reply.created_at',
+                        'discussion.chapter',
+                        'discussion.subchapter',
+                        'discussion.title',
+                    ]) as $row
+            ) {
+                $events[] = array_merge($forumContext($row->chapter, $row->subchapter), [
+                    'id' => (int) $row->id,
+                    'type' => 'diskusi',
+                    'title' => 'Menanggapi diskusi',
+                    'detail' => (string) $row->title,
+                    'status' => 'replied',
+                    'date' => $row->created_at,
+                ]);
+            }
+        }
+
         usort($events, fn($a, $b) => strcmp((string) ($b['date'] ?? ''), (string) ($a['date'] ?? '')));
-        return array_slice($events, 0, 200);
+        return $events;
     }
 
     private function learningResults(int $studentId, array $chapters): array
     {
         $table = 'student_assessment_results';
-        if (!Schema::hasTable($table) || !$this->has($table, 'user_id')) return [];
 
-        $scoreColumn = null;
-        foreach (['score', 'nilai', 'final_score', 'percentage'] as $column) {
-            if ($this->has($table, $column)) {
-                $scoreColumn = $column;
-                break;
+        $rows = [];
+        if (Schema::hasTable($table) && $this->has($table, 'user_id')) {
+            $scoreColumn = null;
+            foreach (['score', 'nilai', 'final_score', 'percentage'] as $column) {
+                if ($this->has($table, $column)) {
+                    $scoreColumn = $column;
+                    break;
+                }
+            }
+            if ($scoreColumn) {
+                $rows = $this->assessmentLearningResults($studentId, $chapters, $table, $scoreColumn);
             }
         }
-        if (!$scoreColumn) return [];
+
+        $chapterIds = array_fill_keys(array_map('intval', array_column($chapters, 'id')), true);
+        foreach (app(EvaluationResultService::class)->completedForStudent($studentId) as $attempt) {
+            $chapterId = $attempt['chapter_id'];
+            if ($chapterId === null || !isset($chapterIds[$chapterId])) continue;
+            $chapter = collect($chapters)->firstWhere('id', $chapterId);
+            if (!$chapter) continue;
+            $rows[] = [
+                'id' => $attempt['id'],
+                'name' => 'Evaluasi Akhir',
+                'type' => 'evaluasi',
+                'chapter_id' => $chapterId,
+                'chapter_title' => $attempt['chapter_title'] ?? $chapter['title'],
+                'subchapter_id' => null,
+                'subchapter_title' => null,
+                'score' => $attempt['score'],
+                'status' => $attempt['score'] >= 70 ? 'Tuntas' : 'Belum tuntas',
+                'date' => $attempt['completed_at'],
+            ];
+        }
+
+        usort($rows, fn (array $a, array $b) => strcmp((string) ($b['date'] ?? ''), (string) ($a['date'] ?? '')));
+        return $rows;
+    }
+
+    private function assessmentLearningResults(int $studentId, array $chapters, string $table, string $scoreColumn): array
+    {
+        if (!$this->has($table, 'chapter_id') && !$this->has($table, 'subchapter_id')) return [];
 
         $chapterMap = [];
         $subchapterMap = [];
@@ -281,6 +422,9 @@ class ParentDashboardService
         if (!$hasSubchapter && !$hasChapter) return [];
 
         $query = DB::table($table)->where('user_id', $studentId)->whereNotNull($scoreColumn);
+        if ($this->has($table, 'assessment_type')) {
+            $query->where('assessment_type', '!=', 'evaluation');
+        }
         if ($hasSubchapter && $hasChapter) {
             $query->where(function ($q) use ($subchapterMap, $chapterMap) {
                 $q->whereIn('subchapter_id', array_keys($subchapterMap))
@@ -332,6 +476,7 @@ class ParentDashboardService
     {
         $table = 'student_teacher_notes';
         if (!Schema::hasTable($table) || !$this->has($table, 'student_id')) return [];
+        $hasAudience = $this->has($table, 'audience');
         $bodyColumn = null;
         foreach (['note', 'catatan', 'content', 'message', 'notes'] as $candidate) {
             if ($this->has($table, $candidate)) {
@@ -340,7 +485,9 @@ class ParentDashboardService
             }
         }
         if (!$bodyColumn) return [];
-        $query = DB::table($table)->where('student_id', $studentId);
+        $query = DB::table($table)
+            ->where('student_id', $studentId);
+        if ($hasAudience) $query->where('audience', 'orang_tua');
         if ($this->has($table, 'updated_at')) $query->orderByDesc('updated_at');
         return $query->limit(10)->get()->map(fn($row) => [
             'body' => (string) ($row->{$bodyColumn} ?? ''),
