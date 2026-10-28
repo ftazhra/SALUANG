@@ -1,0 +1,191 @@
+/* Aktivitas Anak — scoped to avoid touching dashboard elsewhere */
+.parent-page .parent-activity-page {
+    padding: 28px 30px 34px;
+    margin-top: 18px
+}
+
+.parent-page .pa-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px
+}
+
+.parent-page .pa-head h2 {
+    margin: 0;
+    color: #075477;
+    font-size: 23px;
+    line-height: 1.4;
+    font-weight: 700
+}
+
+.parent-page .pa-head p {
+    margin: 6px 0 0;
+    color: #63818e;
+    font-size: 12px;
+    line-height: 1.6
+}
+
+.parent-page .pa-select-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    margin-top: 26px
+}
+
+.parent-page .pa-field {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0
+}
+
+.parent-page .pa-field strong {
+    font-size: 12px;
+    font-weight: 600
+}
+
+.parent-page .pa-field select {
+    width: 100%;
+    height: 41px;
+    padding: 0 12px;
+    border: 1px solid #cbdfe4;
+    border-radius: 9px;
+    background: #fff;
+    color: #075477;
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    outline: none
+}
+
+.parent-page .pa-field select:focus-visible {
+    outline: 2px solid #4999b0;
+    outline-offset: 2px
+}
+
+.parent-page .pa-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 21px 0
+}
+
+.parent-page .pa-filter {
+    min-height: 39px;
+    padding: 9px 17px;
+    border: 1px solid #d7e7e4;
+    border-radius: 9px;
+    background: #fff;
+    color: #075477;
+    font-size: 12px;
+    transition: background-color .18s ease, color .18s ease
+}
+
+.parent-page .pa-filter:hover {
+    background: #edf7f3
+}
+
+.parent-page .pa-filter.active {
+    background: #4c9e69;
+    border-color: #4c9e69;
+    color: #fff
+}
+
+.parent-page .pa-empty {
+    padding: 20px;
+    border-radius: 10px;
+    background: #edf7f3;
+    color: #245d72;
+    font-size: 12px;
+    line-height: 1.65
+}
+
+.parent-page .pa-list {
+    display: grid;
+    gap: 12px
+}
+
+.parent-page .pa-entry {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 16px;
+    border: 1px solid #deece7;
+    border-radius: 10px;
+    background: #fff
+}
+
+.parent-page .pa-entry-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    background: #e8f5ed;
+    color: #2d8059;
+    border-radius: 10px;
+    font-size: 17px
+}
+
+.parent-page .pa-entry-main {
+    flex: 1;
+    min-width: 0
+}
+
+.parent-page .pa-entry-title {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #075477
+}
+
+.parent-page .pa-entry-detail {
+    display: block;
+    font-size: 11px;
+    color: #6b8995;
+    margin-top: 5px;
+    line-height: 1.6
+}
+
+.parent-page .pa-entry-date {
+    font-size: 10px;
+    color: #7d9ba5;
+    white-space: nowrap
+}
+
+.parent-page .pa-bottom {
+    margin-top: 12px;
+    text-align: right;
+    font-size: 10px;
+    color: #7d9ba5
+}
+
+@media(max-width:720px) {
+    .parent-page .parent-activity-page {
+        padding: 18px 14px
+    }
+
+    .parent-page .pa-select-grid {
+        grid-template-columns: 1fr;
+        gap: 14px
+    }
+
+    .parent-page .pa-head h2 {
+        font-size: 18px
+    }
+
+    .parent-page .pa-head {
+        flex-wrap: wrap
+    }
+
+    .parent-page .pa-entry {
+        flex-wrap: wrap
+    }
+
+    .parent-page .pa-entry-date {
+        width: 100%;
+        padding-left: 50px
+    }
+}

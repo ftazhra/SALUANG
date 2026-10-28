@@ -1,0 +1,886 @@
+
+:root {
+    --parent-blue: #075477;
+    --parent-green: #258452;
+    --parent-cream: #fffdf6;
+    --parent-bg: #f4f9f7;
+    --parent-border: #dfebe6;
+    --parent-muted: #7d9ba5;
+    --parent-sidebar-width: 245px;
+    --parent-sidebar-small: 60px;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body.parent-page {
+    margin: 0;
+    background: var(--parent-bg);
+    color: var(--parent-blue);
+    font-family: Poppins, sans-serif;
+    font-size: 11px;
+}
+
+body.parent-page button {
+    font: inherit;
+    cursor: pointer;
+}
+
+body.parent-page [hidden] {
+    display: none !important;
+}
+
+/* LAYOUT */
+
+.parent-layout {
+    min-height: 100vh;
+}
+
+/* SIDEBAR */
+
+.parent-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 1030;
+
+    display: flex;
+    flex-direction: column;
+
+    width: var(--parent-sidebar-width);
+
+    padding: 17px 10px;
+
+    border-right: 1px solid var(--parent-border);
+    background: var(--parent-cream);
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    scrollbar-width: thin;
+
+    transition: width .25s ease;
+}
+
+/* LOGO SISWA */
+
+.parent-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 65px;
+    margin-bottom: 10px;
+}
+
+.parent-brand img {
+    display: block;
+    width: 175px;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+/* TOMBOL LIPAT */
+
+.parent-sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    width: 30px;
+    height: 30px;
+    min-height: 30px;
+
+    margin: 2px 0 10px;
+    padding: 0;
+
+    border: 1px solid transparent;
+    border-radius: 8px;
+
+    background: #f0f1f1;
+    color: #777d80;
+
+    transition:
+        background-color .2s ease,
+        color .2s ease,
+        transform .2s ease;
+}
+
+.parent-sidebar-toggle i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 17px;
+    height: 17px;
+
+    font-size: 17px;
+    line-height: 1;
+}
+
+.parent-sidebar-toggle:hover {
+    background: #d7eafa;
+    color: var(--parent-blue);
+}
+
+.parent-sidebar-toggle:active {
+    transform: scale(.96);
+}
+
+/* NAVIGASI */
+
+.parent-navigation {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.parent-menu {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    width: 100%;
+    min-height: 40px;
+
+    padding: 10px;
+
+    border: 0;
+    border-radius: 9px;
+
+    background: transparent;
+    color: var(--parent-blue);
+
+    font-size: 12px;
+    font-weight: 600;
+    text-align: left;
+
+    transition:
+        background-color .2s ease,
+        color .2s ease,
+        transform .2s ease;
+}
+
+.parent-menu i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 17px;
+
+    width: 17px;
+
+    font-size: 16px;
+}
+
+.parent-menu span {
+    min-width: 0;
+}
+
+.parent-menu:hover {
+    background: #d2eaf8;
+    color: var(--parent-blue);
+    transform: translateX(3px);
+}
+
+.parent-menu.active {
+    background: #e6f5ea;
+    color: #21784c;
+}
+
+.parent-menu.active:hover {
+    background: #c5e7f6;
+    color: #064e70;
+}
+
+/* LOGOUT */
+
+.parent-sidebar-footer {
+    margin-top: auto;
+    padding: 22px 9px 3px;
+}
+
+.parent-sidebar-footer form {
+    margin: 0;
+}
+
+.parent-exit {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    padding: 5px 0;
+
+    border: 0;
+    background: transparent;
+
+    color: #df4646;
+
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.parent-exit i {
+    width: 19px;
+    font-size: 15px;
+}
+
+.parent-exit:hover {
+    color: #b82d2d;
+}
+
+/* SIDEBAR DILIPAT */
+
+.parent-layout.sidebar-collapsed .parent-sidebar {
+    width: var(--parent-sidebar-small);
+    padding-left: 7px;
+    padding-right: 7px;
+}
+
+.parent-layout.sidebar-collapsed .parent-brand {
+    min-height: 48px;
+    margin-bottom: 6px;
+}
+
+.parent-layout.sidebar-collapsed .parent-brand img {
+    width: 38px;
+}
+
+.parent-layout.sidebar-collapsed .parent-sidebar-toggle {
+    align-self: center;
+}
+
+.parent-layout.sidebar-collapsed .parent-menu {
+    justify-content: center;
+    gap: 0;
+    padding: 9px 0;
+}
+
+.parent-layout.sidebar-collapsed .parent-menu span,
+.parent-layout.sidebar-collapsed .parent-exit span {
+    display: none;
+}
+
+.parent-layout.sidebar-collapsed .parent-sidebar-footer {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.parent-layout.sidebar-collapsed .parent-exit {
+    justify-content: center;
+    width: 100%;
+    min-height: 40px;
+}
+
+/* KONTEN UTAMA */
+
+.parent-main {
+    min-width: 0;
+    min-height: 100vh;
+
+    margin-left: var(--parent-sidebar-width);
+
+    transition: margin-left .25s ease;
+}
+
+.parent-layout.sidebar-collapsed .parent-main {
+    margin-left: var(--parent-sidebar-small);
+}
+
+/* TOPBAR */
+
+.parent-topbar {
+    position: relative;
+    z-index: 1020;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    min-height: 49px;
+    padding: 9px 21px;
+
+    background: #f9fcfa;
+}
+
+.parent-topbar-title {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.parent-user {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.parent-avatar {
+    display: grid;
+    place-items: center;
+
+    width: 29px;
+    height: 29px;
+
+    overflow: hidden;
+
+    border-radius: 50%;
+    background: #bce9ef;
+
+    font-weight: 700;
+}
+
+.parent-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.parent-user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.parent-user-info strong {
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.parent-user-info small {
+    color: var(--parent-muted);
+    font-size: 8px;
+}
+
+/* CONTENT */
+
+.parent-content {
+    padding: 0 21px 30px;
+}
+
+.parent-section {
+    min-width: 0;
+}
+
+/* BANNER ORANG TUA — PROPORSI SAMA DENGAN SISWA */
+.parent-page .parent-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    width: 100%;
+    min-height: 145px;
+    margin: 15px 0 20px;
+    padding: 23px 27px;
+    overflow: hidden;
+    border-radius: 12px;
+    background: linear-gradient(90deg,rgba(255,253,245,.68),rgba(255,253,245,0) 76%),
+      url('/images/student-dashboard-hero.png') center / cover no-repeat;
+}
+.parent-page .parent-hero-copy {
+    position: relative;
+    z-index: 1;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.parent-page .parent-hero h1 {
+    margin: 0 0 8px;
+    color: var(--parent-blue);
+    font-size: 26px;
+    font-weight: 400;
+    line-height: 1.4;
+}
+.parent-page .parent-hero p {
+    max-width: 400px;
+    margin: 0;
+    color: var(--parent-blue);
+    font-size: 10px;
+    line-height: 1.7;
+}
+.parent-page .parent-hero .sd-quote {
+    position: relative;
+    z-index: 1;
+    flex: 0 0 190px;
+    max-width: 190px;
+    padding: 12px;
+    border-radius: 9px;
+    background: rgba(255,253,245,.91);
+    color: #2c7950;
+    font-size: 9px;
+    line-height: 1.6;
+}
+
+/* CARDS */
+
+.parent-card {
+    min-width: 0;
+
+    border: 1px solid var(--parent-border);
+    border-radius: 13px;
+
+    background: #fff;
+}
+
+.parent-child-card,
+.parent-panel {
+    padding: 22px 25px;
+}
+
+.parent-card-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.parent-card-heading h2,
+.parent-panel > h2 {
+    margin: 0;
+
+    color: var(--parent-blue);
+
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.parent-outline-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 36px;
+    padding: 9px 14px;
+
+    border: 1px solid #d4e6e1;
+    border-radius: 9px;
+
+    background: #fff;
+    color: var(--parent-blue);
+
+    font-size: 10px;
+    font-weight: 500;
+
+    white-space: nowrap;
+}
+
+.parent-outline-button:hover {
+    background: #eaf5f1;
+}
+
+/* INFORMASI ANAK */
+
+.parent-child-information {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+
+    margin-top: 25px;
+}
+
+.parent-child-information > div,
+.parent-profile-grid > div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.parent-child-information small,
+.parent-profile-grid small {
+    color: var(--parent-muted);
+    font-size: 10px;
+}
+
+.parent-child-information strong,
+.parent-profile-grid strong {
+    font-size: 11px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.parent-green {
+    color: var(--parent-green);
+}
+
+/* STATISTIK */
+
+.parent-statistics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 15px;
+
+    margin-top: 20px;
+}
+
+.parent-stat-card {
+    min-height: 105px;
+    padding: 22px;
+}
+
+.parent-stat-card small {
+    display: block;
+
+    color: var(--parent-muted);
+
+    font-size: 10px;
+}
+
+.parent-stat-card strong {
+    display: block;
+    margin-top: 13px;
+
+    color: var(--parent-blue);
+
+    font-size: 25px;
+    font-weight: 700;
+}
+
+/* BAWAH BERANDA */
+
+.parent-bottom-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 20px;
+
+    margin-top: 20px;
+}
+
+.parent-progress-caption,
+.parent-section-description {
+    margin: 16px 0;
+
+    color: #527a87;
+
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+/* AKTIVITAS */
+
+.parent-activity-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 15px 0;
+
+    border-bottom: 1px solid #e9efec;
+
+    font-size: 11px;
+}
+
+.parent-activity-row small {
+    margin-left: auto;
+
+    color: var(--parent-muted);
+    font-size: 9px;
+}
+
+.parent-activity-dot {
+    flex-shrink: 0;
+
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+    background: #61ae7f;
+}
+
+/* PROGRES BAB VI */
+
+.parent-chapter-card {
+    margin-top: 14px;
+    padding: 18px;
+
+    border: 1px solid var(--parent-border);
+    border-radius: 10px;
+}
+
+.parent-chapter-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.parent-chapter-header strong {
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.parent-chapter-header span {
+    color: var(--parent-green);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.parent-progress-track {
+    width: 100%;
+    height: 9px;
+
+    margin-top: 16px;
+    overflow: hidden;
+
+    border-radius: 15px;
+    background: #e7eeea;
+}
+
+.parent-progress-fill {
+    height: 100%;
+    border-radius: 15px;
+    background: #53a779;
+}
+
+.parent-chapter-meta {
+    margin: 10px 0 15px;
+
+    color: var(--parent-muted);
+    font-size: 9px;
+}
+
+.parent-subchapter-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+
+    margin-bottom: 7px;
+    padding: 11px 13px;
+
+    border-radius: 7px;
+    background: #f1faf7;
+
+    font-size: 10px;
+}
+
+.parent-subchapter-row span {
+    min-width: 0;
+}
+
+.parent-subchapter-row b {
+    flex-shrink: 0;
+
+    color: #447b56;
+    font-size: 9px;
+}
+
+.parent-subchapter-row b.finished {
+    color: #1b9b64;
+}
+
+.parent-bottom-button {
+    margin-top: 18px;
+}
+
+/* EMPTY STATE */
+
+.parent-empty {
+    margin-top: 20px;
+    padding: 17px 20px;
+
+    border-radius: 9px;
+
+    background: #edf7f3;
+    color: #245e73;
+
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+/* HASIL BELAJAR */
+
+.parent-results-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+
+    margin-top: 20px;
+}
+
+.parent-result-box {
+    padding: 20px;
+
+    border: 1px solid var(--parent-border);
+    border-radius: 10px;
+    background: #f7fbfa;
+}
+
+.parent-result-box small {
+    display: block;
+
+    color: var(--parent-muted);
+    font-size: 10px;
+}
+
+.parent-result-box strong {
+    display: block;
+    margin-top: 12px;
+
+    font-size: 24px;
+}
+
+/* CATATAN GURU */
+
+.parent-note {
+    margin-top: 15px;
+    padding: 17px 20px;
+
+    border: 1px solid var(--parent-border);
+    border-radius: 10px;
+    background: #f7fbfa;
+}
+
+.parent-note strong {
+    font-size: 11px;
+}
+
+.parent-note p {
+    margin: 10px 0 0;
+
+    font-size: 11px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+}
+
+/* PROFIL */
+
+.parent-profile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 25px;
+
+    margin-top: 25px;
+}
+
+/* HALAMAN SELAIN BERANDA */
+
+.parent-section:not([data-parent-section="beranda"]) {
+    padding-top: 20px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1100px) {
+    .parent-bottom-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .parent-hero h1 {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .parent-statistics,
+    .parent-child-information {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 680px) {
+    .parent-sidebar {
+        width: 60px;
+        padding-left: 7px;
+        padding-right: 7px;
+    }
+
+    .parent-brand {
+        min-height: 48px;
+    }
+
+    .parent-brand img {
+        width: 38px;
+    }
+
+    .parent-sidebar-toggle {
+        display: none;
+    }
+
+    .parent-menu {
+        justify-content: center;
+        padding: 9px 0;
+    }
+
+    .parent-menu span,
+    .parent-exit span {
+        display: none;
+    }
+
+    .parent-sidebar-footer {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .parent-exit {
+        justify-content: center;
+    }
+
+    .parent-main,
+    .parent-layout.sidebar-collapsed .parent-main {
+        margin-left: 60px;
+    }
+
+    .parent-topbar {
+        padding: 9px 12px;
+    }
+
+    .parent-user-info {
+        display: none;
+    }
+
+    .parent-content {
+        padding: 0 12px 25px;
+    }
+
+    .parent-page .parent-hero {
+        min-height: 170px;
+        padding: 20px;
+    }
+
+    .parent-hero h1 {
+        font-size: 20px;
+    }
+
+    .parent-page .parent-hero .sd-quote {
+        display: none;
+    }
+
+    .parent-child-card,
+    .parent-panel {
+        padding: 17px;
+    }
+
+    .parent-card-heading h2,
+    .parent-panel > h2 {
+        font-size: 15px;
+    }
+
+    .parent-statistics {
+        gap: 10px;
+    }
+
+    .parent-stat-card {
+        min-height: 90px;
+        padding: 15px;
+    }
+
+    .parent-stat-card strong {
+        font-size: 20px;
+    }
+
+    .parent-profile-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .parent-subchapter-row {
+        align-items: flex-start;
+    }
+}

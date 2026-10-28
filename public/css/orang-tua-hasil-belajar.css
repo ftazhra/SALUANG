@@ -1,0 +1,175 @@
+.parent-results-page {
+    padding: 30px 28px 38px;
+    min-height: 405px
+}
+
+.pr-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px
+}
+
+.pr-head h2 {
+    margin: 0 0 7px;
+    color: #075477;
+    font-size: 21px;
+    font-weight: 700
+}
+
+.pr-head p {
+    margin: 0;
+    color: #67818a;
+    font-size: 11px
+}
+
+.pr-select-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 31px
+}
+
+.pr-field {
+    display: flex;
+    flex-direction: column;
+    gap: 11px
+}
+
+.pr-field strong {
+    font-size: 11px;
+    font-weight: 600
+}
+
+.pr-field select {
+    width: 100%;
+    height: 41px;
+    border: 1px solid #d0e3e3;
+    background: #fff;
+    border-radius: 10px;
+    padding: 0 12px;
+    color: #075477;
+    font: inherit;
+    font-size: 11px
+}
+
+.pr-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin: 20px 0 24px
+}
+
+.pr-filter {
+    min-height: 43px;
+    padding: 10px 17px;
+    border: 1px solid #d7e9e8;
+    border-radius: 9px;
+    color: #075477;
+    background: #fff;
+    font-size: 12px !important
+}
+
+.pr-filter.active {
+    background: #4c9f6b;
+    border-color: #4c9f6b;
+    color: #fff
+}
+
+.pr-table-scroll {
+    overflow-x: auto
+}
+
+.pr-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    min-width: 650px;
+    font-size: 11px
+}
+
+.pr-table th {
+    color: #5b7881;
+    font-size: 10px;
+    padding: 13px 11px 15px;
+    border-bottom: 1px solid #dceae8
+}
+
+.pr-table td {
+    padding: 17px 11px;
+    border-bottom: 1px solid #eaf1ef;
+    vertical-align: middle
+}
+
+.pr-table .pr-empty {
+    padding: 22px 11px;
+    color: #075477
+}
+
+.pr-pill {
+    display: inline-flex;
+    padding: 5px 9px;
+    border-radius: 7px;
+    background: #e6f5ea;
+    color: #21784c;
+    font-weight: 600
+}
+
+.pr-pill.not-done {
+    background: #fff4e5;
+    color: #94631d
+}
+
+.pr-detail-button {
+    border: 1px solid #d0e3e3;
+    color: #075477;
+    border-radius: 8px;
+    background: white;
+    padding: 7px 11px;
+    font-size: 10px;
+    white-space: nowrap
+}
+
+.pr-detail-button:hover {
+    background: #e9f6f0
+}
+
+.pr-detail {
+    margin-top: 20px;
+    padding: 17px;
+    border: 1px solid #dceae8;
+    border-radius: 10px;
+    background: #f1f8f5;
+    line-height: 1.8
+}
+
+.pr-detail h3 {
+    margin: 0 0 8px;
+    font-size: 13px
+}
+
+.pr-detail p {
+    margin: 5px 0
+}
+
+.pr-detail button {
+    margin-top: 8px
+}
+
+@media(max-width:720px) {
+    .parent-results-page {
+        padding: 18px 14px
+    }
+
+    .pr-head {
+        flex-wrap: wrap
+    }
+
+    .pr-select-grid {
+        grid-template-columns: 1fr
+    }
+
+    .pr-head h2 {
+        font-size: 18px
+    }
+}

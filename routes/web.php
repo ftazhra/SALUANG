@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\BerandaController;
+use App\Http\Controllers\OrangTua\DashboardController as OrangTuaDashboardController;
 use App\Http\Middleware\EnsureUserIsGuru;
 use App\Http\Middleware\EnsureUserIsSiswa;
 use App\Http\Controllers\AuthController;
@@ -92,9 +93,7 @@ Route::get('/dashboard', function () {
 
     // Dashboard Orang Tua
     if ($user->role === 'orang_tua') {
-        // Sementara mempertahankan dashboard lama
-        // sampai dashboard Orang Tua selesai dibuat.
-        return view('dashboard', compact('user'));
+        return app(OrangTuaDashboardController::class)->index(request(), app(\App\Services\ParentDashboardService::class));
     }
 
     // Jika role tidak dikenali, akses ditolak.
