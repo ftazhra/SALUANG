@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 
@@ -16,11 +17,142 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="{{ asset('css/siswa-beranda.css') }}?v=1">
-    <link rel="stylesheet" href="{{ asset('css/orang-tua-dashboard.css') }}?v=15">
-    <link rel="stylesheet" href="{{ asset('css/orang-tua-aktivitas.css') }}?v=1">
-    <link rel="stylesheet" href="{{ asset('css/orang-tua-hasil-belajar.css') }}?v=1">
-    <link rel="stylesheet" href="{{ asset('css/orang-tua-progres.css') }}?v=1">
+    <link rel="stylesheet" href="{{ asset('css/orang-tua-dashboard.css') }}?v=16">
+    <link rel="stylesheet" href="{{ asset('css/orang-tua-aktivitas.css') }}?v=2">
+    <link rel="stylesheet" href="{{ asset('css/orang-tua-hasil-belajar.css') }}?v=3">
+    <link rel="stylesheet" href="{{ asset('css/orang-tua-progres.css') }}?v=2">
     <link rel="stylesheet" href="{{ asset('css/orang-tua-chat.css') }}?v=1">
+
+    <style>
+        /* CATATAN GURU — DESAIN BARU */
+        .parent-teacher-notes {
+            margin-top: 22px;
+            padding: 26px;
+        }
+
+        .parent-teacher-notes-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .parent-teacher-notes-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            flex: 0 0 44px;
+            background: #e8f5ed;
+            color: #27865a;
+            border-radius: 12px;
+            font-size: 20px;
+        }
+
+        .parent-teacher-notes-header h2 {
+            margin: 0 0 5px;
+            color: #075477;
+            font-size: 19px;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+
+        .parent-teacher-notes-header p {
+            margin: 0;
+            color: #718d96;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .parent-teacher-notes-list {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+        }
+
+        .parent-teacher-note-item {
+            display: block;
+            width: 100%;
+            min-height: 0;
+            box-sizing: border-box;
+            padding: 17px 20px;
+            margin: 0;
+            border: 1px solid #dce9e5;
+            border-radius: 12px;
+            background: #f8fbfa;
+            text-align: left;
+        }
+
+        .parent-teacher-note-body {
+            display: block;
+            margin: 0;
+            padding: 0;
+            color: #244b59;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            font-weight: 400;
+            line-height: 1.75;
+            text-align: left;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .parent-teacher-note-date {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 10px;
+            padding: 0;
+            color: #81958d;
+            font-size: 11px;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .parent-teacher-note-date i {
+            color: #6f9d83;
+            font-size: 12px;
+        }
+
+        .parent-teacher-notes-empty {
+            padding: 28px 16px;
+            text-align: center;
+            color: #78919a;
+            font-size: 12px;
+        }
+
+        .parent-teacher-notes-empty i {
+            display: block;
+            margin-bottom: 10px;
+            color: #9cbbb0;
+            font-size: 26px;
+        }
+
+        .parent-teacher-notes-empty p {
+            margin: 0;
+        }
+
+        @media (max-width: 600px) {
+            .parent-teacher-notes {
+                padding: 18px;
+            }
+
+            .parent-teacher-notes-header {
+                gap: 11px;
+            }
+
+            .parent-teacher-notes-header h2 {
+                font-size: 17px;
+            }
+
+            .parent-teacher-note-item {
+                padding: 15px;
+            }
+        }
+    </style>
 </head>
 
 <body class="parent-page">
@@ -45,7 +177,6 @@
 
         $chapters = $chapters ?? [];
         $activities = $activities ?? [];
-
         $notes = $notes ?? ($teacherNotes ?? []);
 
         $menu = [
@@ -63,19 +194,25 @@
         <aside class="parent-sidebar" id="parentSidebar">
 
             <div class="parent-brand">
-                <img src="{{ asset('images/saluang-logo-transparent.png') }}" alt="Logo SALUANG">
+                <img src="{{ asset('images/saluang-logo-transparent.png') }}"
+                     alt="Logo SALUANG">
             </div>
 
-            <button type="button" class="parent-sidebar-toggle" id="parentSidebarToggle" aria-label="Perkecil sidebar"
-                aria-expanded="true">
+            <button type="button"
+                    class="parent-sidebar-toggle"
+                    id="parentSidebarToggle"
+                    aria-label="Perkecil sidebar"
+                    aria-expanded="true">
                 <i class="bi bi-layout-sidebar-inset"></i>
             </button>
 
             <nav class="parent-navigation" aria-label="Navigasi Orang Tua">
 
                 @foreach ($menu as $item)
-                    <button type="button" class="parent-menu {{ $item['key'] === 'beranda' ? 'active' : '' }}"
-                        data-parent-page="{{ $item['key'] }}" title="{{ $item['title'] }}">
+                    <button type="button"
+                            class="parent-menu {{ $item['key'] === 'beranda' ? 'active' : '' }}"
+                            data-parent-page="{{ $item['key'] }}"
+                            title="{{ $item['title'] }}">
                         <i class="bi {{ $item['icon'] }}"></i>
                         <span>{{ $item['title'] }}</span>
                     </button>
@@ -109,7 +246,7 @@
                     <div class="parent-avatar">
                         @if ($parent?->profile_photo_path)
                             <img src="{{ asset('storage/' . $parent->profile_photo_path) }}"
-                                alt="Foto profil Orang Tua">
+                                 alt="Foto profil Orang Tua">
                         @else
                             {{ strtoupper(mb_substr($parentName, 0, 1)) }}
                         @endif
@@ -130,30 +267,36 @@
                 <section class="parent-section" data-parent-section="beranda">
 
                     <div class="sd-hero parent-hero">
+
                         <div class="parent-hero-copy">
                             <h1>Halo, {{ $firstName }}! 👋</h1>
-                            <p>Yuk, dampingi perjalanan belajar anak Anda dan pantau perkembangan belajarnya bersama
-                                SALUANG!</p>
+                            <p>
+                                Yuk, dampingi perjalanan belajar anak Anda dan
+                                pantau perkembangan belajarnya bersama SALUANG!
+                            </p>
                         </div>
+
                         <div class="sd-quote">
-                            “Dukungan orang tua membantu setiap langkah anak dalam belajar dan mengenal lingkungan lahan
-                            basah.”
+                            “Dukungan orang tua membantu setiap langkah anak
+                            dalam belajar dan mengenal lingkungan lahan basah.”
                         </div>
+
                     </div>
 
                     <article class="parent-card parent-child-card">
 
                         <div class="parent-card-heading">
-
                             <h2>Informasi Anak</h2>
 
-                            <button type="button" class="parent-outline-button" data-parent-page="profil">
+                            <button type="button"
+                                    class="parent-outline-button"
+                                    data-parent-page="profil">
                                 Lihat Detail
                             </button>
-
                         </div>
 
                         @if ($child)
+
                             <div class="parent-child-information">
 
                                 <div>
@@ -179,13 +322,88 @@
                                 </div>
 
                             </div>
+
                         @else
-                            <div class="parent-empty">
-                                Belum ada akun anak dengan hubungan yang
-                                telah disetujui. Setelah hubungan akun
-                                diverifikasi, informasi anak dan hasil
-                                belajarnya akan ditampilkan di sini.
+
+                            <div class="parent-empty" id="parentLinkSection">
+
+                                <div style="margin-bottom: 18px;">
+                                    <i class="bi bi-link-45deg"
+                                       style="font-size: 28px; color: #21865b;"></i>
+
+                                    <h3 style="margin: 8px 0; font-size: 17px;">
+                                        Hubungkan Akun Anak
+                                    </h3>
+
+                                    <p style="margin: 0; line-height: 1.7;">
+                                        Minta anak membuat kode penghubung
+                                        melalui menu Profil pada akun Siswa SALUANG.
+                                        Masukkan kode enam digit tersebut di bawah ini.
+                                    </p>
+                                </div>
+
+                                @if (session('status'))
+                                    <p role="status" style="color: #21865b;">
+                                        {{ session('status') }}
+                                    </p>
+                                @endif
+
+                                @if ($errors->has('code'))
+                                    <p role="alert" style="color: #c0392b;">
+                                        {{ $errors->first('code') }}
+                                    </p>
+                                @endif
+
+                                <form method="POST"
+                                      action="{{ route('orang-tua.parent-link.verify') }}"
+                                      style="display: flex; flex-wrap: wrap; gap: 12px; align-items: end;">
+                                    @csrf
+
+                                    <div style="flex: 1; min-width: 190px;">
+
+                                        <label for="parentLinkCode"
+                                               style="display: block; margin-bottom: 8px; font-weight: 600;">
+                                            Kode Penghubung
+                                        </label>
+
+                                        <input type="text"
+                                               id="parentLinkCode"
+                                               name="code"
+                                               inputmode="numeric"
+                                               pattern="[0-9]{6}"
+                                               maxlength="6"
+                                               minlength="6"
+                                               placeholder="Masukkan 6 digit kode"
+                                               autocomplete="off"
+                                               value="{{ old('code') }}"
+                                               required
+                                               style="
+                                                   width: 100%;
+                                                   padding: 12px 14px;
+                                                   border: 1px solid #d7e2dc;
+                                                   border-radius: 10px;
+                                                   font-family: inherit;
+                                                   font-size: 15px;
+                                                   box-sizing: border-box;
+                                               ">
+                                    </div>
+
+                                    <button type="submit"
+                                            class="parent-outline-button"
+                                            style="min-height: 46px;">
+                                        <i class="bi bi-check-circle"></i>
+                                        Hubungkan Akun
+                                    </button>
+
+                                </form>
+
+                                <p style="margin-top: 14px; font-size: 12px;">
+                                    Kode hanya berlaku 10 menit dan dapat digunakan
+                                    satu kali. Jangan bagikan kode kepada orang lain.
+                                </p>
+
                             </div>
+
                         @endif
 
                     </article>
@@ -223,13 +441,17 @@
                             <div class="parent-card-heading">
                                 <h2>Aktivitas Terbaru</h2>
 
-                                <button type="button" class="parent-outline-button" data-parent-page="aktivitas">
+                                <button type="button"
+                                        class="parent-outline-button"
+                                        data-parent-page="aktivitas">
                                     Lihat Semua Aktivitas
                                 </button>
                             </div>
 
                             @forelse ($activities as $activity)
+
                                 <div class="parent-activity-row">
+
                                     <span class="parent-activity-dot"></span>
 
                                     <span>
@@ -241,6 +463,7 @@
                                             {{ \Illuminate\Support\Carbon::parse($activity['date'])->format('d M Y') }}
                                         @endif
                                     </small>
+
                                 </div>
 
                             @empty
@@ -248,6 +471,7 @@
                                 <div class="parent-empty">
                                     Belum ada aktivitas belajar yang tercatat.
                                 </div>
+
                             @endforelse
 
                         </article>
@@ -258,7 +482,9 @@
 
                                 <h2>Progres Belajar</h2>
 
-                                <button type="button" class="parent-outline-button" data-parent-page="progres">
+                                <button type="button"
+                                        class="parent-outline-button"
+                                        data-parent-page="progres">
                                     Lihat Progres
                                 </button>
 
@@ -271,8 +497,9 @@
 
                             @include('orang-tua.partials.progress-cards')
 
-                            <button type="button" class="parent-outline-button parent-bottom-button"
-                                data-parent-page="hasil">
+                            <button type="button"
+                                    class="parent-outline-button parent-bottom-button"
+                                    data-parent-page="hasil">
                                 Lihat Hasil Belajar
                             </button>
 
@@ -282,28 +509,94 @@
 
                 </section>
 
-                {{-- AKTIVITAS ANAK — FILTER BAB, SUBBAB, DAN JENIS AKTIVITAS --}}
-                <section class="parent-section" data-parent-section="aktivitas" hidden>
+                {{-- AKTIVITAS ANAK --}}
+                <section class="parent-section"
+                         data-parent-section="aktivitas"
+                         hidden>
                     @include('orang-tua.partials.aktivitas-anak')
                 </section>
 
                 {{-- HASIL BELAJAR --}}
-                <section class="parent-section" data-parent-section="hasil" hidden>
+                <section class="parent-section"
+                         data-parent-section="hasil"
+                         hidden>
+
                     @include('orang-tua.partials.hasil-belajar')
+
+                    {{-- CATATAN GURU --}}
+                    <article class="parent-card parent-panel parent-teacher-notes">
+
+                        <div class="parent-teacher-notes-header">
+
+                            <div class="parent-teacher-notes-icon">
+                                <i class="bi bi-journal-text"></i>
+                            </div>
+
+                            <div>
+                                <h2>Catatan Guru</h2>
+
+                                <p>
+                                    Informasi perkembangan belajar anak dari Guru.
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <div class="parent-teacher-notes-list">
+
+                            @forelse (($teacherNotes ?? []) as $note)
+
+                                <div class="parent-teacher-note-item">
+
+                                    <div class="parent-teacher-note-body">{{ $note['body'] }}</div>
+
+                                    <div class="parent-teacher-note-date">
+                                        <i class="bi bi-calendar3"></i>
+
+                                        <span>
+                                            Dikirim pada
+                                            {{ \Illuminate\Support\Carbon::parse($note['date'])->format('d M Y, H:i') }}
+                                        </span>
+                                    </div>
+
+                                </div>
+
+                            @empty
+
+                                <div class="parent-teacher-notes-empty">
+                                    <i class="bi bi-journal-text"></i>
+
+                                    <p>
+                                        Belum ada catatan yang dikirim oleh Guru.
+                                    </p>
+                                </div>
+
+                            @endforelse
+
+                        </div>
+
+                    </article>
+
                 </section>
 
                 {{-- PROGRES BELAJAR --}}
-                <section class="parent-section" data-parent-section="progres" hidden>
+                <section class="parent-section"
+                         data-parent-section="progres"
+                         hidden>
                     @include('orang-tua.partials.progres-belajar')
                 </section>
 
-                {{-- CHAT GURU — MODUL PESAN TERHUBUNG KE ANAK --}}
-                <section class="parent-section" data-parent-section="chat" hidden>
+                {{-- CHAT GURU --}}
+                <section class="parent-section"
+                         data-parent-section="chat"
+                         hidden>
                     @include('orang-tua.partials.chat-guru')
                 </section>
 
                 {{-- PROFIL --}}
-                <section class="parent-section" data-parent-section="profil" hidden>
+                <section class="parent-section"
+                         data-parent-section="profil"
+                         hidden>
 
                     <article class="parent-card parent-panel">
 
@@ -328,17 +621,23 @@
 
                             <div>
                                 <small>Nama Anak</small>
-                                <strong>{{ $childName ?? 'Belum terhubung' }}</strong>
+                                <strong>
+                                    {{ $childName ?? 'Belum terhubung' }}
+                                </strong>
                             </div>
 
                             <div>
                                 <small>Kelas Anak</small>
-                                <strong>{{ $child ? $className : '-' }}</strong>
+                                <strong>
+                                    {{ $child ? $className : '-' }}
+                                </strong>
                             </div>
 
                             <div>
                                 <small>Sekolah Anak</small>
-                                <strong>{{ $child ? $schoolName : '-' }}</strong>
+                                <strong>
+                                    {{ $child ? $schoolName : '-' }}
+                                </strong>
                             </div>
 
                         </div>
@@ -382,7 +681,8 @@
                 }
 
                 sections.forEach(function(section) {
-                    section.hidden = section.dataset.parentSection !== page;
+                    section.hidden =
+                        section.dataset.parentSection !== page;
                 });
 
                 buttons.forEach(function(button) {
@@ -410,7 +710,8 @@
 
             if (toggle && layout) {
                 toggle.addEventListener('click', function() {
-                    const collapsed = layout.classList.toggle('sidebar-collapsed');
+                    const collapsed =
+                        layout.classList.toggle('sidebar-collapsed');
 
                     toggle.setAttribute(
                         'aria-expanded',
@@ -419,7 +720,9 @@
 
                     toggle.setAttribute(
                         'aria-label',
-                        collapsed ? 'Perbesar sidebar' : 'Perkecil sidebar'
+                        collapsed
+                            ? 'Perbesar sidebar'
+                            : 'Perkecil sidebar'
                     );
                 });
             }
@@ -427,9 +730,9 @@
     </script>
 
     <script src="{{ asset('js/orang-tua-aktivitas.js') }}?v=1" defer></script>
-    <script src="{{ asset('js/orang-tua-hasil-belajar.js') }}?v=1" defer></script>
+    <script src="{{ asset('js/orang-tua-hasil-belajar.js') }}?v=2" defer></script>
     <script src="{{ asset('js/orang-tua-progres.js') }}?v=1" defer></script>
     <script src="{{ asset('js/orang-tua-chat.js') }}?v=1" defer></script>
-</body>
 
+</body>
 </html>

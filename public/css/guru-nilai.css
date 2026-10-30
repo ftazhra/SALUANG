@@ -350,5 +350,177 @@
 .gn-teacher-feedback label { display:block; margin-bottom: 8px; color: #075477; font-size: 12px; font-weight: 600; }
 .gn-teacher-feedback textarea { display:block; width:100%; padding: 12px 14px; resize:vertical; border: 1px solid #cbded9; border-radius: 9px; background:white; font: 12px/1.6 Poppins,sans-serif; color: #174a60; }
 .gn-teacher-feedback textarea:focus { outline: 2px solid #b1d7c1; outline-offset: 1px; }
-.gn-note-actions { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-top:12px; }
-.gn-note-actions span { color:#537f8c; font-size:11px; }
+
+
+/* Area status dan tombol Catatan Guru */
+.gn-note-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    margin-top: 16px;
+}
+
+.gn-note-actions #gnNoteStatus {
+    display: block;
+    color: #537f8c;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+/* Dua tombol dengan ukuran seimbang */
+.gn-note-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+}
+
+#gnSaveTeacherNote,
+#gnPublishTeacherNote {
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    box-sizing: border-box;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: normal;
+    text-align: center;
+}
+
+#gnSaveTeacherNote {
+    background: #ffffff;
+    color: #075477;
+    border: 1px solid #cbded9;
+}
+
+#gnSaveTeacherNote:hover:not(:disabled) {
+    background: #f2f8f5;
+}
+
+#gnPublishTeacherNote {
+    background: #4c9968;
+    color: #ffffff;
+    border: 1px solid #4c9968;
+}
+
+#gnPublishTeacherNote:hover:not(:disabled) {
+    background: #367a50;
+}
+
+@media (max-width: 480px) {
+    .gn-note-buttons {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* MODAL KONFIRMASI KIRIM CATATAN */
+.gn-confirm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(8, 33, 43, .55);
+}
+
+.gn-confirm-overlay[hidden] {
+    display: none !important;
+}
+
+.gn-confirm-box {
+    width: min(100%, 420px);
+    box-sizing: border-box;
+    padding: 28px;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 20px 55px rgba(8, 33, 43, .2);
+    text-align: center;
+    animation: gnConfirmAppear .2s ease;
+}
+
+@keyframes gnConfirmAppear {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.gn-confirm-icon {
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: #e8f5ed;
+    color: #4c9968;
+    font-size: 25px;
+}
+
+.gn-confirm-title {
+    margin: 0 0 10px;
+    font-size: 19px;
+    font-weight: 700;
+    color: #075477;
+}
+
+.gn-confirm-text {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.8;
+    color: #718d96;
+}
+
+.gn-confirm-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.gn-confirm-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.gn-confirm-btn-cancel {
+    background: #ffffff;
+    color: #075477;
+    border: 1px solid #cbded9;
+}
+
+.gn-confirm-btn-ok {
+    background: #4c9968;
+    color: #ffffff;
+    border: 1px solid #4c9968;
+}
+
+.gn-confirm-btn-ok:hover {
+    background: #367a50;
+}
+
+@media (max-width: 480px) {
+    .gn-confirm-box {
+        padding: 22px;
+    }
+}

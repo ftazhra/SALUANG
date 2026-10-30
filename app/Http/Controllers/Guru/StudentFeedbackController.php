@@ -1,73 +1,125 @@
 <?php
+
 namespace App\Http\Controllers\Guru;
+
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
+
 class StudentFeedbackController extends Controller
 {
     private function ensureGuru(Request $request): void
     {
-        abort_unless($request->user()?->role === 'guru', 403, 'Hanya Guru yang dapat mengelola catatan.');
+        abort_unless(
+            $request->user()?->role === 'guru',
+            403,
+            'Hanya Guru yang dapat mengelola catatan.'
+        );
     }
+
     private function ensureSiswa(User $student): void
     {
-        abort_unless($student->role === 'siswa', 404, 'Siswa tidak ditemukan.');
+        abort_unless(
+            $student->role === 'siswa',
+            404,
+            'Siswa tidak ditemukan.'
+        );
     }
+
     public function show(Request $request, User $student): JsonResponse
     {
         $this->ensureGuru($request);
         $this->ensureSiswa($student);
+
         $data = $request->validate([
             'audience' => ['sometimes', 'in:orang_tua,siswa'],
         ]);
-        $audience = $data['audience'] ?? 'orang_tua';
-        $supportsAudience = Schema::hasColumn('student_teacher_notes', 'audience');
-        abort_if(!$supportsAudience && $audience !== 'orang_tua', 409, 'Pemisahan audiens catatan belum tersedia.');
 
-        $query = DB::table('student_teacher_notes')
+        $audience = $data['audience'] ?? 'orang_tua';
+
+        $draft = DB::table('student_teacher_notes')
             ->where('student_id', $student->id)
-            ->where('teacher_id', $request->user()->id);
-        if ($supportsAudience) {
-            $query->where('audience', $audience);
-        }
-        $note = $query->first(['note', 'updated_at']);
+            ->where('teacher_id', $request->user()->id)
+            ->where('audience', $audience)
+            ->whereNull('published_at')
+            ->first(['note', 'updated_at']);
+
         return response()->json([
-            'note' => $note?->note ?? '',
-            'updated_at' => $note?->updated_at,
+            'note' => $draft?->note ?? '',
+            'updated_at' => $draft?->updated_at,
+            'published_at' => null,
+            'status' => $draft ? 'draf' : 'kosong',
         ]);
     }
+
     public function update(Request $request, User $student): JsonResponse
     {
         $this->ensureGuru($request);
         $this->ensureSiswa($student);
-        $data = $request->validate([
-            'note' => ['required', 'string', 'min:1', 'max:5000'],
-            'audience' => ['sometimes', 'in:orang_tua,siswa'],
-        ]);
-        $now = now();
-        $audience = $data['audience'] ?? 'orang_tua';
-        $supportsAudience = Schema::hasColumn('student_teacher_notes', 'audience');
-        abort_if(!$supportsAudience && $audience !== 'orang_tua', 409, 'Pemisahan audiens catatan belum tersedia.');
 
-        $row = [
-            'student_id' => $student->id,
-            'teacher_id' => $request->user()->id,
-            'note' => trim($data['note']),
-            'created_at' => $now,
-            'updated_at' => $now,
-        ];
-        $uniqueBy = ['student_id', 'teacher_id'];
-        if ($supportsAudience) {
-            $row['audience'] = $audience;
-            $uniqueBy[] = 'audience';
+        $data = $request->validate([
+            'note' => ['required', 'string', 'max:5000', 'not_regex:/^\s*$/'],
+            'audience' => ['sometimes', 'in:orang_tua,siswa'],
+            'action' => ['sometimes', 'in:draft,publish'],
+        ]);
+
+        $audience = $data['audience'] ?? 'orang_tua';
+        $action = $data['action'] ?? 'draft';
+        $note = trim($data['note']);
+        $now = now();
+
+        if ($action === 'draft') {
+            DB::table('student_teacher_notes')->upsert(
+                [[
+                    'student_id' => $student->id,
+                    'teacher_id' => $request->user()->id,
+                    'audience' => $audience,
+                    'note' => $note,
+                    'published_at' => null,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]],
+                ['student_id', 'teacher_id', 'audience'],
+                ['note', 'published_at', 'updated_at']
+            );
+
+            return response()->json([
+                'message' => 'Draf catatan berhasil disimpan.',
+                'note' => $note,
+                'status' => 'draf',
+                'published_at' => null,
+            ]);
         }
-        DB::table('student_teacher_notes')->upsert([$row], $uniqueBy, ['note', 'updated_at']);
+
+        $message = DB::transaction(function () use ($student, $request, $audience, $note, $now) {
+            $id = DB::table('student_teacher_note_messages')->insertGetId([
+                'student_id' => $student->id,
+                'teacher_id' => $request->user()->id,
+                'audience' => $audience,
+                'note' => $note,
+                'published_at' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+
+            // Kosongkan draf setelah catatan berhasil dikirim.
+            DB::table('student_teacher_notes')
+                ->where('student_id', $student->id)
+                ->where('teacher_id', $request->user()->id)
+                ->where('audience', $audience)
+                ->delete();
+
+            return $id;
+        });
+
         return response()->json([
-            'message' => 'Catatan Guru berhasil disimpan.',
-            'note' => trim($data['note']),
+            'message' => 'Catatan berhasil dikirim ke Orang Tua/Wali.',
+            'id' => $message,
+            'note' => '',
+            'status' => 'terkirim',
+            'published_at' => $now->toIso8601String(),
         ]);
     }
 }

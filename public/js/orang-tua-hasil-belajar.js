@@ -23,28 +23,103 @@ document.addEventListener('DOMContentLoaded', () => {
         if (className) cell.className = className;
         return cell;
     }
+
     function openDetail(result) {
         detail.replaceChildren();
+
+        // Header detail
+        const header = document.createElement('div');
+        header.className = 'pr-detail-header';
+
+        const headingGroup = document.createElement('div');
+        headingGroup.className = 'pr-detail-heading';
+
+        const eyebrow = document.createElement('span');
+        eyebrow.className = 'pr-detail-eyebrow';
+        eyebrow.textContent = 'DETAIL HASIL BELAJAR';
+
         const heading = document.createElement('h3');
-        heading.textContent = result.name;
-        detail.appendChild(heading);
-        for (const [label, value] of [
-            ['Bab', result.chapter_title], ['Subbab', result.subchapter_title || 'Evaluasi tingkat bab'],
-            ['Jenis', result.type === 'kuis' ? 'Kuis' : result.type === 'evaluasi' ? 'Evaluasi' : 'Penilaian'],
-            ['Nilai', Number(result.score).toLocaleString('id-ID', { maximumFractionDigits: 1 })],
-            ['Status', result.status], ['Tanggal', result.date || 'Tidak tercatat']
-        ]) {
-            const p = document.createElement('p');
-            const strong = document.createElement('strong');
-            strong.textContent = label + ': ';
-            p.append(strong, document.createTextNode(String(value)));
-            detail.appendChild(p);
-        }
+        heading.textContent = result.name || 'Hasil Belajar';
+
+        headingGroup.append(eyebrow, heading);
+
+        const statusBadge = document.createElement('span');
+        const isComplete = result.status === 'Tuntas';
+
+        statusBadge.className =
+            'pr-pill' + (isComplete ? '' : ' not-done');
+
+        statusBadge.textContent = result.status || '-';
+
+        header.append(headingGroup, statusBadge);
+
+        // Informasi detail dua kolom
+        const grid = document.createElement('div');
+        grid.className = 'pr-detail-grid';
+
+        const score = Number(result.score);
+        const scoreText = Number.isFinite(score)
+            ? score.toLocaleString('id-ID', {
+                maximumFractionDigits: 1
+            })
+            : '-';
+
+        const typeText =
+            result.type === 'kuis' ? 'Kuis' :
+                result.type === 'evaluasi' ? 'Evaluasi' :
+                    'Penilaian';
+
+        const fields = [
+            ['Bab', result.chapter_title],
+            [
+                'Subbab',
+                result.subchapter_title || 'Evaluasi tingkat bab'
+            ],
+            ['Jenis Penilaian', typeText],
+            ['Nilai Akhir', scoreText],
+            ['Status', result.status],
+            ['Tanggal', result.date || 'Tidak tercatat']
+        ];
+
+        fields.forEach(([label, value]) => {
+            const item = document.createElement('div');
+            item.className = 'pr-detail-item';
+
+            const fieldLabel = document.createElement('span');
+            fieldLabel.className = 'pr-detail-label';
+            fieldLabel.textContent = label;
+
+            const fieldValue = document.createElement('strong');
+            fieldValue.className = 'pr-detail-value';
+            fieldValue.textContent = String(value ?? '-');
+
+            if (label === 'Nilai Akhir') {
+                item.classList.add('pr-detail-score');
+            }
+
+            item.append(fieldLabel, fieldValue);
+            grid.appendChild(item);
+        });
+
+        // Tombol tutup
+        const actions = document.createElement('div');
+        actions.className = 'pr-detail-actions';
+
         const close = document.createElement('button');
-        close.className = 'pr-detail-button'; close.type = 'button'; close.textContent = 'Tutup Detail';
-        close.addEventListener('click', () => { detail.hidden = true; });
-        detail.appendChild(close); detail.hidden = false;
+        close.className = 'pr-detail-button';
+        close.type = 'button';
+        close.textContent = 'Tutup Detail';
+
+        close.addEventListener('click', () => {
+            detail.hidden = true;
+        });
+
+        actions.appendChild(close);
+
+        detail.append(header, grid, actions);
+        detail.hidden = false;
     }
+
     function render() {
         detail.hidden = true;
         tbody.replaceChildren();

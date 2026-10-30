@@ -102,47 +102,66 @@
 .gp-contact-list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin-top: 16px;
-    max-height: 520px;
+    gap: 6px;
+
+    width: auto;
+    min-width: 0;
+    max-width: 100%;
+
+    margin: 6px 0 6px 12px;
+    padding: 0;
+
+    max-height: 350px;
     overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+.gp-contact-list[hidden] {
+    display: none !important;
 }
 .gp-contact-item {
+    display: block;
     width: 100%;
-    padding: 14px;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+
+    padding: 10px 12px;
     text-align: left;
-    background: #fff;
-    border: 1px solid #e0e9eb;
-    border-radius: 10px;
-    cursor: pointer;
+
+    background: #f3f8fb;
+    border: 1px solid #d7e6f2;
+    border-radius: 8px;
+
+    color: #075477;
     font: inherit;
-    transition: background .2s, border-color .2s;
+    cursor: pointer;
+
+    transition: background-color .2s ease,
+                border-color .2s ease;
 }
+
 .gp-contact-item:hover {
-    background: #f2f9f8;
-    border-color: #9acac1;
+    background: #eaf4fa;
+    border-color: #b8d4e1;
 }
+
 .gp-contact-item.active {
-    background: #eaf7f0;
-    border-color: #56a67a;
+    background: #e1f1f8;
+    border-color: #82b7cc;
 }
+
 .gp-contact-item strong {
     display: block;
-    font-size: 13px;
-    color: #17495a;
-}
-.gp-contact-item small {
-    display: block;
-    margin-top: 5px;
-    font-size: 11px;
-    color: #70818b;
-}
-.gp-contact-item .gp-relation {
-    display: inline-block;
-    margin-top: 9px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
-    color: #28744d;
+    color: #075477;
+    overflow-wrap: anywhere;
+}
+.gp-contact-item small,
+.gp-contact-item .gp-relation {
+    display: none;
 }
 /* 05. AREA DETAIL DAN CHAT */
 .gp-main {
@@ -253,14 +272,21 @@
     font-size: 12px;
     color: #73858d;
 }
+
 .gp-chat-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
     min-height: 250px;
     max-height: 420px;
     overflow-y: auto;
-    padding: 17px;
-    border-radius: 10px;
+
+    padding: 18px;
+    border-radius: 12px;
     background: #f5f9f8;
 }
+
 .gp-chat-placeholder,
 .gp-empty {
     display: flex;
@@ -321,12 +347,70 @@
     background: #f6f8f8;
     color: #9aa7ab;
 }
-.gp-chat-notice {
-    margin: 10px 0 0;
-    color: #8a9ba1;
-    font-size: 11px;
-    line-height: 1.6;
+
+/* Pesan berbentuk bubble */
+.gp-chat-row {
+    display: flex;
+    width: 100%;
 }
+
+.gp-chat-row.is-guru {
+    justify-content: flex-end;
+}
+
+.gp-chat-row.is-orang-tua {
+    justify-content: flex-start;
+}
+
+.gp-chat-bubble {
+    max-width: 75%;
+    min-width: 90px;
+    padding: 11px 15px;
+    border-radius: 15px;
+    overflow-wrap: anywhere;
+    box-shadow: 0 2px 8px rgba(7, 84, 119, .05);
+}
+
+/* Pesan Guru di kanan */
+.gp-chat-row.is-guru .gp-chat-bubble {
+    background: #075477;
+    color: #fff;
+    border-bottom-right-radius: 4px;
+}
+
+/* Pesan Orang Tua di kiri */
+.gp-chat-row.is-orang-tua .gp-chat-bubble {
+    background: #fff;
+    color: #075477;
+    border: 1px solid #dce9e6;
+    border-bottom-left-radius: 4px;
+}
+
+.gp-chat-text {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+}
+
+.gp-chat-meta {
+    display: block;
+    margin-top: 7px;
+    font-size: 9px;
+    line-height: 1.5;
+    opacity: .75;
+}
+
+.gp-chat-row.is-guru .gp-chat-meta {
+    text-align: right;
+}
+
+@media (max-width: 600px) {
+    .gp-chat-bubble {
+        max-width: 90%;
+    }
+}
+
 /* 08. NOTIFIKASI */
 .gp-toast {
     position: fixed;
@@ -383,17 +467,21 @@
     align-items: center;
     gap: 11px;
     width: 100%;
-    padding: 14px 13px;
+    min-width: 0;
+    padding: 13px 14px;
+
     background: #ffffff;
     border: 1px solid #dce7e8;
     border-radius: 10px;
+
     color: #19546a;
     font-family: inherit;
     font-size: 13px;
     font-weight: 600;
     text-align: left;
     cursor: pointer;
-    transition: background .2s ease, border-color .2s ease;
+
+    transition: background-color .2s ease, border-color .2s ease;
 }
 .gp-class-item > .bi-people {
     font-size: 17px;
@@ -421,10 +509,6 @@
 .gp-class-item:focus-visible {
     outline: 3px solid #8fc7b7;
     outline-offset: 2px;
-}
-/* Daftar siswa muncul di bawah pilihan kelas */
-.gp-contact-list {
-    margin-top: 13px;
 }
 .gp-contact-list .gp-empty {
     padding: 24px 12px;

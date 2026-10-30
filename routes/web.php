@@ -571,3 +571,27 @@ Route::middleware('auth')->group(function () {
     Route::get('/siswa/teacher-notes', [\App\Http\Controllers\Siswa\TeacherNoteController::class, 'index'])->middleware(EnsureUserIsSiswa::class)
         ->name('siswa.teacher-notes.index');
 });
+
+
+/*
+|--------------------------------------------------------------------------
+| KODE PENGHUBUNG SISWA DAN ORANG TUA
+|--------------------------------------------------------------------------
+| Siswa membuat kode sekali pakai.
+| Orang Tua menggunakan kode untuk mengaktifkan hubungan akun.
+*/
+
+Route::middleware(['auth'])
+    ->group(function () {
+
+        Route::post(
+            '/siswa/kode-orang-tua',
+            [\App\Http\Controllers\ParentLinkController::class, 'generate']
+        )->name('siswa.parent-link.generate');
+
+        Route::post(
+            '/orang-tua/verifikasi-anak',
+            [\App\Http\Controllers\ParentLinkController::class, 'verify']
+        )->name('orang-tua.parent-link.verify');
+
+    });

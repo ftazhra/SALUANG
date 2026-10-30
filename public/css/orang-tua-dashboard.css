@@ -110,9 +110,8 @@ body.parent-page [hidden] {
     color: #777d80;
 
     transition:
-        background-color .2s ease,
-        color .2s ease,
-        transform .2s ease;
+    background-color .2s ease,
+    color .2s ease;
 }
 
 .parent-sidebar-toggle i {
@@ -186,20 +185,15 @@ body.parent-page [hidden] {
     min-width: 0;
 }
 
-.parent-menu:hover {
-    background: #d2eaf8;
-    color: var(--parent-blue);
-    transform: translateX(3px);
+.parent-menu:hover:not(.active) {
+    background: #d2eafa;
+    color: #075477;
 }
 
 .parent-menu.active {
-    background: #e6f5ea;
-    color: #21784c;
-}
-
-.parent-menu.active:hover {
-    background: #c5e7f6;
-    color: #064e70;
+    background: #e3f4e9;
+    color: #21865b;
+    font-weight: 600;
 }
 
 /* LOGOUT */

@@ -31,7 +31,7 @@
     <script src="{{ asset('js/guru-nilai.js') }}?v=2" defer></script>
     
     <link rel="stylesheet" href="{{ asset('css/guru-orang-tua.css') }}?v=2">
-    <script src="{{ asset('js/guru-orang-tua.js') }}?v=2" defer></script>
+    <script src="{{ asset('js/guru-orang-tua.js') }}?v=3" defer></script>
     
     <link rel="stylesheet" href="{{ asset('css/guru-profil.css') }}?v=3">
     <script src="{{ asset('js/guru-profil.js') }}?v=4" defer></script>

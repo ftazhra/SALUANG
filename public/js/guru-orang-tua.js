@@ -130,7 +130,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     /* 05. TAMPILKAN DAFTAR KONTAK */
     function renderContacts() {
+
+        // Tempatkan daftar kontak tepat di bawah kelas yang aktif.
+        const activeClassButton = classButtons.find(
+            button => button.dataset.gpClass === selectedClass
+        );
+
+        if (activeClassButton) {
+            activeClassButton.after(contactList);
+            contactList.hidden = false;
+        } else {
+            document.getElementById('gpClassList').after(contactList);
+            contactList.hidden = true;
+        }
+
         contactList.replaceChildren();
+
         contactCount.textContent = `${contacts.length} kontak`;
         if (!selectedClass) {
             contactList.replaceChildren();
@@ -145,38 +160,30 @@ document.addEventListener('DOMContentLoaded', () => {
             );
             return;
         }
+
         contacts.forEach((contact) => {
             const student = contact.student || {};
-            const guardian = contact.guardian || {};
+
             const button = document.createElement('button');
             button.type = 'button';
             button.className = 'gp-contact-item';
+
             if (Number(contact.relationship_id) === selectedId) {
                 button.classList.add('active');
             }
+
             const studentLabel = document.createElement('strong');
             studentLabel.textContent = displayValue(student.name);
-            const classLabel = document.createElement('small');
-            classLabel.textContent =
-                `Kelas: ${displayValue(student.class)}`;
-            const guardianLabel = document.createElement('small');
-            guardianLabel.textContent =
-                `Narahubung: ${displayValue(guardian.name)}`;
-            const relationLabel = document.createElement('span');
-            relationLabel.className = 'gp-relation';
-            relationLabel.textContent =
-                displayValue(guardian.relationship);
-            button.append(
-                studentLabel,
-                classLabel,
-                guardianLabel,
-                relationLabel
-            );
+
+            button.appendChild(studentLabel);
+
             button.addEventListener('click', () => {
                 selectContact(contact);
             });
+
             contactList.appendChild(button);
         });
+
     }
     /* 06. AMBIL KONTAK BERDASARKAN KELAS */
     async function loadContacts() {
@@ -190,6 +197,9 @@ document.addEventListener('DOMContentLoaded', () => {
             contacts = [];
             contactCount.textContent = '0 kontak';
             contactList.replaceChildren();
+
+            renderContacts();
+
             return;
         }
         const controller = new AbortController();
@@ -288,7 +298,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     String(active)
                 );
             });
-            loadContacts();
+            // Tampilkan perubahan dropdown terlebih dahulu.
+            renderContacts();
+
+            // Ambil kontak setelah tampilan diperbarui.
+            requestAnimationFrame(() => {
+                loadContacts();
+            });
         });
     });
     /* 08. PENCARIAN DALAM KELAS TERPILIH */
@@ -332,16 +348,46 @@ document.addEventListener('DOMContentLoaded', () => {
                 chatMessages.append(showMessage('Belum ada pesan. Mulai percakapan dengan Orang Tua.'));
                 return;
             }
+
             rows.forEach(message => {
-                const item = document.createElement('div');
-                item.className = 'gp-chat-notice';
-                const meta = document.createElement('strong');
-                meta.textContent = `${String(message.sender_name ?? 'Pengguna')} · ${String(message.created_at ?? '')}`;
+                const row = document.createElement('div');
+
+                const isGuru = message.is_mine === true;
+
+                row.className = 'gp-chat-row ' +
+                    (isGuru ? 'is-guru' : 'is-orang-tua');
+
+                const bubble = document.createElement('div');
+                bubble.className = 'gp-chat-bubble';
+
                 const body = document.createElement('p');
+                body.className = 'gp-chat-text';
                 body.textContent = String(message.body ?? '');
-                item.append(body, meta);
-                chatMessages.append(item);
+
+                const meta = document.createElement('small');
+                meta.className = 'gp-chat-meta';
+
+                const rawDate = String(message.created_at ?? '');
+                const date = new Date(rawDate);
+
+                const formattedDate = !Number.isNaN(date.getTime())
+                    ? date.toLocaleString('id-ID', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })
+                    : rawDate;
+
+                meta.textContent =
+                    `${String(message.sender_name ?? 'Pengguna')} · ${formattedDate}`;
+
+                bubble.append(body, meta);
+                row.appendChild(bubble);
+                chatMessages.appendChild(row);
             });
+
             chatMessages.scrollTop = chatMessages.scrollHeight;
         } catch (error) {
             if (version !== chatRequestVersion) return;

@@ -993,7 +993,8 @@
                                 <div id="sd-eval-locked-message" class="se-locked-note" hidden>
                                     <i class="bi bi-shield-check"></i>
                                     <div><strong>Evaluasi sudah tuntas</strong>
-                                        <p>Kamu telah mencapai KKM. Kamu bisa melihat hasil, tetapi tidak dapat mengerjakan ulang.</p>
+                                        <p>Kamu telah mencapai KKM. Kamu bisa melihat hasil, tetapi tidak dapat
+                                            mengerjakan ulang.</p>
                                     </div>
                                 </div>
 
@@ -1239,7 +1240,8 @@
                         <div class="sd-eval-result se-results-v2" id="sd-eval-result-panel">
                             <div class="se-results-hero">
                                 <div class="se-results-copy">
-                                    <span class="se-results-eyebrow"><i class="bi bi-patch-check"></i> HASIL EVALUASI BAB VI</span>
+                                    <span class="se-results-eyebrow"><i class="bi bi-patch-check"></i> HASIL EVALUASI
+                                        BAB VI</span>
                                     <span class="se-results-state" id="sd-eval-result-status">HASIL EVALUASI</span>
                                     <h2 id="sd-eval-result-heading">Evaluasi selesai!</h2>
                                     <p id="sd-eval-final-message">Hasil belajarmu telah tersimpan.</p>
@@ -1251,18 +1253,23 @@
                                 </div>
                                 <div class="se-results-visual">
                                     <img src="{{ asset('images/evaluasi/bekantan-juara-transparan.png') }}"
-                                         alt="Bekantan SALUANG mengangkat piala emas bersama buku, tumbuhan, dan papan evaluasi">
+                                        alt="Bekantan SALUANG mengangkat piala emas bersama buku, tumbuhan, dan papan evaluasi">
                                 </div>
                             </div>
                             <div class="se-results-stats" aria-label="Ringkasan nilai evaluasi">
-                                <div class="se-stat"><span>Skor</span><strong id="sd-eval-summary-score">0</strong><small>dari 100</small></div>
-                                <div class="se-stat se-stat-good"><span>Jawaban Benar</span><strong id="sd-eval-summary-correct">0</strong><small>dari 15 soal</small></div>
-                                <div class="se-stat se-stat-wrong"><span>Jawaban Salah</span><strong id="sd-eval-summary-wrong">0</strong><small>dari 15 soal</small></div>
-                                <div class="se-stat"><span>KKM</span><strong id="sd-eval-result-kkm">70</strong><small>nilai minimum tuntas</small></div>
+                                <div class="se-stat"><span>Skor</span><strong
+                                        id="sd-eval-summary-score">0</strong><small>dari 100</small></div>
+                                <div class="se-stat se-stat-good"><span>Jawaban Benar</span><strong
+                                        id="sd-eval-summary-correct">0</strong><small>dari 15 soal</small></div>
+                                <div class="se-stat se-stat-wrong"><span>Jawaban Salah</span><strong
+                                        id="sd-eval-summary-wrong">0</strong><small>dari 15 soal</small></div>
+                                <div class="se-stat"><span>KKM</span><strong
+                                        id="sd-eval-result-kkm">70</strong><small>nilai minimum tuntas</small></div>
                             </div>
                             <div class="sd-eval-result-actions se-results-actions">
                                 <button type="button" class="sd-eval-outline" id="sd-eval-retry">Coba Lagi</button>
-                                <button type="button" class="sd-eval-primary" data-page="6">Lanjut ke Forum Diskusi</button>
+                                <button type="button" class="sd-eval-primary" data-page="6">Lanjut ke Forum
+                                    Diskusi</button>
                             </div>
 
                         </div>
@@ -1931,6 +1938,56 @@
 
                     </article>
 
+
+                    {{-- PENGHUBUNG AKUN ORANG TUA --}}
+                    @auth
+                        <article class="sd-profile-card" id="studentParentLinkCard">
+
+                            <div class="sd-profile-card-header">
+                                <h2>
+                                    <i class="bi bi-people"></i>
+                                    Hubungkan Orang Tua
+                                </h2>
+                            </div>
+
+                            <p class="sd-muted">
+                                Buat kode untuk menghubungkan akun Orang Tua
+                                dengan akun Siswa. Kode berlaku selama 10 menit
+                                dan hanya dapat digunakan satu kali.
+                            </p>
+
+
+                            <button type="button" class="sd-profile-primary" id="generateParentCode"
+                                style="display: inline-flex; align-items: center; justify-content: center; gap: 10px;">
+
+                                <i class="bi bi-key" aria-hidden="true"></i>
+                                <span>Buat Kode Orang Tua</span>
+
+                            </button>
+
+
+                            <div id="parentCodeResult" class="mt-3" hidden>
+                                <p class="sd-muted mb-2">
+                                    Kode penghubung:
+                                </p>
+
+                                <strong id="parentCodeValue" style="font-size:26px; letter-spacing:5px;">
+                                </strong>
+
+                                <p class="sd-muted mt-2">
+                                    Berikan kode ini hanya kepada
+                                    Orang Tua atau Wali yang kamu kenal.
+                                </p>
+
+                                <small id="parentCodeCountdown"></small>
+                            </div>
+
+                            <p id="parentCodeError" class="sd-profile-message mt-2" role="status" aria-live="polite">
+                            </p>
+
+                        </article>
+                    @endauth
+
                     <!-- Keluar dari akun -->
                     @auth
                         <form method="POST" action="{{ route('logout') }}" data-sd-logout-form>
@@ -2097,6 +2154,92 @@
         </div>
 
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const button = document.getElementById('generateParentCode');
+            const result = document.getElementById('parentCodeResult');
+            const value = document.getElementById('parentCodeValue');
+            const error = document.getElementById('parentCodeError');
+            const countdown = document.getElementById('parentCodeCountdown');
+
+            if (!button || !result || !value || !error || !countdown) {
+                return;
+            }
+
+            let countdownInterval = null;
+
+            button.addEventListener('click', async function() {
+                button.disabled = true;
+                error.textContent = '';
+                result.hidden = true;
+
+                if (countdownInterval) {
+                    clearInterval(countdownInterval);
+                }
+
+                try {
+                    const response = await fetch(
+                        @json(route('siswa.parent-link.generate')), {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector(
+                                    'meta[name="csrf-token"]'
+                                ).content,
+                                'Accept': 'application/json'
+                            }
+                        }
+                    );
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(
+                            data.message || 'Gagal membuat kode penghubung.'
+                        );
+                    }
+
+                    value.textContent = data.code;
+                    result.hidden = false;
+
+                    let remaining = Number(data.expires_in) || 600;
+
+                    function updateCountdown() {
+                        if (remaining <= 0) {
+                            clearInterval(countdownInterval);
+                            value.textContent = 'Kedaluwarsa';
+                            countdown.textContent =
+                                'Silakan buat kode baru.';
+                            return;
+                        }
+
+                        const minutes = Math.floor(remaining / 60);
+                        const seconds = remaining % 60;
+
+                        countdown.textContent =
+                            'Berlaku selama ' +
+                            minutes + ':' +
+                            String(seconds).padStart(2, '0');
+
+                        remaining--;
+                    }
+
+                    updateCountdown();
+
+                    countdownInterval = setInterval(
+                        updateCountdown,
+                        1000
+                    );
+
+                } catch (err) {
+                    error.textContent = err.message;
+                } finally {
+                    button.disabled = false;
+                }
+            });
+        });
+    </script>
 
 </body>
 

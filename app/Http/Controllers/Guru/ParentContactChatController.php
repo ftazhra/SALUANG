@@ -10,14 +10,23 @@ use Illuminate\Http\Request;
 
 class ParentContactChatController extends Controller
 {
+
+
     public function messages(
         Request $request,
         StudentGuardian $studentGuardian,
         ParentTeacherChatService $chat
     ): JsonResponse {
-        $thread = $chat->teacherThread($request->user(), (int) $studentGuardian->id);
+        $thread = $chat->teacherThread(
+            $request->user(),
+            (int) $studentGuardian->id
+        );
+
         return response()->json([
-            'messages' => $chat->messages($thread, $request->user()),
+            'messages' => $chat->messages(
+                $thread,
+                $request->user()
+            ),
         ]);
     }
 

@@ -33,7 +33,7 @@ class ParentDashboardService
 
         $approved = $relation && $relation->status === 'approved';
         $child = $approved ? User::where('role', 'siswa')->find($relation->student_id) : null;
-        $chapters = $child ? $this->chaptersForStudent((int) $child->id) : [];
+        $chapters = $this->chaptersForStudent($child ? (int) $child->id : null);
         $total = array_sum(array_column($chapters, 'total'));
         $completed = array_sum(array_column($chapters, 'finished'));
         $scores = $child ? $this->scores((int) $child->id) : [];
@@ -64,7 +64,7 @@ class ParentDashboardService
             'child' => null,
             'relationStatus' => null,
             'stats' => ['materials' => 0, 'quizzes' => 0, 'average' => 0, 'completion' => 0],
-            'chapters' => [],
+            'chapters' => $this->chaptersForStudent(null),
             'activities' => [],
             'activityHistory' => [],
             'teacherNotes' => [],
@@ -72,7 +72,7 @@ class ParentDashboardService
         ];
     }
 
-    private function chaptersForStudent(int $studentId): array
+    private function chaptersForStudent(?int $studentId): array
     {
         if (!Schema::hasTable('chapters') || !Schema::hasTable('subchapters')) return [];
 
@@ -92,7 +92,9 @@ class ParentDashboardService
                     'id' => (int) $subchapter->id,
                     'number' => isset($subchapter->nomor_subbab) ? (int) $subchapter->nomor_subbab : null,
                     'title' => $subchapter->judul ?? $subchapter->title ?? $subchapter->name ?? ('Subbab ' . $subchapter->id),
-                    'done' => $this->isSubchapterDone($studentId, (int) $subchapter->id),
+                    'done' => $studentId !== null
+                        ? $this->isSubchapterDone($studentId, (int) $subchapter->id)
+                        : false,
                 ];
             }
             if (!$subchapters) continue;
@@ -155,7 +157,7 @@ class ParentDashboardService
         }
 
         $evaluationScores = collect(app(EvaluationResultService::class)->completedForStudent($studentId))
-            ->filter(fn (array $result) => $result['chapter_id'] !== null)
+            ->filter(fn(array $result) => $result['chapter_id'] !== null)
             ->pluck('score')
             ->all();
 
@@ -392,7 +394,7 @@ class ParentDashboardService
             ];
         }
 
-        usort($rows, fn (array $a, array $b) => strcmp((string) ($b['date'] ?? ''), (string) ($a['date'] ?? '')));
+        usort($rows, fn(array $a, array $b) => strcmp((string) ($b['date'] ?? ''), (string) ($a['date'] ?? '')));
         return $rows;
     }
 
@@ -472,26 +474,31 @@ class ParentDashboardService
         return $rows;
     }
 
+
+
     private function teacherNotes(int $studentId): array
     {
-        $table = 'student_teacher_notes';
-        if (!Schema::hasTable($table) || !$this->has($table, 'student_id')) return [];
-        $hasAudience = $this->has($table, 'audience');
-        $bodyColumn = null;
-        foreach (['note', 'catatan', 'content', 'message', 'notes'] as $candidate) {
-            if ($this->has($table, $candidate)) {
-                $bodyColumn = $candidate;
-                break;
-            }
+        $table = 'student_teacher_note_messages';
+
+        if (!Schema::hasTable($table)) {
+            return [];
         }
-        if (!$bodyColumn) return [];
-        $query = DB::table($table)
-            ->where('student_id', $studentId);
-        if ($hasAudience) $query->where('audience', 'orang_tua');
-        if ($this->has($table, 'updated_at')) $query->orderByDesc('updated_at');
-        return $query->limit(10)->get()->map(fn($row) => [
-            'body' => (string) ($row->{$bodyColumn} ?? ''),
-            'date' => $row->updated_at ?? $row->created_at ?? null,
-        ])->filter(fn($note) => trim($note['body']) !== '')->values()->all();
+
+        return DB::table($table)
+            ->where('student_id', $studentId)
+            ->where('audience', 'orang_tua')
+            ->whereNotNull('published_at')
+            ->where('note', '!=', '')
+            ->orderByDesc('published_at')
+            ->orderByDesc('id')
+            ->limit(50)
+            ->get()
+            ->map(fn($row) => [
+                'body' => (string) $row->note,
+                'date' => $row->published_at,
+            ])
+            ->filter(fn($note) => trim($note['body']) !== '')
+            ->values()
+            ->all();
     }
 }
