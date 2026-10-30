@@ -17,6 +17,12 @@ document.addEventListener('DOMContentLoaded', () => {
   let pendingMessage = null;
   let messageRequestVersion = 0;
   function notify(text) { errorBox.textContent = text; errorBox.hidden = !text; }
+  function displayDate(value) {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? String(value ?? '') : new Intl.DateTimeFormat('id-ID', {
+      day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    }).format(date);
+  }
   async function call(path, method = 'GET', body = null) {
     const opts = { method, credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrf } };
     if (body !== null) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
@@ -79,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const node = document.createElement('div');
       node.className = 'pc-message' + (m.is_mine ? ' mine' : '');
       node.textContent = m.body;
-      const meta = document.createElement('small'); meta.className = 'pc-message-meta'; meta.textContent = m.sender_name + ' · ' + m.created_at;
+      const meta = document.createElement('small'); meta.className = 'pc-message-meta'; meta.textContent = m.sender_name + ' · ' + displayDate(m.created_at);
       node.append(meta); messages.append(node);
     });
     messages.scrollTop = messages.scrollHeight;

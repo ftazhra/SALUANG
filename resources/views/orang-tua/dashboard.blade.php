@@ -17,11 +17,12 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="{{ asset('css/siswa-beranda.css') }}?v=1">
-    <link rel="stylesheet" href="{{ asset('css/orang-tua-dashboard.css') }}?v=16">
+    <link rel="stylesheet" href="{{ asset('css/orang-tua-dashboard.css') }}?v=17">
+    <link rel="stylesheet" href="{{ asset('css/guru-profil.css') }}?v=3">
     <link rel="stylesheet" href="{{ asset('css/orang-tua-aktivitas.css') }}?v=2">
     <link rel="stylesheet" href="{{ asset('css/orang-tua-hasil-belajar.css') }}?v=3">
     <link rel="stylesheet" href="{{ asset('css/orang-tua-progres.css') }}?v=2">
-    <link rel="stylesheet" href="{{ asset('css/orang-tua-chat.css') }}?v=1">
+    <link rel="stylesheet" href="{{ asset('css/orang-tua-chat.css') }}?v=2">
 
     <style>
         /* CATATAN GURU — DESAIN BARU */
@@ -241,20 +242,65 @@
                     Dashboard Orang Tua
                 </div>
 
-                <div class="parent-user">
+                <div class="parent-topbar-tools">
 
-                    <div class="parent-avatar">
-                        @if ($parent?->profile_photo_path)
-                            <img src="{{ asset('storage/' . $parent->profile_photo_path) }}"
-                                 alt="Foto profil Orang Tua">
-                        @else
-                            {{ strtoupper(mb_substr($parentName, 0, 1)) }}
-                        @endif
+                    <div class="parent-dropdown">
+                        <button type="button"
+                                class="parent-icon-button"
+                                id="parentNotifButton"
+                                aria-label="Notifikasi"
+                                aria-expanded="false"
+                                aria-controls="parentNotifMenu">
+                            <i class="bi bi-bell"></i>
+                        </button>
+                        <div class="parent-dropdown-menu parent-notification-menu"
+                             id="parentNotifMenu"
+                             hidden>
+                            <strong>Notifikasi</strong>
+                            <p>Belum ada notifikasi baru.</p>
+                        </div>
                     </div>
 
-                    <div class="parent-user-info">
-                        <strong>{{ $parentName }}</strong>
-                        <small>Orang Tua/Wali</small>
+                    <div class="parent-dropdown">
+                        <button type="button"
+                                class="parent-user parent-user-button"
+                                id="parentProfileButton"
+                                aria-label="Menu profil"
+                                aria-expanded="false"
+                                aria-controls="parentProfileMenu">
+                            <span class="parent-avatar">
+                                @if ($parent?->profile_photo_path)
+                                    <img src="{{ asset('storage/' . $parent->profile_photo_path) }}"
+                                         alt="Foto profil Orang Tua">
+                                @else
+                                    {{ strtoupper(mb_substr($parentName, 0, 1)) }}
+                                @endif
+                            </span>
+                            <span class="parent-user-info">
+                                <strong>{{ $parentName }}</strong>
+                                <small>Orang Tua/Wali</small>
+                            </span>
+                            <i class="bi bi-chevron-down parent-user-chevron"></i>
+                        </button>
+                        <div class="parent-dropdown-menu parent-profile-menu"
+                             id="parentProfileMenu"
+                             hidden>
+                            <button type="button"
+                                    class="parent-dropdown-item"
+                                    data-parent-page="profil">
+                                <i class="bi bi-person"></i>
+                                Profil
+                            </button>
+                            <hr class="parent-dropdown-divider">
+                            <form action="{{ route('logout') }}" method="POST">
+                                @csrf
+                                <button type="submit"
+                                        class="parent-dropdown-item parent-dropdown-item-danger">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                    Keluar
+                                </button>
+                            </form>
+                        </div>
                     </div>
 
                 </div>
@@ -594,55 +640,49 @@
                 </section>
 
                 {{-- PROFIL --}}
-                <section class="parent-section"
+                <section class="parent-section gp-profile-page"
                          data-parent-section="profil"
                          hidden>
 
-                    <article class="parent-card parent-panel">
-
-                        <h2>Profil Orang Tua</h2>
-
-                        <div class="parent-profile-grid">
-
-                            <div>
-                                <small>Nama Lengkap</small>
-                                <strong>{{ $parentName }}</strong>
-                            </div>
-
-                            <div>
-                                <small>Email</small>
-                                <strong>{{ $parent?->email ?? '-' }}</strong>
-                            </div>
-
-                            <div>
-                                <small>Peran</small>
-                                <strong>Orang Tua/Wali</strong>
-                            </div>
-
-                            <div>
-                                <small>Nama Anak</small>
-                                <strong>
-                                    {{ $childName ?? 'Belum terhubung' }}
-                                </strong>
-                            </div>
-
-                            <div>
-                                <small>Kelas Anak</small>
-                                <strong>
-                                    {{ $child ? $className : '-' }}
-                                </strong>
-                            </div>
-
-                            <div>
-                                <small>Sekolah Anak</small>
-                                <strong>
-                                    {{ $child ? $schoolName : '-' }}
-                                </strong>
-                            </div>
-
+                    <div class="gp-profile-container">
+                        <div class="gp-profile-heading">
+                            <h1>Profil Orang Tua</h1>
+                            <p>Informasi akun Orang Tua/Wali dan anak yang terhubung.</p>
                         </div>
 
-                    </article>
+                        <article class="gp-profile-card">
+                            <div class="gp-profile-card-header">
+                                <h2>Informasi Pribadi</h2>
+                            </div>
+
+                            <div class="gp-profile-info-grid">
+                                <div class="gp-profile-info-item">
+                                    <span>Nama Lengkap</span>
+                                    <strong>{{ $parentName }}</strong>
+                                </div>
+                                <div class="gp-profile-info-item">
+                                    <span>Email</span>
+                                    <strong>{{ $parent?->email ?? '-' }}</strong>
+                                </div>
+                                <div class="gp-profile-info-item">
+                                    <span>Peran</span>
+                                    <strong>Orang Tua/Wali</strong>
+                                </div>
+                                <div class="gp-profile-info-item">
+                                    <span>Nama Anak</span>
+                                    <strong>{{ $childName ?? 'Belum terhubung' }}</strong>
+                                </div>
+                                <div class="gp-profile-info-item">
+                                    <span>Kelas Anak</span>
+                                    <strong>{{ $child ? $className : '-' }}</strong>
+                                </div>
+                                <div class="gp-profile-info-item">
+                                    <span>Sekolah Anak</span>
+                                    <strong>{{ $child ? $schoolName : '-' }}</strong>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
 
                 </section>
 
@@ -662,9 +702,16 @@
                 '[data-parent-section]'
             );
 
-            const buttons = document.querySelectorAll(
+            const pageTriggers = document.querySelectorAll(
                 '[data-parent-page]'
             );
+            const menuButtons = document.querySelectorAll(
+                '.parent-navigation .parent-menu'
+            );
+            const notificationButton = document.getElementById('parentNotifButton');
+            const notificationMenu = document.getElementById('parentNotifMenu');
+            const profileButton = document.getElementById('parentProfileButton');
+            const profileMenu = document.getElementById('parentProfileMenu');
 
             const names = {
                 beranda: 'Dashboard Orang Tua',
@@ -674,6 +721,27 @@
                 chat: 'Chat Guru',
                 profil: 'Profil Orang Tua'
             };
+
+            function closeParentDropdowns() {
+                if (notificationMenu) notificationMenu.hidden = true;
+                if (profileMenu) profileMenu.hidden = true;
+                notificationButton?.setAttribute('aria-expanded', 'false');
+                profileButton?.setAttribute('aria-expanded', 'false');
+            }
+
+            function toggleParentDropdown(button, menu) {
+                if (!button || !menu) return;
+                button.addEventListener('click', event => {
+                    event.stopPropagation();
+                    const shouldOpen = menu.hidden;
+                    closeParentDropdowns();
+                    menu.hidden = !shouldOpen;
+                    button.setAttribute('aria-expanded', String(shouldOpen));
+                });
+            }
+
+            toggleParentDropdown(notificationButton, notificationMenu);
+            toggleParentDropdown(profileButton, profileMenu);
 
             function showPage(page) {
                 if (!Object.prototype.hasOwnProperty.call(names, page)) {
@@ -685,12 +753,19 @@
                         section.dataset.parentSection !== page;
                 });
 
-                buttons.forEach(function(button) {
+                menuButtons.forEach(function(button) {
                     button.classList.toggle(
                         'active',
                         button.dataset.parentPage === page
                     );
+                    if (button.dataset.parentPage === page) {
+                        button.setAttribute('aria-current', 'page');
+                    } else {
+                        button.removeAttribute('aria-current');
+                    }
                 });
+
+                closeParentDropdowns();
 
                 if (title) {
                     title.textContent = names[page];
@@ -702,10 +777,20 @@
                 });
             }
 
-            buttons.forEach(function(button) {
+            pageTriggers.forEach(function(button) {
                 button.addEventListener('click', function() {
                     showPage(button.dataset.parentPage);
                 });
+            });
+
+            document.addEventListener('click', event => {
+                if (!event.target.closest('.parent-dropdown')) {
+                    closeParentDropdowns();
+                }
+            });
+
+            document.addEventListener('keydown', event => {
+                if (event.key === 'Escape') closeParentDropdowns();
             });
 
             if (toggle && layout) {
@@ -732,7 +817,7 @@
     <script src="{{ asset('js/orang-tua-aktivitas.js') }}?v=1" defer></script>
     <script src="{{ asset('js/orang-tua-hasil-belajar.js') }}?v=2" defer></script>
     <script src="{{ asset('js/orang-tua-progres.js') }}?v=1" defer></script>
-    <script src="{{ asset('js/orang-tua-chat.js') }}?v=1" defer></script>
+    <script src="{{ asset('js/orang-tua-chat.js') }}?v=2" defer></script>
 
 </body>
 </html>

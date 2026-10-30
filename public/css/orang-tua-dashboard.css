@@ -165,8 +165,7 @@ body.parent-page [hidden] {
 
     transition:
         background-color .2s ease,
-        color .2s ease,
-        transform .2s ease;
+        color .2s ease;
 }
 
 .parent-menu i {
@@ -185,15 +184,20 @@ body.parent-page [hidden] {
     min-width: 0;
 }
 
-.parent-menu:hover:not(.active) {
+.parent-menu:hover {
     background: #d2eafa;
     color: #075477;
 }
 
-.parent-menu.active {
-    background: #e3f4e9;
-    color: #21865b;
+.parent-menu.active:not(:hover) {
+    background: #e6f5ea;
+    color: #21784c;
     font-weight: 600;
+}
+
+.parent-menu.active:hover {
+    background: #c5e7f6;
+    color: #064e70;
 }
 
 /* LOGOUT */
@@ -312,10 +316,144 @@ body.parent-page [hidden] {
     font-weight: 600;
 }
 
+.parent-topbar-tools {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+}
+
+.parent-dropdown {
+    position: relative;
+}
+
+.parent-profile-menu form {
+    margin: 0;
+}
+
+.parent-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--parent-blue);
+    font-size: 17px;
+    transition: background-color .18s ease, color .18s ease;
+}
+
+.parent-icon-button:hover,
+.parent-icon-button:focus-visible,
+.parent-icon-button[aria-expanded="true"] {
+    background: #cfeaf9;
+    color: #064968;
+}
+
+.parent-icon-button:focus-visible,
+.parent-user-button:focus-visible {
+    outline: 2px solid #77b4d3;
+    outline-offset: 2px;
+}
+
+.parent-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 9px);
+    right: 0;
+    z-index: 1200;
+    width: 235px;
+    padding: 9px;
+    border: 1px solid #dce9e6;
+    border-radius: 11px;
+    background: #fffdf6;
+    box-shadow: 0 8px 24px rgba(7, 84, 119, .12);
+}
+
+.parent-dropdown-menu[hidden] {
+    display: none !important;
+}
+
+.parent-notification-menu {
+    padding: 16px;
+}
+
+.parent-notification-menu > strong {
+    display: block;
+    margin-bottom: 9px;
+    font-size: 12px;
+}
+
+.parent-notification-menu p {
+    margin: 0;
+    color: var(--parent-muted);
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.parent-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    padding: 11px 12px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--parent-blue);
+    font-family: Poppins, sans-serif;
+    font-size: 11px;
+    text-align: left;
+    transition: background-color .2s ease, color .2s ease;
+}
+
+.parent-dropdown-item:hover,
+.parent-dropdown-item:focus-visible {
+    background: #cfeaf9;
+    color: #064968;
+}
+
+.parent-dropdown-item i {
+    font-size: 15px;
+}
+
+.parent-dropdown-item-danger {
+    color: #df4646;
+}
+
+.parent-dropdown-item-danger:hover,
+.parent-dropdown-item-danger:focus-visible {
+    background: #ffe1e1;
+    color: #bd2937;
+}
+
+.parent-dropdown-divider {
+    margin: 7px 0;
+    border: 0;
+    border-top: 1px solid #dce9e6;
+}
+
 .parent-user {
     display: flex;
     align-items: center;
     gap: 9px;
+}
+
+.parent-user-button {
+    padding: 4px 7px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--parent-blue);
+    text-align: left;
+    transition: background-color .18s ease;
+}
+
+.parent-user-button:hover,
+.parent-user-button:focus-visible {
+    background: transparent;
 }
 
 .parent-avatar {
@@ -324,6 +462,7 @@ body.parent-page [hidden] {
 
     width: 29px;
     height: 29px;
+    flex: 0 0 29px;
 
     overflow: hidden;
 
@@ -331,6 +470,25 @@ body.parent-page [hidden] {
     background: #bce9ef;
 
     font-weight: 700;
+}
+
+.parent-user-chevron {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    margin-left: 5px;
+    border-radius: 8px;
+    font-size: 12px;
+    transition: background-color .18s ease, color .18s ease;
+}
+
+.parent-user-button:hover .parent-user-chevron,
+.parent-user-button:focus-visible .parent-user-chevron,
+.parent-user-button[aria-expanded="true"] .parent-user-chevron {
+    background: #cfeaf9;
+    color: #064968;
 }
 
 .parent-avatar img {
