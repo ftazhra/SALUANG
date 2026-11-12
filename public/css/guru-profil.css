@@ -23,13 +23,13 @@
 .gp-profile-heading h1 {
     margin: 0 0 6px;
     color: #075477;
-    font-size: 27px;
+    font-size: 24px;
     font-weight: 600;
 }
 .gp-profile-heading p {
     margin: 0;
     color: #7594a1;
-    font-size: 12px;
+    font-size: 14px;
 }
 /* 03. KARTU DASAR */
 .gp-profile-card {
@@ -58,7 +58,7 @@
     border-radius: 50%;
     background: #cceef0;
     color: #075477;
-    font-size: 23px;
+    font-size: 24px;
     font-weight: 700;
 }
 .gp-profile-avatar img {
@@ -74,14 +74,14 @@
 .gp-profile-identity-info h2 {
     margin: 0 0 4px;
     color: #075477;
-    font-size: 19px;
+    font-size: 18px;
     font-weight: 600;
     overflow-wrap: anywhere;
 }
 .gp-profile-identity-info p {
     margin: 0 0 12px;
     color: #7594a1;
-    font-size: 11px;
+    font-size: 14px;
 }
 .gp-profile-photo-actions {
     display: flex;
@@ -91,7 +91,7 @@
 }
 .gp-profile-photo-filename {
     color: #7594a1;
-    font-size: 10px;
+    font-size: 14px;
 }
 /* 05. HEADER KARTU */
 .gp-profile-card-header {
@@ -104,7 +104,7 @@
 .gp-profile-card-header h2 {
     margin: 0;
     color: #075477;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
 }
 /* 06. INFORMASI PRIBADI */
@@ -125,12 +125,12 @@
 .gp-profile-info-item span,
 .gp-profile-password-summary span {
     color: #7594a1;
-    font-size: 10px;
+    font-size: 14px;
 }
 .gp-profile-info-item strong,
 .gp-profile-password-summary strong {
     color: #075477;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     overflow-wrap: anywhere;
 }
@@ -161,7 +161,7 @@
     gap: 7px;
     min-width: 0;
     color: #075477;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 500;
 }
 .gp-profile-form-grid input {
@@ -174,7 +174,7 @@
     background: #ffffff;
     color: #075477;
     font-family: Poppins, sans-serif;
-    font-size: 11px;
+    font-size: 14px;
 }
 .gp-profile-form-grid input:focus {
     border-color: #80b6c1;
@@ -195,7 +195,7 @@
 .gp-profile-message {
     margin: 10px 0 0;
     color: #537f8c;
-    font-size: 11px;
+    font-size: 14px;
     line-height: 1.7;
 }
 .gp-profile-message.is-error {
@@ -212,7 +212,7 @@
     padding: 9px 15px;
     border-radius: 9px;
     font-family: Poppins, sans-serif;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 500;
     cursor: pointer;
     transition:
@@ -293,10 +293,10 @@
     .gp-profile-avatar {
         width: 60px;
         height: 60px;
-        font-size: 19px;
+        font-size: 24px;
     }
     .gp-profile-heading h1 {
-        font-size: 23px;
+        font-size: 24px;
     }
 }
 @media (max-width: 480px) {
@@ -317,25 +317,9 @@
         transform: none;
     }
 }
-/* Typography standard for dashboard content, excluding titles and navigation. */
-#guruMain .gd-content :where(
-    p, li, label, input, textarea, select, option, button, small, span,
-    strong, em, b, td, th, dd, dt, figcaption, legend, div, a
-):not(h1 *):not(h2 *):not(h3 *):not(h4 *):not(h5 *):not(h6 *)
-:not([class*="heading"])
-:not(.bi):not(i):not(svg):not(.gd-nav-btn):not(.gd-nav-btn *)
-:not(.sd-nav-btn):not(.sd-nav-btn *):not(.sd-breadcrumb):not(.sd-breadcrumb *)
-:not(.gm-chapter-label):not(.gm-learning-activity-title)
-:not(.sd-learning-activity-title):not(.sd-summary-main-title)
-:not(.sd-summary-subtitle):not(.sd-summary-item-content strong)
-:not(.sd-material-chapter-title):not(.sd-material-topic-button)
-:not(.sd-media-title):not(.gm-preview-media figcaption strong)
-:not(.gm-introduction-caption):not(.gm-introduction-caption *) {
-    font-size: 12.5px !important;
-}
 #guruMain .gd-content input::placeholder,
 #guruMain .gd-content textarea::placeholder {
-    font-size: 12.5px !important;
+    font-size: 12px !important;
 }
 #guruMain .gd-content :where(p, li):not(figcaption p):not(.gm-preview-media figcaption p) {
     line-height: 1.5 !important;
@@ -346,20 +330,67 @@
 #guruMain #guruMaterialPage .gm-learning-activity-body li,
 #guruMain #guruMaterialPage .sd-summary-body .sd-summary-paragraph,
 #guruMain #guruMaterialPage .sd-summary-item-content p {
-    font-size: 12.5px !important;
+    font-size: 14px !important;
     line-height: 1.5 !important;
 }
 #guruMain #gmChapterModal #gmChapterForm :where(
     label, input, textarea, select, option, button, span
 ) {
-    font-size: 13px !important;
     line-height: 1.5 !important;
 }
 #guruMain #gmChapterModal #gmChapterForm :where(small, p) {
-    font-size: 12.5px !important;
+    font-size: 12px !important;
     line-height: 1.5 !important;
 }
 #guruMain #gmChapterModal #gmChapterForm input::placeholder,
 #guruMain #gmChapterModal #gmChapterForm textarea::placeholder {
-    font-size: 13px !important;
+    font-size: 12px !important;
+}
+/* Tombol aksi cepat pada Profil Guru. */
+#guruProfilePage .gp-profile-quick-actions {
+    display: grid;
+    gap: 16px;
+    margin-top: 20px;
+}
+#guruProfilePage .gp-profile-quick-actions form {
+    margin: 0;
+    padding: 0;
+}
+#guruProfilePage .gp-profile-quick-actions .gp-profile-quick-logout,
+#guruProfilePage .gp-profile-quick-actions .gp-profile-quick-home {
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    max-height: 46px !important;
+    margin: 0 !important;
+    padding: 0 16px !important;
+    border-radius: 13px !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    line-height: 1.4 !important;
+    text-align: center !important;
+    text-transform: none !important;
+    cursor: pointer;
+    transition: background-color .2s ease, border-color .2s ease;
+}
+#guruProfilePage .gp-profile-quick-actions .gp-profile-quick-logout {
+    border: 1px solid #f0cbcb !important;
+    background: #fff4f4 !important;
+    color: #c34149 !important;
+}
+#guruProfilePage .gp-profile-quick-actions .gp-profile-quick-logout:hover {
+    background: #ffe8e8 !important;
+}
+#guruProfilePage .gp-profile-quick-actions .gp-profile-quick-home {
+    border: 1px solid #d5e6e3 !important;
+    background: #fff !important;
+    color: #005076 !important;
+}
+#guruProfilePage .gp-profile-quick-actions .gp-profile-quick-home:hover {
+    background: #f4fbfa !important;
 }

@@ -4,11 +4,20 @@ namespace App\Http\Controllers\OrangTua;
 
 use App\Http\Controllers\Controller;
 use App\Services\ParentTeacherChatService;
+use App\Services\ChatPresenceService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class ChatController extends Controller
 {
+    public function activity(Request $request, ChatPresenceService $presence): JsonResponse
+    {
+        abort_unless(in_array($request->user()?->role, ['guru', 'orang_tua'], true), 403);
+        $presence->recordActivity($request->user());
+
+        return response()->json(['recorded' => true]);
+    }
+
     public function teachers(Request $request, ParentTeacherChatService $chat): JsonResponse
     {
         abort_unless($request->user()?->role === 'orang_tua', 403);

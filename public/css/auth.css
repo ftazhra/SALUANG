@@ -4,10 +4,10 @@
 ========================================== */
 :root {
     --sl-blue: #105b77;
-    --sl-green: #509f70;
+    --sl-green: #287a4b;
     --sl-cream: #fffdf5;
     --sl-border: #ccdee7;
-    --sl-muted: #68838f;
+    --sl-muted: #526b74;
 }
 *,
 *::before,
@@ -64,21 +64,40 @@ a {
 }
 .sl-art-text {
     position: relative;
+    isolation: isolate;
     width: min(75%, 470px);
     margin: 0 auto;
     padding-top: clamp(130px, 20vh, 200px);
 }
+.sl-art-text::before {
+    position: absolute;
+    z-index: -1;
+    top: calc(clamp(130px, 20vh, 200px) - 18px);
+    right: -18px;
+    bottom: -16px;
+    left: -18px;
+    border-radius: 14px;
+    background: linear-gradient(
+        110deg,
+        rgba(5, 43, 49, .62),
+        rgba(5, 43, 49, .38) 72%,
+        rgba(5, 43, 49, .12)
+    );
+    content: "";
+    pointer-events: none;
+}
 .sl-art-text h1 {
     margin: 0;
-    color: var(--sl-blue);
+    color: #ffffff;
     font-family: "Poppins", sans-serif;
-    font-size: clamp(29px, 2.75vw, 45px);
+    font-size: clamp(22px, 2vw, 24px);
     font-weight: 800;
     line-height: 1.14;
     letter-spacing: -1.2px;
+    text-shadow: 0 2px 8px rgba(0, 25, 30, .45);
 }
 .sl-art-text h1 span {
-    color: var(--sl-green);
+    color: #f2fff8;
 }
 .sl-art-line {
     width: 110px;
@@ -90,11 +109,12 @@ a {
 .sl-art-text p {
     max-width: 345px;
     margin: 0;
-    color: #174358;
+    color: #f5fbf8;
     font-family: "Nunito", sans-serif;
     font-size: 14px;
     font-weight: 800;
     line-height: 1.75;
+    text-shadow: 0 1px 6px rgba(0, 25, 30, .6);
 }
 /* ==========================================
    PANEL KANAN
@@ -163,7 +183,7 @@ a {
     margin: 0 0 10px;
     color: var(--sl-blue);
     font-family: "Poppins", sans-serif;
-    font-size: clamp(23px, 1.8vw, 28px);
+    font-size: clamp(22px, 1.8vw, 24px);
     font-weight: 800;
     line-height: 1.3;
     letter-spacing: -0.6px;
@@ -172,7 +192,7 @@ a {
     margin: 0;
     color: var(--sl-muted);
     font-family: "Nunito", sans-serif;
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.6;
 }
 /* ==========================================
@@ -232,7 +252,7 @@ a {
 .sl-role-card>span {
     color: inherit;
     font-family: "Nunito", sans-serif;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
     text-align: center;
     white-space: nowrap;
@@ -306,7 +326,7 @@ a {
     background: transparent;
     color: #16445a;
     font-family: "Nunito", sans-serif;
-    font-size: 12px;
+    font-size: 14px;
 }
 .sl-input input::placeholder {
     color: #92aab6;
@@ -346,7 +366,7 @@ a {
     text-align: right;
     color: var(--sl-green);
     font-family: "Nunito", sans-serif;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 800;
 }
 /* ==========================================
@@ -362,7 +382,7 @@ a {
     background: var(--sl-green);
     color: #ffffff;
     font-family: "Nunito", sans-serif;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 900;
     text-align: center;
     cursor: pointer;
@@ -381,7 +401,7 @@ a {
     margin: 20px 0;
     color: var(--sl-muted);
     font-family: "Nunito", sans-serif;
-    font-size: 12px;
+    font-size: 14px;
     text-align: center;
 }
 .sl-switch a {
@@ -400,7 +420,7 @@ a {
     background: #eaf6f2;
     color: #377b55;
     font-family: "Nunito", sans-serif;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
     text-align: center;
 }
@@ -416,7 +436,7 @@ a {
     padding: 12px 14px;
     border-radius: 10px;
     font-family: "Nunito", sans-serif;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1.6;
 }
 .sl-alert {
@@ -470,7 +490,7 @@ a {
         width: 82%;
     }
     .sl-art-text h1 {
-        font-size: clamp(27px, 3vw, 38px);
+        font-size: clamp(22px, 2vw, 24px);
     }
     .sl-heading h2 {
         font-size: 24px;
@@ -484,12 +504,37 @@ a {
         grid-template-columns: 1fr;
         height: auto;
         min-height: 100vh;
+        overflow-x: clip;
     }
     .sl-art {
         position: relative;
         height: 230px;
         min-height: 230px;
         background-position: center 55%;
+    }
+    .sl-art-text {
+        width: 86%;
+        padding-top: 20px;
+    }
+    .sl-art-text::before {
+        top: 8px;
+        right: -10px;
+        bottom: -10px;
+        left: -10px;
+    }
+    .sl-art-text h1 {
+        font-size: 19px;
+        line-height: 1.1;
+    }
+    .sl-art-line {
+        width: 78px;
+        height: 3px;
+        margin: 9px 0 10px;
+    }
+    .sl-art-text p {
+        max-width: 100%;
+        font-size: 12px;
+        line-height: 1.45;
     }
     .sl-right,
     .sl-right-register {
@@ -503,7 +548,7 @@ a {
     margin-bottom: 23px;
 }
 .sl-heading h2 {
-    font-size: 23px;
+    font-size: 24px;
 }
 .sl-roles {
     gap: 9px;
@@ -513,7 +558,7 @@ a {
     gap: 12px;
 }
 .sl-role-card>span {
-    font-size: 11px;
+    font-size: 14px;
 }
 /* ==========================================
    PETUNJUK NISN ANAK
@@ -524,7 +569,7 @@ a {
     margin-top: 7px;
     color: #728b97;
     font-family: "Nunito", sans-serif;
-    font-size: 11px;
+    font-size: 12px;
     line-height: 1.5;
 }
 /* ==========================================
@@ -557,13 +602,13 @@ a {
 }
 .sl-forgot-form-area .sl-heading h2 {
     margin-bottom: 11px;
-    font-size: 30px;
+    font-size: 24px;
     font-weight: 800;
     line-height: 1.25;
 }
 .sl-forgot-form-area .sl-heading p {
     max-width: 485px;
-    font-size: 15px;
+    font-size: 14px;
     line-height: 1.65;
 }
 .sl-forgot-form-area .sl-field {
@@ -571,7 +616,7 @@ a {
 }
 .sl-forgot-form-area .sl-field>label {
     margin-bottom: 11px;
-    font-size: 14px;
+    font-size: 13px;
 }
 .sl-forgot-form-area .sl-input {
     height: 51px;
@@ -579,7 +624,7 @@ a {
 }
 .sl-forgot-form-area .sl-input input {
     height: 49px;
-    font-size: 13px;
+    font-size: 14px;
 }
 .sl-forgot-form-area .sl-submit {
     height: 51px;
@@ -597,12 +642,12 @@ a {
     background: #eef9f0;
     color: #2e744c;
     font-family: "Nunito", sans-serif;
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.6;
 }
 @media (max-width: 1000px) {
     .sl-forgot-form-area .sl-heading h2 {
-        font-size: 26px;
+        font-size: 24px;
     }
 }
 @media (max-width: 680px) {
@@ -621,7 +666,7 @@ a {
         padding: 0;
     }
     .sl-forgot-form-area .sl-heading h2 {
-        font-size: 25px;
+        font-size: 24px;
     }
     .sl-forgot-form-area .sl-heading p {
         font-size: 14px;

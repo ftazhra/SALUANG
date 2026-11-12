@@ -1,6 +1,6 @@
 :root {
     --gd-navy: #075474;
-    --gd-green: #4f9d69;
+    --gd-green: #287a4b;
     --gd-cream: #fffdf5;
     --gd-line: #d6e7e3;
 }
@@ -90,7 +90,7 @@ body.gd-page {
     background: transparent;
     color: #075477;
     font-family: Poppins, sans-serif;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     text-align: left;
     cursor: pointer;
@@ -135,7 +135,7 @@ body.gd-page {
     background: transparent;
     color: #df4646;
     font-family: Poppins, sans-serif;
-    font-size: 10px;
+    font-size: 14px;
     font-weight: 600;
     text-align: left;
     cursor: pointer;
@@ -210,12 +210,12 @@ body.gd-page {
     background: #cbeef0;
     border-radius: 50%;
     font-weight: 700;
-    font-size: 12px;
+    font-size: 13px;
 }
 .gd-user-info {
     display: flex;
     flex-direction: column;
-    font-size: 11px;
+    font-size: 13px;
 }
 .gd-user-info small {
     color: #608299;
@@ -242,19 +242,19 @@ body.gd-page {
     background-repeat: no-repeat;
 }
 .gd-hero>span {
-    font-size: 10px;
+    font-size: 14px;
     font-weight: 700;
     letter-spacing: .12em;
     color: #25844f;
 }
 .gd-hero h1 {
     margin: 8px 0;
-    font-size: 25px;
+    font-size: 24px;
 }
 .gd-hero p {
     max-width: 400px;
     margin: 0;
-    font-size: 13px;
+    font-size: 14px;
 }
 .gd-stats {
     display: grid;
@@ -279,7 +279,7 @@ body.gd-page {
     font-size: 21px;
 }
 .gd-stat small {
-    font-size: 11px;
+    font-size: 12px;
     color: #608299;
 }
 .gd-stat strong {
@@ -291,7 +291,7 @@ body.gd-page {
 }
 .gd-material h2 {
     margin: 0 0 18px;
-    font-size: 16px;
+    font-size: 18px;
 }
 .gd-chapter {
     max-width: 850px;
@@ -304,7 +304,7 @@ body.gd-page {
     font-weight: 700;
 }
 .gd-chapter h3 {
-    font-size: 15px;
+    font-size: 16px;
     margin: 12px 0 15px;
 }
 .gd-topic {
@@ -312,7 +312,7 @@ body.gd-page {
     padding: 12px;
     border-radius: 7px;
     margin-bottom: 8px;
-    font-size: 12px;
+    font-size: 13px;
 }
 .gd-primary {
     margin-top: 8px;
@@ -334,7 +334,7 @@ body.gd-page {
     padding: 25px;
 }
 .gd-placeholder h1 {
-    font-size: 23px;
+    font-size: 24px;
 }
 /* =====================================================
    INTERAKSI DASHBOARD GURU
@@ -362,7 +362,7 @@ body.gd-page {
     border-radius: 9px;
     background: transparent;
     color: #075477;
-    font-size: 18px;
+    font-size: 14px;
     cursor: pointer;
     transition: background .2s, color .2s;
 }
@@ -432,12 +432,12 @@ body.gd-page {
 .gd-notif-menu > strong {
     display: block;
     margin-bottom: 9px;
-    font-size: 12px;
+    font-size: 13px;
 }
 .gd-notif-menu p {
     margin: 0;
     color: #7d9ba5;
-    font-size: 11px;
+    font-size: 14px;
     line-height: 1.7;
 }
 /* 05. PILIHAN DROPDOWN PROFIL */
@@ -452,7 +452,7 @@ body.gd-page {
     background: transparent;
     color: #075477;
     font-family: Poppins, sans-serif;
-    font-size: 11px;
+    font-size: 14px;
     text-align: left;
     cursor: pointer;
     transition: background .2s, transform .2s;
@@ -494,7 +494,7 @@ body.gd-page {
     background: #ffffff;
     color: #075477;
     font-family: Poppins, sans-serif;
-    font-size: 10px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     transition:
@@ -656,7 +656,7 @@ body.gd-page {
 .gm-content-block-heading h3 {
     margin: 0;
     color: #075474;
-    font-size: 15px;
+    font-size: 16px;
 }
 .gm-content-block-heading p,
 .gm-content-block-help,
@@ -703,12 +703,12 @@ body.gd-page {
     color: #16445a;
 }
 .gm-content-block-summary strong {
-    font-size: 13px;
+    font-size: 14px;
 }
 .gm-content-block-summary span {
     overflow: hidden;
     color: #57747c;
-    font-size: 12px;
+    font-size: 14px;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
@@ -804,14 +804,14 @@ body.gd-logout-open {
 .gd-logout-dialog h2 {
     margin: 0 0 12px;
     color: #075477;
-    font-size: 23px;
+    font-size: 18px;
     font-weight: 700;
 }
 .gd-logout-dialog p {
     max-width: 360px;
     margin: 0 auto 24px;
     color: #78909d;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1.8;
 }
 .gd-logout-actions {
@@ -825,7 +825,7 @@ body.gd-logout-open {
     padding: 10px;
     border-radius: 10px;
     font-family: Poppins, sans-serif;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition:
@@ -871,7 +871,7 @@ body.gd-logout-open {
         padding: 25px 18px;
     }
     .gd-logout-dialog h2 {
-        font-size: 19px;
+        font-size: 18px;
     }
     .gd-logout-mascot {
         height: 190px;
@@ -884,3 +884,30 @@ body.gd-logout-open {
 /* Foto profil Guru pada topbar: sama proporsi dengan avatar Siswa. */
 .gd-avatar { overflow: hidden; flex-shrink: 0; }
 .gd-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
+/* Memperjelas navigasi dan ringkasan Dashboard Guru. */
+.gd-menu,
+.gd-dropdown-item {
+    font-size: 14px;
+    line-height: 1.5;
+}
+.gd-notif-menu p,
+.gd-user-info small,
+.gd-stat small {
+    color: #526b74;
+    font-size: 12px;
+    line-height: 1.6;
+}
+.gd-stat strong,
+.gd-chapter h3 {
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+.gd-topic,
+.gd-chapter p,
+.gd-placeholder p {
+    color: #315e68;
+    font-size: 12px;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+}

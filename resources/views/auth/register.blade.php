@@ -297,6 +297,22 @@
                         </div>
                     </div>
 
+                    <div class="sl-field" data-sl-only="siswa">
+                        <label for="register_nomor_telepon">Nomor Telepon (Opsional)</label>
+
+                        <div class="sl-input">
+                            <span class="sl-input-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M5 3h4l2 5-3 2a15 15 0 0 0 6 6l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2Z" />
+                                </svg>
+                            </span>
+
+                            <input type="tel" id="register_nomor_telepon" name="nomor_telepon"
+                                value="{{ old('nomor_telepon') }}" maxlength="20"
+                                placeholder="Masukkan nomor telepon">
+                        </div>
+                    </div>
 
                     {{-- KATA SANDI: SEMUA PERAN --}}
                     <div class="sl-field">

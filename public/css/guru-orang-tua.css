@@ -7,6 +7,10 @@
     width: 100%;
     min-width: 0;
 }
+.gp-detail-heading .gp-unread-count {
+    font-size: 11px;
+    color: #075477;
+}
 .gp-page[hidden],
 .gp-contact-detail[hidden],
 .gp-toast[hidden],
@@ -27,13 +31,13 @@
 .gp-heading h1 {
     margin: 0 0 6px;
     color: #075b78;
-    font-size: 23px;
+    font-size: 24px;
     font-weight: 700;
 }
 .gp-heading p {
     margin: 0;
     color: #70818b;
-    font-size: 13px;
+    font-size: 14px;
 }
 /* 03. LAYOUT */
 .gp-layout {
@@ -62,17 +66,17 @@
 }
 .gp-sidebar-heading h2 {
     margin: 0;
-    font-size: 15px;
+    font-size: 18px;
     color: #075b78;
 }
 .gp-sidebar-heading span {
-    font-size: 11px;
+    font-size: 13px;
     color: #71838b;
 }
 .gp-field label {
     display: block;
     margin-bottom: 8px;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     color: #244957;
 }
@@ -97,7 +101,7 @@
     outline: 0;
     background: transparent;
     font: inherit;
-    font-size: 12px;
+    font-size: 14px;
 }
 .gp-contact-list {
     display: flex;
@@ -121,7 +125,10 @@
     display: none !important;
 }
 .gp-contact-item {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
     width: 100%;
     min-width: 0;
     max-width: 100%;
@@ -154,10 +161,36 @@
 
 .gp-contact-item strong {
     display: block;
-    font-size: 12px;
+    flex: 1;
+    min-width: 0;
+    font-size: 14px;
     font-weight: 600;
     color: #075477;
     overflow-wrap: anywhere;
+}
+.gp-contact-unread,
+.gp-unread-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: #dcedf8;
+    color: #075477;
+    font-size: 11px;
+    font-weight: 700;
+}
+.gp-contact-unread {
+    flex: 0 0 auto;
+    min-width: 22px;
+    min-height: 22px;
+    padding: 3px 7px;
+}
+.gp-unread-count {
+    margin-top: 6px;
+    padding: 5px 9px;
+}
+.gp-unread-count[hidden] {
+    display: none;
 }
 .gp-contact-item small,
 .gp-contact-item .gp-relation {
@@ -187,15 +220,39 @@
     border-radius: 50%;
     background: #e6f5ef;
     color: #338b63;
-    font-size: 21px;
+    font-size: 13px;
 }
 .gp-detail-heading h2 {
     margin: 0 0 4px;
     font-size: 18px;
     color: #075b78;
 }
-.gp-detail-heading span {
+.gp-presence-line {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 5px;
+    color: #547787;
     font-size: 12px;
+    font-weight: 600;
+}
+.gp-detail-heading .gp-presence-line span {
+    font-size: 12px;
+}
+.gp-presence-dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    flex: 0 0 9px;
+    border-radius: 50%;
+    background: #a6b5b8;
+}
+.gp-presence-dot.is-online {
+    background: #2fa86f;
+    box-shadow: 0 0 0 3px rgba(47, 168, 111, .15);
+}
+.gp-detail-heading span {
+    font-size: 18px;
     color: #72848a;
 }
 .gp-info-grid {
@@ -209,13 +266,13 @@
 .gp-info-item small {
     display: block;
     margin-bottom: 5px;
-    font-size: 11px;
+    font-size: 12px;
     color: #75868d;
 }
 .gp-info-item strong {
     overflow-wrap: anywhere;
     color: #244b59;
-    font-size: 13px;
+    font-size: 14px;
 }
 .gp-info-phone {
     grid-column: 1 / -1;
@@ -237,7 +294,7 @@
     border: 0;
     border-radius: 8px;
     font: inherit;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     text-decoration: none;
     cursor: pointer;
@@ -264,12 +321,12 @@
 }
 .gp-chat-heading h2 {
     margin: 0 0 5px;
-    font-size: 16px;
+    font-size: 18px;
     color: #075b78;
 }
 .gp-chat-heading p {
     margin: 0;
-    font-size: 12px;
+    font-size: 14px;
     color: #73858d;
 }
 
@@ -305,7 +362,7 @@
 }
 .gp-chat-placeholder h3 {
     margin: 0;
-    font-size: 14px;
+    font-size: 16px;
     color: #346173;
 }
 .gp-chat-placeholder p,
@@ -320,7 +377,7 @@
 .gp-chat-form label {
     display: block;
     margin-bottom: 8px;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     color: #255368;
 }
@@ -338,7 +395,7 @@
     border-radius: 9px;
     outline: none;
     font: inherit;
-    font-size: 12px;
+    font-size: 14px;
 }
 .gp-chat-compose textarea:focus {
     border-color: #1688a8;
@@ -388,7 +445,7 @@
 
 .gp-chat-text {
     margin: 0;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1.7;
     white-space: pre-wrap;
 }
@@ -396,7 +453,7 @@
 .gp-chat-meta {
     display: block;
     margin-top: 7px;
-    font-size: 9px;
+    font-size: 12px;
     line-height: 1.5;
     opacity: .75;
 }
@@ -422,7 +479,7 @@
     background: #245e72;
     color: #fff;
     border-radius: 10px;
-    font-size: 12px;
+    font-size: 14px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, .12);
 }
 /* 09. RESPONSIVE */
@@ -476,7 +533,7 @@
 
     color: #19546a;
     font-family: inherit;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     text-align: left;
     cursor: pointer;
@@ -517,6 +574,6 @@
 @media (max-width: 600px) {
     .gp-class-item {
         padding: 12px;
-        font-size: 12px;
+        font-size: 14px;
     }
 }

@@ -1,11 +1,9 @@
 <?php
 namespace App\Http\Controllers\Guru;
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Services\EvaluationResultService;
+use App\Services\StudentGradeService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Schema;
 class StudentGradePdfController extends Controller
 {
     /*
@@ -13,7 +11,7 @@ class StudentGradePdfController extends Controller
     | 01. UNDUH LAPORAN NILAI PDF
     |--------------------------------------------------------------------------
     */
-    public function download(Request $request, EvaluationResultService $evaluationResults)
+    public function download(Request $request, StudentGradeService $grades)
     {
         // Hanya Guru yang boleh mengunduh laporan.
         abort_unless(
@@ -34,90 +32,7 @@ class StudentGradePdfController extends Controller
                 'in:tuntas,belum_tuntas,belum_dinilai',
             ],
         ]);
-        $hasNisn = Schema::hasColumn('users', 'nisn');
-        $hasKelas = Schema::hasColumn('users', 'kelas');
-        $teacherId = (int) $request->user()->id;
-        $quizResults = $evaluationResults->latestQuizByStudentForTeacher($teacherId);
-        $evaluationAttempts = $evaluationResults->latestByStudentForTeacher($teacherId);
-        $studentIds = array_values(array_unique([
-            ...array_keys($quizResults),
-            ...array_keys($evaluationAttempts),
-        ]));
-        /*
-        |--------------------------------------------------------------------------
-        | 03. AMBIL DATA SISWA DARI DATABASE
-        |--------------------------------------------------------------------------
-        */
-        $query = User::query()
-            ->where('role', 'siswa')
-            ->whereIn('id', $studentIds);
-        // Filter nama siswa atau NISN.
-        if (!empty($filters['search'])) {
-            $keyword = $filters['search'];
-            $query->where(function ($builder) use (
-                $keyword,
-                $hasNisn
-            ) {
-                $builder->where(
-                    'name',
-                    'like',
-                    "%{$keyword}%"
-                );
-                if ($hasNisn) {
-                    $builder->orWhere(
-                        'nisn',
-                        'like',
-                        "%{$keyword}%"
-                    );
-                }
-            });
-        }
-        // Filter kelas.
-        if (!empty($filters['class'])) {
-            if ($hasKelas) {
-                $query->where(
-                    'kelas',
-                    $filters['class']
-                );
-            } else {
-                $query->whereRaw('1 = 0');
-            }
-        }
-        // Ketuntasan belum dikonfigurasi.
-        if (
-            !empty($filters['completion']) &&
-            $filters['completion'] !== 'belum_dinilai'
-        ) {
-            $query->whereRaw('1 = 0');
-        }
-        $students = $query
-            ->orderBy('name')
-            ->get();
-        /*
-        |--------------------------------------------------------------------------
-        | 04. SIAPKAN DATA LAPORAN
-        |--------------------------------------------------------------------------
-        */
-        $rows = [];
-        foreach ($students as $student) {
-            $quiz = $quizResults[$student->id] ?? null;
-            $evaluation = $evaluationAttempts[$student->id] ?? null;
-            $rows[] = [
-                'name' => $student->name,
-                'nisn' => $hasNisn
-                    ? $student->nisn
-                    : null,
-                'class' => $hasKelas
-                    ? $student->kelas
-                    : null,
-                'quiz' => $quiz !== null
-                    ? (float) $quiz['score']
-                    : null,
-                'evaluation' => $evaluation !== null
-                    ? (float) $evaluation['score']
-                    : null,
-            ];
-        }
+        $rows = $grades->overview((int) $request->user()->id, $filters)['data']->all();
         /*
         |--------------------------------------------------------------------------
         | 05. MEMBUAT TAMPILAN LAPORAN PDF
@@ -183,14 +98,12 @@ class StudentGradePdfController extends Controller
             <table>
                 <thead>
                     <tr>
-                        <th>No.</th>
                         <th>Nama Siswa</th>
                         <th>NISN</th>
                         <th>Kelas</th>
-                        <th>Kuis</th>
-                        <th>Evaluasi</th>
                         <th>Nilai Akhir</th>
                         <th>Ketuntasan</th>
+                        <th>Detail</th>
                     </tr>
                 </thead>
                 <tbody>';
@@ -200,37 +113,29 @@ class StudentGradePdfController extends Controller
         |--------------------------------------------------------------------------
         */
         foreach ($rows as $index => $row) {
-            $number = $index + 1;
             // Escape teks agar aman ditampilkan sebagai HTML.
             $name = e((string) ($row['name'] ?? ''));
             $nisn = e((string) ($row['nisn'] ?? '—'));
             $class = e((string) ($row['class'] ?? '—'));
-            $quiz = $row['quiz'] === null
+            $finalScore = $row['final_score'] === null
                 ? '—'
-                : number_format(
-                    $row['quiz'],
-                    2,
-                    ',',
-                    '.'
-                );
-            $evaluation = $row['evaluation'] === null
-                ? '—'
-                : number_format(
-                    $row['evaluation'],
-                    2,
-                    ',',
-                    '.'
-                );
+                : number_format($row['final_score'], 2, ',', '.');
+            $status = match ($row['completion_status']) {
+                'tuntas' => 'Tuntas',
+                'belum_tuntas' => 'Belum Tuntas',
+                default => 'Belum Dinilai',
+            };
+            $detail = $row['quiz_completed_count'] > 0 || $row['evaluation_completed']
+                ? 'Riwayat tersedia'
+                : 'Belum ada riwayat';
             $html .= "
                 <tr>
-                    <td>{$number}</td>
                     <td>{$name}</td>
                     <td>{$nisn}</td>
                     <td>{$class}</td>
-                    <td>{$quiz}</td>
-                    <td>{$evaluation}</td>
-                    <td>—</td>
-                    <td>Belum Dinilai</td>
+                    <td>{$finalScore}</td>
+                    <td>{$status}</td>
+                    <td>{$detail}</td>
                 </tr>
             ";
         }
@@ -242,7 +147,7 @@ class StudentGradePdfController extends Controller
         if (count($rows) === 0) {
             $html .= '
                 <tr>
-                    <td colspan="8"
+                    <td colspan="6"
                         style="text-align:center;">
                         Tidak ada data siswa yang sesuai.
                     </td>
@@ -258,11 +163,9 @@ class StudentGradePdfController extends Controller
                 </tbody>
             </table>
             <p class="note">
-                Catatan: Nilai Akhir dan Ketuntasan belum
-                ditentukan karena aturan penilaian SALUANG
-                masih dalam tahap konfigurasi.
-                Nilai yang belum tersedia ditampilkan
-                dengan tanda garis (—).
+                Nilai Akhir dihitung dari rata-rata Kuis Subbab dan Evaluasi Akhir dengan bobot 50:50.
+                Ketuntasan menggunakan KKM 70 dan hanya ditentukan setelah semua komponen wajib lengkap.
+                Nilai yang belum tersedia ditampilkan dengan tanda garis (—).
             </p>
         </body>
         </html>';

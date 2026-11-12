@@ -225,13 +225,14 @@ document.addEventListener('DOMContentLoaded', function () {
             'sd-forum-topic',
             chapterLabel(discussion.chapter)
         );
-        const meta = makeElement(
+        const author = makeForumAuthorLine(
+            discussion.user,
+            discussion.created_at
+        );
+        const subchapter = makeElement(
             'p',
-            'sd-forum-card-meta',
-            'Subbab ' + discussion.subchapter +
-            ' ' + (subchapterLabels.get(String(discussion.subchapter)) || '') +
-            ' · ' + (discussion.user?.name || 'Siswa') +
-            ' · ' + formatDate(discussion.created_at)
+            'sd-forum-card-meta sd-forum-subchapter',
+            'Subbab ' + subchapterLabel(discussion.subchapter)
         );
         const title = makeElement(
             'h3',
@@ -291,7 +292,7 @@ document.addEventListener('DOMContentLoaded', function () {
             actions.append(editButton, deleteButton);
         }
         footer.append(count, actions);
-        card.append(topic, meta, title, body, footer);
+        card.append(author, topic, subchapter, title, body, footer);
         return card;
     }
     /* =====================================================

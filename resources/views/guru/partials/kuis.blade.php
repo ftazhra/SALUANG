@@ -125,48 +125,68 @@
                 </div>
 
                 <div class="gq-field">
-                    <label for="gqQuestionText">Pertanyaan</label>
-                    <textarea id="gqQuestionText" rows="4" required placeholder="Tulis pertanyaan kuis"></textarea>
-                </div>
-
-                <div class="gq-options-grid">
-
-                    <div class="gq-field">
-                        <label for="gqOptionA">Pilihan A</label>
-                        <textarea id="gqOptionA" rows="2" required placeholder="Jawaban A"></textarea>
-                    </div>
-
-                    <div class="gq-field">
-                        <label for="gqOptionB">Pilihan B</label>
-                        <textarea id="gqOptionB" rows="2" required placeholder="Jawaban B"></textarea>
-                    </div>
-
-                    <div class="gq-field">
-                        <label for="gqOptionC">Pilihan C</label>
-                        <textarea id="gqOptionC" rows="2" required placeholder="Jawaban C"></textarea>
-                    </div>
-
-                    <div class="gq-field">
-                        <label for="gqOptionD">Pilihan D</label>
-                        <textarea id="gqOptionD" rows="2" required placeholder="Jawaban D"></textarea>
-                    </div>
-
-                </div>
-
-                <div class="gq-field">
-                    <label for="gqCorrectAnswer">Kunci Jawaban</label>
-                    <select id="gqCorrectAnswer" required>
-                        <option value="">Pilih kunci jawaban</option>
-                        <option value="A">A</option>
-                        <option value="B">B</option>
-                        <option value="C">C</option>
-                        <option value="D">D</option>
+                    <label for="gqActivityType">Jenis Soal</label>
+                    <select id="gqActivityType" required>
+                        <option value="multiple_choice">Pilihan Ganda A–D</option>
+                        <option value="drag_drop">Drag &amp; Drop</option>
+                        <option value="matching">Menghubungkan</option>
                     </select>
                 </div>
 
                 <div class="gq-field">
-                    <label for="gqExplanation">Pembahasan</label>
-                    <textarea id="gqExplanation" rows="4" placeholder="Tuliskan pembahasan jawaban"></textarea>
+                    <label for="gqQuestionText">Pertanyaan</label>
+                    <textarea id="gqQuestionText" rows="4" required placeholder="Tulis pertanyaan atau instruksi kegiatan"></textarea>
+                </div>
+
+                <div id="gqMcqFields">
+                    <div class="gq-options-grid">
+
+                        <div class="gq-field">
+                            <label for="gqOptionA">Pilihan A</label>
+                            <textarea id="gqOptionA" rows="2" required placeholder="Jawaban A"></textarea>
+                        </div>
+
+                        <div class="gq-field">
+                            <label for="gqOptionB">Pilihan B</label>
+                            <textarea id="gqOptionB" rows="2" required placeholder="Jawaban B"></textarea>
+                        </div>
+
+                        <div class="gq-field">
+                            <label for="gqOptionC">Pilihan C</label>
+                            <textarea id="gqOptionC" rows="2" required placeholder="Jawaban C"></textarea>
+                        </div>
+
+                        <div class="gq-field">
+                            <label for="gqOptionD">Pilihan D</label>
+                            <textarea id="gqOptionD" rows="2" required placeholder="Jawaban D"></textarea>
+                        </div>
+
+                    </div>
+
+                    <div class="gq-field">
+                        <label for="gqCorrectAnswer">Kunci Jawaban</label>
+                        <select id="gqCorrectAnswer" required>
+                            <option value="">Pilih kunci jawaban</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+
+                    <div class="gq-field">
+                        <label for="gqExplanation">Pembahasan</label>
+                        <textarea id="gqExplanation" rows="4" placeholder="Tuliskan pembahasan jawaban"></textarea>
+                    </div>
+                </div>
+
+                <div id="gqActivityFields" hidden>
+                    <div class="gq-field">
+                        <label for="gqActivityInstruction">Petunjuk soal</label>
+                        <textarea id="gqActivityInstruction" rows="2"
+                            placeholder="Contoh: Kelompokkan hewan berdasarkan habitatnya."></textarea>
+                    </div>
+                    <div id="gqActivityEditor"></div>
                 </div>
 
                 <label class="gq-checkbox">
@@ -205,11 +225,11 @@
                 </button>
             </div>
 
-            <div id="gqPreviewContent">
+            <div id="gqPreviewContent" class="gq-preview-scroll">
                 <p>Memuat pratinjau soal...</p>
             </div>
 
-            <div class="gq-modal-actions">
+            <div class="gq-modal-actions gq-preview-actions">
                 <button type="button" class="gq-btn gq-btn-outline" data-gq-close>
                     Tutup
                 </button>
@@ -235,8 +255,8 @@
 
             <p>
                 Apakah kamu yakin ingin menghapus soal ini?
-                Tindakan ini tidak dapat dibatalkan.
             </p>
+            <p>Nomor soal: <strong id="gqDeleteQuestionNumber">—</strong></p>
 
             <div class="gq-modal-actions">
                 <button type="button" class="gq-btn gq-btn-outline" data-gq-close>
@@ -244,7 +264,7 @@
                 </button>
 
                 <button type="button" class="gq-btn gq-btn-danger" id="gqConfirmDelete">
-                    Ya, Hapus Soal
+                    Ya, Hapus
                 </button>
             </div>
         </div>

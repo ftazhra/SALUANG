@@ -1,11 +1,15 @@
 <?php
+
 namespace App\Http\Controllers\Guru;
+
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\EvaluationResultService;
+use App\Services\StudentGradeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+
 class StudentGradeController extends Controller
 {
     /*
@@ -35,48 +39,10 @@ class StudentGradeController extends Controller
     }
     /*
     |--------------------------------------------------------------------------
-    | 03. MENGAMBIL HASIL TERBARU
+    | 03. DAFTAR NILAI SISWA
     |--------------------------------------------------------------------------
     */
-    /*
-    |--------------------------------------------------------------------------
-    | 04. MENYUSUN NILAI SISWA
-    |--------------------------------------------------------------------------
-    */
-    private function studentGrade(
-        User $student,
-        array $columns,
-        ?array $quizResult,
-        ?array $evaluationAttempt
-    ): array {
-        return [
-            'id' => $student->id,
-            'name' => $student->name,
-            'nisn' => $columns['has_nisn']
-                ? $student->nisn
-                : null,
-            'class' => $columns['has_kelas']
-                ? $student->kelas
-                : null,
-            'quiz_score' => $quizResult !== null
-                ? (float) $quizResult['score']
-                : null,
-            'evaluation_score' => $evaluationAttempt !== null
-                ? (float) $evaluationAttempt['score']
-                : null,
-            // Belum dihitung sampai aturan penilaian ditetapkan.
-            'final_score' => null,
-            'completion_status' => 'belum_dinilai',
-            'quiz_completed_at' => $quizResult['completed_at'] ?? null,
-            'evaluation_completed_at' => $evaluationAttempt['completed_at'] ?? null,
-        ];
-    }
-    /*
-    |--------------------------------------------------------------------------
-    | 05. DAFTAR NILAI SISWA
-    |--------------------------------------------------------------------------
-    */
-    public function index(Request $request, EvaluationResultService $evaluationResults): JsonResponse
+    public function index(Request $request, StudentGradeService $grades): JsonResponse
     {
         $this->ensureGuru($request);
         $filters = $request->validate([
@@ -95,101 +61,33 @@ class StudentGradeController extends Controller
                 'in:tuntas,belum_tuntas,belum_dinilai',
             ],
         ]);
-        $columns = $this->studentColumns();
-        $teacherId = (int) $request->user()->id;
-        $quizResults = $evaluationResults->latestQuizByStudentForTeacher($teacherId);
-        $evaluationAttempts = $evaluationResults->latestByStudentForTeacher($teacherId);
-        $authorizedStudentIds = array_values(array_unique([
-            ...array_keys($quizResults),
-            ...array_keys($evaluationAttempts),
-        ]));
-        $query = User::query()
-            ->where('role', 'siswa')
-            ->whereIn('id', $authorizedStudentIds);
-        // Filter nama siswa atau NISN.
-        if (!empty($filters['search'])) {
-            $keyword = $filters['search'];
-            $query->where(function ($builder) use (
-                $keyword,
-                $columns
-            ) {
-                $builder->where(
-                    'name',
-                    'like',
-                    "%{$keyword}%"
-                );
-                if ($columns['has_nisn']) {
-                    $builder->orWhere(
-                        'nisn',
-                        'like',
-                        "%{$keyword}%"
-                    );
-                }
-            });
-        }
-        // Filter kelas.
-        if (!empty($filters['class'])) {
-            if ($columns['has_kelas']) {
-                $query->where(
-                    'kelas',
-                    $filters['class']
-                );
-            } else {
-                $query->whereRaw('1 = 0');
-            }
-        }
-        $students = $query
-            ->orderBy('name')
-            ->get();
-        $grades = collect();
-        foreach ($students as $student) {
-            if (!$student instanceof User) continue;
-            $grades->push($this->studentGrade(
-                $student,
-                $columns,
-                $quizResults[$student->id] ?? null,
-                $evaluationAttempts[$student->id] ?? null
-            ));
-        }
-        // Filter ketuntasan.
-        if (!empty($filters['completion'])) {
-            $grades = $grades->filter(
-                fn (array $grade) =>
-                    $grade['completion_status'] ===
-                    $filters['completion']
-            );
-        }
-        // Daftar kelas untuk dropdown.
-        $classes = $grades->pluck('class')->filter()->unique()->sort()->values();
+        $result = $grades->overview((int) $request->user()->id, $filters);
         return response()->json([
-            'data' => $grades->values(),
-            'total' => $grades->count(),
-            'classes' => $classes->values(),
-            'grading_configured' => false,
-            'message' =>
-                'Nilai akhir dan ketuntasan belum dikonfigurasi.',
+            ...$result,
+            'message' => 'Rata-rata Kuis Subbab dan Evaluasi Akhir berbobot 50:50; KKM 70.',
         ]);
     }
     /*
     |--------------------------------------------------------------------------
-    | 06. DETAIL NILAI SATU SISWA
+    | 04. DETAIL NILAI SATU SISWA
     |--------------------------------------------------------------------------
     */
     public function show(
         Request $request,
         User $student,
-        EvaluationResultService $evaluationResults
+        EvaluationResultService $evaluationResults,
+        StudentGradeService $grades
     ): JsonResponse {
         $this->ensureGuru($request);
         abort_unless(
             $student->role === 'siswa',
             404,
-            'Data siswa tidak ditemukan.'
+            'Siswa tidak ditemukan.'
         );
         $columns = $this->studentColumns();
         $teacherId = (int) $request->user()->id;
         $quizResults = collect($evaluationResults->quizResultsForTeacher($teacherId, [(int) $student->id]))
-            ->map(fn (array $result) => [
+            ->map(fn(array $result) => [
                 'id' => $result['id'],
                 'assessment_type' => 'quiz',
                 'chapter_id' => $result['chapter_id'],
@@ -201,22 +99,35 @@ class StudentGradeController extends Controller
                 'correct_answers' => $result['correct_answers'],
                 'completed_at' => $result['completed_at'],
             ]);
-        $evaluationAttempts = collect($evaluationResults->completedForTeacher($teacherId, [(int) $student->id]))
-            ->map(fn (array $attempt) => [
+        $evaluationAttempts = collect($evaluationResults->validCompletedForTeacher($teacherId, [(int) $student->id]))
+            ->map(fn(array $attempt) => [
                 'id' => $attempt['id'],
                 'assessment_type' => 'evaluation',
                 'chapter_id' => $attempt['chapter_id'],
                 'subchapter_id' => null,
                 'subchapter_name' => null,
-                'chapter_name' => $attempt['chapter_title'],
+                'chapter_name' => null,
+                'teacher_name' => $attempt['teacher_name'],
                 'score' => $attempt['score'],
                 'total_questions' => $attempt['total_questions'],
                 'correct_answers' => $attempt['correct_answers'],
                 'completed_at' => $attempt['completed_at'],
+                'valid_for_grading' => $attempt['valid_for_grading'],
             ]);
-        abort_if($quizResults->isEmpty() && $evaluationAttempts->isEmpty(), 404, 'Hasil siswa tidak ditemukan untuk materi yang dikelola Guru ini.');
+        // Hanya tampilkan hasil terakhir setiap Kuis Subbab dan Evaluasi.
+        // Attempt lama tetap tersimpan di database untuk audit dan catatan.
         $results = $quizResults->concat($evaluationAttempts)
-            ->sortByDesc('completed_at')
+            ->sort(function (array $a, array $b): int {
+                return [$b['completed_at'], $b['id']]
+                    <=> [$a['completed_at'], $a['id']];
+            })
+            ->unique(function (array $result): string {
+                if ($result['assessment_type'] === 'evaluation') {
+                    return 'evaluation';
+                }
+
+                return 'quiz:' . ($result['subchapter_id'] ?? 'chapter:' . $result['chapter_id']);
+            })
             ->values();
         return response()->json([
             'student' => [
@@ -228,6 +139,10 @@ class StudentGradeController extends Controller
                 'class' => $columns['has_kelas']
                     ? $student->kelas
                     : null,
+                'grading' => $grades->summaryForStudent(
+                    $teacherId,
+                    (int) $student->id
+                ),
             ],
             'results' => $results,
         ]);

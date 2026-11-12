@@ -1,11 +1,10 @@
-
 :root {
     --parent-blue: #075477;
     --parent-green: #258452;
     --parent-cream: #fffdf6;
     --parent-bg: #f4f9f7;
     --parent-border: #dfebe6;
-    --parent-muted: #7d9ba5;
+    --parent-muted: #526b74;
     --parent-sidebar-width: 245px;
     --parent-sidebar-small: 60px;
 }
@@ -25,7 +24,7 @@ body.parent-page {
     background: var(--parent-bg);
     color: var(--parent-blue);
     font-family: Poppins, sans-serif;
-    font-size: 11px;
+    font-size: 14px;
 }
 
 body.parent-page button {
@@ -110,8 +109,8 @@ body.parent-page [hidden] {
     color: #777d80;
 
     transition:
-    background-color .2s ease,
-    color .2s ease;
+        background-color .2s ease,
+        color .2s ease;
 }
 
 .parent-sidebar-toggle i {
@@ -159,13 +158,15 @@ body.parent-page [hidden] {
     background: transparent;
     color: var(--parent-blue);
 
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     text-align: left;
 
     transition:
-        background-color .2s ease,
-        color .2s ease;
+        background-color .22s ease,
+        color .22s ease,
+        transform .22s ease,
+        box-shadow .22s ease;
 }
 
 .parent-menu i {
@@ -184,20 +185,34 @@ body.parent-page [hidden] {
     min-width: 0;
 }
 
-.parent-menu:hover {
-    background: #d2eafa;
+.parent-page .parent-menu:hover,
+.parent-page .parent-menu:focus-visible {
+    background-color: #d2eaf8;
     color: #075477;
+    transform: translateX(3px);
+    box-shadow: inset 3px 0 0 #328ab7;
 }
 
-.parent-menu.active:not(:hover) {
-    background: #e6f5ea;
+.parent-page .parent-menu.active:not(:hover):not(:focus-visible) {
+    background-color: #e6f5ea;
     color: #21784c;
-    font-weight: 600;
+    box-shadow: none;
 }
 
-.parent-menu.active:hover {
-    background: #c5e7f6;
+.parent-page .parent-menu.active:hover,
+.parent-page .parent-menu.active:focus-visible {
+    background-color: #c5e7f6;
     color: #064e70;
+    transform: translateX(3px);
+    box-shadow: inset 3px 0 0 #328ab7;
+}
+
+.parent-page .parent-menu i {
+    color: inherit;
+}
+
+.parent-menu i {
+    color: inherit;
 }
 
 /* LOGOUT */
@@ -223,7 +238,7 @@ body.parent-page [hidden] {
 
     color: #df4646;
 
-    font-size: 10px;
+    font-size: 14px;
     font-weight: 600;
 }
 
@@ -305,14 +320,14 @@ body.parent-page [hidden] {
     justify-content: space-between;
     gap: 12px;
 
-    min-height: 49px;
-    padding: 9px 21px;
+    min-height: 65px;
+    padding: 16px 24px;
 
     background: #f9fcfa;
 }
 
 .parent-topbar-title {
-    font-size: 13px;
+    font-size: 24px;
     font-weight: 600;
 }
 
@@ -335,14 +350,14 @@ body.parent-page [hidden] {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 35px;
+    height: 35px;
     padding: 0;
     border: 0;
     border-radius: 9px;
     background: transparent;
     color: var(--parent-blue);
-    font-size: 17px;
+    font-size: 14px;
     transition: background-color .18s ease, color .18s ease;
 }
 
@@ -380,17 +395,47 @@ body.parent-page [hidden] {
     padding: 16px;
 }
 
-.parent-notification-menu > strong {
+.parent-notification-menu>strong {
     display: block;
     margin-bottom: 9px;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .parent-notification-menu p {
     margin: 0;
     color: var(--parent-muted);
-    font-size: 11px;
+    font-size: 14px;
     line-height: 1.7;
+}
+
+.parent-notification-item {
+    display: grid;
+    gap: 4px;
+    padding: 10px 0;
+    border-top: 1px solid #e6efec;
+    color: var(--parent-blue);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.parent-notification-item a {
+    display: grid;
+    gap: 4px;
+    color: inherit;
+    text-decoration: none;
+}
+
+.parent-notification-item b {
+    font-size: 14px;
+}
+
+.parent-notification-item span,
+.parent-notification-item time {
+    color: var(--parent-muted);
+}
+
+.parent-notification-item time {
+    font-size: 14px;
 }
 
 .parent-dropdown-item {
@@ -404,7 +449,7 @@ body.parent-page [hidden] {
     background: transparent;
     color: var(--parent-blue);
     font-family: Poppins, sans-serif;
-    font-size: 11px;
+    font-size: 14px;
     text-align: left;
     transition: background-color .2s ease, color .2s ease;
 }
@@ -460,9 +505,9 @@ body.parent-page [hidden] {
     display: grid;
     place-items: center;
 
-    width: 29px;
-    height: 29px;
-    flex: 0 0 29px;
+    width: 35px;
+    height: 35px;
+    flex: 0 0 35px;
 
     overflow: hidden;
 
@@ -480,13 +525,11 @@ body.parent-page [hidden] {
     height: 28px;
     margin-left: 5px;
     border-radius: 8px;
-    font-size: 12px;
+    font-size: 14px;
     transition: background-color .18s ease, color .18s ease;
 }
 
-.parent-user-button:hover .parent-user-chevron,
-.parent-user-button:focus-visible .parent-user-chevron,
-.parent-user-button[aria-expanded="true"] .parent-user-chevron {
+.parent-user-chevron:hover {
     background: #cfeaf9;
     color: #064968;
 }
@@ -504,13 +547,13 @@ body.parent-page [hidden] {
 }
 
 .parent-user-info strong {
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
 }
 
 .parent-user-info small {
     color: var(--parent-muted);
-    font-size: 8px;
+    font-size: 12px;
 }
 
 /* CONTENT */
@@ -535,40 +578,72 @@ body.parent-page [hidden] {
     padding: 23px 27px;
     overflow: hidden;
     border-radius: 12px;
-    background: linear-gradient(90deg,rgba(255,253,245,.68),rgba(255,253,245,0) 76%),
-      url('/images/student-dashboard-hero.png') center / cover no-repeat;
+    background: linear-gradient(90deg,
+            rgba(255, 253, 245, .94) 0%,
+            rgba(255, 253, 245, .82) 38%,
+            rgba(255, 253, 245, .18) 76%,
+            rgba(255, 253, 245, 0) 100%),
+        url('/images/student-dashboard-hero.png') center / cover no-repeat;
 }
+
 .parent-page .parent-hero-copy {
     position: relative;
     z-index: 1;
     flex: 1 1 auto;
     min-width: 0;
 }
+
 .parent-page .parent-hero h1 {
     margin: 0 0 8px;
     color: var(--parent-blue);
-    font-size: 26px;
+    font-size: 24px;
     font-weight: 400;
     line-height: 1.4;
 }
+
 .parent-page .parent-hero p {
-    max-width: 400px;
+    max-width: 440px;
     margin: 0;
     color: var(--parent-blue);
-    font-size: 10px;
+    font-size: 14px;
     line-height: 1.7;
+    text-align: left;
+    text-wrap: balance;
 }
+
 .parent-page .parent-hero .sd-quote {
     position: relative;
     z-index: 1;
-    flex: 0 0 190px;
-    max-width: 190px;
-    padding: 12px;
-    border-radius: 9px;
-    background: rgba(255,253,245,.91);
-    color: #2c7950;
-    font-size: 9px;
-    line-height: 1.6;
+    flex: 0 0 255px;
+    width: 255px;
+    max-width: 255px;
+    padding: 16px 18px;
+    border-radius: 12px;
+    background: rgba(255, 253, 245, 0.96);
+    color: #216b45;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.7;
+    text-align: center;
+    overflow-wrap: normal;
+    word-break: normal;
+    box-shadow: 0 10px 22px rgba(52, 112, 74, 0.08);
+}
+
+@media (max-width: 900px) {
+    .parent-page .parent-hero .sd-quote {
+        flex-basis: 210px;
+        width: 210px;
+        max-width: 210px;
+        padding: 12px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 680px) {
+    .parent-page .parent-hero .sd-quote {
+        display: none;
+    }
 }
 
 /* CARDS */
@@ -595,7 +670,7 @@ body.parent-page [hidden] {
 }
 
 .parent-card-heading h2,
-.parent-panel > h2 {
+.parent-panel>h2 {
     margin: 0;
 
     color: var(--parent-blue);
@@ -618,7 +693,7 @@ body.parent-page [hidden] {
     background: #fff;
     color: var(--parent-blue);
 
-    font-size: 10px;
+    font-size: 14px;
     font-weight: 500;
 
     white-space: nowrap;
@@ -638,8 +713,8 @@ body.parent-page [hidden] {
     margin-top: 25px;
 }
 
-.parent-child-information > div,
-.parent-profile-grid > div {
+.parent-child-information>div,
+.parent-profile-grid>div {
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -648,12 +723,12 @@ body.parent-page [hidden] {
 .parent-child-information small,
 .parent-profile-grid small {
     color: var(--parent-muted);
-    font-size: 10px;
+    font-size: 12px;
 }
 
 .parent-child-information strong,
 .parent-profile-grid strong {
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 600;
     overflow-wrap: anywhere;
 }
@@ -682,7 +757,7 @@ body.parent-page [hidden] {
 
     color: var(--parent-muted);
 
-    font-size: 10px;
+    font-size: 12px;
 }
 
 .parent-stat-card strong {
@@ -712,7 +787,7 @@ body.parent-page [hidden] {
 
     color: #527a87;
 
-    font-size: 11px;
+    font-size: 12px;
     line-height: 1.7;
 }
 
@@ -727,14 +802,14 @@ body.parent-page [hidden] {
 
     border-bottom: 1px solid #e9efec;
 
-    font-size: 11px;
+    font-size: 14px;
 }
 
 .parent-activity-row small {
     margin-left: auto;
 
     color: var(--parent-muted);
-    font-size: 9px;
+    font-size: 12px;
 }
 
 .parent-activity-dot {
@@ -764,13 +839,13 @@ body.parent-page [hidden] {
 }
 
 .parent-chapter-header strong {
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
 }
 
 .parent-chapter-header span {
     color: var(--parent-green);
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 700;
 }
 
@@ -795,7 +870,7 @@ body.parent-page [hidden] {
     margin: 10px 0 15px;
 
     color: var(--parent-muted);
-    font-size: 9px;
+    font-size: 12px;
 }
 
 .parent-subchapter-row {
@@ -810,22 +885,19 @@ body.parent-page [hidden] {
     border-radius: 7px;
     background: #f1faf7;
 
-    font-size: 10px;
+    font-size: 13px;
 }
 
-.parent-subchapter-row span {
+.parent-subchapter-row .parent-subchapter-title {
     min-width: 0;
+    overflow-wrap: anywhere;
 }
 
-.parent-subchapter-row b {
+.parent-subchapter-row .parent-subchapter-state {
     flex-shrink: 0;
-
     color: #447b56;
-    font-size: 9px;
-}
-
-.parent-subchapter-row b.finished {
-    color: #1b9b64;
+    font-size: 13px;
+    font-weight: 600;
 }
 
 .parent-bottom-button {
@@ -843,8 +915,43 @@ body.parent-page [hidden] {
     background: #edf7f3;
     color: #245e73;
 
-    font-size: 11px;
+    font-size: 14px;
     line-height: 1.7;
+}
+
+.parent-page-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 17px 0;
+}
+
+.parent-page-navigation-top {
+    position: relative;
+    z-index: 1;
+    margin: 0 0 17px;
+    pointer-events: auto;
+}
+
+.parent-page-navigation-bottom {
+    margin-top: 28px;
+}
+
+.parent-page-navigation-home {
+    justify-content: flex-end;
+}
+
+.parent-page-nav-arrow {
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+    padding: 0;
+}
+
+.parent-page-navigation .gd-nav-btn:focus-visible {
+    outline: 2px solid #77b4d3;
+    outline-offset: 2px;
 }
 
 /* HASIL BELAJAR */
@@ -869,7 +976,7 @@ body.parent-page [hidden] {
     display: block;
 
     color: var(--parent-muted);
-    font-size: 10px;
+    font-size: 12px;
 }
 
 .parent-result-box strong {
@@ -891,13 +998,13 @@ body.parent-page [hidden] {
 }
 
 .parent-note strong {
-    font-size: 11px;
+    font-size: 12px;
 }
 
 .parent-note p {
     margin: 10px 0 0;
 
-    font-size: 11px;
+    font-size: 12px;
     line-height: 1.8;
     white-space: pre-wrap;
 }
@@ -931,6 +1038,7 @@ body.parent-page [hidden] {
 }
 
 @media (max-width: 991.98px) {
+
     .parent-statistics,
     .parent-child-information {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -998,7 +1106,7 @@ body.parent-page [hidden] {
     }
 
     .parent-hero h1 {
-        font-size: 20px;
+        font-size: 24px;
     }
 
     .parent-page .parent-hero .sd-quote {
@@ -1011,8 +1119,8 @@ body.parent-page [hidden] {
     }
 
     .parent-card-heading h2,
-    .parent-panel > h2 {
-        font-size: 15px;
+    .parent-panel>h2 {
+        font-size: 18px;
     }
 
     .parent-statistics {
@@ -1034,5 +1142,590 @@ body.parent-page [hidden] {
 
     .parent-subchapter-row {
         align-items: flex-start;
+    }
+}
+
+/* Aturan inline dashboard Orang Tua dipindahkan dari Blade. */
+/* =====================================================
+           01. VISIBILITAS HALAMAN
+           ===================================================== */
+
+.parent-page .parent-section[hidden] {
+    display: none !important;
+}
+
+/* =====================================================
+           02. NAVIGASI PREVIOUS / NEXT
+           Mengikuti desain Dashboard Siswa SALUANG
+           ===================================================== */
+
+.parent-page .parent-page-navigation,
+.parent-page .parent-page-navigation-top,
+.parent-page .parent-page-navigation-bottom {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    width: 100% !important;
+    margin: 17px 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-sizing: border-box;
+}
+
+.parent-page .parent-page-navigation-home {
+    justify-content: flex-end !important;
+}
+
+.parent-page .parent-page-navigation-last {
+    justify-content: flex-start !important;
+}
+
+.parent-page .parent-page-navigation .gd-nav-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 0 0 auto !important;
+    gap: 8px !important;
+
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 36px !important;
+
+    margin: 0 !important;
+    padding: 9px 15px !important;
+
+    border: 1px solid #ccded9 !important;
+    border-radius: 8px !important;
+
+    background: #ffffff !important;
+    color: #075477 !important;
+
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    line-height: normal !important;
+
+    box-shadow: none !important;
+    cursor: pointer !important;
+
+    transition:
+        background-color .22s ease,
+        border-color .22s ease,
+        color .22s ease,
+        box-shadow .22s ease,
+        transform .22s ease !important;
+}
+
+.parent-page .parent-page-navigation .gd-nav-btn i {
+    font-size: 14px !important;
+    line-height: 1 !important;
+}
+
+.parent-page .parent-page-navigation .gd-nav-btn-next {
+    border-color: #287a4b !important;
+    background: #287a4b !important;
+    color: #fff !important;
+}
+
+.parent-page .parent-page-navigation .gd-nav-btn:not(.gd-nav-btn-next):hover {
+    background: #d7eafa !important;
+    border-color: #486d82 !important;
+    color: #075477 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 5px 12px rgba(7, 84, 119, .12) !important;
+}
+
+.parent-page .parent-page-navigation .gd-nav-btn-next:hover {
+    background: #075477 !important;
+    border-color: #a9c4d0 !important;
+    color: #ffffff !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 14px rgba(7, 84, 119, .22) !important;
+}
+
+.parent-page .parent-page-navigation .gd-nav-btn:focus-visible {
+    outline: 3px solid #329ecb !important;
+    outline-offset: 3px !important;
+}
+
+/* Panah khusus versi lama tidak digunakan. */
+.parent-page .parent-page-nav-arrow {
+    display: none !important;
+}
+
+@media (max-width: 767.98px) {
+    .parent-page .parent-page-navigation .gd-nav-btn {
+        padding: 9px 11px !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .parent-page .parent-page-navigation .gd-nav-btn {
+        transition: none !important;
+    }
+
+    .parent-page .parent-page-navigation .gd-nav-btn:hover {
+        transform: none !important;
+    }
+}
+
+/* =====================================================
+           03. CATATAN GURU
+           ===================================================== */
+
+.parent-teacher-notes {
+    margin-top: 22px;
+    padding: 26px;
+}
+
+.parent-teacher-notes-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+.parent-teacher-notes-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    background: #e8f5ed;
+    color: #247d54;
+    border-radius: 12px;
+    font-size: 14px;
+}
+
+.parent-teacher-notes-header h2 {
+    margin: 0 0 5px;
+    color: #075477;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.parent-teacher-notes-header p {
+    margin: 0;
+    color: #627a82;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.parent-teacher-notes-list {
+    display: grid;
+    gap: 10px;
+}
+
+.parent-teacher-assessment {
+    border: 1px solid #dce9e5;
+    border-radius: 14px;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+.parent-teacher-assessment-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    width: 100%;
+    min-height: 64px;
+    padding: 14px 16px;
+    border: 0;
+    background: #ffffff;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color .2s ease;
+}
+
+.parent-teacher-assessment-toggle:hover,
+.parent-teacher-assessment-toggle[aria-expanded="true"] {
+    background: #f5faf7;
+}
+
+.parent-teacher-assessment-toggle:focus-visible {
+    outline: 2px solid #77b4d3;
+    outline-offset: -2px;
+}
+
+.parent-teacher-assessment-heading {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+}
+
+.parent-teacher-assessment-title {
+    color: #075477;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.parent-teacher-assessment-context {
+    color: #627a82;
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.parent-teacher-assessment-summary {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 7px;
+    flex-shrink: 0;
+}
+
+.parent-teacher-note-chevron {
+    flex: 0 0 auto;
+    color: #27865a;
+    font-size: 12px;
+}
+
+.parent-teacher-note-type {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: #e8f5ed;
+    color: #247d54;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.parent-teacher-assessment-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+    gap: 10px;
+    margin: 0;
+    padding: 0 16px 14px;
+}
+
+.parent-teacher-assessment-details div {
+    min-width: 0;
+    padding: 11px 13px;
+    border-radius: 10px;
+    background: #f4f9f6;
+}
+
+.parent-teacher-assessment-details dt {
+    margin-bottom: 5px;
+    color: #627a82;
+    font-size: 14px;
+}
+
+.parent-teacher-assessment-details dd {
+    margin: 0;
+    color: #075477;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.parent-teacher-note-history {
+    display: grid;
+    gap: 10px;
+    padding: 0 16px 16px;
+}
+
+.parent-teacher-note-item {
+    display: block;
+    width: 100%;
+    min-height: 0;
+    box-sizing: border-box;
+    padding: 17px 20px;
+    margin: 0;
+    border: 1px solid #dce9e5;
+    border-radius: 12px;
+    background: #f8fbfa;
+    text-align: left;
+}
+
+.parent-teacher-note-body {
+    display: block;
+    margin: 0;
+    padding: 0;
+    color: #244b59;
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.75;
+    text-align: left;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.parent-teacher-note-date {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 10px;
+    padding: 0;
+    color: #6a7a74;
+    font-size: 12px;
+    line-height: 1.5;
+    text-align: left;
+}
+
+.parent-teacher-note-date i {
+    color: #597e69;
+    font-size: 14px;
+}
+
+.parent-teacher-notes-empty {
+    padding: 28px 16px;
+    text-align: center;
+    color: #657a82;
+    font-size: 14px;
+}
+
+.parent-teacher-notes-empty i {
+    display: block;
+    margin-bottom: 10px;
+    color: #677b74;
+    font-size: 26px;
+}
+
+.parent-teacher-notes-empty p {
+    margin: 0;
+}
+
+@media (max-width: 600px) {
+    .parent-teacher-notes {
+        padding: 18px;
+    }
+
+    .parent-teacher-notes-header {
+        gap: 11px;
+    }
+
+    .parent-teacher-notes-header h2 {
+        font-size: 18px;
+    }
+
+    .parent-teacher-assessment-toggle {
+        align-items: flex-start;
+        gap: 9px;
+        padding: 13px;
+    }
+
+    .parent-teacher-assessment-title {
+        font-size: 18px;
+    }
+
+    .parent-teacher-assessment-summary {
+        justify-content: flex-start;
+    }
+
+    .parent-teacher-assessment-details,
+    .parent-teacher-note-history {
+        padding-right: 13px;
+        padding-left: 13px;
+    }
+
+    .parent-teacher-note-item {
+        padding: 14px;
+    }
+}
+
+
+/* AKSI BAWAH PROFIL ORANG TUA */
+
+
+/* Tombol aksi Profil Orang Tua */
+.parent-page .gp-profile-page .parent-profile-bottom-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    width: 100%;
+    margin: 20px 0 0;
+    padding: 0;
+}
+
+.parent-page .gp-profile-page .parent-profile-bottom-actions>form {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* Kedua tombol mengikuti ukuran Profil Guru */
+.parent-page .gp-profile-page .parent-profile-bottom-actions .parent-profile-logout-button,
+.parent-page .gp-profile-page .parent-profile-bottom-actions .parent-profile-home-button {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 46px;
+    min-height: 46px;
+    max-height: 46px;
+    margin: 0;
+    padding: 0 16px;
+    border-radius: 13px;
+    font-family: Poppins, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color .2s ease;
+}
+
+/* Keluar dari Akun */
+.parent-page .gp-profile-page .parent-profile-bottom-actions .parent-profile-logout-button {
+    border: 1px solid #f0cbcb;
+    background: #fff4f4;
+    color: #c34149;
+}
+
+.parent-page .gp-profile-page .parent-profile-bottom-actions .parent-profile-logout-button:hover {
+    background: #ffe8e8;
+}
+
+/* Kembali ke Beranda */
+.parent-page .gp-profile-page .parent-profile-bottom-actions .parent-profile-home-button {
+    border: 1px solid #d5e6e3;
+    background: #ffffff;
+    color: #005076;
+}
+
+.parent-page .gp-profile-page .parent-profile-bottom-actions .parent-profile-home-button:hover {
+    background: #f4fbfa;
+}
+
+/* Responsif */
+@media (max-width: 480px) {
+    .parent-page .gp-profile-page .parent-profile-bottom-actions {
+        gap: 16px;
+    }
+
+    .parent-page .gp-profile-page .parent-profile-bottom-actions .parent-profile-logout-button,
+    .parent-page .gp-profile-page .parent-profile-bottom-actions .parent-profile-home-button {
+        min-height: 56px;
+        height: auto;
+        font-size: 14px;
+    }
+}
+
+/* Memperjelas navigasi, ringkasan, dan catatan dashboard Orang Tua. */
+.parent-menu,
+.parent-exit,
+.parent-dropdown-item {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.parent-topbar-title {
+    font-size: 24px;
+    line-height: 1.5;
+}
+
+.parent-user-info small,
+.parent-notification-menu p,
+.parent-notification-item span,
+.parent-notification-item time,
+.parent-teacher-assessment-context,
+.parent-teacher-assessment-details dt,
+.parent-teacher-note-date,
+.parent-teacher-notes-empty {
+    color: #526b74;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.parent-card-heading h2,
+.parent-panel>h2,
+.parent-teacher-notes-header h2 {
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.parent-section-description,
+.parent-profile-grid small,
+.parent-stat-card small,
+.parent-activity-row small,
+.parent-result-box small,
+.parent-note p,
+.parent-teacher-note-body,
+.parent-teacher-assessment-details dd {
+    color: #315e68;
+    font-size: 12px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+.parent-page .parent-page-navigation .gd-nav-btn,
+.parent-page .parent-page-navigation .gd-nav-btn i {
+    font-size: 13px !important;
+}
+
+.parent-page .parent-page-navigation .gd-nav-btn-next {
+    background: #287a4b !important;
+    border-color: #287a4b !important;
+}
+
+@media (max-width: 600px) {
+    .parent-teacher-assessment-title {
+        font-size: 18px;
+    }
+}
+
+/* Hero Orang Tua mengikuti hierarki sapaan Beranda Siswa. */
+.parent-page .parent-hero h1 {
+    color: #0d4b6d;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.35;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .4);
+}
+
+.parent-page .parent-hero p {
+    max-width: 420px;
+    color: #1c566e;
+    font-size: 14px;
+    line-height: 1.7;
+    text-wrap: auto;
+}
+
+.parent-page .parent-hero .sd-quote {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 0 1 250px;
+    width: min(250px, 100%);
+    max-width: 250px;
+    min-height: 100px;
+    padding: 16px 18px;
+    border: 1px solid rgba(34, 104, 77, .14);
+    border-radius: 10px;
+    background: rgba(255, 253, 245, .93);
+    color: #1c5d45;
+    font-size: 14px;
+    line-height: 1.6;
+    box-shadow: none;
+}
+
+.parent-page .parent-hero .sd-quote i {
+    margin-bottom: 4px;
+    color: #2d785d;
+    font-size: 18px;
+}
+
+@media (max-width: 680px) {
+    .parent-page .parent-hero .sd-quote {
+        display: none;
     }
 }

@@ -9,35 +9,40 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Dashboard Guru — SALUANG</title>
-    
+
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    
-    <link rel="stylesheet" href="{{ asset('css/guru.css') }}?v=7">
-    
-    <link rel="stylesheet" href="{{ asset('css/guru-materi.css') }}?v=21">
-    <script src="{{ asset('js/guru-materi.js') }}?v=17" defer></script>
-    
-    <link rel="stylesheet" href="{{ asset('css/guru-kuis.css') }}?v=1">
-    <script src="{{ asset('js/guru-kuis.js') }}?v=2" defer></script>
-    
-    <link rel="stylesheet" href="{{ asset('css/guru-evaluasi.css') }}?v=4">
-    <script src="{{ asset('js/guru-evaluasi.js') }}?v=5" defer></script>
-    
-    <link rel="stylesheet" href="{{ asset('css/guru-forum.css') }}?v=1">
-    <script src="{{ asset('js/guru-forum.js') }}?v=1" defer></script>
-    
-    <link rel="stylesheet" href="{{ asset('css/guru-nilai.css') }}?v=1">
-    <script src="{{ asset('js/guru-nilai.js') }}?v=2" defer></script>
-    
-    <link rel="stylesheet" href="{{ asset('css/guru-orang-tua.css') }}?v=2">
-    <script src="{{ asset('js/guru-orang-tua.js') }}?v=3" defer></script>
-    
-    <link rel="stylesheet" href="{{ asset('css/guru-profil.css') }}?v=3">
+
+    <link rel="stylesheet" href="{{ asset('css/guru.css') }}?v=10">
+
+    <link rel="stylesheet" href="{{ asset('css/guru-materi.css') }}?v=28">
+    <script src="{{ asset('js/guru-materi.js') }}?v=19" defer></script>
+
+    <link rel="stylesheet" href="{{ asset('css/guru-kuis.css') }}?v=20261111b">
+    <script src="{{ asset('js/guru-matching-preview.js') }}?v=20261111b" defer></script>
+    <script src="{{ asset('js/guru-kuis.js') }}?v=20261111b" defer></script>
+
+    <link rel="stylesheet" href="{{ asset('css/guru-evaluasi.css') }}?v=20261110a">
+    <script src="{{ asset('js/guru-evaluasi.js') }}?v=9" defer></script>
+
+    <link rel="stylesheet" href="{{ asset('css/guru-forum.css') }}?v=7">
+    <script src="{{ asset('js/guru-forum.js') }}?v=4" defer></script>
+
+    <link rel="stylesheet" href="{{ asset('css/guru-nilai.css') }}?v=4">
+    <script src="{{ asset('js/guru-nilai.js') }}?v=6" defer></script>
+
+    <link rel="stylesheet" href="{{ asset('css/guru-siswa.css') }}?v=5">
+    <script src="{{ asset('js/guru-siswa.js') }}?v=6" defer></script>
+
+    <link rel="stylesheet" href="{{ asset('css/guru-orang-tua.css') }}?v=5">
+    <script src="{{ asset('js/guru-orang-tua.js') }}?v=4" defer></script>
+
+    <link rel="stylesheet" href="{{ asset('css/guru-profil.css') }}?v=6">
     <script src="{{ asset('js/guru-profil.js') }}?v=4" defer></script>
-    
-    <link rel="stylesheet" href="{{ asset('css/saluang-selects.css') }}?v=1">
+
+    <link rel="stylesheet" href="{{ asset('css/saluang-selects.css') }}?v=3">
     <script src="{{ asset('js/guru-logout.js') }}?v=1" defer></script>
+    <link rel="stylesheet" href="{{ asset('css/website-notifications.css') }}?v=5">
 </head>
 
 <body class="gd-page">
@@ -93,6 +98,11 @@
                 <span>Nilai Siswa</span>
             </button>
 
+            <button type="button" class="gd-menu" data-guru-page="students">
+                <i class="bi bi-people"></i>
+                <span>Daftar Siswa</span>
+            </button>
+
             {{-- HUBUNGI ORANG TUA --}}
             <button type="button" class="gd-menu" data-guru-page="orang-tua">
                 <i class="bi bi-chat-left-text"></i>
@@ -137,10 +147,33 @@
                     <button type="button" class="gd-icon-btn" id="guruNotifButton" aria-label="Notifikasi"
                         aria-expanded="false" aria-controls="guruNotifMenu">
                         <i class="bi bi-bell"></i>
+                        <span class="website-notification-count" data-notification-count
+                            @if (($unreadNotificationCount ?? 0) < 1) hidden @endif>{{ $unreadNotificationCount ?? 0 }}</span>
                     </button>
-                    <div class="gd-dropdown-menu gd-notif-menu" id="guruNotifMenu" hidden>
+                    <div class="gd-dropdown-menu gd-notif-menu website-notification-menu" id="guruNotifMenu" hidden>
                         <strong>Notifikasi</strong>
-                        <p>Belum ada notifikasi baru.</p>
+                        <div class="website-notification-list">
+                            @forelse ($notifications ?? [] as $notification)
+                                <article class="website-notification-item" data-notification-item
+                                    data-notification-unread="{{ $notification['is_read'] ? 'false' : 'true' }}">
+                                    <a class="website-notification-link{{ $notification['is_read'] ? '' : ' is-unread' }}"
+                                        href="{{ $notification['url'] }}">
+                                        <strong>{{ $notification['title'] }}</strong>
+                                        <span>{{ $notification['message'] }}</span>
+                                        <small>{{ $notification['is_read'] ? 'Dibaca' : 'Belum dibaca' }} ·
+                                            {{ $notification['date']?->format('d M Y, H:i') ?? '-' }}</small>
+                                    </a>
+                                    <button type="button" class="website-notification-delete"
+                                        data-notification-delete="{{ route('notifications.destroy', $notification['id']) }}"
+                                        aria-label="Hapus notifikasi: {{ $notification['title'] }}"
+                                        title="Hapus notifikasi">×</button>
+                                </article>
+                            @empty
+                                <p class="website-notification-empty" data-notification-empty>Belum ada notifikasi
+                                    baru.</p>
+                            @endforelse
+                        </div>
+                        <p class="website-notification-error" data-notification-error role="status" hidden></p>
                     </div>
                 </div>
 
@@ -170,7 +203,8 @@
                             <i class="bi bi-person"></i>
                             Profil Saya
                         </button>
-                        <button type="button" class="gd-dropdown-item" data-guru-page="profil" data-guru-scroll-settings>
+                        <button type="button" class="gd-dropdown-item" data-guru-page="profil"
+                            data-guru-scroll-settings>
                             <i class="bi bi-gear"></i>
                             Pengaturan
                         </button>
@@ -217,44 +251,45 @@
                     $evaluationModel = new \App\Models\EvaluationQuestion();
                     $quizTable = $quizModel->getTable();
                     $evaluationTable = $evaluationModel->getTable();
+                    $chapterIds = \App\Models\Chapter::query()->where('user_id', $guruId)->select('id');
                     $quizCount = \Illuminate\Support\Facades\Schema::hasTable($quizTable)
                         ? \App\Models\QuizQuestion::query()
-                            ->when(
-                                \Illuminate\Support\Facades\Schema::hasColumn($quizTable, 'user_id'),
-                                fn ($query) => $query->where('user_id', $guruId)
-                            )->count()
+                            ->whereHas('subchapter', fn($query) => $query->whereIn('chapter_id', $chapterIds))
+                            ->count()
                         : 0;
                     $evaluationCount = \Illuminate\Support\Facades\Schema::hasTable($evaluationTable)
-                        ? \App\Models\EvaluationQuestion::query()
-                            ->when(
-                                \Illuminate\Support\Facades\Schema::hasColumn($evaluationTable, 'user_id'),
-                                fn ($query) => $query->where('user_id', $guruId)
-                            )->count()
+                        ? \App\Models\EvaluationQuestion::query()->where('user_id', $guruId)->count()
                         : 0;
-                    // Terdaftar berbeda dari online/aktif saat ini; belum ada pelacakan sesi aktif.
+                    $materialCount = \Illuminate\Support\Facades\Schema::hasTable('chapters')
+                        ? \App\Models\Chapter::query()->where('user_id', $guruId)->count()
+                        : 0;
                     $registeredStudentCount = \App\Models\User::query()->where('role', 'siswa')->count();
                 @endphp
                 <div class="gd-stats">
-                    <article class="gd-card gd-stat">
+                    <button type="button" class="gd-card gd-stat gd-stat-link" data-guru-page="materi"
+                        aria-label="Buka Kelola Materi">
                         <i class="bi bi-book"></i>
                         <small>Total Materi (Bab tersimpan)</small>
-                        <strong id="gdTotalMaterials">—</strong>
-                    </article>
-                    <article class="gd-card gd-stat">
+                        <strong id="gdTotalMaterials">{{ $materialCount }}</strong>
+                    </button>
+                    <button type="button" class="gd-card gd-stat gd-stat-link" data-guru-page="kuis"
+                        aria-label="Buka Kelola Soal Kuis">
                         <i class="bi bi-clipboard-check"></i>
                         <small>Total Soal Kuis</small>
                         <strong id="gdTotalQuizQuestions">{{ $quizCount }}</strong>
-                    </article>
-                    <article class="gd-card gd-stat">
+                    </button>
+                    <button type="button" class="gd-card gd-stat gd-stat-link" data-guru-page="students"
+                        aria-label="Buka Daftar Siswa">
                         <i class="bi bi-mortarboard"></i>
                         <small>Total Siswa Terdaftar</small>
                         <strong id="gdTotalStudents">{{ $registeredStudentCount }}</strong>
-                    </article>
-                    <article class="gd-card gd-stat">
+                    </button>
+                    <button type="button" class="gd-card gd-stat gd-stat-link" data-guru-page="evaluasi"
+                        aria-label="Buka Kelola Evaluasi">
                         <i class="bi bi-check2-circle"></i>
                         <small>Total Soal Evaluasi</small>
                         <strong id="gdTotalEvaluations">{{ $evaluationCount }}</strong>
-                    </article>
+                    </button>
                 </div>
 
                 {{-- 05.3 MATERI PEMBELAJARAN --}}
@@ -299,6 +334,8 @@
             {{-- HALAMAN NILAI SISWA GURU --}}
             @include('guru.partials.nilai')
 
+            @include('guru.partials.students')
+
             {{-- HALAMAN HUBUNGI ORANG TUA GURU --}}
             @include('guru.partials.orang-tua')
 
@@ -310,235 +347,8 @@
     {{-- =====================================================
          07. JAVASCRIPT DASHBOARD GURU
          ===================================================== --}}
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            /* =============================================
-               07.1 SIDEBAR LIPAT
-               ============================================= */
-            const sidebar = document.getElementById('guruSidebar');
-            const main = document.getElementById('guruMain');
-            const fold = document.getElementById('guruFold');
-            if (sidebar && main && fold) {
-                fold.addEventListener('click', () => {
-                    const collapsed = sidebar.classList.toggle('collapsed');
-                    main.classList.toggle('expanded', collapsed);
-                    fold.setAttribute(
-                        'aria-expanded',
-                        String(!collapsed)
-                    );
-                    fold.setAttribute(
-                        'aria-label',
-                        collapsed ?
-                        'Perbesar sidebar' :
-                        'Perkecil sidebar'
-                    );
-                    fold.setAttribute(
-                        'title',
-                        collapsed ?
-                        'Perbesar sidebar' :
-                        'Perkecil sidebar'
-                    );
-                });
-            }
-            /* =============================================
-               07.2 URUTAN HALAMAN
-               ============================================= */
-            const pageOrder = [
-                'beranda',
-                'materi',
-                'kuis',
-                'evaluasi',
-                'forum',
-                'nilai',
-                'orang-tua',
-                'profil'
-            ];
-            const pageButtons = document.querySelectorAll(
-                '[data-guru-page]'
-            );
-            const sections = document.querySelectorAll(
-                '[data-guru-section]'
-            );
-            let currentPage = 'beranda';
-            /* =============================================
-               07.3 NOTIFIKASI DAN DROPDOWN PROFIL
-               ============================================= */
-            const notifButton = document.getElementById(
-                'guruNotifButton'
-            );
-            const notifMenu = document.getElementById(
-                'guruNotifMenu'
-            );
-            const profileButton = document.getElementById(
-                'guruProfileButton'
-            );
-            const profileMenu = document.getElementById(
-                'guruProfileMenu'
-            );
-
-            function closeGuruDropdowns() {
-                if (notifMenu) {
-                    notifMenu.hidden = true;
-                }
-                if (profileMenu) {
-                    profileMenu.hidden = true;
-                }
-                notifButton?.setAttribute(
-                    'aria-expanded',
-                    'false'
-                );
-                profileButton?.setAttribute(
-                    'aria-expanded',
-                    'false'
-                );
-            }
-
-            function toggleGuruDropdown(button, menu) {
-                if (!button || !menu) return;
-                button.addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    const shouldOpen = menu.hidden;
-                    closeGuruDropdowns();
-                    menu.hidden = !shouldOpen;
-                    button.setAttribute(
-                        'aria-expanded',
-                        String(shouldOpen)
-                    );
-                });
-            }
-            toggleGuruDropdown(
-                notifButton,
-                notifMenu
-            );
-            toggleGuruDropdown(
-                profileButton,
-                profileMenu
-            );
-            /* =============================================
-               07.4 TAMPILKAN HALAMAN
-               ============================================= */
-            function showGuruPage(page) {
-                if (!pageOrder.includes(page)) {
-                    return;
-                }
-                currentPage = page;
-                // Sembunyikan halaman lain
-                sections.forEach((section) => {
-                    section.hidden =
-                        section.dataset.guruSection !== page;
-                });
-                // Sesuaikan menu aktif di sidebar
-                document.querySelectorAll(
-                    '.gd-nav .gd-menu'
-                ).forEach((menu) => {
-                    const active =
-                        menu.dataset.guruPage === page;
-                    menu.classList.toggle(
-                        'active',
-                        active
-                    );
-                    if (active) {
-                        menu.setAttribute(
-                            'aria-current',
-                            'page'
-                        );
-                    } else {
-                        menu.removeAttribute(
-                            'aria-current'
-                        );
-                    }
-                });
-                // Tutup dropdown setelah berpindah
-                closeGuruDropdowns();
-                // Kembali ke bagian atas
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            }
-            /* =============================================
-               07.5 KLIK MENU SIDEBAR / PROFIL
-               ============================================= */
-            pageButtons.forEach((button) => {
-                button.addEventListener('click', () => {
-                    showGuruPage(
-                        button.dataset.guruPage
-                    );
-                    if (button.hasAttribute('data-guru-scroll-settings')) {
-                        // Konten Profil baru terlihat setelah showGuruPage().
-                        requestAnimationFrame(() => {
-                            requestAnimationFrame(() => {
-                                const settings = document.querySelector(
-                                    '#guruProfilePage .gp-profile-settings-card, ' +
-                                    '#guruProfilePage #gpProfileSettingsCard'
-                                );
-                                settings?.scrollIntoView({
-                                    behavior: 'smooth',
-                                    block: 'start'
-                                });
-                            });
-                        });
-                    }
-                });
-            });
-            /* =============================================
-               07.6 PREVIOUS
-               BERLAKU UNTUK ATAS DAN BAWAH
-               ============================================= */
-            document.querySelectorAll(
-                '[data-guru-previous]'
-            ).forEach((button) => {
-                button.addEventListener('click', () => {
-                    const index = pageOrder.indexOf(
-                        currentPage
-                    );
-                    if (index > 0) {
-                        showGuruPage(
-                            pageOrder[index - 1]
-                        );
-                    }
-                });
-            });
-            /* =============================================
-               07.7 NEXT
-               BERLAKU UNTUK ATAS DAN BAWAH
-               ============================================= */
-            document.querySelectorAll(
-                '[data-guru-next]'
-            ).forEach((button) => {
-                button.addEventListener('click', () => {
-                    const index = pageOrder.indexOf(
-                        currentPage
-                    );
-                    if (index < pageOrder.length - 1) {
-                        showGuruPage(
-                            pageOrder[index + 1]
-                        );
-                    }
-                });
-            });
-            /* =============================================
-               07.8 TUTUP DROPDOWN KETIKA KLIK DI LUAR
-               ============================================= */
-            document.addEventListener('click', (event) => {
-                if (!event.target.closest('.gd-dropdown')) {
-                    closeGuruDropdowns();
-                }
-            });
-            /* =============================================
-               07.9 TUTUP DROPDOWN DENGAN ESCAPE
-               ============================================= */
-            document.addEventListener('keydown', (event) => {
-                if (event.key === 'Escape') {
-                    closeGuruDropdowns();
-                }
-            });
-            /* =============================================
-               07.10 HALAMAN PERTAMA
-               ============================================= */
-            showGuruPage('beranda');
-        });
-    </script>
+    <script src="{{ asset('js/guru-dashboard.js') }}?v=2"></script>
+    <script src="{{ asset('js/website-notifications.js') }}?v=3" defer></script>
 
     {{-- Modal konfirmasi Keluar Guru (berlaku untuk sidebar dan dropdown profil) --}}
     <div id="gdLogoutModal" class="gd-logout-modal" hidden>
@@ -560,4 +370,5 @@
         </div>
     </div>
 </body>
+
 </html>

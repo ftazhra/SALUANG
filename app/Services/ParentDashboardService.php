@@ -8,12 +8,18 @@ use Illuminate\Support\Facades\Schema;
 
 class ParentDashboardService
 {
+    public function __construct(
+        private EvaluationResultService $evaluationResults,
+        private StudentGradeService $studentGrades
+    ) {
+    }
+
     private function has(string $table, string $column): bool
     {
         return Schema::hasTable($table) && Schema::hasColumn($table, $column);
     }
 
-    public function dashboard(User $parent): array
+    public function dashboard(User $parent, ?int $selectedChildId = null): array
     {
         abort_unless($parent->role === 'orang_tua', 403);
 
@@ -27,32 +33,59 @@ class ParentDashboardService
             ->join('users as siswa', 'siswa.id', '=', 'student_guardians.student_id')
             ->where('student_guardians.guardian_id', $parent->id)
             ->where('siswa.role', 'siswa')
+            ->whereNull('siswa.deleted_at')
+            ->when(
+                $selectedChildId !== null,
+                fn ($query) => $query->where('student_guardians.student_id', $selectedChildId)
+            )
             ->orderByRaw("CASE WHEN student_guardians.status = 'approved' THEN 0 ELSE 1 END")
             ->select('student_guardians.student_id', 'student_guardians.status')
             ->first();
 
-        $approved = $relation && $relation->status === 'approved';
+        $approved = $relation
+            && $relation->status === 'approved'
+            && ($selectedChildId === null || (int) $relation->student_id === $selectedChildId);
         $child = $approved ? User::where('role', 'siswa')->find($relation->student_id) : null;
         $chapters = $this->chaptersForStudent($child ? (int) $child->id : null);
         $total = array_sum(array_column($chapters, 'total'));
         $completed = array_sum(array_column($chapters, 'finished'));
-        $scores = $child ? $this->scores((int) $child->id) : [];
+        $completedMaterials = array_sum(array_column($chapters, 'material_finished'));
+        $completedQuizzes = array_sum(array_column($chapters, 'quiz_finished'));
+        $finalGrades = $child
+            ? $this->studentGrades->summariesForAssignedTeachers($child)
+            : [];
+        $finalScores = collect($finalGrades)
+            ->pluck('final_score')
+            ->filter(fn ($score) => is_numeric($score))
+            ->map(fn ($score) => (float) $score)
+            ->all();
 
         return [
             'parent' => $parent,
             'child' => $child,
             'relationStatus' => $relation?->status,
             'stats' => [
-                'materials' => $completed,
-                'quizzes' => $child ? $this->quizCount((int) $child->id) : 0,
-                'average' => $scores ? round(array_sum($scores) / count($scores), 1) : 0,
+                'materials' => $completedMaterials,
+                'quizzes' => $completedQuizzes,
+                'average' => $finalScores
+                    ? round(array_sum($finalScores) / count($finalScores), 1)
+                    : null,
                 'completion' => $total ? (int) round($completed * 100 / $total) : 0,
+                'completed_activities' => $completed,
+                'total_activities' => $total,
             ],
             'chapters' => $chapters,
             'activities' => $child ? $this->activities((int) $child->id) : [],
             'activityHistory' => $child ? $this->activityHistory((int) $child->id, $chapters) : [],
-            'teacherNotes' => $child ? $this->teacherNotes((int) $child->id) : [],
+            'teacherNotes' => $child
+                ? $this->teacherNotes((int) $child->id)
+                : [
+                    'assessments' => [],
+                    'general' => [],
+                    'unavailable' => [],
+                ],
             'learningResults' => $child ? $this->learningResults((int) $child->id, $chapters) : [],
+            'finalGrades' => $finalGrades,
         ];
     }
 
@@ -63,12 +96,24 @@ class ParentDashboardService
             'parent' => $parent,
             'child' => null,
             'relationStatus' => null,
-            'stats' => ['materials' => 0, 'quizzes' => 0, 'average' => 0, 'completion' => 0],
+            'stats' => [
+                'materials' => 0,
+                'quizzes' => 0,
+                'average' => null,
+                'completion' => 0,
+                'completed_activities' => 0,
+                'total_activities' => 0,
+            ],
             'chapters' => $this->chaptersForStudent(null),
             'activities' => [],
             'activityHistory' => [],
-            'teacherNotes' => [],
+            'teacherNotes' => [
+                'assessments' => [],
+                'general' => [],
+                'unavailable' => [],
+            ],
             'learningResults' => [],
+            'finalGrades' => [],
         ];
     }
 
@@ -76,9 +121,14 @@ class ParentDashboardService
     {
         if (!Schema::hasTable('chapters') || !Schema::hasTable('subchapters')) return [];
 
-        $chapters = DB::table('chapters');
+        $chapters = DB::table('chapters as chapter')
+            ->leftJoin('users as teacher', function ($join) {
+                $join->on('teacher.id', '=', 'chapter.user_id')
+                    ->where('teacher.role', '=', 'guru');
+            })
+            ->select('chapter.*', 'teacher.id as teacher_id', 'teacher.name as teacher_name');
         if ($this->has('chapters', 'is_published')) $chapters->where('is_published', true);
-        $chapters->orderBy('id');
+        $chapters->orderBy('chapter.id');
 
         $result = [];
         foreach ($chapters->get() as $chapter) {
@@ -86,27 +136,45 @@ class ParentDashboardService
             if ($this->has('subchapters', 'is_published')) $subQuery->where('is_published', true);
             $subQuery->orderBy($this->has('subchapters', 'nomor_subbab') ? 'nomor_subbab' : 'id');
 
+            $subchapterRows = $subQuery->get();
+            $quizCompletedSubchapters = $studentId !== null
+                ? $this->completedQuizSubchapterIds(
+                    $studentId,
+                    $subchapterRows->pluck('id')->map(fn ($id) => (int) $id)->all()
+                )
+                : [];
             $subchapters = [];
-            foreach ($subQuery->get() as $subchapter) {
+            foreach ($subchapterRows as $subchapter) {
+                $subchapterId = (int) $subchapter->id;
+                $quizDone = in_array($subchapterId, $quizCompletedSubchapters, true);
+                $materialDone = $studentId !== null
+                    ? $this->isSubchapterDone($studentId, $subchapterId)
+                    : false;
                 $subchapters[] = [
-                    'id' => (int) $subchapter->id,
+                    'id' => $subchapterId,
                     'number' => isset($subchapter->nomor_subbab) ? (int) $subchapter->nomor_subbab : null,
                     'title' => $subchapter->judul ?? $subchapter->title ?? $subchapter->name ?? ('Subbab ' . $subchapter->id),
-                    'done' => $studentId !== null
-                        ? $this->isSubchapterDone($studentId, (int) $subchapter->id)
-                        : false,
+                    'material_recorded_done' => $materialDone,
+                    'done' => $materialDone || $quizDone,
+                    'quiz_done' => $quizDone,
                 ];
             }
             if (!$subchapters) continue;
-            $finished = count(array_filter($subchapters, fn($s) => $s['done']));
-            $total = count($subchapters);
+            $materialFinished = count(array_filter($subchapters, fn ($subchapter) => $subchapter['done']));
+            $quizFinished = count(array_filter($subchapters, fn ($subchapter) => $subchapter['quiz_done']));
+            $finished = $materialFinished + $quizFinished;
+            $total = count($subchapters) * 2;
             $result[] = [
                 'id' => (int) $chapter->id,
+                'teacher_id' => $chapter->teacher_id === null ? null : (int) $chapter->teacher_id,
+                'teacher_name' => $chapter->teacher_name,
                 'number' => isset($chapter->nomor_bab) ? (int) $chapter->nomor_bab : (isset($chapter->chapter_number) ? (int) $chapter->chapter_number : null),
                 'title' => $chapter->judul ?? $chapter->title ?? $chapter->name ?? 'Bab VI',
                 'subchapters' => $subchapters,
                 'finished' => $finished,
                 'total' => $total,
+                'material_finished' => $materialFinished,
+                'quiz_finished' => $quizFinished,
                 'percentage' => (int) round($finished * 100 / $total),
             ];
         }
@@ -118,7 +186,11 @@ class ParentDashboardService
         $table = 'student_subchapter_progress';
         if (!Schema::hasTable($table) || !$this->has($table, 'user_id') || !$this->has($table, 'subchapter_id')) return false;
         $row = DB::table($table)->where('user_id', $studentId)->where('subchapter_id', $subchapterId)->first();
-        if (!$row) return false;
+        return $row ? $this->isProgressRowCompleted($row) : false;
+    }
+
+    private function isProgressRowCompleted(object $row): bool
+    {
         if (property_exists($row, 'is_completed') && $row->is_completed !== null) return (bool) $row->is_completed;
         if (property_exists($row, 'completed') && $row->completed !== null) return (bool) $row->completed;
         if (property_exists($row, 'completed_at') && $row->completed_at !== null) return true;
@@ -126,42 +198,41 @@ class ParentDashboardService
         return false;
     }
 
-    private function quizCount(int $studentId): int
-    {
-        if (!Schema::hasTable('student_quiz_answers') || !$this->has('student_quiz_answers', 'user_id')) return 0;
-        $query = DB::table('student_quiz_answers')->where('user_id', $studentId);
-        foreach (['quiz_question_id', 'question_id'] as $column) {
-            if ($this->has('student_quiz_answers', $column)) return $query->distinct()->count($column);
-        }
-        return $query->count();
-    }
-
-    private function scores(int $studentId): array
+    private function completedQuizSubchapterIds(int $studentId, array $subchapterIds): array
     {
         $table = 'student_assessment_results';
-        $scores = [];
-        if (Schema::hasTable($table) && $this->has($table, 'user_id')) {
-            foreach (['score', 'nilai', 'final_score', 'percentage'] as $column) {
-                if ($this->has($table, $column)) {
-                    $query = DB::table($table)->where('user_id', $studentId)->whereNotNull($column);
-                    if ($this->has($table, 'assessment_type')) {
-                        $query->where('assessment_type', '!=', 'evaluation');
-                    }
-                    $scores = $query->pluck($column)
-                        ->filter(fn($value) => is_numeric($value))
-                        ->map(fn($value) => (float) $value)
-                        ->all();
-                    break;
-                }
+        foreach ([
+            'user_id',
+            'assessment_type',
+            'subchapter_id',
+            'score',
+            'completed_at',
+            'total_questions',
+            'correct_answers',
+        ] as $column) {
+            if (!$this->has($table, $column)) {
+                return [];
             }
         }
 
-        $evaluationScores = collect(app(EvaluationResultService::class)->completedForStudent($studentId))
-            ->filter(fn(array $result) => $result['chapter_id'] !== null)
-            ->pluck('score')
-            ->all();
+        if ($subchapterIds === []) {
+            return [];
+        }
 
-        return [...$scores, ...$evaluationScores];
+        return DB::table($table)
+            ->where('user_id', $studentId)
+            ->where('assessment_type', 'quiz')
+            ->whereIn('subchapter_id', $subchapterIds)
+            ->whereNotNull('score')
+            ->whereBetween('score', [0, 100])
+            ->whereNotNull('completed_at')
+            ->where('total_questions', '>', 0)
+            ->where('correct_answers', '>=', 0)
+            ->whereColumn('correct_answers', '<=', 'total_questions')
+            ->distinct()
+            ->pluck('subchapter_id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
     }
 
     private function activities(int $studentId): array
@@ -194,6 +265,8 @@ class ParentDashboardService
                     'chapter_id' => $chapterId,
                     'chapter_title' => $chapter['title'],
                     'subchapter_title' => $subchapter['title'],
+                    'teacher_id' => $chapter['teacher_id'] ?? null,
+                    'teacher_name' => $chapter['teacher_name'] ?? null,
                 ];
                 if (isset($chapter['number'], $subchapter['number'])) {
                     $forumSubchapterMap[(int) $chapter['number'] . '.' . (int) $subchapter['number']] = (int) $subchapter['id'];
@@ -241,10 +314,7 @@ class ParentDashboardService
             ) {
                 $id = (int) $row->subchapter_id;
                 $meta = $subchapterMap[$id];
-                $done = (isset($row->is_completed) && (bool) $row->is_completed) ||
-                    (isset($row->completed) && (bool) $row->completed) ||
-                    !empty($row->completed_at) ||
-                    (isset($row->status) && in_array(strtolower((string)$row->status), ['completed', 'selesai', 'done'], true));
+                $done = $this->isProgressRowCompleted($row);
                 $date = $row->completed_at ?? $row->updated_at ?? $row->created_at ?? null;
                 $events[] = array_merge($meta, [
                     'id' => (int) $row->id,
@@ -285,18 +355,23 @@ class ParentDashboardService
             }
         }
 
-        foreach (app(EvaluationResultService::class)->completedForStudent($studentId) as $attempt) {
-            $chapterId = $attempt['chapter_id'];
-            if ($chapterId === null || !isset($chapterMap[$chapterId])) continue;
+        foreach ($this->evaluationResults->validCompletedForStudent($studentId) as $attempt) {
+            $attribution = $attempt['teacher_id'] === null
+                ? 'Atribusi Guru belum terverifikasi'
+                : 'Guru ' . $attempt['teacher_name'];
             $events[] = [
                 'id' => $attempt['id'],
-                'chapter_id' => $chapterId,
-                'chapter_title' => $attempt['chapter_title'] ?? $chapterMap[$chapterId],
+                'teacher_id' => $attempt['teacher_id'],
+                'teacher_name' => $attempt['teacher_name'],
+                'attribution_status' => $attempt['attribution_status'],
+                'chapter_id' => null,
+                'chapter_title' => null,
                 'subchapter_id' => null,
                 'subchapter_title' => null,
                 'type' => 'evaluasi',
                 'title' => 'Menyelesaikan evaluasi',
-                'detail' => 'Nilai ' . rtrim(rtrim(number_format($attempt['score'], 2, '.', ''), '0'), '.')
+                'detail' => $attribution . ' · Nilai '
+                    . rtrim(rtrim(number_format($attempt['score'], 2, '.', ''), '0'), '.')
                     . ' · ' . $attempt['correct_answers'] . ' dari ' . $attempt['total_questions'] . ' benar',
                 'status' => 'completed',
                 'score' => $attempt['score'],
@@ -374,18 +449,51 @@ class ParentDashboardService
             }
         }
 
-        $chapterIds = array_fill_keys(array_map('intval', array_column($chapters, 'id')), true);
-        foreach (app(EvaluationResultService::class)->completedForStudent($studentId) as $attempt) {
-            $chapterId = $attempt['chapter_id'];
-            if ($chapterId === null || !isset($chapterIds[$chapterId])) continue;
-            $chapter = collect($chapters)->firstWhere('id', $chapterId);
-            if (!$chapter) continue;
+        $student = User::query()->where('role', 'siswa')->findOrFail($studentId);
+        $quizResults = $this->evaluationResults->quizResultsForStudent($studentId);
+        foreach ($quizResults as $result) {
+            $existingKey = null;
+            foreach ($rows as $index => $row) {
+                if ($row['type'] === 'kuis' && (int) $row['id'] === $result['id']) {
+                    $existingKey = $index;
+                    break;
+                }
+            }
+
+            $quizRow = [
+                'id' => $result['id'],
+                'name' => 'Kuis Subbab',
+                'type' => 'kuis',
+                'teacher_id' => $result['teacher_id'],
+                'teacher_name' => $result['teacher_name'],
+                'chapter_id' => $result['chapter_id'],
+                'chapter_title' => $result['chapter_title'],
+                'subchapter_id' => $result['subchapter_id'],
+                'subchapter_title' => $result['subchapter_title'],
+                'score' => $result['score'],
+                'status' => $result['score'] >= 70 ? 'Tuntas' : 'Belum tuntas',
+                'date' => $result['completed_at'],
+            ];
+            if ($existingKey === null) {
+                $rows[] = $quizRow;
+            } else {
+                $rows[$existingKey] = array_merge($rows[$existingKey], $quizRow);
+            }
+        }
+
+        foreach ($this->evaluationResults->validCompletedForStudent($studentId) as $attempt) {
+            $verified = $attempt['teacher_id'] !== null;
             $rows[] = [
                 'id' => $attempt['id'],
-                'name' => 'Evaluasi Akhir',
+                'name' => $verified
+                    ? 'Evaluasi Akhir · ' . $attempt['teacher_name']
+                    : 'Evaluasi Akhir · atribusi Guru belum terverifikasi',
                 'type' => 'evaluasi',
-                'chapter_id' => $chapterId,
-                'chapter_title' => $attempt['chapter_title'] ?? $chapter['title'],
+                'teacher_id' => $attempt['teacher_id'],
+                'teacher_name' => $attempt['teacher_name'],
+                'attribution_status' => $attempt['attribution_status'],
+                'chapter_id' => null,
+                'chapter_title' => null,
                 'subchapter_id' => null,
                 'subchapter_title' => null,
                 'score' => $attempt['score'],
@@ -424,6 +532,20 @@ class ParentDashboardService
         if (!$hasSubchapter && !$hasChapter) return [];
 
         $query = DB::table($table)->where('user_id', $studentId)->whereNotNull($scoreColumn);
+        $query->whereBetween($scoreColumn, [0, 100]);
+        if ($this->has($table, 'completed_at')) {
+            $query->whereNotNull('completed_at');
+        }
+        if ($this->has($table, 'total_questions')) {
+            $query->where('total_questions', '>', 0);
+        }
+        if (
+            $this->has($table, 'correct_answers')
+            && $this->has($table, 'total_questions')
+        ) {
+            $query->where('correct_answers', '>=', 0)
+                ->whereColumn('correct_answers', '<=', 'total_questions');
+        }
         if ($this->has($table, 'assessment_type')) {
             $query->where('assessment_type', '!=', 'evaluation');
         }
@@ -450,7 +572,7 @@ class ParentDashboardService
 
             $rawType = strtolower((string) ($row->assessment_type ?? $row->type ?? $row->jenis ?? ''));
             if (str_contains($rawType, 'evaluasi') || str_contains($rawType, 'evaluation') || str_contains($rawType, 'exam')) {
-                $type = 'evaluasi';
+                continue;
             } elseif (str_contains($rawType, 'kuis') || str_contains($rawType, 'quiz')) {
                 $type = 'kuis';
             } else {
@@ -479,26 +601,127 @@ class ParentDashboardService
     private function teacherNotes(int $studentId): array
     {
         $table = 'student_teacher_note_messages';
+        $empty = [
+            'assessments' => [],
+            'general' => [],
+            'unavailable' => [],
+        ];
 
         if (!Schema::hasTable($table)) {
-            return [];
+            return $empty;
         }
 
-        return DB::table($table)
+        $hasAssessmentContext = $this->has($table, 'assessment_type')
+            && $this->has($table, 'assessment_result_id');
+        $messages = DB::table($table)
             ->where('student_id', $studentId)
             ->where('audience', 'orang_tua')
             ->whereNotNull('published_at')
             ->where('note', '!=', '')
             ->orderByDesc('published_at')
             ->orderByDesc('id')
-            ->limit(50)
-            ->get()
-            ->map(fn($row) => [
-                'body' => (string) $row->note,
-                'date' => $row->published_at,
-            ])
-            ->filter(fn($note) => trim($note['body']) !== '')
-            ->values()
-            ->all();
+            ->get();
+
+        if ($messages->isEmpty()) {
+            return $empty;
+        }
+
+        $resultsByKey = [];
+        if ($hasAssessmentContext) {
+            foreach ($this->evaluationResults->quizResultsForStudent($studentId) as $result) {
+                $resultsByKey['quiz:' . $result['id']] = $result;
+            }
+
+            foreach ($this->evaluationResults->validCompletedForStudent($studentId) as $result) {
+                if ($result['teacher_id'] !== null) {
+                    $resultsByKey['evaluation:' . $result['id']] = $result;
+                }
+            }
+        }
+
+        $assessments = [];
+        $general = [];
+        $unavailable = [];
+
+        foreach ($messages as $message) {
+            $body = trim((string) $message->note);
+            if ($body === '') {
+                continue;
+            }
+
+            $assessmentType = $hasAssessmentContext
+                ? ($message->assessment_type ?? null)
+                : null;
+            $assessmentResultId = $hasAssessmentContext
+                ? ($message->assessment_result_id ?? null)
+                : null;
+            $note = [
+                'id' => (int) $message->id,
+                'body' => $body,
+                'date' => $message->published_at,
+            ];
+
+            if ($assessmentType === null && $assessmentResultId === null) {
+                $general[] = $note;
+                continue;
+            }
+
+            $resultKey = is_numeric($assessmentResultId)
+                ? $assessmentType . ':' . (int) $assessmentResultId
+                : null;
+            $result = $resultKey === null ? null : ($resultsByKey[$resultKey] ?? null);
+
+            if (
+                !in_array($assessmentType, ['quiz', 'evaluation'], true)
+                || $result === null
+                || (
+                    (int) ($result['teacher_id'] ?? 0) !== (int) $message->teacher_id
+                    || (
+                        $assessmentType === 'evaluation'
+                        && empty($result['teacher_name'])
+                    )
+                    || (
+                        $assessmentType === 'quiz'
+                        && empty($result['chapter_title'])
+                    )
+                )
+            ) {
+                $unavailable[] = $note;
+                continue;
+            }
+
+            if (!isset($assessments[$resultKey])) {
+                $assessments[$resultKey] = [
+                    'assessment_type' => $assessmentType,
+                    'type_label' => $assessmentType === 'quiz' ? 'Kuis Subbab' : 'Evaluasi Akhir',
+                    'teacher_name' => $assessmentType === 'evaluation'
+                        ? $result['teacher_name']
+                        : null,
+                    'chapter_title' => $result['chapter_title'],
+                    'subchapter_title' => $result['subchapter_title'] ?? null,
+                    'score' => $result['score'],
+                    'total_questions' => $result['total_questions'],
+                    'correct_answers' => $result['correct_answers'],
+                    'completed_at' => $result['completed_at'],
+                    'notes' => [],
+                ];
+            }
+
+            $assessments[$resultKey]['notes'][] = $note;
+        }
+
+        $assessments = array_values($assessments);
+        usort($assessments, function (array $first, array $second): int {
+            return strcmp(
+                (string) ($second['notes'][0]['date'] ?? ''),
+                (string) ($first['notes'][0]['date'] ?? '')
+            );
+        });
+
+        return [
+            'assessments' => $assessments,
+            'general' => $general,
+            'unavailable' => $unavailable,
+        ];
     }
 }

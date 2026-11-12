@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\BerandaController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrangTua\DashboardController as OrangTuaDashboardController;
 use App\Http\Middleware\EnsureUserIsGuru;
 use App\Http\Middleware\EnsureUserIsSiswa;
@@ -24,6 +25,7 @@ use App\Http\Controllers\Guru\StudentGradePdfController;
 use App\Http\Controllers\Guru\ParentContactController;
 use App\Http\Controllers\Guru\ParentContactChatController;
 use App\Http\Controllers\Guru\ProfileController as GuruProfileController;
+use App\Http\Controllers\Guru\StudentManagementController;
 
 /*
 |--------------------------------------------------------------------------
@@ -81,20 +83,27 @@ Route::post('/keluar', [AuthController::class, 'logout'])
 
 Route::get('/dashboard', function () {
     $user = Auth::user();
+    $websiteNotifications = app(\App\Services\WebsiteNotificationService::class);
+    $notifications = $websiteNotifications->latestFor($user);
+    $unreadNotificationCount = $websiteNotifications->unreadCountFor($user);
 
     // Dashboard Siswa
     if ($user->role === 'siswa') {
-        return view('siswa.dashboard');
+        return view('siswa.dashboard', compact('notifications', 'unreadNotificationCount'));
     }
 
     // Dashboard Guru
     if ($user->role === 'guru') {
-        return view('guru.dashboard');
+        return view('guru.dashboard', compact('notifications', 'unreadNotificationCount'));
     }
 
     // Dashboard Orang Tua
     if ($user->role === 'orang_tua') {
-        return app(OrangTuaDashboardController::class)->index(request(), app(\App\Services\ParentDashboardService::class));
+        return app(OrangTuaDashboardController::class)->index(
+            request(),
+            app(\App\Services\ParentDashboardService::class),
+            app(\App\Services\WebsiteNotificationService::class)
+        );
     }
 
     // Jika role tidak dikenali, akses ditolak.
@@ -102,6 +111,16 @@ Route::get('/dashboard', function () {
 })
     ->middleware('auth')
     ->name('dashboard');
+
+Route::get('/notifications/{notification}/open', [NotificationController::class, 'open'])
+    ->whereNumber('notification')
+    ->middleware('auth')
+    ->name('notifications.open');
+
+Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])
+    ->whereNumber('notification')
+    ->middleware('auth')
+    ->name('notifications.destroy');
 
 /*
 |--------------------------------------------------------------------------
@@ -198,6 +217,10 @@ Route::post('/siswa/profil/foto', [ProfileController::class, 'updatePhoto'])
     ->middleware(['auth', EnsureUserIsSiswa::class])
     ->name('siswa.profile.photo');
 
+Route::patch('/siswa/profil', [ProfileController::class, 'updateInformation'])
+    ->middleware(['auth', EnsureUserIsSiswa::class])
+    ->name('siswa.profile.update');
+
 Route::delete('/siswa/profil/foto', [ProfileController::class, 'destroyPhoto'])
     ->middleware(['auth', EnsureUserIsSiswa::class])
     ->name('siswa.profile.photo.destroy');
@@ -263,17 +286,30 @@ Route::middleware(['auth', EnsureUserIsGuru::class])
         // 02. DAFTAR SOAL BERDASARKAN SUBBAB
         Route::get('/subchapters/{subchapter}/questions', [QuizQuestionController::class, 'index'])->name('quiz.questions.index');
 
+        Route::post('/subchapters/{subchapter}/questions/upload-image', [QuizQuestionController::class, 'uploadActivityImage'])
+            ->whereNumber('subchapter')
+            ->name('quiz.questions.upload-image');
+
         // 03. TAMBAH SOAL
         Route::post('/subchapters/{subchapter}/questions', [QuizQuestionController::class, 'store'])->name('quiz.questions.store');
 
         // 04. DETAIL / PRATINJAU SOAL
-        Route::get('/subchapters/{subchapter}/questions/{question}', [QuizQuestionController::class, 'show'])->name('quiz.questions.show');
+        Route::get('/subchapters/{subchapter}/questions/{question}', [QuizQuestionController::class, 'show'])
+            ->whereNumber('subchapter')
+            ->whereNumber('question')
+            ->name('quiz.questions.show');
 
         // 05. EDIT SOAL
-        Route::put('/subchapters/{subchapter}/questions/{question}', [QuizQuestionController::class, 'update'])->name('quiz.questions.update');
+        Route::put('/subchapters/{subchapter}/questions/{question}', [QuizQuestionController::class, 'update'])
+            ->whereNumber('subchapter')
+            ->whereNumber('question')
+            ->name('quiz.questions.update');
 
         // 06. HAPUS SOAL
-        Route::delete('/subchapters/{subchapter}/questions/{question}', [QuizQuestionController::class, 'destroy'])->name('quiz.questions.destroy');
+        Route::delete('/subchapters/{subchapter}/questions/{question}', [QuizQuestionController::class, 'destroy'])
+            ->whereNumber('subchapter')
+            ->whereNumber('question')
+            ->name('quiz.questions.destroy');
     });
 
 /*
@@ -320,6 +356,14 @@ Route::middleware(['auth', EnsureUserIsSiswa::class])
             ->whereNumber('subchapter')
             ->name('quiz.subchapters.questions');
 
+        Route::post('/quiz/subchapters/{subchapter}/attempts', [QuizController::class, 'startAttempt'])
+            ->whereNumber('subchapter')
+            ->name('quiz.subchapters.attempts.start');
+
+        Route::get('/quiz/attempts/{attempt}', [QuizController::class, 'showAttempt'])
+            ->whereNumber('attempt')
+            ->name('quiz.attempts.show');
+
         Route::get('/quiz/chapters/{chapterNumber}/subchapters/{subchapterNumber}/questions', [QuizController::class, 'questions'])
             ->whereNumber('chapterNumber')
             ->whereNumber('subchapterNumber')
@@ -329,14 +373,18 @@ Route::middleware(['auth', EnsureUserIsSiswa::class])
         Route::post('/quiz/questions/{question}/check', [QuizController::class, 'checkAnswer'])
             ->whereNumber('question')
             ->name('quiz.check');
+
+        Route::post('/quiz/activities/{question}/answers', [QuizController::class, 'saveActivityAnswer'])
+            ->whereNumber('question')
+            ->name('quiz.activities.answers');
     });
 
 /*
 |--------------------------------------------------------------------------
-| 08.1. EVALUASI AKHIR SISWA — BAB VI SALUANG
+| 08.1. EVALUASI AKHIR SISWA PER GURU — SALUANG
 |--------------------------------------------------------------------------
-| Mengambil 15 soal yang dipublikasikan Guru, memulai sesi,
-| menyimpan jawaban, dan menghitung hasil di server.
+| Mengambil 15 soal dari Guru yang ditugaskan kepada Siswa,
+| memisahkan sesi berdasarkan Guru, dan menghitung hasil di server.
 | Hanya dapat diakses pengguna dengan role Siswa.
 */
 
@@ -344,10 +392,15 @@ Route::middleware(['auth', EnsureUserIsSiswa::class])
     ->prefix('siswa/evaluations')
     ->name('siswa.evaluations.')
     ->group(function () {
-        Route::get('/state', [SiswaEvaluationController::class, 'state'])->name('state');
-        Route::post('/start', [SiswaEvaluationController::class, 'start'])->name('start');
-        Route::put('/answers', [SiswaEvaluationController::class, 'save'])->name('answers');
-        Route::post('/finish', [SiswaEvaluationController::class, 'finish'])->name('finish');
+        Route::get('/teachers', [SiswaEvaluationController::class, 'teachers'])->name('teachers');
+        Route::get('/teachers/{teacher}/state', [SiswaEvaluationController::class, 'state'])
+            ->whereNumber('teacher')->name('state');
+        Route::post('/teachers/{teacher}/start', [SiswaEvaluationController::class, 'start'])
+            ->whereNumber('teacher')->name('start');
+        Route::put('/teachers/{teacher}/answers', [SiswaEvaluationController::class, 'save'])
+            ->whereNumber('teacher')->name('answers');
+        Route::post('/teachers/{teacher}/finish', [SiswaEvaluationController::class, 'finish'])
+            ->whereNumber('teacher')->name('finish');
     });
 
 /*
@@ -360,6 +413,7 @@ Route::middleware(['auth', EnsureUserIsSiswa::class])
 | dilakukan di EvaluationController.
 |
 */
+
 
 Route::middleware(['auth', EnsureUserIsGuru::class])
     ->prefix('guru')
@@ -430,26 +484,6 @@ Route::middleware(['auth', EnsureUserIsGuru::class])
 
 /*
 |--------------------------------------------------------------------------
-| NILAI SISWA GURU — SALUANG
-|--------------------------------------------------------------------------
-| Daftar nilai dan detail hasil belajar siswa.
-*/
-
-Route::middleware(['auth', EnsureUserIsGuru::class])
-    ->prefix('guru')
-    ->name('guru.')
-    ->group(function () {
-        // 01. DAFTAR NILAI SISWA
-        Route::get('/student-grades', [StudentGradeController::class, 'index'])->name('student-grades.index');
-
-        // 02. DETAIL NILAI SISWA
-        Route::get('/student-grades/{student}', [StudentGradeController::class, 'show'])
-            ->whereNumber('student')
-            ->name('student-grades.show');
-    });
-
-/*
-|--------------------------------------------------------------------------
 | 10. NILAI SISWA GURU — SALUANG
 |--------------------------------------------------------------------------
 |
@@ -465,6 +499,12 @@ Route::middleware(['auth', EnsureUserIsGuru::class])
     ->prefix('guru')
     ->name('guru.')
     ->group(function () {
+        Route::get('/students', [StudentManagementController::class, 'index'])->name('students.index');
+        Route::post('/students', [StudentManagementController::class, 'store'])->name('students.store');
+        Route::get('/students/{student}', [StudentManagementController::class, 'show'])->whereNumber('student')->name('students.show');
+        Route::put('/students/{student}', [StudentManagementController::class, 'update'])->whereNumber('student')->name('students.update');
+        Route::delete('/students/{student}', [StudentManagementController::class, 'destroy'])->whereNumber('student')->name('students.destroy');
+
         /*
         |--------------------------------------------------------------------------
         | 10.1. DAFTAR NILAI SISWA
@@ -520,6 +560,9 @@ Route::middleware(['auth', EnsureUserIsGuru::class])
         Route::get('/parent-contacts/{studentGuardian}/messages', [ParentContactChatController::class, 'messages'])
             ->whereNumber('studentGuardian')
             ->name('parent-contacts.messages.index');
+        Route::get('/parent-contacts/{studentGuardian}/presence', [ParentContactController::class, 'presence'])
+            ->whereNumber('studentGuardian')
+            ->name('parent-contacts.presence');
 
         Route::post('/parent-contacts/{studentGuardian}/messages', [ParentContactChatController::class, 'store'])
             ->whereNumber('studentGuardian')
@@ -554,11 +597,21 @@ Route::middleware(['auth', EnsureUserIsGuru::class])
 
 /* CATATAN GURU — hanya pengguna terautentikasi, role diverifikasi controller */
 Route::middleware('auth')->group(function () {
+    Route::patch('/orang-tua/profile', [\App\Http\Controllers\OrangTua\ProfileController::class, 'update'])
+        ->name('orang-tua.profile.update');
+    Route::post('/orang-tua/profile/photo', [\App\Http\Controllers\OrangTua\ProfileController::class, 'updatePhoto'])
+        ->name('orang-tua.profile.photo.update');
+    Route::delete('/orang-tua/profile/photo', [\App\Http\Controllers\OrangTua\ProfileController::class, 'destroyPhoto'])
+        ->name('orang-tua.profile.photo.destroy');
+    Route::patch('/orang-tua/profile/password', [\App\Http\Controllers\OrangTua\ProfileController::class, 'updatePassword'])
+        ->name('orang-tua.profile.password.update');
     Route::prefix('orang-tua/chat')->name('orang-tua.chat.')->group(function () {
         Route::get('/teachers', [\App\Http\Controllers\OrangTua\ChatController::class, 'teachers'])->name('teachers');
         Route::get('/messages', [\App\Http\Controllers\OrangTua\ChatController::class, 'messages'])->name('messages.index');
         Route::post('/messages', [\App\Http\Controllers\OrangTua\ChatController::class, 'store'])->name('messages.store');
     });
+    Route::post('/chat/presence/activity', [\App\Http\Controllers\OrangTua\ChatController::class, 'activity'])
+        ->name('chat.presence.activity');
 
     Route::get('/guru/student-grades/{student}/feedback', [\App\Http\Controllers\Guru\StudentFeedbackController::class, 'show'])
         ->whereNumber('student')

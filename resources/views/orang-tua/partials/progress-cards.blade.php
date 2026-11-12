@@ -5,10 +5,14 @@
         <div class="parent-progress-track">
             <div class="parent-progress-fill" style="width:{{ max(0, min(100, $chapter['percentage'])) }}%"></div>
         </div>
-        <p class="parent-chapter-meta">{{ $chapter['finished'] }} dari {{ $chapter['total'] }} materi selesai</p>
+        <p class="parent-chapter-meta">{{ $chapter['material_finished'] }} materi dan {{ $chapter['quiz_finished'] }} kuis selesai ·
+            {{ $chapter['finished'] }} dari {{ $chapter['total'] }} aktivitas</p>
         @foreach ($chapter['subchapters'] as $subchapter)
-            <div class="parent-subchapter-row"><span>{{ $subchapter['title'] }}</span><b
-                    class="{{ $subchapter['done'] ? 'finished' : '' }}">{{ $subchapter['done'] ? 'Selesai' : 'Belum selesai' }}</b>
+            <div class="parent-subchapter-row">
+                <span class="parent-subchapter-title">{{ $subchapter['title'] }}</span>
+                <span class="parent-subchapter-state">
+                    {{ (int) $subchapter['done'] + (int) $subchapter['quiz_done'] }}/2 aktivitas
+                </span>
             </div>
         @endforeach
     </div>

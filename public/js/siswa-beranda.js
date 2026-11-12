@@ -2,6 +2,30 @@
 (function () {
     'use strict';
     const get = id => document.getElementById(id);
+    function fitActivityList(list) {
+        if (!list) return;
+        if (!list.getClientRects().length) {
+            list.style.maxHeight = '';
+            return;
+        }
+        const cards = Array.from(list.children).slice(0, 2);
+        if (!cards.length) {
+            list.style.maxHeight = '';
+            return;
+        }
+        const heights = cards.map(card => card.getBoundingClientRect().height);
+        if (heights.some(height => height <= 0)) {
+            list.style.maxHeight = '';
+            return;
+        }
+        const gap = Number.parseFloat(getComputedStyle(list).rowGap) || 0;
+        const visibleHeight = heights.reduce((total, height) => total + height, 0)
+            + Math.max(0, cards.length - 1) * gap;
+        list.style.maxHeight = `${visibleHeight}px`;
+    }
+    window.addEventListener('resize', () => {
+        fitActivityList(get('sdActivityList'));
+    });
     function setText(element, value) {
         if (element) element.textContent = String(value ?? '');
     }
@@ -54,6 +78,30 @@
             if (fill) fill.style.width = `${result.percentage}%`;
             progress.setAttribute('aria-valuenow', String(result.percentage));
         });
+        const gradeSummary = get('sdFinalGradeSummary');
+        const gradeList = get('sdFinalGradeList');
+        const finalGrades = result.final_grades || [];
+        if (gradeSummary && gradeList) {
+            gradeList.replaceChildren();
+            finalGrades.forEach(grade => {
+                const item = el('li', 'sd-final-grade-item');
+                const heading = el('strong', '', grade.teacher_name);
+                const score = grade.final_score === null
+                    ? 'Belum Dinilai'
+                    : `${Number(grade.final_score).toLocaleString('id-ID', {
+                        maximumFractionDigits: 2
+                    })} · ${grade.completion_status === 'tuntas' ? 'Tuntas' : 'Belum Tuntas'}`;
+                const value = el('span', '', score);
+                const detail = el(
+                    'small',
+                    '',
+                    `Kuis ${grade.quiz_completed_count}/${grade.quiz_required_count} · Evaluasi ${grade.evaluation_completed ? 'selesai' : 'belum selesai'}`
+                );
+                item.append(heading, value, detail);
+                gradeList.appendChild(item);
+            });
+            gradeSummary.hidden = finalGrades.length === 0;
+        }
         const activities = get('sdActivityList');
         const emptyState = get('sdActivityEmpty');
         if (activities) {
@@ -82,6 +130,7 @@
                 }
                 activities.appendChild(item);
             });
+            requestAnimationFrame(() => fitActivityList(activities));
         }
         if (emptyState) emptyState.hidden = Boolean(result.activities?.length);
         return result;
@@ -90,5 +139,6 @@
         refreshProgress,
         renderSummary,
         showMaterialError,
+        fitActivityList: () => fitActivityList(get('sdActivityList')),
     };
 })();

@@ -14,11 +14,11 @@
 /* PANEL UTAMA */
 .gf-panel {
     margin: 20px 0;
-    padding: 28px;
+    padding: 25px;
     background: #ffffff;
-    border: 1px solid #e3eeea;
-    border-radius: 18px;
-    box-shadow: 0 8px 28px rgba(16, 65, 72, .045);
+    border: 1px solid #d8e7df;
+    border-radius: 14px;
+    box-shadow: 0 8px 20px rgba(7, 84, 119, .04);
 }
 .gf-heading {
     display: flex;
@@ -36,7 +36,7 @@
 .gf-heading p {
     margin: 0;
     color: #708b94;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1.8;
 }
 /* TOMBOL */
@@ -50,7 +50,7 @@
     border: 1px solid transparent;
     border-radius: 10px;
     font-family: inherit;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     line-height: 1.4;
     cursor: pointer;
@@ -102,7 +102,7 @@
 }
 .gf-field label {
     color: #24576a;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
 }
 .gf-field input,
@@ -116,7 +116,7 @@
     background: #ffffff;
     color: #174a60;
     font-family: inherit;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1.6;
     outline: none;
     transition: border-color .2s ease,
@@ -157,7 +157,7 @@
     background: #ffffff;
     color: #537c70;
     font-family: inherit;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
 }
@@ -173,15 +173,17 @@
 .gf-discussion-list {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 13px;
 }
+
 .gf-discussion-card {
-    padding: 20px;
-    background: #ffffff;
-    border: 1px solid #e0ebe6;
-    border-radius: 14px;
-    box-shadow: 0 4px 18px rgba(16, 65, 72, .035);
+    padding: 17px;
+    background: #E8F5ED;
+    border: 1px solid #80BE9C;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(7, 84, 119, .035);
 }
+
 .gf-card-header {
     display: flex;
     align-items: flex-start;
@@ -191,21 +193,69 @@
 .gf-card-header h3 {
     margin: 0 0 8px;
     color: #075477;
-    font-size: 15px;
+    font-size: 20px;
     font-weight: 700;
-    line-height: 1.6;
+    line-height: 1.5;
+    text-align: left;
+    overflow-wrap: anywhere;
 }
-.gf-card-meta,
+.gf-card-meta {
+    margin: 0;
+    color: #526f79;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: left;
+}
+.gf-card-reply-count {
+    font-weight: 500;
+}
 .gf-card-excerpt {
     margin: 0;
-    color: #718d96;
-    font-size: 11px;
-    line-height: 1.8;
+    color: #426977;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.7;
+    text-align: left;
+}
+.gf-card-heading {
+    flex: 1;
+    min-width: 0;
+}
+.gf-card-author {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    margin-bottom: 9px;
+}
+.gf-card-author-info {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+}
+.gf-card-author-info strong {
+    color: #287c58;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.5;
+    text-align: left;
+    overflow-wrap: anywhere;
+}
+.gf-card-author-info span {
+    color: #526b74;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: left;
+}
+.gf-card-location {
+    margin: 0 0 8px;
+    color: #526b74;
+    text-align: left;
 }
 .gf-card-excerpt {
     margin: 13px 0;
-    color: #426977;
-    font-size: 12px;
     overflow-wrap: anywhere;
 }
 .gf-badge {
@@ -214,8 +264,9 @@
     border-radius: 999px;
     background: #fff3de;
     color: #a36c1f;
-    font-size: 10px;
-    font-weight: 700;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
     white-space: nowrap;
 }
 .gf-badge.is-answered {
@@ -247,7 +298,7 @@
 }
 .gf-empty p {
     margin: 0;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1.8;
 }
 /* PAGINASI */
@@ -260,7 +311,7 @@
 }
 .gf-pagination span {
     color: #708b94;
-    font-size: 12px;
+    font-size: 14px;
 }
 /* MODAL */
 .gf-modal {
@@ -303,10 +354,13 @@
     margin-bottom: 22px;
 }
 .gf-modal-header h2 {
+    flex: 1;
+    min-width: 0;
     margin: 0;
     color: #075477;
-    font-size: 19px;
+    font-size: 18px;
     font-weight: 700;
+    overflow-wrap: anywhere;
 }
 .gf-modal-close {
     display: grid;
@@ -324,40 +378,111 @@
 .gf-detail-text {
     margin: 0 0 18px;
     color: #355f6c;
-    font-size: 13px;
-    line-height: 1.9;
+    font-size: 16px;
+    line-height: 1.7;
+    text-align: left;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
 }
 .gf-detail-meta {
-    color: #78939b;
-    font-size: 11px;
+    color: #526b74;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: left;
     margin-bottom: 14px;
+}
+
+#gfDetailContent {
+    margin-bottom: 18px;
+    padding: 20px;
+    border: 1px solid #80BE9C;
+    border-radius: 12px;
+    background: #E8F5ED;
+    box-shadow: 0 3px 12px rgba(7, 84, 119, 0.035);
+}
+
+.gf-question-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+}
+.gf-question-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+.gf-question-top .gf-question-author {
+    margin-bottom: 0;
+}
+.gf-question-author-info {
+    min-width: 0;
+}
+.gf-question-author-info strong {
+    color: #287c58;
+    font-size: 16px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+.gf-question-date {
+    margin: 3px 0 0;
+}
+.gf-question-meta {
+    margin: 14px 0 8px;
+}
+.gf-detail-title {
+    margin: 0 0 10px;
+    color: #075477;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+.gf-question-reply-count {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 14px 0 0;
+    color: #537c70;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+}
+.gf-question-reply-count i {
+    font-size: 15px;
 }
 .gf-reply-heading {
     margin: 24px 0 14px;
     color: #075477;
-    font-size: 15px;
+    font-size: 22px;
     font-weight: 700;
 }
+
 .gf-reply-card {
     padding: 15px;
     margin-bottom: 12px;
-    background: #f8fbfa;
-    border: 1px solid #e0ece7;
-    border-radius: 11px;
+    background: #EAF4FA;
+    border: 1px solid #C5DEED;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(7, 84, 119, .025);
 }
+
 .gf-reply-card strong {
     display: block;
     color: #287c58;
-    font-size: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.5;
     margin-bottom: 6px;
 }
 .gf-reply-card p {
     margin: 0;
     color: #426977;
-    font-size: 12px;
+    font-size: 16px;
     line-height: 1.8;
+    text-align: left;
     white-space: pre-wrap;
 }
 .gf-form-actions {
@@ -366,6 +491,13 @@
     flex-wrap: wrap;
     gap: 10px;
     margin-top: 22px;
+}
+#gfReplyForm {
+    margin-top: 20px;
+    padding: 18px;
+    border: 1px solid #d5e4dc;
+    border-radius: 12px;
+    background: #ffffff;
 }
 .gf-delete-icon {
     display: grid;
@@ -376,7 +508,7 @@
     background: #fff0ef;
     color: #b53838;
     border-radius: 50%;
-    font-size: 27px;
+    font-size: 14px;
 }
 /* NOTIFIKASI */
 .gf-toast {
@@ -389,7 +521,7 @@
     border-radius: 12px;
     background: #075477;
     color: #ffffff;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1.6;
     box-shadow: 0 12px 30px rgba(8, 50, 68, .2);
 }
@@ -413,13 +545,16 @@
         align-items: stretch;
     }
     .gf-heading h1 {
-        font-size: 21px;
+        font-size: 24px;
     }
     .gf-modal {
         padding: 12px;
     }
     .gf-modal-dialog {
         padding: 18px;
+    }
+    #gfReplyForm {
+        padding: 14px;
     }
     .gf-pagination {
         flex-wrap: wrap;
@@ -436,14 +571,14 @@
 .gf-reply-avatar {
     display: grid;
     place-items: center;
-    flex: 0 0 43px;
-    width: 43px;
-    height: 43px;
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
     overflow: hidden;
     border-radius: 50%;
     background: #cceef0;
     color: #075477;
-    font-size: 17px;
+    font-size: 13px;
     font-weight: 700;
 }
 .gf-reply-avatar img {
@@ -467,6 +602,8 @@
     margin: 0 0 8px;
     padding: 0;
     color: #78939b;
+    font-size: 14px;
+    font-weight: 400;
     text-align: left !important;
 }
 .gf-reply-content > .gf-reply-message {
@@ -475,6 +612,7 @@
     text-align: left !important;
     overflow-wrap: anywhere;
     white-space: pre-wrap;
+    line-height: 1.7;
 }
 @media (max-width: 600px) {
     .gf-reply-card { gap: 10px; }
@@ -482,7 +620,7 @@
         flex-basis: 36px;
         width: 36px;
         height: 36px;
-        font-size: 15px;
+        font-size: 13px;
     }
 }
 /* FOTO PROFIL PENULIS PERTANYAAN UTAMA — FORUM GURU */
@@ -503,9 +641,10 @@
 .gf-question-author-info > strong {
     display: block;
     color: #287c58;
-    font-size: 13px;
+    font-size: 16px;
     font-weight: 700;
     margin-bottom: 4px;
+    overflow-wrap: anywhere;
 }
 .gf-question-author-info .gf-question-date {
     margin: 0;
@@ -513,5 +652,7 @@
 }
 .gf-question-body {
     margin: 0 0 18px;
+    text-align: left;
+    line-height: 1.7;
     text-align: left;
 }

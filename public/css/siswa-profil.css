@@ -14,13 +14,13 @@
 .sd-profile-heading h1 {
     margin: 0 0 6px;
     color: #075477;
-    font-size: 27px;
+    font-size: 24px;
     font-weight: 600;
 }
 .sd-profile-heading p {
     margin: 0;
     color: #7594a1;
-    font-size: 12px;
+    font-size: 14px;
 }
 /* 01. KARTU DASAR */
 .sd-profile-card {
@@ -48,19 +48,19 @@
     border-radius: 50%;
     background: #cceef0;
     color: #075477;
-    font-size: 23px;
+    font-size: 24px;
     font-weight: 700;
 }
 .sd-profile-identity-info h2 {
     margin: 0 0 4px;
     color: #075477;
-    font-size: 19px;
+    font-size: 18px;
     font-weight: 600;
 }
 .sd-profile-identity-info p {
     margin: 0 0 12px;
     color: #7594a1;
-    font-size: 11px;
+    font-size: 14px;
 }
 .sd-profile-photo-actions {
     display: flex;
@@ -70,7 +70,7 @@
 }
 #profilePhotoFilename {
     color: #7594a1;
-    font-size: 10px;
+    font-size: 14px;
 }
 /* 03. HEADER KARTU */
 .sd-profile-card-header {
@@ -83,7 +83,7 @@
 .sd-profile-card-header h2 {
     margin: 0;
     color: #075477;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
 }
 /* 04. INFORMASI PRIBADI */
@@ -104,12 +104,12 @@
 .sd-profile-info-item span,
 .sd-profile-password-summary span {
     color: #7594a1;
-    font-size: 10px;
+    font-size: 14px;
 }
 .sd-profile-info-item strong,
 .sd-profile-password-summary strong {
     color: #075477;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     overflow-wrap: anywhere;
 }
@@ -139,7 +139,7 @@
     flex-direction: column;
     gap: 7px;
     color: #075477;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 500;
     min-width: 0;
 }
@@ -153,7 +153,7 @@
     background: #ffffff;
     color: #075477;
     font-family: Poppins, sans-serif;
-    font-size: 11px;
+    font-size: 14px;
 }
 .sd-profile-form-grid input:focus {
     border-color: #80b6c1;
@@ -174,7 +174,7 @@
 .sd-profile-message {
     margin: 10px 0 0;
     color: #537f8c;
-    font-size: 11px;
+    font-size: 14px;
     line-height: 1.7;
 }
 .sd-profile-message.is-error {
@@ -193,7 +193,7 @@
     padding: 9px 15px;
     border-radius: 9px;
     font-family: Poppins, sans-serif;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 500;
     cursor: pointer;
     transition:
@@ -266,10 +266,10 @@
     .sd-profile-avatar {
         width: 60px;
         height: 60px;
-        font-size: 19px;
+        font-size: 24px;
     }
     .sd-profile-heading h1 {
-        font-size: 23px;
+        font-size: 24px;
     }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -302,7 +302,7 @@
     border: 1px solid #cde0df;
     border-radius: 9px;
     color: #075477;
-    font-size: 11px;
+    font-size: 14px;
 }
 /* Hover tombol kembali */
 .sd-page #profilePasswordBack:hover {
@@ -405,14 +405,14 @@ body.sd-logout-open {
 .sd-logout-dialog h2 {
     margin: 0 0 12px;
     color: #075477;
-    font-size: 23px;
+    font-size: 18px;
     font-weight: 700;
 }
 .sd-logout-dialog p {
     max-width: 360px;
     margin: 0 auto 24px;
     color: #78909d;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1.8;
 }
 .sd-logout-actions {
@@ -426,7 +426,7 @@ body.sd-logout-open {
     padding: 10px;
     border-radius: 10px;
     font-family: Poppins, sans-serif;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition:
@@ -472,7 +472,7 @@ body.sd-logout-open {
         padding: 25px 18px;
     }
     .sd-logout-dialog h2 {
-        font-size: 19px;
+        font-size: 18px;
     }
     .sd-logout-mascot {
         height: 190px;
@@ -500,7 +500,7 @@ body.sd-logout-open {
     border-radius: 9px;
     background: #fff3f3;
     color: #c4434d;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 500;
     cursor: pointer;
     transition: background-color .2s ease;
@@ -548,17 +548,17 @@ body.sd-logout-open {
     border-radius: 50%;
     background: #fff0f0;
     color: #c4434d;
-    font-size: 30px;
+    font-size: 14px;
 }
 .sd-profile-photo-dialog h2 {
     margin: 0 0 12px;
     color: #075477;
-    font-size: 19px;
+    font-size: 18px;
     font-weight: 700;
 }
 .sd-profile-photo-dialog > p {
     color: #78909d;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1.8;
 }
 .sd-profile-photo-actions {
@@ -571,7 +571,7 @@ body.sd-logout-open {
 .sd-profile-photo-danger {
     min-height: 43px;
     border-radius: 10px;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
 }
@@ -595,46 +595,19 @@ body.sd-logout-open {
     opacity: .6;
     cursor: wait;
 }
-/* Typography standard for dashboard content, excluding titles and navigation. */
-.sd-content :where(
-    p, li, label, input, textarea, select, option, button, small, span,
-    strong, em, b, td, th, dd, dt, figcaption, legend, div, a
-):not(h1 *):not(h2 *):not(h3 *):not(h4 *):not(h5 *):not(h6 *)
-:not([class*="heading"])
-:not(.bi):not(i):not(svg):not(.sd-nav-btn):not(.sd-nav-btn *)
-:not(.gd-nav-btn):not(.gd-nav-btn *):not(.sd-breadcrumb):not(.sd-breadcrumb *)
-:not(.sd-material-overview-title):not(.sd-material-chapter-title)
-:not(.sd-material-topic-button):not(.sd-learning-activity-title)
-:not(.sd-summary-main-title):not(.sd-summary-subtitle)
-:not(.sd-summary-item-content strong):not(.sd-media-title)
-:not(.sd-chapter-introduction-caption):not(.sd-chapter-introduction-caption *) {
-    font-size: 12.5px !important;
-}
 .sd-content input::placeholder,
 .sd-content textarea::placeholder {
-    font-size: 12.5px !important;
+    font-size: 12px !important;
 }
 .sd-content :where(p, li):not(figcaption p) {
     line-height: 1.5 !important;
     text-align: justify !important;
-}
-#lessonPage #lessonContent :where(
-    p, li, label, input, textarea, select, option, button, small, span,
-    strong, em, b, td, th, dd, dt, figcaption, legend, div, a
-):not(h1 *):not(h2 *):not(h3 *):not(h4 *):not(h5 *):not(h6 *)
-:not([class*="heading"])
-:not(.bi):not(i):not(svg):not(.sd-nav-btn):not(.sd-nav-btn *)
-:not(.sd-learning-activity-title):not(.sd-summary-main-title)
-:not(.sd-summary-subtitle):not(.sd-summary-item-content strong)
-:not(.sd-media-title):not(.sd-chapter-introduction-caption)
-:not(.sd-chapter-introduction-caption *) {
-    font-size: 12.5px !important;
 }
 #lessonPage #lessonContent .sd-learning-activity-body,
 #lessonPage #lessonContent .sd-learning-activity-body p,
 #lessonPage #lessonContent .sd-learning-activity-body li,
 #lessonPage #lessonContent .sd-summary-body .sd-summary-paragraph,
 #lessonPage #lessonContent .sd-summary-item-content p {
-    font-size: 12.5px !important;
+    font-size: 14px !important;
     line-height: 1.5 !important;
 }

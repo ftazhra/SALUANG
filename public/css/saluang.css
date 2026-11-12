@@ -674,24 +674,24 @@ summary:focus-visible {
     margin: 0 0 5px;
     color: var(--navy);
     font-family: 'Poppins', sans-serif;
-    font-size: 17px;
+    font-size: 20px;
     font-weight: 800;
 }
 .feature-row strong {
     color: var(--navy);
-    font-size: 12px;
+    font-size: 16px;
 }
 .feature-row p {
     max-width: 790px;
     margin: 12px 0;
     color: var(--muted);
-    font-size: 12px;
-    line-height: 1.75;
+    font-size: 16px;
+    line-height: 1.8;
 }
 .feature-row a {
     color: var(--green);
-    font-size: 11px;
-    font-weight: 900;
+    font-size: 16px;
+    font-weight: 600;
 }
 .feature-row a:hover {
     text-decoration: underline;
@@ -742,7 +742,7 @@ summary:focus-visible {
     margin: 16px 0 3px;
     color: #0f5b78;
     font-family: 'Poppins', sans-serif;
-    font-size: 17px;
+    font-size: 20px;
     font-weight: 800;
 }
 .guide-card strong {
@@ -752,8 +752,8 @@ summary:focus-visible {
 .guide-card > p {
     margin: 11px 0 19px;
     color: #57747c;
-    font-size: 12px;
-    line-height: 1.65;
+    font-size: 16px;
+    line-height: 1.7;
 }
 /* Area buka/tutup panduan */
 .panduan-toggle {
@@ -819,7 +819,7 @@ summary:focus-visible {
 .guide-detail p {
     margin: 8px 0;
     color: #16445a;
-    font-size: 12px;
+    font-size: 16px;
     line-height: 1.7;
 }
 /* Responsive */
@@ -1179,14 +1179,14 @@ summary:focus-visible {
     display: inline-block;
     margin-bottom: 24px;
     color: #0f5b78;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
 }
 .auth-card h1 {
     margin: 0 0 10px;
     color: #0f5b78;
     font-family: 'Poppins', sans-serif;
-    font-size: 27px;
+    font-size: 24px;
 }
 .auth-card > p {
     margin-bottom: 25px;
@@ -1244,7 +1244,7 @@ summary:focus-visible {
     border: 1px solid #f3b4b4;
     border-radius: 10px;
     color: #9b2424;
-    font-size: 13px;
+    font-size: 14px;
 }
 .auth-error ul {
     margin: 8px 0 0;
@@ -1378,7 +1378,7 @@ summary:focus-visible {
 .saluang-guide-step-content li {
     margin: 0 0 7px;
     color: #57747c;
-    font-size: 12px;
+    font-size: 16px;
     line-height: 1.8;
 }
 .saluang-guide-step-content li:last-child {
@@ -1415,7 +1415,7 @@ summary:focus-visible {
         font-size: 14px;
     }
     .saluang-guide-step-content li {
-        font-size: 12px;
+        font-size: 16px;
     }
     #fitur .feature-links {
         gap: 8px;
@@ -1482,6 +1482,8 @@ summary:focus-visible {
     margin-left: -12px;
     border-radius: 8px;
     color: #287e50;
+    font-size: 16px;
+    font-weight: 600;
     background-color: transparent;
     text-decoration: none !important;
     transition:

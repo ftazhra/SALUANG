@@ -25,6 +25,7 @@ class SubchapterContentBlocksTest extends TestCase
         $response->assertOk()
             ->assertSee('gmContentBlockType')
             ->assertSee('gmBlockMediaSource')
+            ->assertSee('gmBlockImageLayout')
             ->assertSee('gmBlockMediaFile')
             ->assertSee('gmBlockYoutubeUrl')
             ->assertDontSee('Media Pembelajaran')
@@ -163,6 +164,9 @@ class SubchapterContentBlocksTest extends TestCase
             ->assertJsonPath(
                 'chapters.0.subchapters.0.content_blocks.2.type',
                 'video'
+            )
+            ->assertJsonMissingPath(
+                'chapters.0.subchapters.0.content_blocks.1.payload.layout'
             );
 
         $this->assertDatabaseHas('subchapters', [
@@ -204,7 +208,7 @@ class SubchapterContentBlocksTest extends TestCase
                 "/guru/chapters/{$chapter->id}/subchapters/{$subchapter->id}",
                 $this->subchapterPayload([
                     ['type' => 'text', 'content' => '<p>Pembuka</p>'],
-                    ['type' => 'image', 'media_id' => $image->id],
+                    ['type' => 'image', 'media_id' => $image->id, 'layout' => 'right'],
                     ['type' => 'video', 'media_id' => $video->id],
                     ['type' => 'callout', 'title' => 'Kesimpulan', 'content' => 'Ringkasan akhir.'],
                     ['type' => 'text', 'content' => '<p>Penutup</p>'],
@@ -215,6 +219,7 @@ class SubchapterContentBlocksTest extends TestCase
             ->assertJsonPath('subchapter.content_blocks_enabled', true)
             ->assertJsonPath('subchapter.content_blocks.0.type', 'text')
             ->assertJsonPath('subchapter.content_blocks.1.type', 'image')
+            ->assertJsonPath('subchapter.content_blocks.1.payload.layout', 'right')
             ->assertJsonPath('subchapter.content_blocks.2.type', 'video')
             ->assertJsonPath('subchapter.content_blocks.3.type', 'callout')
             ->assertJsonPath('subchapter.content_blocks.4.type', 'text');
@@ -237,6 +242,10 @@ class SubchapterContentBlocksTest extends TestCase
             ->assertJsonPath(
                 'chapters.0.subchapters.0.content_blocks.1.media.id',
                 $image->id
+            )
+            ->assertJsonPath(
+                'chapters.0.subchapters.0.content_blocks.1.payload.layout',
+                'right'
             )
             ->assertJsonPath(
                 'chapters.0.subchapters.0.content_blocks.2.media.embed_url',
@@ -531,11 +540,13 @@ class SubchapterContentBlocksTest extends TestCase
                             'type' => 'image',
                             'source' => 'upload',
                             'title' => 'Gambar pertama',
+                            'layout' => 'right',
                         ],
                         [
                             'type' => 'image',
                             'source' => 'upload',
                             'title' => 'Gambar kedua',
+                            'layout' => 'left',
                         ],
                         [
                             'type' => 'video',
@@ -554,7 +565,9 @@ class SubchapterContentBlocksTest extends TestCase
 
         $response->assertOk()
             ->assertJsonPath('subchapter.content_blocks.0.type', 'image')
+            ->assertJsonPath('subchapter.content_blocks.0.payload.layout', 'right')
             ->assertJsonPath('subchapter.content_blocks.1.type', 'image')
+            ->assertJsonPath('subchapter.content_blocks.1.payload.layout', 'left')
             ->assertJsonPath('subchapter.content_blocks.2.type', 'video');
         $this->assertDatabaseCount('subchapter_media', 3);
 

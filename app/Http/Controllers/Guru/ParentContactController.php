@@ -2,6 +2,9 @@
 namespace App\Http\Controllers\Guru;
 use App\Http\Controllers\Controller;
 use App\Models\StudentGuardian;
+use App\Services\ChatPresenceService;
+use App\Services\ParentTeacherChatService;
+use App\Services\TeacherStudentAccessService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -26,7 +29,11 @@ class ParentContactController extends Controller
     | 02. DAFTAR NARAHUBUNG ORANG TUA
     |--------------------------------------------------------------------------
     */
-    public function index(Request $request): JsonResponse
+    public function index(
+        Request $request,
+        ChatPresenceService $presence,
+        ParentTeacherChatService $chat
+    ): JsonResponse
     {
         $this->ensureGuru($request);
         $filters = $request->validate([
@@ -34,13 +41,10 @@ class ParentContactController extends Controller
             'class'  => ['required', 'in:VII A,VII B,VII C,VII D,VII E'],
         ]);
         abort_unless(Schema::hasTable('teacher_class_assignments'), 503, 'Penugasan Guru-kelas belum dikonfigurasi.');
-        $assignedClass = DB::table('teacher_class_assignments')
-            ->where('teacher_id', $request->user()->id)
-            ->where('class_name', $filters['class'])
-            ->exists();
-        abort_unless($assignedClass, 403, 'Guru tidak ditugaskan pada kelas tersebut.');
+        $studentIds = $chat->studentIdsForTeacher($request->user());
 
         $query = StudentGuardian::query()
+            ->whereIn('student_id', $studentIds)
             ->where('status', 'approved')
             ->whereHas('student', function ($builder) {
                 $builder->where('role', 'siswa');
@@ -82,10 +86,34 @@ class ParentContactController extends Controller
                     );
             });
         }
-        $contacts = $query
-            ->orderBy('student_id')
-            ->get()
-            ->map(function ($relation) {
+        $relations = $query->orderBy('student_id')->get();
+        $unreadCounts = collect();
+        if ($relations->isNotEmpty() && Schema::hasTable('website_notifications')) {
+            $unreadCounts = DB::table('website_notifications as notification')
+                ->join('parent_teacher_messages as message', 'message.id', '=', 'notification.source_id')
+                ->where('notification.recipient_id', $request->user()->id)
+                ->where('notification.recipient_role', 'guru')
+                ->where('notification.event_type', 'chat_message')
+                ->where('notification.source_type', 'parent_teacher_message')
+                ->whereNull('notification.read_at')
+                ->where('message.teacher_id', $request->user()->id)
+                ->where('message.sender_id', '!=', $request->user()->id)
+                ->where(function ($query) use ($relations) {
+                    foreach ($relations as $relation) {
+                        $query->orWhere(function ($pair) use ($relation) {
+                            $pair->where('message.parent_id', $relation->guardian_id)
+                                ->where('message.student_id', $relation->student_id);
+                        });
+                    }
+                })
+                ->selectRaw('message.parent_id, message.student_id, COUNT(*) as unread_count')
+                ->groupBy('message.parent_id', 'message.student_id')
+                ->get()
+                ->mapWithKeys(fn ($row) => [
+                    $row->parent_id . ':' . $row->student_id => (int) $row->unread_count,
+                ]);
+        }
+        $contacts = $relations->map(function ($relation) use ($presence, $unreadCounts) {
                 return [
                     'relationship_id' => $relation->id,
                     'student' => [
@@ -97,16 +125,19 @@ class ParentContactController extends Controller
                     'guardian' => [
                         'id' => $relation->guardian->id,
                         'name' => $relation->guardian->name,
-                        'relationship' =>
-                        $relation->relationship
+                        'relationship' => $relation->relationship
                             ?: $relation->guardian->hubungan_anak
                             ?: 'Wali',
-                        'phone' =>
-                        $relation->guardian->nomor_telepon,
+                        'phone' => $relation->guardian->nomor_telepon,
                     ],
                     'status' => $relation->status,
+                    'presence' => $presence->forUser((int) $relation->guardian_id),
+                    'unread_count' => $unreadCounts->get(
+                        $relation->guardian_id . ':' . $relation->student_id,
+                        0
+                    ),
                 ];
-            });
+        });
         return response()->json([
             'data' => $contacts->values(),
             'total' => $contacts->count(),
@@ -119,23 +150,11 @@ class ParentContactController extends Controller
     */
     public function show(
         Request $request,
-        StudentGuardian $studentGuardian
+        StudentGuardian $studentGuardian,
+        ParentTeacherChatService $chat
     ): JsonResponse {
         $this->ensureGuru($request);
-        abort_unless(Schema::hasTable('teacher_class_assignments'), 503, 'Penugasan Guru-kelas belum dikonfigurasi.');
-        $assignedClasses = DB::table('teacher_class_assignments')
-            ->where('teacher_id', $request->user()->id)
-            ->pluck('class_name');
-        abort_unless(
-            $studentGuardian->status === 'approved'
-                && $assignedClasses->isNotEmpty()
-                && $studentGuardian->student()
-                    ->where('role', 'siswa')
-                    ->whereIn('kelas', $assignedClasses)
-                    ->exists(),
-            404,
-            'Hubungan atau kewenangan kelas tidak valid.'
-        );
+        $chat->teacherThread($request->user(), (int) $studentGuardian->id);
         $studentGuardian->load([
             'student:id,name,nisn,kelas,role',
             'guardian:id,name,nomor_telepon,hubungan_anak,role',
@@ -166,6 +185,20 @@ class ParentContactController extends Controller
                     $studentGuardian->guardian->nomor_telepon,
                 ],
             ],
+        ]);
+    }
+
+    public function presence(
+        Request $request,
+        StudentGuardian $studentGuardian,
+        ParentTeacherChatService $chat
+    ): JsonResponse {
+        $this->ensureGuru($request);
+        $thread = $chat->teacherThread($request->user(), (int) $studentGuardian->id);
+
+        return response()->json([
+            ...$chat->presence($thread, $request->user()),
+            'unread_count' => $chat->unreadCount($thread, $request->user()),
         ]);
     }
 }

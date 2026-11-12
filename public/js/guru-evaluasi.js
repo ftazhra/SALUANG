@@ -42,16 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function getTypeByNumber(number) {
         number = Number(number);
-        if (number >= 1 && number <= 5) {
-            return 'pilihan_ganda';
-        }
-        if (number >= 6 && number <= 10) {
-            return 'drag_drop';
-        }
-        if (number >= 11 && number <= 15) {
-            return 'menghubungkan';
-        }
-        return '';
+        return number >= 1 && number <= 15 ? 'pilihan_ganda' : '';
     }
     function showToast(message, isError = false) {
         if (!toast) return;
@@ -186,6 +177,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 ).length
             );
     }
+    function isCompleteMultipleChoice(question) {
+        const content = question.konten_soal || {};
+        const answer = question.kunci_jawaban || {};
+
+        return question.tipe_soal === 'pilihan_ganda'
+            && typeof question.pertanyaan === 'string'
+            && question.pertanyaan.trim() !== ''
+            && ['a', 'b', 'c', 'd'].every(letter =>
+                typeof content[`pilihan_${letter}`] === 'string'
+                && content[`pilihan_${letter}`].trim() !== ''
+            )
+            && ['A', 'B', 'C', 'D'].includes(answer.jawaban);
+    }
     /* =========================================
        03. DAFTAR NOMOR SOAL 1–15
        ========================================= */
@@ -198,14 +202,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const button = document.createElement('button');
             button.type = 'button';
             button.className = 'ge-number-button';
-            button.textContent = String(number);
-            button.title = question
-                ? question.is_published
-                    ? `Soal ${number} — Dipublikasikan`
-                    : `Soal ${number} — Draft`
-                : `Soal ${number} — Belum dibuat`;
+            button.textContent = `Soal ${number}`;
+            button.title = `Soal ${number}`;
+            button.setAttribute('aria-label', `Soal ${number}`);
             if (question) {
                 button.classList.add('is-filled');
+                if (!isCompleteMultipleChoice(question)) {
+                    button.classList.add('is-incomplete');
+                    button.title =
+                        `Soal ${number} — perlu dilengkapi sebagai pilihan ganda A–D`;
+                    button.setAttribute(
+                        'aria-label',
+                        `Soal ${number}, perlu dilengkapi sebagai pilihan ganda A sampai D`
+                    );
+                }
                 if (!question.is_published) {
                     button.classList.add('is-draft');
                 }
@@ -312,25 +322,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function renderQuestionContent(container, question) {
         container.replaceChildren();
-        addDetailSection(
-            container,
-            'Pertanyaan',
-            question.pertanyaan
+        const prompt = makeElement(
+            'p',
+            question.pertanyaan,
+            'ge-question-prompt'
         );
+        container.appendChild(prompt);
         if (question.tipe_soal === 'pilihan_ganda') {
             const choices = question.konten_soal || {};
+            const answer = question.kunci_jawaban?.jawaban || '';
+            const list = document.createElement('div');
+            list.className = 'ge-answer-list';
             ['A', 'B', 'C', 'D'].forEach(letter => {
-                addDetailSection(
-                    container,
-                    `Pilihan ${letter}`,
-                    choices[`pilihan_${letter.toLowerCase()}`] || '-'
+                const item = document.createElement('div');
+                item.className = 'ge-answer-item';
+                if (answer === letter) item.classList.add('is-correct');
+                const badge = makeElement('span', letter, 'ge-answer-letter');
+                const text = makeElement(
+                    'span',
+                    choices[`pilihan_${letter.toLowerCase()}`] || '—'
                 );
+                item.append(badge, text);
+                list.appendChild(item);
             });
-            addDetailSection(
-                container,
-                'Kunci Jawaban',
-                question.kunci_jawaban?.jawaban || '-'
-            );
+            container.appendChild(list);
+            addDetailSection(container, 'Kunci Jawaban', answer || '—');
         } else {
             renderVisualQuestion(container, question);
         }
@@ -346,8 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedQuestion = question;
         byId('geDetailNumber').textContent =
             `SOAL ${question.nomor_soal}`;
-        byId('geDetailTitle').textContent =
-            question.pertanyaan;
+        byId('geDetailTitle').textContent = 'Rincian Soal';
         byId('geDetailType').textContent =
             TYPE_LABELS[question.tipe_soal] ||
             question.tipe_soal;
@@ -565,14 +580,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateQuestionType() {
         const type = getTypeByNumber(numberInput.value);
         typeInput.value = type;
-        multipleFields.hidden = type !== 'pilihan_ganda';
-        interactiveFields.hidden =
-            !['drag_drop', 'menghubungkan']
-                .includes(type);
+        multipleFields.hidden = !type;
+        interactiveFields.hidden = true;
     }
     numberInput.addEventListener('change', () => {
         updateQuestionType();
-        setupVisualEditor();
     });
     /* =========================================
        06. FORM TAMBAH / EDIT SOAL
@@ -589,7 +601,19 @@ document.addEventListener('DOMContentLoaded', () => {
         byId('gePublished').checked =
             Boolean(question?.is_published);
         updateQuestionType();
-        setupVisualEditor(question);
+        const conversionNotice = byId('geConversionNotice');
+        const isInteractiveQuestion = Boolean(
+            question && question.tipe_soal !== 'pilihan_ganda'
+        );
+        conversionNotice.hidden = !isInteractiveQuestion;
+        if (isInteractiveQuestion) {
+            conversionNotice.textContent =
+                `Soal ini masih tersimpan sebagai ${TYPE_LABELS[question.tipe_soal] || question.tipe_soal}. `
+                + 'Isi pertanyaan, seluruh opsi A–D, dan kunci jawaban untuk mengubahnya menjadi pilihan ganda. '
+                + 'Isi lama akan diarsipkan otomatis sebelum diganti setelah Anda menekan Simpan Soal.';
+        } else {
+            conversionNotice.textContent = '';
+        }
         if (question?.tipe_soal === 'pilihan_ganda') {
             const choices = question.konten_soal || {};
             ['A', 'B', 'C', 'D'].forEach(letter => {
@@ -614,7 +638,8 @@ document.addEventListener('DOMContentLoaded', () => {
         byId('geQuestionModalTitle').textContent =
             question
                 ? `Edit Soal ${question.nomor_soal}`
-                : 'Tambah Soal Evaluasi';
+                : `Isi Soal ${number}`;
+        numberInput.disabled = Boolean(question || number);
         openModal(formModal);
     }
     function parseJsonInput(id, label) {
@@ -842,10 +867,6 @@ document.addEventListener('DOMContentLoaded', () => {
     /* =========================================
        09. TOMBOL UTAMA
        ========================================= */
-    byId('geAddQuestion').addEventListener(
-        'click',
-        () => openQuestionForm()
-    );
     byId('geEditQuestion').addEventListener(
         'click',
         () => {

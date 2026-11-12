@@ -2,9 +2,8 @@
     <div class="op-progress-heading">
         <div>
             <h2>Progres Belajar Anak</h2>
-            <p>Lihat perkembangan materi anak berdasarkan Bab dan Subbab.</p>
+            <p>Lihat progres aktivitas Materi dan Kuis berdasarkan Bab dan Subbab.</p>
         </div>
-        <button type="button" class="parent-outline-button" data-parent-page="beranda">Kembali ke Beranda</button>
     </div>
 
     <div class="op-progress-filters">
@@ -31,26 +30,41 @@
     @else
         <div id="opProgressCards" class="op-progress-cards">
             @forelse (($chapters ?? []) as $chapter)
-                <div class="op-progress-card" data-op-chapter="{{ $chapter['id'] }}">
+                <div class="op-progress-card"
+                     data-op-chapter="{{ $chapter['id'] }}"
+                     data-op-chapter-title="{{ $chapter['title'] }}"
+                     data-op-material-finished="{{ $chapter['material_finished'] }}"
+                     data-op-quiz-finished="{{ $chapter['quiz_finished'] }}">
                     <div class="op-progress-card-title">
-                        <strong>{{ $chapter['title'] }}</strong>
-                        <span>{{ (int) $chapter['percentage'] }}%</span>
+                        <strong data-op-progress-title>{{ $chapter['title'] }}</strong>
+                        <span data-op-progress-percentage>{{ (int) $chapter['percentage'] }}%</span>
                     </div>
                     <div class="op-progress-bar" role="progressbar" aria-label="Progres {{ $chapter['title'] }}"
-                        aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ (int) $chapter['percentage'] }}">
+                        aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ (int) $chapter['percentage'] }}"
+                        data-op-progressbar>
                         <div style="width: {{ max(0, min(100, (int) $chapter['percentage'])) }}%"></div>
                     </div>
-                    <p class="op-progress-card-meta">
-                        {{ $chapter['finished'] }} dari {{ $chapter['total'] }} materi selesai ·
+                    <p class="op-progress-card-meta" data-op-progress-meta>
+                        {{ $chapter['finished'] }} dari {{ $chapter['total'] }} aktivitas selesai (Materi + Kuis) ·
                         {{ $chapter['finished'] >= $chapter['total'] && $chapter['total'] > 0 ? 'Selesai' : ($chapter['finished'] > 0 ? 'Sedang Berlangsung' : 'Belum Dimulai') }}
                     </p>
                     <div class="op-progress-subchapters">
                         @foreach ($chapter['subchapters'] ?? [] as $subchapter)
                             <div class="op-progress-subchapter" data-op-subchapter="{{ $subchapter['id'] }}"
-                                data-op-chapter-ref="{{ $chapter['id'] }}">
-                                <span>{{ $subchapter['title'] }}</span>
-                                <b
-                                    class="{{ $subchapter['done'] ? 'is-finished' : '' }}">{{ $subchapter['done'] ? 'Selesai' : 'Belum selesai' }}</b>
+                                 data-op-chapter-ref="{{ $chapter['id'] }}"
+                                 data-op-material-done="{{ $subchapter['done'] ? 'true' : 'false' }}"
+                                 data-op-quiz-done="{{ $subchapter['quiz_done'] ? 'true' : 'false' }}">
+                                <div class="op-progress-subchapter-info">
+                                    <strong class="op-progress-subchapter-title">{{ $subchapter['title'] }}</strong>
+                                    <small>
+                                       Materi {{ $subchapter['material_recorded_done'] ? 'selesai' : ($subchapter['quiz_done'] ? 'dianggap selesai' : 'belum selesai') }}
+                                        <span aria-hidden="true">·</span>
+                                        Kuis {{ $subchapter['quiz_done'] ? 'selesai' : 'belum selesai' }}
+                                    </small>
+                                </div>
+                                <span class="op-progress-subchapter-count">
+                                    {{ (int) $subchapter['done'] + (int) $subchapter['quiz_done'] }}/2
+                                </span>
                             </div>
                         @endforeach
                     </div>

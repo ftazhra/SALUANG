@@ -1,0 +1,202 @@
+.website-notification-menu {
+    width: min(400px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+    max-height: min(300px, calc(100vh - 24px));
+    overflow: hidden;
+}
+
+.website-notification-menu > strong {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.website-notification-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    display: grid;
+    place-items: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border: 2px solid #fff;
+    border-radius: 999px;
+    background: #d33f49;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.gd-icon-btn#guruNotifButton,
+.parent-icon-button#parentNotifButton,
+.sd-icon {
+    position: relative;
+}
+
+.website-notification-count[hidden] {
+    display: none;
+}
+
+.website-notification-list {
+    max-height: min(220px, calc(100vh - 120px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.website-notification-item {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    box-sizing: border-box;
+    height: 108px;
+    padding: 8px;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: background-color .18s ease;
+}
+
+.website-notification-item + .website-notification-item {
+    margin-top: 4px;
+}
+
+.website-notification-item:hover,
+.website-notification-item:focus-within {
+    background: #e8f4f8;
+}
+
+.website-notification-link,
+.website-notification-link:visited,
+.website-notification-link:hover,
+.website-notification-link:focus,
+.website-notification-link:active {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+    gap: 3px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #075477;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.website-notification-link:focus-visible {
+    outline: 2px solid #77b4d3;
+    outline-offset: 3px;
+}
+
+.website-notification-link strong {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.website-notification-link span {
+    color: #315e68;
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.website-notification-link small {
+    color: #526b74;
+    font-size: 11px;
+    line-height: 1.5;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.website-notification-link.is-unread {
+    position: relative;
+    padding-left: 12px;
+}
+
+.website-notification-link.is-unread::before {
+    position: absolute;
+    top: 5px;
+    left: 0;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #1683a5;
+    content: "";
+}
+
+.website-notification-delete {
+    display: inline-grid;
+    flex: 0 0 24px;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: #526b74;
+    font: inherit;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.website-notification-delete:hover,
+.website-notification-delete:focus-visible {
+    background: #d7eaf1;
+    color: #075477;
+}
+
+.website-notification-delete:focus-visible {
+    outline: 2px solid #77b4d3;
+    outline-offset: 2px;
+}
+
+.website-notification-delete:disabled {
+    cursor: wait;
+    opacity: .6;
+}
+
+.website-notification-menu .website-notification-empty,
+.website-notification-menu .website-notification-error {
+    margin: 0;
+    padding: 8px;
+    color: #526b74;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.website-notification-error:not([hidden]) {
+    margin-top: 6px;
+    border-radius: 7px;
+    background: #fff0ed;
+    color: #9c3025;
+}
+
+@media (max-width: 480px) {
+    .website-notification-menu {
+        width: min(400px, calc(100vw - 32px));
+    }
+
+    .website-notification-list {
+        max-height: min(220px, calc(100vh - 120px));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .website-notification-item {
+        transition: none;
+    }
+}

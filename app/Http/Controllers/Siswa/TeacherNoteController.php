@@ -10,17 +10,27 @@ class TeacherNoteController extends Controller
     public function index(Request $request): JsonResponse
     {
         abort_unless($request->user()?->role === 'siswa', 403);
-        if (!Schema::hasColumn('student_teacher_notes', 'audience')) {
+        if (
+            !Schema::hasTable('student_teacher_note_messages')
+            || !Schema::hasColumn('student_teacher_note_messages', 'audience')
+            || !Schema::hasColumn('student_teacher_note_messages', 'published_at')
+        ) {
             return response()->json(['notes' => []]);
         }
-        // Student id selalu berasal dari session, tidak menerima ID siswa lain.
-        $notes = DB::table('student_teacher_notes as n')
+        $notes = DB::table('student_teacher_note_messages as n')
             ->join('users as teacher', 'teacher.id', '=', 'n.teacher_id')
             ->where('n.student_id', $request->user()->id)
             ->where('n.audience', 'siswa')
+            ->whereNotNull('n.published_at')
             ->where('teacher.role', 'guru')
-            ->orderByDesc('n.updated_at')
-            ->get(['teacher.name as teacher_name', 'n.note', 'n.updated_at']);
+            ->orderByDesc('n.published_at')
+            ->orderByDesc('n.id')
+            ->get([
+                'teacher.name as teacher_name',
+                'n.note',
+                'n.published_at as updated_at',
+            ]);
+
         return response()->json(['notes' => $notes]);
     }
 }

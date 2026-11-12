@@ -58,10 +58,25 @@ document.addEventListener('DOMContentLoaded', function () {
     let activeChapter = null;
     let activeSubchapter = null;
     let currentQuiz = [];
+    let currentQuizContentCount = 0;
+    let currentQuizAttemptId = null;
+    let quizAttemptCompleted = false;
     let questionIndex = 0;
     let quizVersion = 0;
     let quizAnswerPending = false;
+    const navigationEntry = performance.getEntriesByType?.('navigation')?.[0];
+    let restartQuizOnFirstOpen = navigationEntry
+        ? navigationEntry.type === 'reload'
+        : performance.navigation?.type === 1;
     const savedAnswers = new Map();
+    const activityAnswers = new Map();
+    const matchingLineUpdaters = new Set();
+    window.addEventListener('resize', () => {
+        matchingLineUpdaters.forEach(update => update());
+    });
+    window.addEventListener('scroll', () => {
+        matchingLineUpdaters.forEach(update => update());
+    }, { passive: true });
     let dashboardProgress = null;
     let activeMaterialOpen = Promise.resolve();
     // ======================================================
@@ -281,6 +296,9 @@ document.addEventListener('DOMContentLoaded', function () {
         updateActiveMenu();
         closeMobileSidebar();
         scrollTop();
+        if (page === 0) {
+            requestAnimationFrame(() => studentHome.fitActivityList());
+        }
     }
     // ======================================================
     // 07. PENGENALAN BAB
@@ -558,6 +576,7 @@ document.addEventListener('DOMContentLoaded', function () {
             );
             previous.type = 'button';
             previous.dataset.materialNav = 'previous';
+            previous.setAttribute('aria-label', 'Previous');
             previous.append(
                 el('i', 'bi bi-chevron-left'),
                 document.createTextNode(' Previous')
@@ -582,6 +601,7 @@ document.addEventListener('DOMContentLoaded', function () {
             );
             next.type = 'button';
             next.dataset.materialNav = 'next';
+            next.setAttribute('aria-label', 'Next');
             next.append(
                 document.createTextNode('Next '),
                 el('i', 'bi bi-chevron-right')
@@ -659,8 +679,12 @@ document.addEventListener('DOMContentLoaded', function () {
         if (media) media.hidden = hasOrderedBlocks || !hasMedia;
         renderLessonNavigation();
         currentQuiz = [];
+        currentQuizContentCount = 0;
+        currentQuizAttemptId = null;
+        quizAttemptCompleted = false;
         questionIndex = 0;
         savedAnswers.clear();
+        activityAnswers.clear();
         quizAnswerPending = false;
         showQuizMessage(
             'Memuat soal kuis dari Guru...'
@@ -678,8 +702,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const url = '/siswa/quiz/subchapters/' +
             encodeURIComponent(activeSubchapter.id) + '/questions';
         try {
-            const response = await fetch(url, {
+            let response = await fetch(url, {
                 credentials: 'same-origin',
+                signal: AbortSignal.timeout(15000),
                 headers: {
                     'Accept': 'application/json'
                 }
@@ -689,7 +714,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     'Gagal mengambil Kuis dari Guru.'
                 );
             }
-            const result = await response.json();
+            let result = await response.json();
             if (
                 version !== quizVersion ||
                 currentPage !== 2 ||
@@ -698,33 +723,807 @@ document.addEventListener('DOMContentLoaded', function () {
             ) {
                 return;
             }
-            currentQuiz = (
+            let quizQuestions = (
                 Array.isArray(result.questions)
                     ? result.questions
                     : []
-            ).map(item => ({
-                id: item.id,
-                question: item.pertanyaan,
-                options: [
-                    item.pilihan_a,
-                    item.pilihan_b,
-                    item.pilihan_c,
-                    item.pilihan_d
-                ]
-            }));
-            // Jawaban tersimpan di server untuk histori/progres,
-            // tetapi tidak dikunci pada latihan baru.
+            );
             savedAnswers.clear();
+            activityAnswers.clear();
+            if (!result.attempt_storage_available) {
+                showQuizMessage(
+                    'Kuis tersedia, tetapi penyimpanan attempt belum dipasang pada database aplikasi. Hubungi administrator sebelum mulai atau mengulang Kuis.'
+                );
+                return;
+            }
+            const restart = restartQuizOnFirstOpen;
+            if (quizQuestions.length) restartQuizOnFirstOpen = false;
+            let attemptId = result.active_attempt?.id || null;
+            if (quizQuestions.length && (restart || !attemptId)) {
+                attemptId = await createQuizAttempt(
+                    version,
+                    subchapterId,
+                    restart
+                );
+                if (!attemptId) return;
+                response = await fetch(
+                    `${url}?attempt_id=${encodeURIComponent(attemptId)}`,
+                    {
+                        credentials: 'same-origin',
+                        signal: AbortSignal.timeout(15000),
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    }
+                );
+                if (!response.ok) {
+                    throw new Error('Gagal memuat ulang soal Kuis yang aktif.');
+                }
+                const attemptResult = await response.json();
+                if (
+                    version !== quizVersion ||
+                    currentPage !== 2 ||
+                    Number(activeChapter?.id) !== chapterId ||
+                    Number(activeSubchapter?.id) !== subchapterId
+                ) {
+                    return;
+                }
+                quizQuestions.splice(
+                    0,
+                    quizQuestions.length,
+                    ...(Array.isArray(attemptResult.questions)
+                        ? attemptResult.questions
+                        : [])
+                );
+                result.active_attempt = attemptResult.active_attempt;
+            }
+            currentQuiz = quizQuestions
+                .sort((a, b) => Number(a.nomor_soal) - Number(b.nomor_soal))
+                .map((item, index) => {
+                    const displayNumber = index + 1;
+                    if (item.activity_type === 'multiple_choice') {
+                        if (item.student_answer) {
+                            savedAnswers.set(
+                                subchapterId + ':' + item.id,
+                                {
+                                    selected: 'ABCD'.indexOf(item.student_answer.answer),
+                                    correct: item.answer_feedback?.correct,
+                                    correctAnswer: item.answer_feedback?.correct_answer,
+                                    explanation: item.answer_feedback?.explanation
+                                }
+                            );
+                        }
+                        return {
+                            id: item.id,
+                            activity_type: 'multiple_choice',
+                            type: 'multiple_choice',
+                            question: item.pertanyaan,
+                            options: [
+                                item.pilihan_a,
+                                item.pilihan_b,
+                                item.pilihan_c,
+                                item.pilihan_d
+                            ],
+                            display_number: displayNumber
+                        };
+                    }
+
+                    activityState({
+                        ...item,
+                        display_number: displayNumber
+                    }, item.student_answer, item.activity_feedback || null);
+                    return {
+                        ...item,
+                        type: item.activity_type,
+                        question: item.pertanyaan,
+                        display_number: displayNumber
+                    };
+                });
+            currentQuizContentCount = currentQuiz.length;
             questionIndex = 0;
+            currentQuizAttemptId = attemptId || result.active_attempt?.id || null;
+            quizAttemptCompleted = false;
+            if (!currentQuiz.length) {
+                renderQuestion();
+                return;
+            }
             renderQuestion();
         } catch (error) {
             if (
                 version === quizVersion &&
                 currentPage === 2
             ) {
-                showQuizMessage(error.message);
+                showQuizMessage(
+                    error.name === 'TimeoutError'
+                        ? 'Koneksi ke server terlalu lama. Buka kembali subbab untuk mencoba lagi.'
+                        : error.message
+                );
             }
         }
+        async function createQuizAttempt(version, subchapterId, restart) {
+            const opened = await activeMaterialOpen;
+            if (
+                version !== quizVersion
+                || currentPage !== 2
+                || Number(activeSubchapter?.id) !== subchapterId
+            ) {
+                return null;
+            }
+            if (!opened) {
+                throw new Error('Materi belum berhasil tercatat sebagai dipelajari.');
+            }
+            const response = await fetch(
+                `/siswa/quiz/subchapters/${encodeURIComponent(subchapterId)}/attempts`,
+                {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    signal: AbortSignal.timeout(15000),
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector(
+                            'meta[name="csrf-token"]'
+                        )?.content || ''
+                    },
+                    body: JSON.stringify({ restart })
+                }
+            );
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.message || 'Sesi Kuis baru gagal dimulai.');
+            }
+            const newAttemptId = Number(result.attempt?.id);
+            if (!Number.isSafeInteger(newAttemptId) || newAttemptId <= 0) {
+                throw new Error('Sesi kuis belum berhasil dibuat. Silakan buka ulang subbab ini.');
+            }
+            return newAttemptId;
+        }
+    }
+    function activityState(activity, savedAnswer = null, savedFeedback = null) {
+        if (!activityAnswers.has(activity.id)) {
+            const rightOrder = (activity.right_items || []).map(item => item.id);
+            let answers = savedAnswer || (
+                activity.activity_type === 'matching' ? [] : {}
+            );
+            if (
+                activity.activity_type === 'matching'
+                && !Array.isArray(answers)
+            ) {
+                answers = Object.entries(answers).flatMap(([leftId, rightId]) =>
+                    (Array.isArray(rightId) ? rightId : [rightId]).map(value => ({
+                        left_id: leftId,
+                        right_id: value
+                    }))
+                );
+            }
+            activityAnswers.set(activity.id, {
+                answers,
+                selected: null,
+                error: '',
+                pending: false,
+                saving: false,
+                feedback: savedFeedback,
+                saveChain: Promise.resolve(),
+                version: 0,
+                savedVersion: savedAnswer === null ? -1 : 0,
+                rightOrder,
+                suppressClickUntil: 0
+            });
+        }
+        return activityAnswers.get(activity.id);
+    }
+    function bindTouchDrag(card, itemId, state, onDrop) {
+        let startX = 0;
+        let startY = 0;
+        let dragging = false;
+        let activeZone = null;
+        let moveHandler;
+        let upHandler;
+
+        card.addEventListener('pointerdown', event => {
+            if (event.pointerType !== 'touch' || state.pending) return;
+            startX = event.clientX;
+            startY = event.clientY;
+            dragging = false;
+            activeZone = null;
+            moveHandler = moveEvent => {
+                if (!dragging && Math.hypot(
+                    moveEvent.clientX - startX,
+                    moveEvent.clientY - startY
+                ) > 8) {
+                    dragging = true;
+                    card.classList.add('is-dragging');
+                }
+                if (!dragging) return;
+                moveEvent.preventDefault();
+                const nextZone = document.elementFromPoint(
+                    moveEvent.clientX,
+                    moveEvent.clientY
+                )?.closest('[data-activity-dropzone]');
+                if (activeZone && activeZone !== nextZone) {
+                    activeZone.classList.remove('is-drop-target');
+                }
+                activeZone = nextZone;
+                activeZone?.classList.add('is-drop-target');
+            };
+            upHandler = upEvent => {
+                document.removeEventListener('pointermove', moveHandler);
+                document.removeEventListener('pointerup', upHandler);
+                document.removeEventListener('pointercancel', upHandler);
+                card.classList.remove('is-dragging');
+                activeZone?.classList.remove('is-drop-target');
+                if (upEvent.type === 'pointercancel') return;
+                if (!dragging) return;
+                upEvent.preventDefault();
+                state.suppressClickUntil = Date.now() + 400;
+                const zone = document.elementFromPoint(
+                    upEvent.clientX,
+                    upEvent.clientY
+                )?.closest('[data-activity-dropzone]');
+                if (zone) onDrop(itemId, zone);
+            };
+            document.addEventListener('pointermove', moveHandler, { passive: false });
+            document.addEventListener('pointerup', upHandler, { once: true });
+            document.addEventListener('pointercancel', upHandler, { once: true });
+        });
+    }
+    function highlightDropZone(zone) {
+        zone.addEventListener('dragenter', event => {
+            event.preventDefault();
+            zone.classList.add('is-drop-target');
+        });
+        zone.addEventListener('dragover', event => {
+            event.preventDefault();
+            if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+            zone.classList.add('is-drop-target');
+        });
+        zone.addEventListener('dragleave', event => {
+            if (!zone.contains(event.relatedTarget)) {
+                zone.classList.remove('is-drop-target');
+            }
+        });
+        zone.addEventListener('drop', () => zone.classList.remove('is-drop-target'));
+    }
+    function addActivityImage(parent, item) {
+        if (!item.image_url) {
+            parent.classList.add('is-text-only');
+            return;
+        }
+        parent.classList.add('has-image');
+        const frame = el('span', 'sd-activity-image-frame');
+        const image = el('img', 'sd-activity-image');
+        image.src = item.image_url;
+        image.alt = item.label || 'Gambar aktivitas';
+        image.loading = 'lazy';
+        image.draggable = false;
+        image.onerror = () => {
+            frame.replaceChildren(el('span', 'sd-activity-image-fallback', 'Gambar tidak tersedia'));
+        };
+        frame.appendChild(image);
+        parent.appendChild(frame);
+    }
+    function updateActivityAnswer(activity, state, itemId, targetId) {
+        if (quizAttemptCompleted || !currentQuizAttemptId) return;
+        if (targetId === undefined) {
+            delete state.answers[itemId];
+        } else {
+            state.answers[itemId] = targetId;
+        }
+        state.selected = null;
+        state.error = '';
+        state.feedback = null;
+        state.version++;
+        renderQuestion();
+        saveActivityAnswer(activity, state);
+    }
+    function saveActivityAnswer(activity, state) {
+        if (!activeSubchapter || !currentQuizAttemptId || quizAttemptCompleted) return;
+        const subchapterId = Number(activeSubchapter.id);
+        const attemptId = currentQuizAttemptId;
+        const requestVersion = quizVersion;
+        const version = state.version;
+        const answers = JSON.parse(JSON.stringify(state.answers));
+        state.saving = true;
+        state.error = '';
+        renderQuestion();
+        const send = async () => {
+            try {
+                if (
+                    currentQuizAttemptId !== attemptId
+                    || quizVersion !== requestVersion
+                    || quizAttemptCompleted
+                ) {
+                    return;
+                }
+                const opened = await activeMaterialOpen;
+                if (!opened) {
+                    throw new Error('Materi belum siap disimpan.');
+                }
+                if (
+                    currentQuizAttemptId !== attemptId
+                    || quizVersion !== requestVersion
+                    || quizAttemptCompleted
+                ) {
+                    return;
+                }
+                const response = await fetch(
+                    `/siswa/quiz/activities/${encodeURIComponent(activity.id)}/answers`,
+                    {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector(
+                                'meta[name="csrf-token"]'
+                            )?.content || ''
+                        },
+                        body: JSON.stringify({
+                            attempt_id: attemptId,
+                            answers
+                        })
+                    }
+                );
+                const result = await response.json();
+                if (!response.ok) {
+                    if (
+                        response.status === 409
+                        && currentQuizAttemptId === attemptId
+                        && quizVersion === requestVersion
+                    ) {
+                        quizAttemptCompleted = true;
+                        state.saving = false;
+                        state.error = '';
+                        renderQuestion();
+                        try {
+                            await refreshDashboardProgress();
+                        } catch (progressError) {
+                            console.error('Quiz progress refresh failed:', progressError);
+                        }
+                        return;
+                    }
+                    throw new Error(
+                        'Progres aktivitas belum tersimpan.'
+                    );
+                }
+                if (
+                    currentQuizAttemptId === attemptId
+                    && quizVersion === requestVersion
+                    && state.version === version
+                ) {
+                    state.savedVersion = version;
+                    state.saving = false;
+                    state.error = '';
+                    state.feedback = result.activity_feedback || null;
+                    if (
+                        currentPage === 2
+                        && Number(activeSubchapter?.id) === subchapterId
+                    ) {
+                        renderQuestion();
+                    }
+                }
+                if (
+                    result.completed
+                    && currentQuizAttemptId === attemptId
+                    && quizVersion === requestVersion
+                    && currentPage === 2
+                    && Number(activeSubchapter?.id) === subchapterId
+                ) {
+                    quizAttemptCompleted = true;
+                    renderQuestion();
+                    try {
+                        await refreshDashboardProgress();
+                    } catch (progressError) {
+                        console.error('Quiz progress refresh failed:', progressError);
+                    }
+                }
+            } catch (error) {
+                if (
+                    currentQuizAttemptId === attemptId
+                    && quizVersion === requestVersion
+                    && state.version === version
+                ) {
+                    state.saving = false;
+                    state.error = 'Progres belum tersimpan. Periksa koneksi, lalu coba lagi.';
+                    console.error('Quiz activity autosave failed:', error);
+                    if (
+                        currentPage === 2
+                        && Number(activeSubchapter?.id) === subchapterId
+                    ) {
+                        renderQuestion();
+                    }
+                }
+            }
+        };
+        state.saveChain = state.saveChain.then(send, send);
+    }
+    function toggleMatchingPair(activity, state, leftId, rightId) {
+        if (quizAttemptCompleted || !currentQuizAttemptId) return;
+        const existingIndex = state.answers.findIndex(pair =>
+            pair.left_id === leftId && pair.right_id === rightId
+        );
+        if (existingIndex >= 0) {
+            state.answers.splice(existingIndex, 1);
+        } else {
+            state.answers.push({ left_id: leftId, right_id: rightId });
+        }
+        state.selected = null;
+        state.error = '';
+        state.feedback = null;
+        state.version++;
+        renderQuestion();
+        saveActivityAnswer(activity, state);
+    }
+    function renderActivityFeedback(activity, feedback) {
+        if (!feedback) return null;
+        const panel = el('section', 'sd-activity-feedback');
+        panel.setAttribute('aria-live', 'polite');
+        if (activity.activity_type === 'drag_drop') {
+            const results = feedback.items || [];
+            results.forEach(item => {
+                const row = el('p', `sd-activity-feedback-row ${item.is_correct ? 'is-correct' : 'is-incorrect'}`);
+                const name = item.item || 'Objek';
+                const category = item.student_category;
+                row.textContent = item.is_correct
+                    ? `${name} sudah tepat di kategori ${category}.`
+                    : category
+                        ? `${name} belum tepat di kategori ${category}.`
+                        : `${name} belum ditempatkan.`;
+                panel.appendChild(row);
+            });
+            // Pola sama dengan Menghubungkan: koreksi hanya muncul bila ada jawaban keliru.
+            if (results.some(item => !item.is_correct)) {
+                panel.appendChild(el('p', 'sd-activity-feedback-correction', 'Kategori yang tepat:'));
+                results.forEach(item => {
+                    const name = item.item || 'Objek';
+                    const correctCategory = item.correct_category || 'belum tersedia';
+                    panel.appendChild(el('p', 'sd-activity-feedback-row is-correct', `${name} di kategori ${correctCategory}.`));
+                });
+            }
+            return panel;
+        }
+
+        (feedback.student_pairs || []).forEach(pair => {
+            const row = el('p', `sd-activity-feedback-row ${pair.is_correct ? 'is-correct' : 'is-incorrect'}`);
+            row.textContent = pair.is_correct
+                ? `Pasangan ${pair.left} dan ${pair.right} sudah tepat.`
+                : `Pasangan ${pair.left} dan ${pair.right} belum tepat.`;
+            panel.appendChild(row);
+        });
+        if ((feedback.student_pairs || []).some(pair => !pair.is_correct)) {
+            panel.appendChild(el('p', 'sd-activity-feedback-correction', 'Pasangan yang tepat:'));
+            (feedback.correct_pairs || []).forEach(pair => {
+                panel.appendChild(el('p', 'sd-activity-feedback-row is-correct', `${pair.left} dengan ${pair.right}.`));
+            });
+        }
+        return panel;
+    }
+    function renderDragDropActivity(container, activity, state) {
+        const board = el('div', 'sd-drag-drop-board');
+        const items = el('div', 'sd-activity-token-list');
+        items.classList.add('sd-activity-source-items');
+        const visibleObjectCount = (activity.items || []).filter(
+            item => state.answers[item.id] === undefined
+        ).length;
+        items.style.setProperty('--sd-object-columns', String(Math.max(1, Math.min(visibleObjectCount, 4))));
+        (activity.items || [])
+            .filter(item => state.answers[item.id] === undefined)
+            .forEach(item => {
+                const button = el('button', 'sd-activity-token is-drag-card');
+                button.type = 'button';
+                button.draggable = !state.pending;
+                button.setAttribute('aria-label', `Seret gambar ${item.label} atau pilih objek`);
+                button.setAttribute('aria-pressed', String(state.selected === item.id));
+                if (state.selected === item.id) button.classList.add('is-selected');
+                addActivityImage(button, item);
+                button.appendChild(el('span', 'sd-activity-caption', item.label));
+                button.addEventListener('click', () => {
+                    if (state.pending) return;
+                    if (state.suppressClickUntil > Date.now()) {
+                        state.suppressClickUntil = 0;
+                        return;
+                    }
+                    state.selected = item.id;
+                    renderQuestion();
+                });
+                button.addEventListener('dragstart', event => {
+                    button.classList.add('is-dragging');
+                    event.dataTransfer?.setData('text/plain', item.id);
+                    if (event.dataTransfer) {
+                        event.dataTransfer.effectAllowed = 'move';
+                        const rect = button.getBoundingClientRect();
+                        event.dataTransfer.setDragImage(
+                            button,
+                            rect.width / 2,
+                            rect.height / 2
+                        );
+                    }
+                });
+                button.addEventListener('dragend', () => button.classList.remove('is-dragging'));
+                bindTouchDrag(button, item.id, state, (draggedId, zone) => {
+                    updateActivityAnswer(
+                        activity,
+                        state,
+                        draggedId,
+                        zone.dataset.categoryId || undefined
+                    );
+                });
+                items.appendChild(button);
+            });
+        const source = el('section', 'sd-activity-source');
+        source.dataset.activityDropzone = 'source';
+        source.setAttribute('aria-label', 'Objek yang belum dimasukkan kategori');
+        source.appendChild(el('strong', 'sd-activity-source-title', 'Objek'));
+        source.appendChild(items);
+        source.addEventListener('click', event => {
+            if (event.target.closest('.sd-activity-token')) return;
+            if (state.pending || !state.selected) return;
+            updateActivityAnswer(activity, state, state.selected, undefined);
+        });
+        source.addEventListener('dragover', event => event.preventDefault());
+        highlightDropZone(source);
+        source.addEventListener('drop', event => {
+            event.preventDefault();
+            if (state.pending) return;
+            const itemId = event.dataTransfer?.getData('text/plain');
+            if ((activity.items || []).some(item => item.id === itemId)) {
+                updateActivityAnswer(activity, state, itemId, undefined);
+            }
+        });
+        board.appendChild(source);
+        const categories = el('div', 'sd-activity-target-grid');
+        (activity.categories || []).forEach(category => {
+            const target = el('section', 'sd-activity-target');
+            target.dataset.activityDropzone = 'category';
+            target.dataset.categoryId = category.id;
+            target.setAttribute('role', 'group');
+            target.setAttribute('aria-label', `Kategori ${category.label}`);
+            target.appendChild(el('strong', '', category.label));
+            const assignedItems = (activity.items || []).filter(
+                item => state.answers[item.id] === category.id
+            );
+            const assignedList = el('div', 'sd-activity-assigned-list');
+            assignedItems.forEach(item => {
+                const assigned = el('div', 'sd-activity-assigned');
+                assigned.draggable = !state.pending;
+                assigned.tabIndex = state.pending ? -1 : 0;
+                assigned.setAttribute('role', 'button');
+                assigned.setAttribute(
+                    'aria-label',
+                    `Objek ${item.label}, berada di kategori ${category.label}. Pilih atau seret untuk memindahkan.`
+                );
+                assigned.setAttribute(
+                    'aria-pressed',
+                    String(state.selected === item.id)
+                );
+                if (state.selected === item.id) assigned.classList.add('is-selected');
+                addActivityImage(assigned, item);
+                assigned.appendChild(el('span', 'sd-activity-caption', item.label));
+                assigned.addEventListener('click', event => {
+                    event.stopPropagation();
+                    if (state.pending) return;
+                    if (state.suppressClickUntil > Date.now()) {
+                        state.suppressClickUntil = 0;
+                        return;
+                    }
+                    if (state.selected && state.selected !== item.id) {
+                        updateActivityAnswer(
+                            activity,
+                            state,
+                            state.selected,
+                            category.id
+                        );
+                        return;
+                    }
+                    state.selected = item.id;
+                    renderQuestion();
+                });
+                assigned.addEventListener('keydown', event => {
+                    if (!['Enter', ' '].includes(event.key) || state.pending) return;
+                    event.preventDefault();
+                    state.selected = item.id;
+                    renderQuestion();
+                });
+                assigned.addEventListener('dragstart', event => {
+                    event.stopPropagation();
+                    assigned.classList.add('is-dragging');
+                    event.dataTransfer?.setData('text/plain', item.id);
+                    if (event.dataTransfer) {
+                        event.dataTransfer.effectAllowed = 'move';
+                        const rect = assigned.getBoundingClientRect();
+                        event.dataTransfer.setDragImage(
+                            assigned,
+                            rect.width / 2,
+                            rect.height / 2
+                        );
+                    }
+                });
+                assigned.addEventListener('dragend', () =>
+                    assigned.classList.remove('is-dragging')
+                );
+                bindTouchDrag(assigned, item.id, state, (draggedId, zone) => {
+                    updateActivityAnswer(
+                        activity,
+                        state,
+                        draggedId,
+                        zone.dataset.categoryId || undefined
+                    );
+                });
+                assignedList.appendChild(assigned);
+            });
+            target.appendChild(assignedList);
+            target.addEventListener('click', () => {
+                if (state.pending || !state.selected) return;
+                updateActivityAnswer(
+                    activity,
+                    state,
+                    state.selected,
+                    category.id
+                );
+            });
+            target.addEventListener('dragover', event => event.preventDefault());
+            highlightDropZone(target);
+            target.addEventListener('drop', event => {
+                event.preventDefault();
+                if (state.pending) return;
+                const itemId = event.dataTransfer?.getData('text/plain');
+                if ((activity.items || []).some(item => item.id === itemId)) {
+                    updateActivityAnswer(activity, state, itemId, category.id);
+                }
+            });
+            categories.appendChild(target);
+        });
+        board.appendChild(categories);
+        container.appendChild(board);
+    }
+    function renderMatchingActivity(container, activity, state) {
+        const columns = el('div', 'sd-matching-columns');
+        const lines = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        lines.classList.add('sd-matching-lines');
+        lines.setAttribute('aria-hidden', 'true');
+        const leftColumn = el('div', 'sd-activity-token-list sd-matching-left');
+        (activity.left_items || []).forEach(item => {
+            const row = el('div', 'sd-matching-item-row is-left');
+            row.dataset.leftItem = item.id;
+            const button = el('div', 'sd-matching-card');
+            button.setAttribute('aria-label', `Kartu ${item.label}`);
+            addActivityImage(button, item);
+            button.appendChild(el('span', 'sd-activity-caption', item.label));
+            const dot = el('span', 'sd-matching-dot sd-matching-left-dot');
+            if (state.selected === item.id) dot.classList.add('is-selected');
+            dot.setAttribute('role', 'button');
+            dot.tabIndex = 0;
+            dot.setAttribute('aria-label', `Titik penghubung ${item.label}`);
+            row.append(button, dot);
+            const selectLeft = () => {
+                state.selected = item.id;
+                renderQuestion();
+            };
+            dot.addEventListener('click', event => {
+                event.stopPropagation();
+                selectLeft();
+            });
+            dot.addEventListener('keydown', event => {
+                if (event.key !== 'Enter' && event.key !== ' ') return;
+                event.preventDefault();
+                selectLeft();
+            });
+            dot.addEventListener('pointerdown', event => {
+                if (state.pending) return;
+                event.stopPropagation();
+                state.selected = item.id;
+                dot.classList.add('is-selected');
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.classList.add('sd-matching-line', 'is-temporary');
+                lines.appendChild(line);
+                const updateTemporary = pointerEvent => {
+                    const rect = columns.getBoundingClientRect();
+                    const dotRect = dot.getBoundingClientRect();
+                    line.setAttribute('x1', String(dotRect.left + dotRect.width / 2 - rect.left));
+                    line.setAttribute('y1', String(dotRect.top + dotRect.height / 2 - rect.top));
+                    line.setAttribute('x2', String(pointerEvent.clientX - rect.left));
+                    line.setAttribute('y2', String(pointerEvent.clientY - rect.top));
+                };
+                const onPointerMove = pointerEvent => updateTemporary(pointerEvent);
+                const onPointerUp = pointerEvent => {
+                    document.removeEventListener('pointermove', onPointerMove);
+                    document.removeEventListener('pointerup', onPointerUp);
+                    document.removeEventListener('pointercancel', onPointerUp);
+                    line.remove();
+                    if (pointerEvent.type === 'pointercancel') {
+                        return;
+                    }
+                    const targetDot = document.elementFromPoint(
+                        pointerEvent.clientX,
+                        pointerEvent.clientY
+                    )?.closest('.sd-matching-right-dot');
+                    const target = targetDot?.closest('[data-right-item]');
+                    if (target && !state.pending) {
+                        toggleMatchingPair(
+                            activity,
+                            state,
+                            item.id,
+                            target.dataset.rightItem
+                        );
+                    } else {
+                        updateLines();
+                    }
+                };
+                document.addEventListener('pointermove', onPointerMove);
+                document.addEventListener('pointerup', onPointerUp, { once: true });
+                document.addEventListener('pointercancel', onPointerUp, { once: true });
+            });
+            leftColumn.appendChild(row);
+        });
+        const rightColumn = el('div', 'sd-activity-token-list sd-matching-right');
+        const rightItemsById = new Map(
+            (activity.right_items || []).map(item => [item.id, item])
+        );
+        state.rightOrder.forEach(id => {
+            const item = rightItemsById.get(id);
+            if (!item) return;
+            const row = el('div', 'sd-matching-item-row is-right');
+            row.dataset.rightItem = item.id;
+            const button = el('div', 'sd-matching-card');
+            button.setAttribute('aria-label', `Kartu pasangan ${item.label}.`);
+            const dot = el('span', 'sd-matching-dot sd-matching-right-dot');
+            if (state.selected) dot.classList.add('is-target-ready');
+            dot.setAttribute('role', 'button');
+            dot.tabIndex = 0;
+            dot.setAttribute('aria-label', `Titik pasangan ${item.label}`);
+            addActivityImage(button, item);
+            button.appendChild(el('span', 'sd-activity-caption', item.label));
+            row.append(dot, button);
+            const selectRight = () => {
+                if (!state.selected) return;
+                toggleMatchingPair(
+                    activity,
+                    state,
+                    state.selected,
+                    item.id
+                );
+            };
+            dot.addEventListener('click', event => {
+                event.stopPropagation();
+                selectRight();
+            });
+            dot.addEventListener('keydown', event => {
+                if (event.key !== 'Enter' && event.key !== ' ') return;
+                event.preventDefault();
+                selectRight();
+            });
+            rightColumn.appendChild(row);
+        });
+        columns.append(lines, leftColumn, rightColumn);
+        container.appendChild(columns);
+        const updateLines = () => {
+            const rect = columns.getBoundingClientRect();
+            if (!rect.width || !rect.height) return;
+            lines.setAttribute('width', String(rect.width));
+            lines.setAttribute('height', String(rect.height));
+            lines.setAttribute('viewBox', `0 0 ${rect.width} ${rect.height}`);
+            lines.replaceChildren();
+            state.answers.forEach(({ left_id: leftId, right_id: rightId }) => {
+                const leftDot = columns.querySelector(
+                    `[data-left-item="${CSS.escape(leftId)}"] .sd-matching-left-dot`
+                );
+                const rightDot = columns.querySelector(
+                    `[data-right-item="${CSS.escape(rightId)}"] .sd-matching-right-dot`
+                );
+                if (!leftDot || !rightDot) return;
+                const leftRect = leftDot.getBoundingClientRect();
+                const rightRect = rightDot.getBoundingClientRect();
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.classList.add('sd-matching-line');
+                line.setAttribute('x1', String(leftRect.left + leftRect.width / 2 - rect.left));
+                line.setAttribute('y1', String(leftRect.top + leftRect.height / 2 - rect.top));
+                line.setAttribute('x2', String(rightRect.left + rightRect.width / 2 - rect.left));
+                line.setAttribute('y2', String(rightRect.top + rightRect.height / 2 - rect.top));
+                lines.appendChild(line);
+            });
+        };
+        matchingLineUpdaters.add(updateLines);
+        requestAnimationFrame(updateLines);
     }
     function showQuizMessage(message) {
         setText(get('questionCount'), '');
@@ -748,6 +1547,33 @@ document.addEventListener('DOMContentLoaded', function () {
             activeSubchapter.id + ':' + questionId
         ) || null;
     }
+    function activityIsComplete(activity, state) {
+        if (activity.activity_type === 'drag_drop') {
+            return (activity.items || []).every(item =>
+                state.answers[item.id] !== undefined
+                && (activity.categories || []).some(category =>
+                    category.id === state.answers[item.id]
+                )
+            );
+        }
+        return state.answers.length >= Number(activity.required_answer_count)
+            && (activity.left_items || []).every(item =>
+                state.answers.some(pair => pair.left_id === item.id)
+            );
+    }
+    function questionIsAnswered(question) {
+        if (question.activity_type === 'multiple_choice') {
+            return Boolean(getAnswer(question.id));
+        }
+        const state = activityAnswers.get(question.id);
+        return Boolean(
+            state
+            && activityIsComplete(question, state)
+            && !state.saving
+            && !state.error
+            && state.savedVersion === state.version
+        );
+    }
     function renderQuestion() {
         if (!currentQuiz.length) {
             showQuizMessage(
@@ -761,10 +1587,36 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         const question = currentQuiz[questionIndex];
         if (!question) return;
+        const previousButton = get('previousQuestion');
+        const nextButton = get('nextQuestion');
+        if (previousButton) previousButton.hidden = false;
+        if (nextButton) nextButton.hidden = false;
+        if (previousButton) {
+            previousButton.setAttribute('aria-label', 'Previous');
+            previousButton.replaceChildren(
+                el('i', 'bi bi-chevron-left'),
+                document.createTextNode(' Previous')
+            );
+        }
+        if (nextButton) {
+            nextButton.setAttribute('aria-label', 'Next');
+            nextButton.replaceChildren(
+                document.createTextNode('Next '),
+                el('i', 'bi bi-chevron-right')
+            );
+        }
+        const typeLabel = question.activity_type === 'multiple_choice'
+            ? ''
+            : question.activity_type === 'drag_drop'
+                ? ' (Drag & Drop)'
+                : ' (Menghubungkan)';
         setText(
             get('questionCount'),
-            'Soal ' + (questionIndex + 1) +
-            ' dari ' + currentQuiz.length
+            quizAttemptCompleted
+                ? 'Kuis selesai · Jawaban dan progres tersimpan'
+                : 'Soal ' + (question.display_number || questionIndex + 1) +
+                ' dari ' + (currentQuizContentCount || currentQuiz.length) +
+                typeLabel
         );
         setText(
             get('questionText'),
@@ -773,6 +1625,76 @@ document.addEventListener('DOMContentLoaded', function () {
         const container = get('answerChoices');
         if (!container) return;
         container.replaceChildren();
+        if (question.activity_type !== 'multiple_choice') {
+            matchingLineUpdaters.clear();
+            const state = activityState(question);
+            const activityContent = el('div', 'sd-formative-content');
+            const activityCard = el('section', 'sd-formative-card');
+            const normalizePrompt = value => String(value || '')
+                .trim()
+                .replace(/\s+/g, ' ')
+                .toLocaleLowerCase('id');
+            const questionPrompt = normalizePrompt(question.question);
+            const instruction = String(question.instruction || '').trim();
+            if (instruction && normalizePrompt(instruction) !== questionPrompt) {
+                activityContent.appendChild(el(
+                    'p',
+                    'sd-formative-instruction',
+                    instruction
+                ));
+            } else if (!instruction) {
+                activityContent.appendChild(el(
+                    'p',
+                    'sd-formative-hint',
+                    question.activity_type === 'drag_drop'
+                        ? 'Seret setiap objek ke kategorinya.'
+                        : 'Pilih satu kartu, lalu hubungkan dengan satu atau beberapa pasangan.'
+                ));
+            }
+            if (question.activity_type === 'drag_drop') {
+                renderDragDropActivity(activityCard, question, state);
+            } else {
+                renderMatchingActivity(activityCard, question, state);
+            }
+            if (quizAttemptCompleted) {
+                activityCard.classList.add('is-locked');
+                activityCard.setAttribute('aria-disabled', 'true');
+            }
+            activityContent.appendChild(activityCard);
+            const status = el('p', 'sd-activity-save-status');
+            status.setAttribute('role', 'status');
+            status.setAttribute('aria-live', 'polite');
+            if (state.error) {
+                status.classList.add('is-error');
+                status.textContent = `Progres belum tersimpan: ${state.error}`;
+            } else if (state.saving) {
+                status.textContent = 'Menyimpan progres jawaban...';
+            } else if (
+                activityIsComplete(question, state)
+                && state.savedVersion === state.version
+            ) {
+                status.classList.add('is-saved');
+                status.textContent = 'Jawaban tersimpan.';
+            } else {
+                status.hidden = true;
+            }
+            activityContent.appendChild(status);
+            const feedback = renderActivityFeedback(question, state.feedback);
+            if (feedback) activityContent.appendChild(feedback);
+            container.appendChild(activityContent);
+            if (get('answerFeedback')) get('answerFeedback').hidden = true;
+            if (get('previousQuestion')) {
+                get('previousQuestion').disabled =
+                    questionIndex === 0 || state.saving;
+            }
+            if (get('nextQuestion')) {
+                get('nextQuestion').hidden =
+                    questionIndex >= currentQuiz.length - 1;
+                get('nextQuestion').disabled =
+                    !questionIsAnswered(question);
+            }
+            return;
+        }
         const saved = getAnswer(question.id);
         question.options.forEach((option, index) => {
             const button = el(
@@ -781,6 +1703,9 @@ document.addEventListener('DOMContentLoaded', function () {
             );
             button.type = 'button';
             button.disabled = Boolean(saved);
+            if (saved && saved.selected === index) {
+                button.classList.add('is-selected');
+            }
             button.append(
                 el(
                     'span',
@@ -800,8 +1725,18 @@ document.addEventListener('DOMContentLoaded', function () {
             feedback.className = 'sd-answer-feedback';
             feedback.replaceChildren();
         }
-        if (saved) {
+        if (saved && typeof saved.correct === 'boolean') {
             applyFeedback(saved);
+        } else if (saved) {
+            const feedback = get('answerFeedback');
+            if (feedback) {
+                feedback.replaceChildren(
+                    el('strong', '', 'Jawaban tersimpan.'),
+                    el('p', 'mb-0 mt-1', 'Kunci jawaban akan ditampilkan setelah Kuis selesai.')
+                );
+                feedback.className = 'sd-answer-feedback is-saved';
+                feedback.hidden = false;
+            }
         }
         if (get('previousQuestion')) {
             get('previousQuestion').disabled =
@@ -810,6 +1745,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (get('nextQuestion')) {
             get('nextQuestion').hidden =
                 questionIndex >= currentQuiz.length - 1;
+            get('nextQuestion').disabled = !saved;
         }
     }
     async function checkStudentAnswer(
@@ -819,11 +1755,15 @@ document.addEventListener('DOMContentLoaded', function () {
         if (
             quizAnswerPending ||
             !activeSubchapter ||
+            !currentQuizAttemptId ||
+            quizAttemptCompleted ||
             getAnswer(question.id)
         ) {
             return;
         }
         quizAnswerPending = true;
+        const attemptId = currentQuizAttemptId;
+        const requestVersion = quizVersion;
         const subchapterId = Number(
             activeSubchapter.id
         );
@@ -839,7 +1779,14 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             const opened = await activeMaterialOpen;
             if (!opened) {
-                throw new Error('Materi belum berhasil tercatat sebagai dipelajari.');
+                throw new Error('Materi belum siap disimpan.');
+            }
+            if (
+                currentQuizAttemptId !== attemptId
+                || quizVersion !== requestVersion
+                || quizAttemptCompleted
+            ) {
+                return;
             }
             const response = await fetch(
                 '/siswa/quiz/questions/' +
@@ -859,6 +1806,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             )?.content || ''
                     },
                     body: JSON.stringify({
+                        attempt_id: attemptId,
                         jawaban: String.fromCharCode(
                             65 + selected
                         )
@@ -867,23 +1815,53 @@ document.addEventListener('DOMContentLoaded', function () {
             );
             const result = await response.json();
             if (!response.ok) {
-                throw new Error(
-                    result.message ||
-                    'Jawaban gagal diperiksa.'
-                );
+                if (
+                    response.status === 409
+                    && currentQuizAttemptId === attemptId
+                    && quizVersion === requestVersion
+                ) {
+                    quizAttemptCompleted = true;
+                    renderQuestion();
+                    await refreshDashboardProgress();
+                    return;
+                }
+                throw new Error('Jawaban belum tersimpan.');
             }
-            const answer = {
-                selected,
-                correct: Boolean(result.correct),
-                correctAnswer: result.correct_answer,
-                explanation: result.explanation || '',
-                completed: Boolean(result.completed)
-            };
+            if (
+                currentQuizAttemptId !== attemptId
+                || quizVersion !== requestVersion
+            ) {
+                return;
+            }
+            const feedback = result.answer_feedback;
             savedAnswers.set(
                 subchapterId + ':' + questionId,
-                answer
+                {
+                    selected,
+                    correct: feedback?.correct,
+                    correctAnswer: feedback?.correct_answer,
+                    explanation: feedback?.explanation
+                }
             );
+            if (result.completed) {
+                if (
+                    currentQuizAttemptId === attemptId
+                    && quizVersion === requestVersion
+                    &&
+                    currentPage === 2
+                    && Number(activeSubchapter?.id) === subchapterId
+                    && Number(currentQuiz[questionIndex]?.id) === questionId
+                ) {
+                    quizAttemptCompleted = true;
+                    renderQuestion();
+                }
+                await refreshDashboardProgress();
+                return;
+            }
             if (
+                currentQuizAttemptId === attemptId
+                && quizVersion === requestVersion
+                &&
                 currentPage === 2 &&
                 Number(activeSubchapter?.id) ===
                 subchapterId &&
@@ -893,13 +1871,11 @@ document.addEventListener('DOMContentLoaded', function () {
             ) {
                 renderQuestion();
             }
-            if (result.completed) {
-                // Perbarui progres tanpa menampilkan skor, teks selesai,
-                // atau tombol khusus. Buka kembali Subbab untuk latihan baru.
-                await refreshDashboardProgress();
-            }
         } catch (error) {
             if (
+                currentQuizAttemptId === attemptId
+                && quizVersion === requestVersion
+                &&
                 currentPage === 2 &&
                 Number(activeSubchapter?.id) ===
                 subchapterId
@@ -908,18 +1884,22 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (feedback) {
                     feedback.className =
                         'sd-answer-feedback is-wrong';
-                    feedback.textContent = error.message;
+                    feedback.textContent = 'Jawaban belum tersimpan. Periksa koneksi, lalu coba lagi.';
                     feedback.hidden = false;
                 }
+                console.error('Quiz answer save failed:', error);
                 buttons.forEach(button => {
                     button.disabled = false;
                 });
             }
         } finally {
-            quizAnswerPending = false;
+            if (quizVersion === requestVersion) {
+                quizAnswerPending = false;
+            }
         }
     }
     function applyFeedback(answer) {
+        if (!answer || typeof answer.correct !== 'boolean') return;
         const correctIndex = 'ABCD'.indexOf(
             answer.correctAnswer
         );
@@ -939,20 +1919,29 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         const feedback = get('answerFeedback');
         if (!feedback) return;
+        const explanation = el(
+            'p',
+            'mb-0 mt-1',
+            answer.explanation || 'Tidak ada pembahasan.'
+        );
+        const correctChoice = currentQuiz[questionIndex]?.options?.[correctIndex];
+        const correctAnswer = !answer.correct
+            ? el(
+                'p',
+                'mb-0 mt-1',
+                `Jawaban yang benar adalah ${answer.correctAnswer}${correctChoice ? `, yaitu ${correctChoice}` : ''}.`
+            )
+            : null;
         feedback.replaceChildren(
             el(
                 'strong',
                 '',
                 answer.correct
-                    ? '✓ Jawaban benar!'
-                    : '✕ Jawaban belum tepat.'
+                    ? 'Jawaban kamu benar.'
+                    : 'Jawaban kamu belum tepat.'
             ),
-            el(
-                'p',
-                'mb-0 mt-1',
-                answer.explanation ||
-                'Tidak ada pembahasan.'
-            )
+            ...(correctAnswer ? [correctAnswer] : []),
+            explanation
         );
         feedback.className =
             'sd-answer-feedback ' +
@@ -984,7 +1973,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             const question =
                 currentQuiz[questionIndex];
-            if (!getAnswer(question.id)) {
+            if (!questionIsAnswered(question)) {
                 const feedback = get(
                     'answerFeedback'
                 );
@@ -992,7 +1981,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     feedback.className =
                         'sd-answer-feedback is-wrong';
                     feedback.textContent =
-                        'Pilih jawaban terlebih dahulu.';
+                        'Selesaikan soal ini terlebih dahulu.';
                     feedback.hidden = false;
                 }
                 return;
@@ -1083,7 +2072,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const label = el(
                 'span',
                 'sd-material-chapter-label',
-                'BAB ' + chapter.nomor_bab
+                `BAB ${chapter.nomor_bab} · Guru ${chapter.guru?.name || 'SALUANG'}`
             );
             const heading = el(
                 'h2',
@@ -1209,6 +2198,7 @@ document.addEventListener('DOMContentLoaded', function () {
             renderSidebar(mobileMenu);
             renderMaterialCards();
             updateActiveMenu();
+            openNotificationTarget();
             refreshDashboardProgress().catch(error => {
                 console.error('SALUANG:', error);
                 const emptyState = get('sdActivityEmpty');
@@ -1222,6 +2212,7 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error('SALUANG:', error);
             renderHomeMaterialSummary();
             studentHome.showMaterialError(error.message);
+            openNotificationTarget();
             [
                 desktopMenu,
                 mobileMenu,
@@ -1236,6 +2227,38 @@ document.addEventListener('DOMContentLoaded', function () {
                     )
                 );
             });
+        }
+        function openNotificationTarget() {
+            const parameters = new URLSearchParams(window.location.search);
+            const section = parameters.get('section');
+            if (section === 'evaluasi') {
+                showPage(5);
+                return;
+            }
+            if (section === 'material') {
+                const chapterId = Number(parameters.get('chapter_id'));
+                const chapter = publishedChapters.find(
+                    item => Number(item.id) === chapterId
+                );
+                if (chapter) {
+                    openChapter(chapter);
+                } else {
+                    showPage(7);
+                }
+                return;
+            }
+            if (section === 'quiz') {
+                const subchapterId = Number(parameters.get('subchapter_id'));
+                for (const chapter of publishedChapters) {
+                    const subchapter = subchaptersOf(chapter)
+                        .find(item => Number(item.id) === subchapterId);
+                    if (subchapter) {
+                        openSubchapter(chapter, subchapter);
+                        return;
+                    }
+                }
+                showPage(7);
+            }
         }
     }
     // ======================================================

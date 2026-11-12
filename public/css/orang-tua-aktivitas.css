@@ -14,7 +14,7 @@
 .parent-page .pa-head h2 {
     margin: 0;
     color: #075477;
-    font-size: 23px;
+    font-size: 18px;
     line-height: 1.4;
     font-weight: 700
 }
@@ -22,7 +22,7 @@
 .parent-page .pa-head p {
     margin: 6px 0 0;
     color: #63818e;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1.6
 }
 
@@ -41,7 +41,7 @@
 }
 
 .parent-page .pa-field strong {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600
 }
 
@@ -69,7 +69,7 @@
 
     color: #075477;
     font: inherit;
-    font-size: 12px;
+    font-size: 14px;
 
     cursor: pointer;
     outline: none;
@@ -103,7 +103,7 @@
     border-radius: 9px;
     background: #fff;
     color: #075477;
-    font-size: 12px;
+    font-size: 14px;
     transition: background-color .18s ease, color .18s ease
 }
 
@@ -114,7 +114,7 @@
 .parent-page .pa-filter.active {
     background: #4c9e69;
     border-color: #4c9e69;
-    color: #fff
+    color: #fff;
 }
 
 .parent-page .pa-empty {
@@ -123,7 +123,7 @@
     background: #edf7f3;
     color: #245d72;
     font-size: 12px;
-    line-height: 1.65
+    line-height: 1.65;
 }
 
 .parent-page .pa-list {
@@ -151,7 +151,8 @@
     background: #e8f5ed;
     color: #2d8059;
     border-radius: 10px;
-    font-size: 17px
+    font-size: 14px;
+    min-width: 0
 }
 
 .parent-page .pa-entry-main {
@@ -161,21 +162,21 @@
 
 .parent-page .pa-entry-title {
     display: block;
-    font-size: 12px;
+    font-size: 18px;
     font-weight: 600;
     color: #075477
 }
 
 .parent-page .pa-entry-detail {
     display: block;
-    font-size: 11px;
+    font-size: 14px;
     color: #6b8995;
     margin-top: 5px;
     line-height: 1.6
 }
 
 .parent-page .pa-entry-date {
-    font-size: 10px;
+    font-size: 12px;
     color: #7d9ba5;
     white-space: nowrap
 }
@@ -183,7 +184,7 @@
 .parent-page .pa-bottom {
     margin-top: 12px;
     text-align: right;
-    font-size: 10px;
+    font-size: 14px;
     color: #7d9ba5
 }
 
@@ -198,7 +199,7 @@
     }
 
     .parent-page .pa-head h2 {
-        font-size: 18px
+        font-size: 18px;
     }
 
     .parent-page .pa-head {

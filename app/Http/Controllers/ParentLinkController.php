@@ -88,6 +88,7 @@ class ParentLinkController extends Controller
                     'pending'
                 )
                 ->where('siswa.role', 'siswa')
+                ->whereNull('siswa.deleted_at')
                 ->select('student_guardians.*')
                 ->lockForUpdate()
                 ->first();

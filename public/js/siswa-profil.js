@@ -1,6 +1,5 @@
 /* =====================================================
    SALUANG — INTERAKSI HALAMAN PROFIL SISWA
-   Tahap desain: belum menyimpan perubahan ke server.
    ===================================================== */
 document.addEventListener('DOMContentLoaded', function () {
     'use strict';
@@ -30,11 +29,70 @@ document.addEventListener('DOMContentLoaded', function () {
         'click',
         closeEditProfile
     );
-    editForm.addEventListener('submit', function (event) {
+    editForm.addEventListener('submit', async function (event) {
         event.preventDefault();
-        $('profileEditMessage').textContent =
-            'Tampilan Edit Profil sudah siap. ' +
-            'Penyimpanan ke database akan diaktifkan pada tahap berikutnya.';
+        const message = $('profileEditMessage');
+        const submit = editForm.querySelector('[type="submit"]');
+        const payload = {
+            name: $('profileEditName').value.trim(),
+            username: $('profileEditUsername').value.trim(),
+            email: $('profileEditEmail').value.trim() || null,
+            kelas: $('profileEditClass').value.trim() || null,
+            sekolah: $('profileEditSchool').value.trim() || null,
+            nomor_telepon: $('profileEditPhone').value.trim() || null,
+        };
+        submit.disabled = true;
+        message.classList.remove('is-error');
+        message.textContent = 'Menyimpan perubahan...';
+        try {
+            const response = await fetch('/siswa/profil', {
+                method: 'PATCH',
+                credentials: 'same-origin',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector(
+                        'meta[name="csrf-token"]'
+                    )?.content || '',
+                },
+                body: JSON.stringify(payload),
+            });
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(
+                    Object.values(result.errors || {}).flat()[0]
+                    || result.message
+                    || 'Informasi profil gagal disimpan.'
+                );
+            }
+
+            const student = result.student;
+            const display = (value) => value || 'Belum diisi';
+            $('profileDisplayName').textContent = display(student.name);
+            $('profileInfoName').textContent = display(student.name);
+            $('profileInfoUsername').textContent = display(student.username);
+            $('profileInfoEmail').textContent = display(student.email);
+            $('profileInfoNisn').textContent = display(student.nisn);
+            $('profileInfoClass').textContent = display(student.kelas);
+            $('profileInfoSchool').textContent = display(student.sekolah);
+            $('profileInfoPhone').textContent = display(student.nomor_telepon);
+            $('profileDisplaySchoolClass').textContent =
+                `${student.sekolah || 'Sekolah belum diisi'} · ${student.kelas || 'Kelas belum diisi'}`;
+            message.textContent = result.message;
+            closeEditProfile();
+            $('profileEditName').value = student.name || '';
+            $('profileEditUsername').value = student.username || '';
+            $('profileEditEmail').value = student.email || '';
+            $('profileEditClass').value = student.kelas || '';
+            $('profileEditSchool').value = student.sekolah || '';
+            $('profileEditPhone').value = student.nomor_telepon || '';
+            $('profileEditMessage').textContent = result.message;
+        } catch (error) {
+            message.classList.add('is-error');
+            message.textContent = error.message;
+        } finally {
+            submit.disabled = false;
+        }
     });
     /* 02. UBAH KATA SANDI */
     const passwordButton = $('profilePasswordButton');

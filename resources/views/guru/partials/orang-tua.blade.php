@@ -125,6 +125,11 @@
                             <span id="gpGuardianRelation">
                                 Ayah / Ibu / Wali
                             </span>
+                            <div class="gp-presence-line" aria-live="polite">
+                                <span id="gpPresenceDot" class="gp-presence-dot" aria-hidden="true"></span>
+                                <span id="gpPresenceText">Status tidak tersedia</span>
+                            </div>
+                            <span id="gpUnreadCount" class="gp-unread-count" hidden></span>
                         </div>
                     </div>
 

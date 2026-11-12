@@ -3,12 +3,15 @@
    37. HALAMAN FORUM DISKUSI SALUANG
    ===================================================== */
 /* 37.1. Kartu utama */
+
 .sd-page .sd-forum-card {
     padding: 25px;
-    background: #fffefa;
-    border: 1px solid #dce9e6;
+    background: #ffffff;
+    border: 1px solid #d8e7df;
     border-radius: 14px;
+    box-shadow: 0 8px 20px rgba(7, 84, 119, .04);
 }
+
 /* 37.2. Header forum */
 .sd-forum-header {
     display: flex;
@@ -20,13 +23,13 @@
 .sd-forum-title {
     margin: 0 0 8px;
     color: #075477;
-    font-size: 23px;
+    font-size: 24px;
     font-weight: 700;
 }
 .sd-forum-subtitle {
     margin: 0;
     color: #7d9ba5;
-    font-size: 11px;
+    font-size: 12px;
     line-height: 1.7;
 }
 /* 37.3. Tombol hijau utama */
@@ -40,7 +43,7 @@
     border-radius: 9px;
     background: #4e9f69;
     color: #ffffff;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 600;
     white-space: nowrap;
     transition: background .2s ease;
@@ -63,7 +66,7 @@
 }
 .sd-forum-field label {
     color: #075477;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
 }
 .sd-page .sd-forum-field select,
@@ -78,7 +81,7 @@
     background: #ffffff;
     color: #075477;
     font-family: Poppins, sans-serif;
-    font-size: 11px;
+    font-size: 14px;
 }
 .sd-page .sd-forum-field textarea {
     min-height: 110px;
@@ -107,7 +110,7 @@
     border-radius: 9px;
     background: #ffffff;
     color: #075477;
-    font-size: 11px;
+    font-size: 14px;
 }
 .sd-page .sd-forum-filter-btn:hover {
     background: #eaf6ee;
@@ -121,36 +124,52 @@
 .sd-forum-discussion-card {
     padding: 17px;
     margin-bottom: 13px;
-    border: 1px solid #dce9e6;
+    border: 1px solid #80BE9C;
     border-radius: 12px;
-    background: #fffdf5;
+    background: #E8F5ED;
+    box-shadow: 0 3px 12px rgba(7, 84, 119, .035);
 }
+
 .sd-forum-topic {
     margin-bottom: 12px;
     color: #075477;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: left;
+}
+.sd-forum-discussion-card .sd-forum-comment-author-line {
+    margin-bottom: 10px;
+}
+.sd-forum-discussion-card .sd-forum-subchapter {
+    margin-bottom: 12px;
 }
 .sd-forum-card-meta {
     display: block;
     margin: 0 0 10px;
-    color: #7d9ba5;
-    font-size: 10px;
-    line-height: 1.7;
+    color: #5a7f8c;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: left;
 }
 .sd-forum-discussion-title {
     margin: 0 0 9px;
     color: #075477;
-    font-size: 14px;
+    font-size: 20px;
     font-weight: 700;
+    line-height: 1.5;
+    text-align: left;
+    overflow-wrap: anywhere;
 }
 .sd-forum-discussion-excerpt {
     display: -webkit-box;
     margin: 0 0 14px;
     overflow: hidden;
-    color: #7895a1;
-    font-size: 11px;
-    line-height: 1.8;
+    color: #526f79;
+    font-size: 16px;
+    line-height: 1.7;
+    text-align: left;
     overflow-wrap: anywhere;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
@@ -164,7 +183,10 @@
 }
 .sd-forum-reply-count {
     color: #537a8c;
-    font-size: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+    text-align: left;
 }
 /* 37.7. Tombol outline */
 .sd-page .sd-forum-outline,
@@ -178,7 +200,7 @@
     border-radius: 9px;
     background: #ffffff;
     color: #075477;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 500;
 }
 .sd-page .sd-forum-outline:hover,
@@ -193,58 +215,78 @@
     gap: 15px;
     margin-bottom: 22px;
 }
-.sd-forum-screen-header h2,
+.sd-forum-screen-header h2 {
+    margin: 0;
+    color: #075477;
+    font-size: 18px;
+    font-weight: 700;
+}
 .sd-forum-replies-heading {
     margin: 0;
     color: #075477;
-    font-size: 16px;
+    font-size: 22px;
     font-weight: 700;
 }
 .sd-forum-detail-title {
     margin: 10px 0 14px;
     color: #075477;
-    font-size: 12.5px;
+    font-size: 20px;
     font-weight: 700;
 }
 .sd-forum-detail-body,
 .sd-forum-reply-body {
     color: #537a8c;
-    font-size: 11px;
-    line-height: 1.9;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.7;
+    text-align: left;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
 }
+
 #forumDetailContent {
     padding: 20px;
     margin-bottom: 25px;
-    border: 1px solid #dce9e6;
+    border: 1px solid #80BE9C;
     border-radius: 12px;
-    background: #fffdf5;
+    background: #E8F5ED;
+    box-shadow: 0 5px 16px rgba(7, 84, 119, .04);
 }
+
 .sd-forum-replies-heading {
     margin-bottom: 15px;
 }
+
 .sd-forum-reply-card {
     display: flex;
     flex-direction: column;
     gap: 8px;
     padding: 15px;
     margin-bottom: 11px;
-    border: 1px solid #dce9e6;
+    border: 1px solid #C5DEED;
     border-radius: 10px;
-    background: #f8fcfa;
+    background: #EAF4FA;
+    box-shadow: 0 2px 8px rgba(7, 84, 119, .025);
 }
+
 .sd-forum-reply-author {
     color: #075477;
-    font-size: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.5;
+    text-align: left;
 }
 #forumReplyForm {
     margin-top: 22px;
+    padding: 18px;
+    border: 1px solid #d5e4dc;
+    border-radius: 12px;
+    background: #ffffff;
 }
 /* 37.9. Pesan dan paginasi */
 .sd-forum-message {
     color: #537a8c;
-    font-size: 11px;
+    font-size: 14px;
     line-height: 1.7;
 }
 .sd-forum-message.is-error {
@@ -259,7 +301,7 @@
 }
 .sd-forum-page-info {
     color: #537a8c;
-    font-size: 10px;
+    font-size: 14px;
 }
 .sd-page .sd-forum-outline:disabled,
 .sd-page .sd-forum-primary:disabled {
@@ -271,13 +313,16 @@
     .sd-page .sd-forum-card {
         padding: 18px 14px;
     }
+    #forumReplyForm {
+        padding: 14px;
+    }
     .sd-forum-header,
     .sd-forum-screen-header {
         flex-direction: column;
         align-items: stretch;
     }
     .sd-forum-title {
-        font-size: 20px;
+        font-size: 24px;
     }
     .sd-forum-filters {
         grid-template-columns: 1fr;
@@ -310,7 +355,7 @@
     background-size: 16px 16px;
     color: #075477;
     font-family: Poppins, sans-serif;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 500;
     cursor: pointer;
     transition: border-color .2s ease;
@@ -330,6 +375,11 @@
     border-color: #75aabc;
     box-shadow: 0 0 0 2px rgba(7, 84, 119, .09);
     transform: none;
+}
+.sd-page .sd-forum-filters select:disabled {
+    background-color: #f4f9f7;
+    color: #7d9ba5;
+    cursor: not-allowed;
 }
 .sd-page .sd-forum-filters select option {
     background-color: #ffffff;
@@ -535,13 +585,13 @@
     border-radius: 50%;
     background: #fff0ef;
     color: #c34a55;
-    font-size: 33px;
+    font-size: 14px;
 }
 /* Judul */
 .sd-page .sd-forum-confirm-title {
     margin: 0 0 12px;
     color: #075477;
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 700;
     line-height: 1.5;
 }
@@ -549,7 +599,7 @@
 .sd-page .sd-forum-confirm-description {
     margin: 0 0 19px;
     color: #738e98;
-    font-size: 11px;
+    font-size: 14px;
     line-height: 1.9;
 }
 /* Informasi diskusi */
@@ -564,11 +614,12 @@
 }
 .sd-page .sd-forum-confirm-info span {
     color: #77929c;
-    font-size: 10px;
+    font-size: 14px;
 }
 .sd-page .sd-forum-confirm-info strong {
     color: #075477;
-    font-size: 12px;
+    font-size: 16px;
+    font-weight: 600;
     line-height: 1.6;
     overflow-wrap: anywhere;
 }
@@ -576,7 +627,7 @@
 .sd-page .sd-forum-confirm-warning {
     margin: 15px 0 20px;
     color: #bc5360;
-    font-size: 10px;
+    font-size: 14px;
 }
 /* Dua tombol */
 .sd-page .sd-forum-confirm-actions {
@@ -589,7 +640,7 @@
     min-height: 42px;
     padding: 10px 15px;
     border-radius: 10px;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 600;
     transition:
         background-color .2s ease,
@@ -626,7 +677,7 @@
 .sd-page .sd-forum-confirm-error {
     margin: 14px 0 0;
     color: #c03939;
-    font-size: 11px;
+    font-size: 14px;
     line-height: 1.7;
 }
 /* Animasi masuk */
@@ -646,7 +697,7 @@
         padding: 29px 18px 22px;
     }
     .sd-page .sd-forum-confirm-title {
-        font-size: 17px;
+        font-size: 18px;
     }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -696,7 +747,7 @@
     background: #cceef0;
     color: #075477;
     font-weight: 700;
-    font-size: 17px;
+    font-size: 13px;
     line-height: 1;
 }
 .sd-page .sd-forum-comment-avatar img {
@@ -718,6 +769,9 @@
     margin: 3px 0 0;
     padding: 0;
     text-align: left;
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: left;
 }
 .sd-page .sd-forum-reply-content .sd-forum-reply-body {
     margin: 8px 0 0;
@@ -725,12 +779,24 @@
     text-align: left;
     overflow-wrap: anywhere;
 }
+.sd-page #forumDetailContent .sd-forum-card-meta {
+    font-size: 14px;
+    font-weight: 400;
+    text-align: left;
+}
+.sd-page #forumDetailContent .sd-forum-reply-author,
+.sd-page .sd-forum-reply-content .sd-forum-reply-author {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.5;
+    text-align: left;
+}
 .sd-page .sd-forum-comment-topic { margin-top: 12px; }
 @media (max-width: 480px) {
     .sd-page .sd-forum-comment-avatar {
         flex-basis: 36px;
         width: 36px;
         height: 36px;
-        font-size: 15px;
+        font-size: 13px;
     }
 }

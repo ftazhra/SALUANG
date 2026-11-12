@@ -16,6 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const startButton = root.querySelector('[data-eval-open="quiz"]');
     const retryButton = el('sd-eval-retry');
     let passed = false;
+    let ready = false;
+    let selectedTeacherId = '';
+    const bankStatus = el('sd-eval-bank-status');
+    let stateRequestVersion = 0;
     let kkm = 70;
     let questions = [], answers = {}, index = 0, endAt = null, interval = null, mode = 'overview', selected = null, busy = false, saveQueue = Promise.resolve(), drag = null, matchContext = null, matchPointer = null;
     const labels = { pilihan_ganda: 'Pilihan Ganda', drag_drop: 'Drag-and-Drop', menghubungkan: 'Menghubungkan Pasangan' };
@@ -112,13 +116,18 @@ document.addEventListener('DOMContentLoaded', () => {
             b.onclick = () => { index = i; render(); };
             grid.append(b);
         });
-        prev.hidden = index === 0;
-        // Gunakan tombol Next yang sudah ada pada layar ujian.
-        // Pada soal ke-15 tombol yang sama mengirim evaluasi.
+        prev.hidden = false;
+        prev.disabled = index === 0 || busy;
         const last = index === questions.length - 1;
         next.hidden = false;
         next.disabled = busy;
-        next.textContent = last ? 'Selesai Evaluasi' : 'Next';
+        next.replaceChildren(
+            make('span', last ? 'Selesai Evaluasi' : 'Next')
+        );
+
+        if (!last) {
+            next.append(make('i', '', 'bi bi-chevron-right'));
+        }
         const note = el('sd-eval-quiz-last-note');
         if (note) note.hidden = !last;
     }
@@ -131,7 +140,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function queueSave() {
         const snapshot = JSON.parse(JSON.stringify(answers));
-        saveQueue = saveQueue.catch(() => {}).then(() => request(`${api}/answers`, 'PUT', { answers: snapshot }));
+        const teacherId = selectedTeacherId;
+        saveQueue = saveQueue.catch(() => { }).then(() => request(`${api}/teachers/${teacherId}/answers`, 'PUT', { answers: snapshot }));
         saveQueue.catch(e => message('Gagal menyimpan jawaban: ' + e.message));
     }
     // =====================================================
@@ -269,7 +279,13 @@ document.addEventListener('DOMContentLoaded', () => {
             b.type = 'button';
             if (answers[n(q)] === letter)
                 b.classList.add('is-chosen');
-            b.append(make('span', letter, 'se-letter'), make('span', choices['pilihan_' + letter.toLowerCase()] || '', ''));
+            const choice = String(choices['pilihan_' + letter.toLowerCase()] ?? '');
+            const capitalizedChoice = choice.replace(
+                /^([^\p{L}]*)(\p{L})/u,
+                (_, prefix, firstLetter) =>
+                    prefix + firstLetter.toLocaleUpperCase('id-ID')
+            );
+            b.append(make('span', letter, 'se-letter'), make('span', capitalizedChoice, ''));
             b.onclick = () => { setAnswer(q, letter); render(); };
             wrap.append(b);
         });
@@ -421,7 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateAccess() {
         if (startButton) {
             startButton.hidden = passed;
-            startButton.disabled = passed;
+            startButton.disabled = passed || !ready || !selectedTeacherId;
         }
         if (retryButton) retryButton.hidden = passed;
         const lock = el('sd-eval-locked-message');
@@ -452,18 +468,18 @@ document.addEventListener('DOMContentLoaded', () => {
             : 'Evaluasi selesai. Terus tingkatkan pemahamanmu!');
         setResultText('sd-eval-final-message', passed
             ? 'Selamat! Nilai kamu sudah memenuhi KKM. Evaluasi telah dikunci dan tidak perlu diulang.'
-            : 'Nilaimu belum mencapai KKM. Pelajari kembali materi Bab VI, kemudian coba lagi.');
+            : 'Nilaimu belum mencapai KKM. Pelajari kembali materi bersama Guru, kemudian coba lagi.');
 
         cleanSession();
     }
 
     async function finish(auto = false) {
         if (busy || mode === 'result') return;
+        const teacherId = selectedTeacherId;
+        if (!teacherId) return;
         busy = true;
-        if (next) {
-            next.disabled = true;
-            next.textContent = 'Mengirim...';
-        }
+        if (prev) prev.disabled = true;
+        if (next) next.disabled = true;
         message('Mengirim jawaban dan menyiapkan hasil evaluasi...');
         // Timer sengaja TIDAK dihentikan sebelum server mengonfirmasi selesai.
         try {
@@ -473,9 +489,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if (endAt && remaining() > 0) {
                 // Kirim snapshot terakhir supaya jawaban tidak terlewat.
-                await request(`${api}/answers`, 'PUT', { answers: { ...answers } });
+                await request(`${api}/teachers/${teacherId}/answers`, 'PUT', { answers: { ...answers } });
             }
-            const data = await request(`${api}/finish`, 'POST', {});
+            const data = await request(`${api}/teachers/${teacherId}/finish`, 'POST', {});
             results(data);
         } catch (error) {
             console.error('SALUANG: pengiriman evaluasi gagal:', error);
@@ -483,7 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Baca ulang status dari server sebelum menyimpulkan submit gagal.
             let recovered = false;
             try {
-                const state = await request(`${api}/state`);
+                const state = await request(`${api}/teachers/${teacherId}/state`);
                 if (state.status === 'completed' && state.attempt) {
                     results(state.attempt);
                     recovered = true;
@@ -496,22 +512,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } finally {
             busy = false;
-            if (mode === 'quiz' && next) {
-                next.disabled = false;
-                next.textContent = index === questions.length - 1 ? 'Selesai Evaluasi' : 'Next';
-            }
+            if (mode === 'quiz') nav();
             if (mode === 'quiz' && endAt && interval === null) runTimer();
         }
     }
     async function start() {
-        if (busy)
+        if (busy || !selectedTeacherId)
             return;
         busy = true;
         try {
             if (passed) return;
-            const state = await request(`${api}/start`, 'POST', {});
+            const state = await request(`${api}/teachers/${selectedTeacherId}/start`, 'POST', {});
             questions = state.questions;
-            answers = {};
+            answers = state.answers || {};
             index = 0;
             endAt = state.ends_at;
             selected = null;
@@ -521,26 +534,36 @@ document.addEventListener('DOMContentLoaded', () => {
             message('Jawaban disimpan secara otomatis.');
         }
         catch (e) {
-            alert(e.message);
+            if (bankStatus) {
+                bankStatus.hidden = false;
+                bankStatus.textContent = e.message;
+            }
         }
         finally {
             busy = false;
+            if (mode === 'quiz') nav();
         }
     }
     function openConfirm(type) {
         const exit = type === 'exit';
         const submitting = type === 'finish';
         const missing = submitting ? questions.filter(q => !filled(q)).length : 0;
+
         modal.dataset.action = type;
+
         el('sd-eval-confirm-title').textContent = submitting
-            ? 'Kirim Jawaban Evaluasi?'
+            ? 'Selesaikan Evaluasi?'
             : (exit ? 'Keluar dari Evaluasi?' : 'Yakin Ingin Memulai Evaluasi?');
         el('sd-eval-confirm-description').textContent = submitting
-            ? `Yakin ingin mengirim jawaban sekarang? Setelah dikirim, jawaban tidak dapat diubah.${missing ? ` Masih ada ${missing} soal belum lengkap.` : ''}`
+            ? `Kamu sudah sampai di tahap akhir! Pastikan semua jawaban sudah diperiksa sebelum dikirim. Setelah evaluasi selesai, jawaban tidak dapat diubah.${missing ? ` Masih ada ${missing} soal yang belum dijawab.` : ''}`
             : (exit ? 'Waktu tetap berjalan jika kamu kembali ke pengantar.' : 'Kamu akan mengerjakan 15 soal dalam 45 menit.');
         el('sd-eval-confirm-accept-text').textContent = submitting
-            ? 'Ya, Kirim Jawaban' : (exit ? 'Ya, Kembali' : 'Ya, Mulai');
-        el('sd-eval-confirm-icon').src = exit ? '/images/evaluasi/bekantan-sedih.png' : '/images/evaluasi/bekantan-bertanya.png';
+            ? 'Ya, Selesaikan'
+            : (exit ? 'Ya, Kembali' : 'Ya, Mulai');
+        el('sd-eval-confirm-icon').src = exit
+            ? '/images/evaluasi/bekantan-sedih.png'
+            : '/images/evaluasi/bekantan-bertanya.png';
+
         modal.hidden = false;
     }
     function closeModal() { modal.hidden = true; }
@@ -556,18 +579,19 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (action === 'finish') finish();
         else if (action === 'exit') show('overview');
     });
-    prev?.addEventListener('click', () => { if (index > 0) {
-        index--;
-        selected = null;
-        render();
-    } });
+    prev?.addEventListener('click', () => {
+        if (index > 0) {
+            index--;
+            selected = null;
+            render();
+        }
+    });
     next?.addEventListener('click', () => {
         if (index < questions.length - 1) {
             index++;
             selected = null;
             render();
-        }
-        else {
+        } else if (index === questions.length - 1) {
             openConfirm('finish');
         }
     });
@@ -578,13 +602,38 @@ document.addEventListener('DOMContentLoaded', () => {
     root.querySelector('[data-eval-open="overview"]')?.addEventListener('click', () => {
         if (passed) updateAccess();
     });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden)
-        closeModal(); });
-    async function restore() {
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && !modal.hidden)
+            closeModal();
+    });
+    async function restoreTeacherState() {
+        if (!selectedTeacherId) {
+            ready = false;
+            passed = false;
+            updateAccess();
+            show('overview');
+            if (bankStatus) bankStatus.hidden = false;
+            return;
+        }
+
+        const teacherId = selectedTeacherId;
+        const version = ++stateRequestVersion;
+        updateAccess();
+        if (bankStatus) {
+            bankStatus.hidden = false;
+            bankStatus.textContent = 'Memeriksa kesiapan Evaluasi Akhir...';
+        }
         try {
-            const state = await request(`${api}/state`);
+            const state = await request(`${api}/teachers/${teacherId}/state`);
+            if (version !== stateRequestVersion || selectedTeacherId !== teacherId) return;
             kkm = Number(state.kkm || 70);
             passed = Boolean(state.passed);
+            ready = Boolean(state.ready);
+            if (bankStatus) {
+                bankStatus.textContent = ready
+                    ? 'Evaluasi Akhir siap dikerjakan.'
+                    : 'Evaluasi belum siap. Bank harus memuat 15 soal pilihan ganda A–D lengkap dan terpublikasi.';
+            }
             updateAccess();
             if (state.status === 'active') {
                 questions = state.questions;
@@ -603,14 +652,52 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!state.ready) {
                     const btn = root.querySelector('[data-eval-open="quiz"]');
                     btn.disabled = true;
-                    btn.title = 'Guru belum memublikasikan 15 soal lengkap.';
+                    btn.title = 'Evaluasi belum siap.';
                 }
             }
         }
         catch (e) {
+            if (version !== stateRequestVersion || selectedTeacherId !== teacherId) return;
+            ready = false;
+            passed = false;
+            updateAccess();
             show('overview');
-            message(e.message);
+            if (bankStatus) {
+                bankStatus.hidden = false;
+                bankStatus.textContent = e.message;
+            }
         }
     }
+
+    async function restore() {
+        try {
+            const response = await request(`${api}/teachers`);
+            selectedTeacherId = response.default_teacher_id
+                ? String(response.default_teacher_id)
+                : '';
+            if (selectedTeacherId) {
+                if (bankStatus) bankStatus.hidden = true;
+                await restoreTeacherState();
+            } else {
+                ready = false;
+                passed = false;
+                updateAccess();
+                show('overview');
+                if (bankStatus) {
+                    bankStatus.hidden = false;
+                    bankStatus.textContent = response.message
+                        || 'Evaluasi Akhir belum tersedia.';
+                }
+            }
+        } catch (error) {
+            ready = false;
+            updateAccess();
+            if (bankStatus) {
+                bankStatus.hidden = false;
+                bankStatus.textContent = error.message;
+            }
+        }
+    }
+
     restore();
 });

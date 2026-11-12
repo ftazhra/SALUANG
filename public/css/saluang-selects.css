@@ -9,7 +9,7 @@ body select:not([multiple]):not([size]) {
     background-size: 18px 18px !important;
     color: #174a60;
     font-family: 'Poppins', sans-serif;
-    font-size: 13px !important;
+    font-size: 14px !important;
     cursor: pointer;
 }
 body select:not([multiple]):not([size]):disabled {

@@ -6,6 +6,7 @@ use App\Models\StudentGuardian;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
 class ParentTeacherChatIntegrationTest extends TestCase
@@ -173,6 +174,143 @@ class ParentTeacherChatIntegrationTest extends TestCase
         $this->assertTrue(DB::table('teacher_class_assignments')
             ->where('teacher_id', $unassignedTeacher->id)
             ->doesntExist());
+    }
+
+    public function test_teacher_threads_expose_activity_based_online_presence(): void
+    {
+        [$parent, $teacher, , $student, , $relationship] = $this->createTwoChildThreads();
+        $presenceCache = Cache::store('file');
+        $presenceCache->forget('chat-presence:user:' . $teacher->id);
+        $presenceCache->forget('chat-presence:throttle:' . $teacher->id);
+
+        $this->actingAs($teacher)
+            ->postJson('/chat/presence/activity')
+            ->assertOk()
+            ->assertJsonPath('recorded', true);
+
+        $response = $this->actingAs($parent)
+            ->getJson('/orang-tua/chat/teachers')
+            ->assertOk();
+
+        $teacherThread = collect($response->json('teachers'))->first(fn ($thread) => (int) $thread['id'] === (int) $teacher->id);
+        $this->assertNotNull($teacherThread);
+        $this->assertTrue((bool) ($teacherThread['is_online'] ?? false));
+        $this->assertNotNull($teacherThread['last_seen_at'] ?? null);
+
+        $presenceCache->put(
+            'chat-presence:user:' . $teacher->id,
+            now()->subMinutes(5)->toIso8601String(),
+            now()->addDays(30)
+        );
+
+        $staleResponse = $this->actingAs($parent)->getJson('/orang-tua/chat/teachers')->assertOk();
+        $staleThread = collect($staleResponse->json('teachers'))->first(fn ($thread) => (int) $thread['id'] === (int) $teacher->id);
+        $this->assertFalse((bool) ($staleThread['is_online'] ?? true));
+        $this->assertNotNull($staleThread['last_seen_at'] ?? null);
+
+        $presenceCache->forget('chat-presence:user:' . $parent->id);
+        $presenceCache->forget('chat-presence:throttle:' . $parent->id);
+        $this->actingAs($parent)
+            ->getJson("/orang-tua/chat/messages?student_id={$student->id}&teacher_id={$teacher->id}")
+            ->assertOk();
+        $this->assertNull($presenceCache->get('chat-presence:user:' . $parent->id));
+
+        $this->actingAs($parent)->postJson('/chat/presence/activity')->assertOk();
+        $this->actingAs($teacher)
+            ->getJson("/guru/parent-contacts/{$relationship->id}/presence")
+            ->assertOk()
+            ->assertJsonPath('is_online', true);
+
+        $student = $this->createStudent('chat-no-presence-access', 'VII A', '7777777777');
+        $this->actingAs($student)->postJson('/chat/presence/activity')->assertForbidden();
+    }
+
+    public function test_chat_unread_counts_are_per_thread_and_opening_the_thread_marks_incoming_messages_read(): void
+    {
+        [$parent, $teacher, , $student, , $relationship] = $this->createTwoChildThreads();
+        $message = DB::table('parent_teacher_messages')->insertGetId([
+            'parent_id' => $parent->id,
+            'student_id' => $student->id,
+            'teacher_id' => $teacher->id,
+            'sender_id' => $parent->id,
+            'client_message_id' => 'c2a80123-4567-4abc-8def-0123456789ab',
+            'body' => 'Pesan orang tua.',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        DB::table('website_notifications')->insert([
+            'recipient_id' => $teacher->id,
+            'recipient_role' => 'guru',
+            'event_key' => 'chat_message:' . $message,
+            'event_type' => 'chat_message',
+            'source_type' => 'parent_teacher_message',
+            'source_id' => $message,
+            'student_id' => $student->id,
+            'title' => 'Pesan baru',
+            'message' => 'Ada pesan baru.',
+            'target_url' => '/dashboard?page=orang-tua&relationship_id=' . $relationship->id,
+            'read_at' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->actingAs($teacher)
+            ->getJson('/guru/parent-contacts?class=VII%20A')
+            ->assertOk()
+            ->assertJsonPath('data.0.unread_count', 1);
+        $this->actingAs($teacher)
+            ->getJson("/guru/parent-contacts/{$relationship->id}/messages")
+            ->assertOk()
+            ->assertJsonCount(1, 'messages');
+        $this->actingAs($teacher)
+            ->getJson('/guru/parent-contacts?class=VII%20A')
+            ->assertOk()
+            ->assertJsonPath('data.0.unread_count', 0);
+        $this->assertNotNull(DB::table('website_notifications')
+            ->where('source_id', $message)
+            ->value('read_at'));
+
+        $teacherMessage = DB::table('parent_teacher_messages')->insertGetId([
+            'parent_id' => $parent->id,
+            'student_id' => $student->id,
+            'teacher_id' => $teacher->id,
+            'sender_id' => $teacher->id,
+            'client_message_id' => 'd2a80123-4567-4abc-8def-0123456789ab',
+            'body' => 'Balasan Guru.',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        DB::table('website_notifications')->insert([
+            'recipient_id' => $parent->id,
+            'recipient_role' => 'orang_tua',
+            'event_key' => 'chat_message:' . $teacherMessage,
+            'event_type' => 'chat_message',
+            'source_type' => 'parent_teacher_message',
+            'source_id' => $teacherMessage,
+            'student_id' => $student->id,
+            'title' => 'Pesan baru',
+            'message' => 'Ada pesan baru.',
+            'target_url' => '/dashboard?page=chat&student_id=' . $student->id . '&teacher_id=' . $teacher->id,
+            'read_at' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->actingAs($parent)
+            ->getJson('/orang-tua/chat/teachers')
+            ->assertOk()
+            ->assertJsonPath('teachers.0.unread_count', 1);
+        $this->actingAs($parent)
+            ->getJson("/orang-tua/chat/messages?student_id={$student->id}&teacher_id={$teacher->id}")
+            ->assertOk()
+            ->assertJsonCount(2, 'messages');
+        $this->actingAs($parent)
+            ->getJson('/orang-tua/chat/teachers')
+            ->assertOk()
+            ->assertJsonPath('teachers.0.unread_count', 0);
+        $this->assertNotNull(DB::table('website_notifications')
+            ->where('source_id', $teacherMessage)
+            ->value('read_at'));
     }
 
     public function test_assignment_or_approval_revocation_immediately_blocks_existing_chat_history(): void

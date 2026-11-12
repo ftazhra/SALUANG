@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const chapterList = $('gmChapterList'), subchapterList = $('gmSubchapterList');
   const chapterModal = $('gmChapterModal'), subchapterModal = $('gmSubchapterModal');
   const deleteModal = $('gmDeleteModal'), chapterForm = $('gmChapterForm');
+  const unsavedChangesModal = $('gmUnsavedChangesModal');
   const subchapterForm = $('gmSubchapterForm'), objectivesList = $('gmObjectivesList');
   const editor = $('gmRichContentEditor'), toolbar = $('gmRichToolbar');
   const contentField = $('gmSubchapterContent'), toast = $('gmToast');
@@ -25,6 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let activeBlockKey = null;
   let nextBlockKey = 1;
   let pendingDelete = null;
+  let pendingModal = null;
+  let focusBeforeUnsavedWarning = null;
   let subchapterFormDirty = false;
   let toastTimer;
   // ========================================================
@@ -98,23 +101,83 @@ document.addEventListener('DOMContentLoaded', () => {
       subchapterModal
       && !subchapterModal.hidden
       && subchapterFormDirty
-      && !window.confirm(
-        'Perubahan materi belum disimpan. Tutup tanpa menyimpan?'
-      )
     ) {
+      if (!unsavedChangesModal) {
+        notify('Konfirmasi perubahan belum disimpan tidak tersedia.', true);
+        return false;
+      }
+      if (unsavedChangesModal.hidden) {
+        focusBeforeUnsavedWarning = document.activeElement;
+        unsavedChangesModal.hidden = false;
+        $('gmKeepEditingChanges')?.focus();
+      }
       return false;
     }
     [chapterModal, subchapterModal, deleteModal].forEach(m => {
       if (m) m.hidden = true;
     });
+    if (unsavedChangesModal) unsavedChangesModal.hidden = true;
+    pendingModal = null;
     return true;
   }
   function openModal(modal) {
-    if (!closeModals()) return;
+    if (!closeModals()) {
+      pendingModal = modal;
+      return;
+    }
     if (modal) {
       modal.hidden = false;
     }
   }
+  function dismissUnsavedChangesWarning() {
+    if (!unsavedChangesModal || unsavedChangesModal.hidden) return;
+    unsavedChangesModal.hidden = true;
+    if (pendingModal === deleteModal) pendingDelete = null;
+    pendingModal = null;
+    if (focusBeforeUnsavedWarning?.isConnected) {
+      focusBeforeUnsavedWarning.focus();
+    }
+    focusBeforeUnsavedWarning = null;
+  }
+  $('gmKeepEditingChanges')?.addEventListener(
+    'click',
+    dismissUnsavedChangesWarning
+  );
+  $('gmUnsavedChangesBackdrop')?.addEventListener(
+    'click',
+    dismissUnsavedChangesWarning
+  );
+  $('gmDiscardChanges')?.addEventListener('click', () => {
+    if (!unsavedChangesModal || unsavedChangesModal.hidden) return;
+
+    const modalToOpen = pendingModal;
+    pendingModal = null;
+    subchapterFormDirty = false;
+    subchapterForm?.reset();
+    contentBlocks = [];
+    availableBlockMedia = [];
+    activeBlockKey = null;
+    nextBlockKey = 1;
+    loadEditor('');
+    $('gmTextBlockEditor').hidden = true;
+    $('gmCalloutEditor').hidden = true;
+    $('gmActivityEditor').hidden = true;
+    $('gmBlockMediaEditor').hidden = true;
+    [chapterModal, subchapterModal, deleteModal, unsavedChangesModal]
+      .forEach(modal => {
+        if (modal) modal.hidden = true;
+      });
+
+    if (modalToOpen) {
+      modalToOpen.hidden = false;
+      if (modalToOpen !== deleteModal) pendingDelete = null;
+      const dialog = modalToOpen.querySelector('[role="dialog"]');
+      dialog?.focus();
+    } else {
+      pendingDelete = null;
+    }
+    focusBeforeUnsavedWarning = null;
+  });
   // ========================================================
   // 03. FORMAT HTML MATERI
   // ========================================================
@@ -559,6 +622,7 @@ document.addEventListener('DOMContentLoaded', () => {
       mediaId: block?.media_id ?? block?.media?.id ?? null,
       media: block?.media || null,
       caption: payload.caption || block?.media?.caption || '',
+      layout: payload.layout || 'full',
       source: block?.media_id || block?.media?.id ? 'existing' : 'upload',
       youtubeUrl: '',
       file: null
@@ -584,6 +648,9 @@ document.addEventListener('DOMContentLoaded', () => {
       block.source = $('gmBlockMediaSource')?.value || block.source;
       block.title = $('gmBlockMediaTitle')?.value.trim() || '';
       block.caption = $('gmBlockMediaCaption')?.value.trim() || '';
+      if (block.type === 'image') {
+        block.layout = $('gmBlockImageLayout')?.value || block.layout || 'full';
+      }
       block.youtubeUrl = $('gmBlockYoutubeUrl')?.value.trim() || '';
       if (block.source === 'existing') {
         block.mediaId = block.type === 'video'
@@ -640,6 +707,13 @@ document.addEventListener('DOMContentLoaded', () => {
             : block.mediaId
               ? 'Media tersimpan'
               : 'Pilih berkas atau media Subbab');
+        if (block.type === 'image') {
+          detail.textContent += ` · ${({
+            left: 'wrap kiri',
+            right: 'wrap kanan',
+            full: 'lebar penuh'
+          }[block.layout] || 'lebar penuh')}`;
+        }
       }
       summary.append(heading, detail);
       const actions = document.createElement('div');
@@ -724,6 +798,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const existingField = $('gmBlockExistingMediaField');
     const uploadField = $('gmBlockUploadField');
     const youtubeField = $('gmBlockYoutubeField');
+    const imageLayoutField = $('gmBlockImageLayoutField');
     const existingSelect = $('gmBlockExistingMedia');
     const fileInput = $('gmBlockMediaFile');
     sourceSelect.replaceChildren();
@@ -761,10 +836,12 @@ document.addEventListener('DOMContentLoaded', () => {
     existingField.hidden = true; // Pemilihan media lama tidak ditampilkan untuk gambar maupun video.
     uploadField.hidden = !isImage && source !== 'upload';
     youtubeField.hidden = source !== 'youtube';
+    imageLayoutField.hidden = !isImage;
     existingSelect.value = block.mediaId ? String(block.mediaId) : '';
     $('gmBlockYoutubeUrl').value = block.youtubeUrl || '';
     $('gmBlockMediaTitle').value = block.title || block.media?.title || '';
     $('gmBlockMediaCaption').value = block.caption || block.media?.caption || '';
+    $('gmBlockImageLayout').value = block.layout || 'full';
     $('gmBlockMediaHelp').textContent = type === 'image'
       ? 'Pilih gambar yang akan tampil pada posisi blok ini.'
       : 'Pilih berkas MP4, tautan YouTube, atau video tersimpan.';
@@ -816,6 +893,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     renderContentBlocks();
   });
+  $('gmBlockImageLayout')?.addEventListener('change', event => {
+    const block = activeContentBlock();
+    if (!block || block.type !== 'image') return;
+    block.layout = event.currentTarget.value;
+    subchapterFormDirty = true;
+    renderContentBlocks();
+  });
   $('gmAddContentBlock')?.addEventListener('click', () => {
     commitActiveContentBlock();
     subchapterFormDirty = true;
@@ -832,6 +916,7 @@ document.addEventListener('DOMContentLoaded', () => {
         mediaId: null,
         media: null,
         caption: '',
+        layout: 'full',
         source: 'upload',
         youtubeUrl: '',
         file: null
@@ -1253,9 +1338,13 @@ document.addEventListener('DOMContentLoaded', () => {
       return /^[A-Za-z0-9_-]{11}$/.test(id || '') ? 'https://www.youtube-nocookie.com/embed/' + id : '';
     } catch { return ''; }
   }
-  function previewMediaHTML(block) {
+  function previewMediaHTML(block, clearBefore = false) {
     const p = block.payload || {};
     const m = block.media || {};
+    const layout = block.type === 'image' ? (p.layout || 'full') : 'full';
+    const layoutClass = layout === 'left' || layout === 'right'
+      ? ` gm-preview-image-wrap-${layout}${clearBefore ? ' gm-preview-clear-before' : ''}`
+      : ' gm-preview-clear';
     const title = escapeHTML(p.title || m.title || (block.type === 'image' ? 'Gambar pembelajaran' : 'Video pembelajaran'));
     const caption = escapeHTML(p.caption || m.caption || '');
     const rawUrl = m.url || m.file_url || m.public_url || m.media_url || p.media_url || m.path || m.file_path || '';
@@ -1271,7 +1360,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       visual = '<p class="gm-preview-unavailable">Pratinjau media tidak tersedia. Periksa melalui Edit Media.</p>';
     }
-    return `<figure class="gm-preview-media gm-preview-${block.type}">${visual}<figcaption><strong>${title}</strong>${caption ? `<span>${caption}</span>` : ''}</figcaption></figure>`;
+    return `<figure class="gm-preview-media gm-preview-${block.type}${layoutClass}">${visual}<figcaption><strong>${title}</strong>${caption ? `<span>${caption}</span>` : ''}</figcaption></figure>`;
   }
   // Tampilan khusus Informasi/Kesimpulan: aman untuk teks biasa/Markdown.
   // Hanya memengaruhi pratinjau Guru, tanpa mengubah isi tersimpan.
@@ -1386,17 +1475,25 @@ document.addEventListener('DOMContentLoaded', () => {
         ? item.content_blocks
         : [];
       if (blocks.length) {
+        let previousWasWrappedImage = false;
         content.innerHTML = blocks.map(block => {
           const payload = block.payload || {};
           if (block.type === 'text') {
-            return learningActivitiesHTML(
+            const html = learningActivitiesHTML(
               materialHTML(payload.content || '')
             );
+            previousWasWrappedImage = false;
+            return html;
           }
           if (block.type === 'callout') {
+            previousWasWrappedImage = false;
             return renderCalloutHTML(payload);
           }
-          return previewMediaHTML(block);
+          const wraps = block.type === 'image'
+            && ['left', 'right'].includes(payload.layout);
+          const html = previewMediaHTML(block, wraps && previousWasWrappedImage);
+          previousWasWrappedImage = wraps;
+          return html;
         }).join('');
       } else {
         content.innerHTML = learningActivitiesHTML(
@@ -1701,6 +1798,9 @@ document.addEventListener('DOMContentLoaded', () => {
             title: block.title,
             caption: block.caption
           };
+          if (block.type === 'image') {
+            mediaBlock.layout = block.layout || 'full';
+          }
           if (block.source === 'existing') {
             mediaBlock.media_id = Number(block.mediaId);
           } else if (block.source === 'youtube') {
@@ -1895,16 +1995,25 @@ document.addEventListener('DOMContentLoaded', () => {
   page.querySelectorAll('[data-gm-close]')
     .forEach(button => {
       button.addEventListener('click', () => {
+        pendingModal = null;
         if (closeModals()) {
           pendingDelete = null;
         }
       });
     });
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      if (closeModals()) {
-        pendingDelete = null;
-      }
+    if (e.key !== 'Escape') return;
+    if (unsavedChangesModal && !unsavedChangesModal.hidden) {
+      e.preventDefault();
+      dismissUnsavedChangesWarning();
+      return;
+    }
+    const hasOpenMaterialModal = [chapterModal, subchapterModal, deleteModal]
+      .some(modal => modal && !modal.hidden);
+    if (!hasOpenMaterialModal) return;
+    pendingModal = null;
+    if (closeModals()) {
+      pendingDelete = null;
     }
   });
   // ========================================================

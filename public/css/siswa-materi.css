@@ -10,20 +10,24 @@
     border-radius: 13px;
     background: var(--sd-cream);
 }
+
 .sd-chapter-hero .sd-title {
-    font-size: clamp(19px, 1.7vw, 23px);
+    font-size: clamp(22px, 1.8vw, 24px);
 }
+
 .sd-chapter-hero .sd-copy,
 #chapterPage .sd-objectives p,
 #chapterPage .sd-prompt,
 #chapterPage .sd-prompt .sd-copy {
-    font-size: 12.5px;
+    font-size: 14px;
     line-height: 1.5;
     text-align: justify;
 }
-#chapterPage article > .sd-copy {
+
+#chapterPage article>.sd-copy {
     margin: 0 0 12px;
 }
+
 .sd-chapter-hero img {
     display: block;
     width: 100%;
@@ -31,107 +35,133 @@
     border-radius: 10px;
     object-fit: cover;
 }
+
 .sd-chapter-introduction-figure {
     display: block;
     min-width: 0;
     margin: 0;
     padding: 0;
 }
+
 .sd-chapter-introduction-caption {
     margin: 6px 0 0;
     padding: 0;
     color: #356e7c;
-    font-size: 11px;
+    font-size: 12px;
     line-height: 1.5;
     text-align: center;
     overflow-wrap: anywhere;
 }
+
 .sd-chapter-introduction-caption strong {
     display: block;
     margin: 0;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     line-height: 1.5;
 }
+
 .sd-chapter-introduction-caption[hidden],
 .sd-chapter-introduction-figure[hidden] {
     display: none;
 }
+
 /* 23. TUJUAN PEMBELAJARAN */
 .sd-objectives {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 10px;
+    gap: 7px;
 }
+
 .sd-objective {
-    padding: 12px 14px;
-    border-radius: 12px;
+    padding: 9px 12px;
+    border-radius: 10px;
     background: #eef8f0;
 }
+
 .sd-objective i {
     display: block;
     margin-bottom: 7px;
     color: #34895a;
     font-size: 18px;
 }
+
 .sd-objective strong {
     display: block;
     margin-bottom: 4px;
-    font-size: 15px;
+    font-size: 14px;
     line-height: 1.45;
 }
+
 .sd-objective p {
     margin: 0;
-    font-size: 12.5px;
-    line-height: 1.5;
+    font-size: 15px;
+    line-height: 1.55;
 }
-#chapterPage .sd-objective p + p {
-    margin-top: 12px;
+
+#chapterPage .sd-objective p+p {
+    margin-top: 7px;
 }
+
 /* 24. PERTANYAAN PEMANTIK */
+#chapterPage .sd-objectives-card,
+#chapterPage .sd-prompt-card {
+    padding: 18px 20px;
+}
+
 .sd-prompt {
     padding: 0;
     border: 0;
     border-radius: 0;
     background: transparent;
     color: #294f57;
-    font-size: 12.5px;
+    font-size: 14px;
     line-height: 1.5;
 }
+
 .sd-prompt-image {
     display: block;
-    width: min(100%, 480px);
-    margin: 16px auto 0;
+    width: min(100%, 360px);
+    max-height: 220px;
+    margin: 10px auto 0;
     border-radius: 10px;
+    object-fit: contain;
 }
+
 /* 25. SATU CARD MATERI DAN MEDIA */
 .sd-material-card {
     padding: 23px;
 }
+
 .sd-material-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
     gap: 24px;
     align-items: stretch;
 }
+
 .sd-material-text,
 .sd-material-media {
     min-width: 0;
 }
+
 .sd-material-heading {
     display: flex;
     align-items: center;
     gap: 9px;
     margin: 0 0 18px;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
 }
+
 .sd-material-heading i {
     font-size: 19px;
 }
+
 .sd-material-text .sd-copy p {
     margin-bottom: 17px;
 }
+
 /* 26. GAMBAR DAN CAPTION */
 .sd-material-media {
     display: flex;
@@ -139,6 +169,7 @@
     align-items: center;
     justify-content: center;
 }
+
 .sd-media-picture {
     display: block;
     width: 100%;
@@ -146,13 +177,26 @@
     border-radius: 11px;
     object-fit: contain;
 }
+
 .sd-media-caption {
     margin: 12px 0 0;
     color: var(--sd-muted);
-    font-size: 12.5px;
+    font-size: 12px;
     line-height: 1.5;
     text-align: center;
+    cursor: grab;
+    touch-action: manipulation;
 }
+
+.sd-activity-assigned:active {
+    cursor: grabbing;
+}
+
+.sd-activity-assigned.is-selected {
+    border-color: #3d7b55;
+    background: #eaf6ef;
+}
+
 /* 27. TAHUKAH KAMU */
 .sd-fact {
     margin-top: 16px;
@@ -160,31 +204,37 @@
     border-radius: 11px;
     background: #e6f5ed;
 }
+
 .sd-fact strong {
     display: block;
     margin-bottom: 8px;
-    font-size: 11px;
+    font-size: 14px;
 }
+
 .sd-fact p {
     margin: 0;
     line-height: 1.85;
 }
+
 /* 28. KUIS SUBBAB */
 .sd-quiz-title {
     margin: 0;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 700;
 }
+
 .sd-question-count {
     margin: 17px 0 12px;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 600;
 }
+
 .sd-choices {
     display: flex;
     flex-direction: column;
     gap: 9px;
 }
+
 .sd-choice {
     display: flex;
     align-items: center;
@@ -195,12 +245,14 @@
     border-radius: 8px;
     background: #fff;
     color: var(--sd-blue);
-    font-size: 10px;
+    font-size: 14px;
     text-align: left;
 }
+
 .sd-choice:hover {
     background: #eff8f1;
 }
+
 .sd-letter {
     display: grid;
     place-items: center;
@@ -211,38 +263,469 @@
     background: #eaf3f5;
     font-weight: 700;
 }
+
 .sd-quiz-controls {
     display: flex;
     justify-content: space-between;
     gap: 12px;
     margin-top: 17px;
 }
+
 /* 29. FEEDBACK BENAR ATAU SALAH */
 .sd-choice.correct {
     background: #e3f5e8;
     border-color: #3b9b68;
     color: #17643e;
 }
+
 .sd-choice.wrong {
     background: #fff0e9;
     border-color: #e09a77;
     color: #9e4930;
 }
+
 .sd-answer-feedback {
     margin-top: 15px;
     padding: 14px 16px;
     border-radius: 9px;
-    font-size: 11px;
+    font-size: 12px;
     line-height: 1.8;
 }
+
 .sd-answer-feedback.is-correct {
     background: #e2f5e9;
     color: #19623e;
 }
+
 .sd-answer-feedback.is-wrong {
     background: #fff0e7;
     color: #94502f;
 }
+
+.sd-answer-feedback.is-saved {
+    background: #eff8f1;
+    color: #245c3e;
+}
+
+.sd-choice.is-selected {
+    border-color: #3b9b68;
+    background: #eff8f1;
+}
+
+.sd-quiz-result-summary,
+.sd-quiz-review-item {
+    margin: 14px 0;
+    padding: 0 14px;
+    border: 1px solid #d5e8e3;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.sd-quiz-review-summary {
+    padding: 12px 2px;
+    color: var(--sd-blue);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.sd-quiz-review-summary::marker {
+    color: #209265;
+}
+
+.sd-quiz-review-item[open] {
+    padding-bottom: 12px;
+    background: #f5faf7;
+}
+
+.sd-quiz-result-score {
+    margin: 0;
+    color: var(--sd-blue);
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.sd-quiz-review h3,
+.sd-quiz-attempt-history h3 {
+    margin: 18px 0 10px;
+    color: var(--sd-blue);
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.sd-quiz-review-item p {
+    margin: 5px 0;
+    font-size: 13px;
+}
+
+.sd-quiz-review-item .is-correct {
+    color: #17643e;
+}
+
+.sd-quiz-review-item .is-wrong {
+    color: #9e4930;
+}
+
+.sd-quiz-retry {
+    margin-top: 16px;
+}
+
+.sd-quiz-history-button {
+    display: block;
+    width: 100%;
+    margin: 7px 0;
+    padding: 10px 12px;
+    border: 1px solid #cfdfdc;
+    border-radius: 8px;
+    background: #fff;
+    color: var(--sd-blue);
+    text-align: left;
+}
+
+.sd-quiz-history-button:hover {
+    background: #eff8f1;
+}
+
+.sd-formative-card {
+    margin-top: 16px;
+    padding: 18px;
+    border: 1px solid #d5e8e3;
+    border-radius: 11px;
+    background: #f5faf7;
+}
+
+.sd-formative-title {
+    margin: 0 0 10px;
+    color: var(--sd-blue);
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.sd-formative-prompt,
+.sd-formative-instruction {
+    color: var(--sd-blue);
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.sd-formative-instruction {
+    color: var(--sd-muted);
+}
+
+.sd-formative-hint,
+.sd-matching-label {
+    display: block;
+    color: var(--sd-muted);
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.sd-matching-label {
+    color: var(--sd-blue);
+    font-weight: 700;
+}
+
+.sd-activity-token-list,
+.sd-activity-target-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin: 12px 0;
+}
+
+.sd-activity-source {
+    min-width: 0;
+    padding: 12px;
+    border: 1px dashed #9abfa9;
+    border-radius: 10px;
+    background: #f7fbf8;
+}
+
+.sd-activity-source-title {
+    display: block;
+    margin-bottom: 8px;
+    color: #174a60;
+    font-size: 14px;
+}
+
+.sd-activity-source-items {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    margin: 0;
+}
+
+.sd-activity-source-items:empty {
+    min-height: 64px;
+}
+
+.sd-activity-token,
+.sd-activity-target {
+    min-width: 0;
+    padding: 11px;
+    border: 1px solid #cfdfdc;
+    border-radius: 9px;
+    background: #fff;
+    color: var(--sd-blue);
+    font: inherit;
+    font-size: 14px;
+    line-height: 1.6;
+    text-align: left;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.sd-activity-token:hover,
+.sd-activity-target:hover,
+.sd-activity-token.is-selected {
+    border-color: #3d7b55;
+    background: #eaf6ef;
+}
+
+.sd-activity-token:disabled,
+.sd-activity-token[aria-disabled="true"] {
+    opacity: .7;
+    cursor: not-allowed;
+}
+
+.sd-activity-token.is-drag-card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 9px;
+    text-align: center;
+    cursor: grab;
+}
+
+.sd-activity-token.is-drag-card:active {
+    cursor: grabbing;
+}
+
+.sd-activity-target {
+    min-height: 84px;
+    border-style: dashed;
+}
+
+.sd-activity-target strong,
+.sd-activity-assigned {
+    display: block;
+}
+
+.sd-activity-assigned {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 7px;
+    min-width: 0;
+    margin-top: 6px;
+    padding: 9px;
+    border: 1px solid #d5e5e0;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #327f52;
+    font-size: 14px;
+    text-align: center;
+}
+
+.sd-activity-caption {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.sd-activity-image-frame {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    min-height: 48px;
+    overflow: hidden;
+    border-radius: 7px;
+    background: #f0f6f3;
+}
+
+.sd-activity-image {
+    display: block;
+    width: 100%;
+    max-height: 125px;
+    margin: 0 auto 8px;
+    border-radius: 7px;
+    object-fit: contain;
+}
+
+.sd-activity-token.is-drag-card .sd-activity-image,
+.sd-activity-assigned .sd-activity-image {
+    max-height: 100%;
+    margin: 0;
+}
+
+.sd-activity-target-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    align-items: start;
+}
+
+.sd-activity-target {
+    display: block;
+}
+
+.sd-activity-target>strong {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.sd-activity-assigned-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
+    gap: 8px;
+}
+
+.sd-matching-columns {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.sd-matching-lines {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.sd-matching-left,
+.sd-matching-right {
+    position: relative;
+    z-index: 3;
+    min-width: 0;
+}
+
+.sd-matching-left .sd-activity-token,
+.sd-matching-right .sd-activity-token {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    touch-action: none;
+}
+
+.sd-matching-left .sd-activity-image-frame,
+.sd-matching-right .sd-activity-image-frame {
+    flex: 0 0 96px;
+    width: 96px;
+    height: 96px;
+}
+
+.sd-matching-left .sd-activity-image,
+.sd-matching-right .sd-activity-image {
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    margin: 0;
+}
+
+.sd-matching-left .sd-activity-token>span:not(.sd-matching-dot),
+.sd-matching-right .sd-activity-token>span:not(.sd-matching-dot) {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.sd-matching-dot {
+    position: relative;
+    z-index: 3;
+    flex: 0 0 12px;
+    width: 12px;
+    height: 12px;
+    border: 2px solid #4e9d6d;
+    border-radius: 50%;
+    background: #ffffff;
+}
+
+.sd-matching-line {
+    stroke: #4e9d6d;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+}
+
+.sd-matching-line.is-temporary {
+    stroke-dasharray: 5 4;
+}
+
+.sd-activity-check {
+    margin-top: 6px;
+}
+
+.sd-activity-feedback {
+    margin: 12px 0 0;
+    padding: 11px 13px;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.sd-activity-feedback[hidden] {
+    display: none;
+}
+
+.sd-activity-feedback.is-correct {
+    background: #e2f5e9;
+    color: #19623e;
+}
+
+.sd-activity-feedback.is-wrong {
+    background: #fff0e7;
+    color: #94502f;
+}
+
+.sd-activity-token:focus-visible,
+.sd-activity-target:focus-visible,
+.sd-activity-check:focus-visible {
+    outline: 3px solid #329ecb;
+    outline-offset: 3px;
+}
+
+@media (max-width: 575.98px) {
+    .sd-formative-card {
+        padding: 14px;
+    }
+
+    .sd-matching-columns {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .sd-matching-left .sd-activity-token,
+    .sd-matching-right .sd-activity-token {
+        gap: 5px;
+        padding: 7px;
+        font-size: 12px;
+    }
+
+    .sd-matching-left .sd-activity-image,
+    .sd-matching-right .sd-activity-image {
+        flex: 0 0 52px;
+        width: 52px;
+        height: 52px;
+        max-height: 52px;
+        margin: 0;
+    }
+
+    .sd-matching-left .sd-activity-image-frame,
+    .sd-matching-right .sd-activity-image-frame {
+        flex: 0 0 52px;
+        width: 52px;
+        height: 52px;
+    }
+
+    .sd-activity-target-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .sd-activity-source-items,
+    .sd-activity-assigned-list {
+        grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+    }
+}
+
 /* =====================================================
    35. HALAMAN PENGANTAR MATERI PEMBELAJARAN
    ===================================================== */
@@ -254,6 +737,7 @@
     border: 1px solid #dce9e5;
     border-radius: 13px;
 }
+
 /* 35.2. Judul dan tombol kembali */
 .sd-page .sd-material-overview-header {
     display: flex;
@@ -262,19 +746,22 @@
     gap: 20px;
     margin-bottom: 24px;
 }
+
 .sd-page .sd-material-overview-title {
     margin: 0 0 8px;
     color: #075477;
-    font-size: 23px;
+    font-size: 24px;
     font-weight: 700;
     line-height: 1.4;
 }
+
 .sd-page .sd-material-overview-subtitle {
     margin: 0;
     color: #638a96;
-    font-size: 11px;
+    font-size: 12px;
     line-height: 1.8;
 }
+
 .sd-page .sd-material-overview-back {
     flex: 0 0 auto;
     min-height: 40px;
@@ -283,13 +770,15 @@
     border-radius: 9px;
     background: #ffffff;
     color: #075477;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 500;
 }
+
 .sd-page .sd-material-overview-back:hover {
     background: #e9f5f8;
     border-color: #9ccbd8;
 }
+
 /* 35.3. AREA KARTU BAB — DUA KOLOM SEJAJAR */
 .sd-page .sd-material-overview-grid {
     display: grid;
@@ -299,13 +788,14 @@
     max-width: none;
     align-items: stretch;
 }
+
 /* KARTU BAB MENGIKUTI LEBAR KOLOM */
-.sd-page .sd-material-overview-grid
-.sd-material-chapter-card {
+.sd-page .sd-material-overview-grid .sd-material-chapter-card {
     width: 100%;
     min-width: 0;
     height: 100%;
 }
+
 /* TAMPILAN TABLET DAN HANDPHONE */
 @media (max-width: 767.98px) {
     .sd-page .sd-material-overview-grid {
@@ -313,6 +803,7 @@
         gap: 16px;
     }
 }
+
 /* 35.4. Kartu BAB 1 */
 .sd-page .sd-material-chapter-card {
     min-width: 0;
@@ -321,20 +812,23 @@
     border-radius: 13px;
     background: #eef8f4;
 }
+
 .sd-page .sd-material-chapter-label {
     display: inline-block;
     margin-bottom: 12px;
     color: #287b4e;
-    font-size: 10px;
+    font-size: 13px;
     font-weight: 700;
 }
+
 .sd-page .sd-material-chapter-title {
     margin: 0 0 16px;
     color: #075477;
-    font-size: 17px;
+    font-size: 13px;
     font-weight: 700;
     line-height: 1.5;
 }
+
 /* 35.5. Daftar subbab */
 .sd-page .sd-material-chapter-topics {
     display: flex;
@@ -342,10 +836,12 @@
     gap: 10px;
     margin-bottom: 17px;
 }
-.sd-page .sd-material-chapter-topics > .sd-muted {
-    font-size: 12.5px;
+
+.sd-page .sd-material-chapter-topics>.sd-muted {
+    font-size: 14px;
     line-height: 1.5;
 }
+
 .sd-page .sd-material-topic-button {
     display: block;
     width: 100%;
@@ -355,15 +851,17 @@
     border-radius: 10px;
     background: #ffffff;
     color: #075477;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 400;
     line-height: 1.6;
     text-align: left;
 }
+
 .sd-page .sd-material-topic-button:hover {
     background: #e0f1f9;
     border-color: #a8d1e2;
 }
+
 /* 35.6. Tombol Lihat Selengkapnya */
 .sd-page .sd-material-chapter-open {
     display: inline-flex;
@@ -376,35 +874,43 @@
     border-radius: 9px;
     background: #4e9d6d;
     color: #ffffff;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 600;
 }
+
 .sd-page .sd-material-chapter-open:hover {
     background: #327f52;
 }
+
 /* 35.7. Responsif */
 @media (max-width: 767.98px) {
     .sd-page .sd-material-overview {
         padding: 19px 15px;
     }
+
     .sd-page .sd-material-overview-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 14px;
     }
+
     .sd-page .sd-material-overview-title {
-        font-size: 20px;
+        font-size: 24px;
     }
+
     .sd-page .sd-material-overview-back {
         width: 100%;
     }
+
     .sd-page .sd-material-chapter-card {
         padding: 17px 14px;
     }
+
     .sd-page .sd-material-chapter-title {
-        font-size: 15px;
+        font-size: 13px;
     }
 }
+
 /* =====================================================
    36. WARNA AKTIF DAN HOVER BAB / SUBBAB
    ===================================================== */
@@ -415,9 +921,11 @@
     color: #075477;
     box-shadow: inset 3px 0 0 #4b9ac4;
 }
+
 .sd-page .sd-chapter-button.active strong {
     color: #075477;
 }
+
 /* 36.2. BAB 1 saat hover — biru lebih terang */
 .sd-page .sd-chapter-button:hover,
 .sd-page .sd-chapter-button.active:hover {
@@ -425,6 +933,7 @@
     color: #064968;
     box-shadow: inset 3px 0 0 #328ab7;
 }
+
 /* 36.3. Subbab aktif — biru pastel */
 .sd-page .sd-topic.active,
 .sd-page .sd-topic.active:not(:hover) {
@@ -433,6 +942,7 @@
     font-weight: 600;
     box-shadow: inset 3px 0 0 #70b4d5;
 }
+
 /* 36.4. Subbab saat hover */
 .sd-page .sd-topic:hover,
 .sd-page .sd-topic.active:hover {
@@ -440,6 +950,7 @@
     color: #064968;
     box-shadow: inset 3px 0 0 #4b9ac4;
 }
+
 /* SALUANG_SISWA_PREVIEW_SYNC_V1 - selaras dengan pratinjau Guru */
 #lessonPage .sd-media-item {
     width: min(100%, 760px);
@@ -451,14 +962,16 @@
     box-shadow: 0 3px 12px rgba(7, 84, 119, .04);
     text-align: center;
 }
+
 #lessonPage .sd-media-item .sd-media-title {
     margin: 0 0 12px;
     color: #075477;
-    font-size: 14px;
+    font-size: 18px;
     font-weight: 700;
     line-height: 1.5;
     text-align: center;
 }
+
 #lessonPage .sd-media-item .sd-media-picture,
 #lessonPage .sd-media-item .sd-media-video,
 #lessonPage .sd-media-item .sd-media-youtube {
@@ -469,17 +982,23 @@
     border-radius: 10px;
     object-fit: contain;
 }
-#lessonPage .sd-media-item .sd-media-youtube { aspect-ratio: 16 / 9; border: 0; }
+
+#lessonPage .sd-media-item .sd-media-youtube {
+    aspect-ratio: 16 / 9;
+    border: 0;
+}
+
 #lessonPage .sd-media-item .sd-media-caption {
     margin: 24px auto 4px;
     padding: 0 12px;
     max-width: 95%;
     color: #527883;
-    font-size: 12.5px;
+    font-size: 12px;
     line-height: 1.5;
     text-align: center;
     text-align-last: center;
 }
+
 #lessonPage .sd-content-block-callout.sd-summary-panel {
     max-width: 100%;
     margin: 20px auto;
@@ -490,33 +1009,38 @@
     background: #eef8f3;
     color: #315e68;
 }
+
 #lessonPage .sd-summary-main-title {
     margin: 0 0 12px;
     color: #075477;
-    font-size: 17px;
+    font-size: 14px;
     font-weight: 700;
     text-align: center;
 }
+
 #lessonPage .sd-summary-subtitle {
     margin: 18px 0 10px;
     color: #075477;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 700;
 }
+
 #lessonPage .sd-summary-body .sd-summary-paragraph,
 #lessonPage .sd-summary-item-content p,
 #lessonPage .sd-summary-body li {
     margin: 0 0 12px;
-    font-size: 12.5px;
+    font-size: 14px;
     line-height: 1.5;
     text-align: justify;
 }
+
 #lessonPage .sd-summary-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
     margin: 16px 0 20px;
 }
+
 #lessonPage .sd-summary-item {
     display: flex;
     align-items: flex-start;
@@ -527,6 +1051,7 @@
     border-radius: 12px;
     background: #ffffff;
 }
+
 #lessonPage .sd-summary-number {
     display: grid;
     flex: 0 0 30px;
@@ -536,29 +1061,47 @@
     border-radius: 9px;
     background: #e4f5eb;
     color: #207950;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
 }
-#lessonPage .sd-summary-item-content { min-width: 0; }
+
+#lessonPage .sd-summary-item-content {
+    min-width: 0;
+}
+
 #lessonPage .sd-summary-item-content strong {
     display: block;
     margin-bottom: 6px;
     color: #075477;
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.5;
 }
-#lessonPage .sd-summary-item-content p { margin: 0; }
-@media (max-width: 767.98px) {
-    #lessonPage .sd-summary-grid { grid-template-columns: 1fr; }
-    #lessonPage .sd-content-block-callout.sd-summary-panel { padding: 16px; }
-    #lessonPage .sd-media-item { padding: 12px; }
+
+#lessonPage .sd-summary-item-content p {
+    margin: 0;
 }
+
+@media (max-width: 767.98px) {
+    #lessonPage .sd-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #lessonPage .sd-content-block-callout.sd-summary-panel {
+        padding: 16px;
+    }
+
+    #lessonPage .sd-media-item {
+        padding: 12px;
+    }
+}
+
 /* Paragraf penjelasan materi rata kanan-kiri, bukan caption media. */
-#lessonPage .sd-content-block:not(.sd-content-block-callout) > p,
-#lessonPage .sd-content-block:not(.sd-content-block-callout) > div:not(.sd-media-item) > p {
+#lessonPage .sd-content-block:not(.sd-content-block-callout)>p,
+#lessonPage .sd-content-block:not(.sd-content-block-callout)>div:not(.sd-media-item)>p {
     text-align: justify;
     text-justify: inter-word;
 }
+
 /* ==========================================
    SALUANG - KERAPIAN MATERI DASHBOARD SISWA
    ========================================== */
@@ -566,36 +1109,47 @@
 #lessonPage .sd-material-card {
     padding: 30px !important;
 }
+
 #lessonContent {
+    display: flow-root;
     padding: 0 !important;
-    line-height: 1.5 !important;
+    line-height: 1.8 !important;
+    color: #315e68;
 }
+
 /* 2. Jarak antarblok pembelajaran */
-#lessonContent > .sd-content-block {
+#lessonContent>.sd-content-block {
     margin: 0 0 32px !important;
 }
-#lessonContent > .sd-content-block:last-child {
+
+#lessonContent>.sd-content-block:last-child {
     margin-bottom: 0 !important;
 }
+
 /* 3. Paragraf materi: justify dan spasi 1,5 */
 #lessonContent .sd-content-block:not(.sd-content-block-media) p {
-    font-size: 12.5px;
+    font-size: 15px;
+    color: #315e68;
     text-align: justify;
-    line-height: 1.5 !important;
+    line-height: 1.8 !important;
     margin: 0 0 16px;
 }
+
 #lessonContent .sd-content-block li {
-    font-size: 12.5px;
+    font-size: 15px;
+    color: #315e68;
     text-align: justify;
-    line-height: 1.5 !important;
-    margin-bottom: 10px;
+    line-height: 1.8 !important;
+    margin-bottom: 12px;
 }
+
 /* 4. Jarak judul dengan isi materi */
 #lessonContent .sd-content-block h2,
 #lessonContent .sd-content-block h3 {
     margin: 20px 0 14px !important;
     line-height: 1.5;
 }
+
 /* 5. Card gambar seperti pratinjau Guru */
 #lessonContent .sd-media-item {
     box-sizing: border-box;
@@ -606,6 +1160,7 @@
     border-radius: 16px;
     background: #ffffff;
 }
+
 /* 6. Gambar berada di tengah */
 #lessonContent .sd-media-picture {
     display: block;
@@ -617,26 +1172,86 @@
     border-radius: 12px;
     object-fit: contain;
 }
+
 /* 7. Keterangan gambar CENTER dan tidak mepet */
 #lessonContent .sd-media-caption {
     display: block;
     margin: 24px auto 0 !important;
     padding: 0 12px;
     text-align: center !important;
-    font-size: 12.5px;
+    font-size: 12px;
     line-height: 1.5 !important;
 }
+
+#lessonPage #lessonContent>.sd-media-item.sd-media-item-wrap-right,
+#lessonPage #lessonContent>.sd-media-item.sd-media-item-wrap-left {
+    box-sizing: border-box;
+    width: min(42%, 360px) !important;
+    max-width: 42% !important;
+    padding: 12px !important;
+}
+
+#lessonPage #lessonContent>.sd-media-item.sd-media-item-wrap-right {
+    float: right;
+    margin: 0 0 16px 18px !important;
+}
+
+#lessonPage #lessonContent>.sd-media-item.sd-media-item-wrap-left {
+    float: left;
+    margin: 0 18px 16px 0 !important;
+}
+
+#lessonPage #lessonContent>.sd-media-item.sd-media-item-wrap-right .sd-media-picture,
+#lessonPage #lessonContent>.sd-media-item.sd-media-item-wrap-left .sd-media-picture {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+}
+
+#lessonPage #lessonContent>.sd-media-item.sd-media-item-wrap-right .sd-media-title,
+#lessonPage #lessonContent>.sd-media-item.sd-media-item-wrap-left .sd-media-title {
+    margin-bottom: 8px !important;
+}
+
+#lessonPage #lessonContent>.sd-media-item.sd-media-item-wrap-right .sd-media-caption,
+#lessonPage #lessonContent>.sd-media-item.sd-media-item-wrap-left .sd-media-caption {
+    margin-top: 10px !important;
+    padding: 0;
+}
+
+#lessonPage #lessonContent>.sd-media-item-wrap-clear {
+    clear: both;
+}
+
+#lessonContent p:not(.sd-media-caption) {
+    text-align: justify;
+}
+
+#lessonContent.sd-content-flow-wrap>.sd-content-block:not(.sd-content-block-clear) {
+    margin: 0 !important;
+}
+
+#lessonContent.sd-content-flow-wrap>.sd-content-block-clear {
+    clear: both;
+}
+
+#lessonContent.sd-content-flow-wrap .sd-learning-activity {
+    clear: both;
+}
+
 /* 8. Judul gambar juga CENTER */
 #lessonContent .sd-media-title {
     margin: 0 0 20px !important;
     text-align: center !important;
     line-height: 1.5;
 }
+
 /* 9. Jarak dan padding card kesimpulan */
 #lessonContent .sd-content-block-callout {
     padding: 24px !important;
     border-radius: 14px;
 }
+
 /* Aktivitas pembelajaran dibedakan dari paragraf materi biasa. */
 #lessonContent .sd-learning-activity {
     box-sizing: border-box;
@@ -649,45 +1264,56 @@
     color: #315e68;
     text-align: left;
 }
+
 #lessonContent .sd-learning-activity-title {
     margin: 0 0 12px !important;
     color: #075477;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 700;
     line-height: 1.5;
 }
+
 #lessonContent .sd-learning-activity-body :is(p, li) {
     text-align: justify;
     line-height: 1.5 !important;
 }
+
 #lessonContent .sd-learning-activity-body p {
     margin: 0 0 12px !important;
 }
-#lessonContent .sd-learning-activity-body > :last-child {
+
+#lessonContent .sd-learning-activity-body> :last-child {
     margin-bottom: 0 !important;
 }
+
 /* 10. Responsif di HP */
 @media (max-width: 767.98px) {
     #lessonPage .sd-material-card {
         padding: 18px !important;
     }
+
     #lessonContent {
         padding: 0 !important;
     }
-    #lessonContent > .sd-content-block {
+
+    #lessonContent>.sd-content-block {
         margin-bottom: 24px !important;
     }
+
     #lessonContent .sd-media-item {
         padding: 16px !important;
     }
+
     #lessonContent .sd-learning-activity {
         padding: 16px;
     }
+
     #lessonContent .sd-media-caption {
         margin-top: 20px !important;
         padding: 0 4px;
     }
 }
+
 #guruMaterialPage .gm-learning-activity,
 #lessonPage .sd-learning-activity {
     display: block;
@@ -702,32 +1328,36 @@
     color: #5c482e !important;
     box-shadow: 0 3px 12px rgba(117, 87, 24, .05);
 }
+
 #guruMaterialPage .gm-learning-activity-title,
 #lessonPage .sd-learning-activity-title {
     margin: 0 0 14px !important;
     color: #865518 !important;
-    font-size: 17px !important;
+    font-size: 18px !important;
     font-weight: 700 !important;
     line-height: 1.5 !important;
     text-align: left !important;
 }
+
 #guruMaterialPage .gm-learning-activity-body,
 #lessonPage .sd-learning-activity-body {
-    color: #4e5060 !important;
     font-size: 14px;
     line-height: 1.5 !important;
     text-align: justify;
 }
+
 #guruMaterialPage .gm-learning-activity-body p,
 #lessonPage .sd-learning-activity-body p {
     margin: 0 0 12px !important;
     line-height: 1.5 !important;
     text-align: justify !important;
 }
+
 #guruMaterialPage .gm-learning-activity-body p:last-child,
 #lessonPage .sd-learning-activity-body p:last-child {
     margin-bottom: 0 !important;
 }
+
 #guruMaterialPage .gm-learning-activity-body ol,
 #guruMaterialPage .gm-learning-activity-body ul,
 #lessonPage .sd-learning-activity-body ol,
@@ -736,17 +1366,21 @@
     margin: 4px 0 0;
     line-height: 1.5;
 }
+
 #guruMaterialPage .gm-learning-activity-body li,
 #lessonPage .sd-learning-activity-body li {
     margin-bottom: 7px;
     line-height: 1.5;
 }
+
 @media (max-width: 767.98px) {
+
     #guruMaterialPage .gm-learning-activity,
     #lessonPage .sd-learning-activity {
         padding: 17px 19px !important;
     }
 }
+
 /* PERBAIKAN FINAL UKURAN MATERI SISWA */
 /* Gambar tidak terlalu besar */
 #lessonPage #lessonContent .sd-media-item {
@@ -755,24 +1389,29 @@
     margin: 28px auto 32px !important;
     padding: 18px !important;
 }
+
 #lessonPage #lessonContent .sd-media-picture {
     width: 100% !important;
     max-height: 370px !important;
     object-fit: contain !important;
 }
-/* Judul Ayo: SAMA BESAR dengan isi materi */
+
+/* Judul Ayo mengikuti hierarki judul kartu. */
 #lessonPage #lessonContent .sd-learning-activity-title {
-    font-size: 14px !important;
+    font-size: 18px !important;
     font-weight: 700 !important;
     line-height: 1.5 !important;
 }
-/* Semua isi card Ayo: 14px */
+
+/* Isi card Ayo mengikuti ukuran isi materi. */
 #lessonPage #lessonContent .sd-learning-activity-body,
 #lessonPage #lessonContent .sd-learning-activity-body p,
 #lessonPage #lessonContent .sd-learning-activity-body li {
-    font-size: 12.5px !important;
-    line-height: 1.5 !important;
+    font-size: 15px !important;
+    line-height: 1.8 !important;
+    text-align: justify;
 }
+
 /* Lebar card Ayo tetap sejajar dengan teks materi */
 #lessonPage #lessonContent .sd-learning-activity {
     box-sizing: border-box;
@@ -788,30 +1427,27 @@
     border: 1px solid #e9c983 !important;
     border-left: 5px solid #d49b37 !important;
 }
+
 #lessonPage #lessonContent .sd-learning-activity-title {
-    font-size: 13px !important;
+    font-size: 18px !important;
     line-height: 1.5 !important;
     margin: 0 0 10px !important;
 }
-#lessonPage #lessonContent .sd-learning-activity-body,
-#lessonPage #lessonContent .sd-learning-activity-body p,
-#lessonPage #lessonContent .sd-learning-activity-body li {
-    font-size: 12.5px !important;
-    line-height: 1.5 !important;
-}
+
 #lessonPage #lessonContent .sd-learning-activity-body p:last-child,
 #lessonPage #lessonContent .sd-learning-activity-body ul:last-child,
 #lessonPage #lessonContent .sd-learning-activity-body ol:last-child {
     margin-bottom: 0 !important;
 }
+
 #lessonPage #lessonContent .sd-learning-activity-body :is(h1, h2, h3, h4, h5, h6, blockquote) {
-    color: inherit;
-    font-size: 12.5px !important;
     line-height: 1.5 !important;
 }
+
 #lessonPage #lessonContent .sd-learning-activity {
     margin: 24px 0 28px !important;
 }
+
 #lessonPage .sd-content-block:has(> .gm-summary-card) {
     width: 100% !important;
     max-width: none !important;
@@ -819,6 +1455,7 @@
     border: 0 !important;
     background: transparent !important;
 }
+
 #lessonPage .gm-summary-card {
     width: 100%;
     max-width: none;
@@ -830,6 +1467,7 @@
     background: #f8fdf9;
     box-shadow: 0 4px 14px rgba(20, 81, 64, .06);
 }
+
 #lessonPage .gm-summary-header {
     display: flex;
     align-items: center;
@@ -839,15 +1477,18 @@
     background: #e3f4ea;
     text-align: center;
 }
+
 #lessonPage .gm-summary-header h4 {
     margin: 0;
     color: #175c47;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
 }
+
 #lessonPage .gm-summary-body {
     padding: 18px;
 }
+
 #lessonPage .gm-summary-heading {
     margin: 16px 0 10px;
     color: #135b76;
@@ -855,22 +1496,26 @@
     font-weight: 700;
     text-align: left;
 }
+
 #lessonPage .gm-summary-heading:first-child {
     margin-top: 0;
 }
+
 #lessonPage .gm-summary-paragraph {
     margin: 0 0 12px;
     color: #315e68;
-    font-size: 12.5px;
+    font-size: 14px;
     line-height: 1.5;
     text-align: justify;
 }
+
 #lessonPage .gm-summary-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
     margin: 12px 0 16px;
 }
+
 #lessonPage .gm-summary-item {
     display: flex;
     align-items: flex-start;
@@ -881,6 +1526,7 @@
     border-radius: 11px;
     background: #fff;
 }
+
 #lessonPage .gm-summary-number {
     display: grid;
     flex: 0 0 28px;
@@ -890,34 +1536,40 @@
     border-radius: 8px;
     background: #e6f4eb;
     color: #227148;
-    font-size: 12.5px;
+    font-size: 14px;
     font-weight: 700;
 }
+
 #lessonPage .gm-summary-item h5 {
     margin: 1px 0 5px;
     color: #135b76;
-    font-size: 12.5px;
+    font-size: 14px;
     font-weight: 700;
     line-height: 1.5;
 }
+
 #lessonPage .gm-summary-item p {
     margin: 0;
     color: #456d77;
-    font-size: 12.5px;
+    font-size: 14px;
     line-height: 1.5;
     text-align: justify;
 }
-#lessonContent > .sd-content-block > .sd-learning-activity {
+
+#lessonContent>.sd-content-block>.sd-learning-activity {
     margin: 0 !important;
 }
+
 @media (max-width: 767.98px) {
     #lessonPage .gm-summary-grid {
         grid-template-columns: 1fr;
     }
+
     #lessonPage .gm-summary-body {
         padding: 16px;
     }
 }
+
 /* SALUANG: Pemutar video konsisten dengan ukuran gambar pada materi Siswa */
 #lessonPage #lessonContent .sd-media-item .sd-media-youtube {
     display: block;
@@ -930,6 +1582,7 @@
     border: 0;
     border-radius: 12px;
 }
+
 #lessonPage #lessonContent .sd-media-item .sd-media-video {
     display: block;
     width: 100%;
@@ -939,306 +1592,2217 @@
     margin: 0 auto;
     border-radius: 12px;
 }
+
 #lessonPage #lessonContent .sd-media-item .sd-media-note {
     display: none;
 }
-        #lessonPage .sd-material-card {
-            width: 100%;
-            padding: 12px;
-            overflow: hidden;
-            border-radius: 14px;
-        }
-        #lessonPage .sd-material-grid {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr);
-            gap: 12px;
-            width: 100%;
-            min-width: 0;
-        }
-        #lessonPage .sd-material-text {
-            width: 100%;
-            max-width: none;
-            min-width: 0;
-        }
-        #lessonPage .sd-title {
-            margin: 8px 0 10px;
-            font-size: 18px;
-            line-height: 1.4;
-        }
-        #lessonPage .sd-material-heading {
-            margin-bottom: 8px;
-            font-size: 15px;
-            line-height: 1.4;
-        }
-        #lessonPage #lessonContent {
-            display: block;
-            width: 100%;
-            min-width: 0;
-            color: #294f57;
-            font-family: inherit;
-            font-size: 12px;
-            font-weight: 400;
-            line-height: 1.55;
-            overflow-wrap: anywhere;
-            white-space: normal;
-        }
-        #lessonPage #lessonContent p {
-            margin: 0 0 7px;
-            font-size: inherit;
-            line-height: inherit;
-        }
-        #lessonPage #lessonContent h2 {
-            margin: 12px 0 6px;
-            color: #075b70;
-            font-size: 15px;
-            font-weight: 700;
-            line-height: 1.5;
-        }
-        #lessonPage #lessonContent h3 {
-            margin: 10px 0 5px;
-            color: #126779;
-            font-size: 13px;
-            font-weight: 700;
-            line-height: 1.55;
-        }
-        #lessonPage #lessonContent strong,
-        #lessonPage #lessonContent b {
-            font-weight: 700;
-        }
-        #lessonPage #lessonContent em,
-        #lessonPage #lessonContent i {
-            font-style: italic;
-        }
-        #lessonPage #lessonContent u {
-            text-decoration: underline;
-        }
-        #lessonPage #lessonContent ol {
-            list-style-type: decimal;
-            list-style-position: outside;
-        }
-        #lessonPage #lessonContent ul {
-            list-style-type: disc;
-            list-style-position: outside;
-        }
-        #lessonPage #lessonContent ol,
-        #lessonPage #lessonContent ul {
-            margin: 6px 0 8px;
-            padding-left: 20px;
-        }
-        #lessonPage #lessonContent li {
-            display: list-item;
-            margin-bottom: 3px;
-            padding-left: 2px;
-            font-size: inherit;
-            line-height: 1.55;
-        }
-        #lessonPage .sd-material-media {
-            width: 100%;
-            max-width: 350px;
-            margin: 0 auto;
-            text-align: center;
-        }
-        #lessonPage .sd-media-picture {
-            display: block;
-            width: 100%;
-            max-width: 350px;
-            height: auto;
-            object-fit: contain;
-            margin-inline: auto;
-            border-radius: 10px;
-        }
-        #lessonPage .sd-media-caption {
-            margin: 10px 0 0;
-            color: #69828b;
-            font-size: 13px;
-            line-height: 1.6;
-        }
-        #lessonPage .sd-media-item + .sd-media-item {
-            margin-top: 16px;
-            padding-top: 14px;
-            border-top: 1px solid #e2ece7;
-        }
-        #lessonPage .sd-media-title {
-            margin: 0 0 7px;
-            color: #19566a;
-            font-size: 14px;
-            font-weight: 700;
-        }
-        #lessonPage .sd-media-video,
-        #lessonPage .sd-media-youtube {
-            display: block;
-            width: 100%;
-            max-width: 350px;
-            aspect-ratio: 16 / 9;
-            margin-inline: auto;
-            border: 0;
-            border-radius: 10px;
-            background: #10252b;
-        }
-        #lessonPage .sd-media-video {
-            height: auto;
-            object-fit: contain;
-        }
-        #lessonPage .sd-media-unavailable,
-        #lessonPage .sd-media-note {
-            margin: 8px 0 0;
-            color: #69828b;
-            font-size: 12px;
-            line-height: 1.5;
-        }
-        #lessonPage .sd-content-block + .sd-content-block {
-            margin-top: 12px;
-        }
-        #lessonPage .sd-content-block-callout {
-            padding: 11px 12px;
-            border-left: 3px solid #4f9d69;
-            border-radius: 8px;
-            background: #f0f8f2;
-        }
-        #lessonPage .sd-content-block-callout > strong {
-            display: block;
-            margin-bottom: 5px;
-            color: #19566a;
-        }
-        #chapterPage .sd-objectives {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr);
-            gap: 6px;
-        }
-        #chapterPage > .sd-card {
-            padding: 12px;
-        }
-        #chapterPage > .sd-card.mt-3 {
-            margin-top: 10px !important;
-        }
-        #chapterPage .sd-heading {
-            margin-bottom: 8px;
-            font-size: 13px;
-            line-height: 1.4;
-        }
-        #chapterPage > .sd-card > .sd-copy {
-            margin-bottom: 8px;
-            font-size: 12px;
-            line-height: 1.5;
-        }
-        #chapterPage .sd-objective {
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-            min-width: 0;
-            padding: 9px 10px;
-            border-radius: 10px;
-            line-height: 1.5;
-        }
-        #chapterPage .sd-objective-number {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex: 0 0 25px;
-            width: 25px;
-            height: 25px;
-            border-radius: 7px;
-            background: #dff2e7;
-            color: #176447;
-            font-size: 12px;
-            font-weight: 700;
-        }
-        #chapterPage .sd-objective-body {
-            min-width: 0;
-            flex: 1;
-        }
-        #chapterPage .sd-objective-body p {
-            margin: 2px 0 0;
-            font-size: 12px;
-            line-height: 1.5;
-        }
-        #chapterPage .sd-prompt-image {
-            display: block;
-            width: min(100%, 350px);
-            height: auto;
-            object-fit: contain;
-            margin: 10px auto 0;
-            border-radius: 10px;
-        }
-        #lessonPage [hidden],
-        #chapterPage [hidden] {
-            display: none !important;
-        }
-        #chapterPage .sd-prompt {
-            padding: 0;
-            border: 0;
-            border-radius: 0;
-            background: transparent;
-            font-size: 12px;
-        }
-        #chapterPage .sd-prompt .sd-copy {
-            margin: 0;
-            color: #294f57;
-            font-size: 12px;
-            line-height: 1.55;
-        }
-        @media (max-width: 767.98px) {
-            #lessonPage .sd-material-grid {
-                grid-template-columns: minmax(0, 1fr);
-                gap: 10px;
-            }
-            #lessonPage .sd-material-card {
-                padding: 10px;
-            }
-            #lessonPage #lessonContent {
-                font-size: 13px;
-                line-height: 1.55;
-            }
-            #lessonPage #lessonContent p {
-                margin-bottom: 7px;
-            }
-            #lessonPage #lessonContent h2 {
-                font-size: 15px;
-            }
-            #lessonPage #lessonContent h3 {
-                font-size: 13px;
-            }
-            #lessonPage #lessonContent ol,
-            #lessonPage #lessonContent ul {
-                padding-left: 24px;
-            }
-            #chapterPage .sd-objective {
-                padding: 8px 9px;
-                gap: 7px;
-            }
-            #chapterPage .sd-objective-body p {
-                font-size: 13px;
-            }
-            #chapterPage .sd-prompt .sd-copy {
-                font-size: 13px;
-            }
-            #chapterPage .sd-prompt {
-                font-size: 13px;
-            }
-        }
+
+#lessonPage .sd-material-card {
+    width: 100%;
+    padding: 12px;
+    overflow: hidden;
+    border-radius: 14px;
+}
+
+#lessonPage .sd-material-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+}
+
+#lessonPage .sd-material-text {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+}
+
+#lessonPage .sd-title {
+    margin: 8px 0 10px;
+    font-size: 18px;
+    line-height: 1.4;
+}
+
+#lessonPage .sd-material-heading {
+    margin-bottom: 8px;
+    font-size: 18px;
+    line-height: 1.4;
+}
+
+#lessonPage #lessonContent {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    color: #294f57;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
+#lessonPage #lessonContent p {
+    margin: 0 0 7px;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+#lessonPage #lessonContent h2 {
+    margin: 12px 0 6px;
+    color: #075b70;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+#lessonPage #lessonContent h3 {
+    margin: 10px 0 5px;
+    color: #126779;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.55;
+}
+
+#lessonPage #lessonContent strong,
+#lessonPage #lessonContent b {
+    font-weight: 700;
+}
+
+#lessonPage #lessonContent em,
+#lessonPage #lessonContent i {
+    font-style: italic;
+}
+
+#lessonPage #lessonContent u {
+    text-decoration: underline;
+}
+
+#lessonPage #lessonContent ol {
+    list-style-type: decimal;
+    list-style-position: outside;
+}
+
+#lessonPage #lessonContent ul {
+    list-style-type: disc;
+    list-style-position: outside;
+}
+
+#lessonPage #lessonContent ol,
+#lessonPage #lessonContent ul {
+    margin: 6px 0 8px;
+    padding-left: 20px;
+}
+
+#lessonPage #lessonContent li {
+    display: list-item;
+    margin-bottom: 3px;
+    padding-left: 2px;
+    font-size: inherit;
+    line-height: 1.55;
+}
+
+#lessonPage .sd-material-media {
+    width: 100%;
+    max-width: 350px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+#lessonPage .sd-media-picture {
+    display: block;
+    width: 100%;
+    max-width: 350px;
+    height: auto;
+    object-fit: contain;
+    margin-inline: auto;
+    border-radius: 10px;
+}
+
+#lessonPage .sd-media-caption {
+    margin: 10px 0 0;
+    color: #69828b;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+#lessonPage .sd-media-item+.sd-media-item {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #e2ece7;
+}
+
+#lessonPage .sd-media-title {
+    margin: 0 0 7px;
+    color: #19566a;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+#lessonPage .sd-media-video,
+#lessonPage .sd-media-youtube {
+    display: block;
+    width: 100%;
+    max-width: 350px;
+    aspect-ratio: 16 / 9;
+    margin-inline: auto;
+    border: 0;
+    border-radius: 10px;
+    background: #10252b;
+}
+
+#lessonPage .sd-media-video {
+    height: auto;
+    object-fit: contain;
+}
+
+#lessonPage .sd-media-unavailable,
+#lessonPage .sd-media-note {
+    margin: 8px 0 0;
+    color: #69828b;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+#lessonPage .sd-content-block+.sd-content-block {
+    margin-top: 12px;
+}
+
+#lessonPage .sd-content-block-callout {
+    padding: 11px 12px;
+    border-left: 3px solid #4f9d69;
+    border-radius: 8px;
+    background: #f0f8f2;
+}
+
+#lessonPage .sd-content-block-callout>strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #19566a;
+}
+
+#chapterPage .sd-objectives {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 5px;
+}
+
+#chapterPage>.sd-card {
+    padding: 12px;
+}
+
+#chapterPage>.sd-card.mt-3 {
+    margin-top: 10px !important;
+}
+
+#chapterPage .sd-heading {
+    margin-bottom: 8px;
+    font-size: 24px;
+    line-height: 1.4;
+}
+
+#chapterPage>.sd-card>.sd-copy {
+    margin-bottom: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+#chapterPage .sd-objective {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    min-width: 0;
+    padding: 8px 10px;
+    border-radius: 10px;
+    line-height: 1.5;
+}
+
+#chapterPage .sd-objective-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 25px;
+    width: 25px;
+    height: 25px;
+    border-radius: 7px;
+    background: #dff2e7;
+    color: #176447;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+#chapterPage .sd-objective-body {
+    min-width: 0;
+    flex: 1;
+}
+
+#chapterPage .sd-objective-body p {
+    margin: 2px 0 0;
+    font-size: 15px;
+    line-height: 1.55;
+}
+
+#chapterPage .sd-prompt-image {
+    display: block;
+    width: min(100%, 350px);
+    height: auto;
+    object-fit: contain;
+    max-height: 180px;
+    margin: 8px auto 0;
+    border-radius: 10px;
+}
+
+#lessonPage [hidden],
+#chapterPage [hidden] {
+    display: none !important;
+}
+
+#chapterPage .sd-prompt {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    font-size: 14px;
+}
+
+#chapterPage .sd-prompt .sd-copy {
+    margin: 0;
+    color: #294f57;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+@media (max-width: 767.98px) {
+    #lessonPage .sd-material-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    #lessonPage .sd-material-card {
+        padding: 10px;
+    }
+
+    #lessonPage #lessonContent {
+        font-size: 14px;
+        line-height: 1.55;
+    }
+
+    #lessonPage #lessonContent p {
+        margin-bottom: 7px;
+    }
+
+    #lessonPage #lessonContent h2 {
+        font-size: 18px;
+    }
+
+    #lessonPage #lessonContent h3 {
+        font-size: 16px;
+    }
+
+    #lessonPage #lessonContent ol,
+    #lessonPage #lessonContent ul {
+        padding-left: 24px;
+    }
+
+    #chapterPage .sd-objective {
+        padding: 7px 9px;
+        gap: 6px;
+    }
+
+    #chapterPage .sd-objective-body p {
+        font-size: 15px;
+    }
+
+    #chapterPage .sd-prompt .sd-copy {
+        font-size: 15px;
+    }
+
+    #chapterPage .sd-prompt {
+        font-size: 15px;
+    }
+}
+
 /* Formerly injected by the material renderer; kept in the materia stylesheet. */
-#lessonPage .sd-content-block:has(.sd-media-item) { width: 100% !important; max-width: none !important; }
-          #lessonPage .sd-media-item { width: min(100%, 980px) !important; max-width: 980px !important; margin: 24px auto 32px !important; padding: 24px !important; box-sizing: border-box; }
-          #lessonPage .sd-media-picture { width: 100% !important; max-width: 100% !important; max-height: none !important; height: auto !important; object-fit: contain !important; margin: 0 auto !important; }
-          #lessonPage .sd-media-title { text-align: center !important; margin: 0 0 18px !important; }
-          #lessonPage .sd-media-caption { text-align: center !important; margin: 24px auto 0 !important; line-height: 1.5 !important; }
-          @media (max-width: 680px) { #lessonPage .sd-media-item { padding: 16px !important; } }
+#lessonPage .sd-content-block:has(.sd-media-item) {
+    width: 100% !important;
+    max-width: none !important;
+}
+
+#lessonPage .sd-media-item {
+    width: min(100%, 980px) !important;
+    max-width: 980px !important;
+    margin: 24px auto 32px !important;
+    padding: 24px !important;
+    box-sizing: border-box;
+}
+
+#lessonPage .sd-media-picture {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    height: auto !important;
+    object-fit: contain !important;
+    margin: 0 auto !important;
+}
+
+#lessonPage .sd-media-title {
+    text-align: center !important;
+    margin: 0 0 18px !important;
+}
+
+#lessonPage .sd-media-caption {
+    text-align: center !important;
+    margin: 24px auto 0 !important;
+    line-height: 1.5 !important;
+}
+
+@media (max-width: 680px) {
+    #lessonPage .sd-media-item {
+        padding: 16px !important;
+    }
+}
+
 /* Responsive materi rules moved from the shared stylesheet. */
 @media (max-width: 767.98px) {
+
+    #lessonPage #lessonContent>.sd-media-item.sd-media-item-wrap-right,
+    #lessonPage #lessonContent>.sd-media-item.sd-media-item-wrap-left {
+        float: none;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 auto 20px !important;
+        padding: 16px !important;
+    }
+
     .sd-chapter-hero {
         grid-template-columns: 1fr;
     }
+
     .sd-objectives {
         grid-template-columns: 1fr;
     }
+
     .sd-material-grid {
         grid-template-columns: 1fr;
         gap: 24px;
     }
+
     .sd-material-card {
         padding: 17px;
     }
+
     .sd-media-picture {
         max-height: 260px;
+    }
+}
+
+/* Materi, kuis, caption, dan latihan formatif Siswa. */
+.sd-page #chapterPage .sd-chapter-hero .sd-copy,
+.sd-page #chapterPage article>.sd-copy,
+.sd-page #lessonPage .sd-material-text .sd-copy {
+    color: #315e68;
+    font-size: 14px;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+
+.sd-page #chapterPage .sd-objectives p,
+.sd-page #chapterPage .sd-prompt,
+.sd-page #chapterPage .sd-prompt .sd-copy {
+    color: #315e68;
+    font-size: 15px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.sd-page #lessonPage .sd-muted,
+.sd-page #lessonPage .sd-media-caption,
+.sd-page #chapterPage .sd-muted {
+    color: #526b74;
+    font-size: 12px;
+    line-height: 1.65;
+}
+
+.sd-page #lessonPage .sd-quiz-title {
+    font-size: 18px;
+    line-height: 1.45;
+}
+
+.sd-page #lessonPage .sd-question-count {
+    color: #405d66;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.sd-page #lessonPage #questionText {
+    color: #174a60;
+    font-size: 15px;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+}
+
+.sd-page #lessonPage .sd-choice {
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.sd-page #lessonPage .sd-answer-feedback,
+.sd-page #lessonPage .sd-activity-feedback {
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+.sd-page #lessonPage .sd-formative-card {
+    color: #315e68;
+}
+
+.sd-page #lessonPage .sd-formative-prompt {
+    color: #174a60;
+    font-size: 14px;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+}
+
+.sd-page #lessonPage .sd-formative-instruction,
+.sd-page #lessonPage .sd-formative-hint {
+    color: #526b74;
+    font-size: 12px;
+    line-height: 1.65;
+}
+
+.sd-page #lessonPage .sd-activity-token,
+.sd-page #lessonPage .sd-activity-target {
+    color: #174a60;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.sd-page #lessonPage .sd-activity-assigned {
+    color: #245c3e;
+    font-size: 14px;
+}
+
+.sd-page #lessonPage .sd-activity-check {
+    font-size: 14px;
+}
+
+.sd-page #lessonPage .sd-navigation .sd-nav-btn {
+    font-size: 13px;
+}
+
+@media (max-width: 575.98px) {
+
+    .sd-page #chapterPage .sd-chapter-hero .sd-copy,
+    .sd-page #chapterPage article>.sd-copy,
+    .sd-page #lessonPage .sd-material-text .sd-copy {
+        font-size: 14px;
+        line-height: 1.75;
+    }
+
+    .sd-page #chapterPage .sd-objectives p,
+    .sd-page #chapterPage .sd-prompt,
+    .sd-page #chapterPage .sd-prompt .sd-copy {
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    .sd-page #lessonPage #questionText {
+        font-size: 15px;
+    }
+}
+
+.sd-formative-card {
+    padding: 18px;
+    border-radius: 14px;
+    box-shadow: 0 5px 18px rgba(7, 41, 55, .06);
+}
+
+.sd-formative-hint,
+.sd-matching-instruction {
+    margin: 0 0 10px;
+}
+
+.sd-matching-heading {
+    margin: 14px 0 4px;
+    color: var(--sd-blue);
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.sd-matching-instruction {
+    color: var(--sd-muted);
+    font-size: 13px;
+    line-height: 1.65;
+}
+
+.sd-activity-source,
+.sd-activity-target {
+    border-radius: 13px;
+    transition: border-color .16s ease, background-color .16s ease, box-shadow .16s ease;
+}
+
+.sd-activity-source {
+    background: linear-gradient(135deg, #f8fcf9, #edf7f0);
+}
+
+.sd-activity-token,
+.sd-activity-assigned,
+.sd-matching-left .sd-activity-token,
+.sd-matching-right .sd-activity-token {
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(7, 41, 55, .06);
+    transition: border-color .16s ease, background-color .16s ease, transform .16s ease, box-shadow .16s ease;
+}
+
+.sd-activity-token.is-drag-card,
+.sd-activity-assigned {
+    touch-action: none;
+}
+
+.sd-activity-source-items,
+.sd-activity-assigned-list {
+    grid-template-columns: repeat(auto-fill, 160px);
+    align-items: start;
+    justify-content: start;
+}
+
+
+/* Drag & Drop — gambar besar, kartu tetap kotak */
+.sd-activity-token.is-drag-card .sd-activity-image,
+.sd-activity-assigned .sd-activity-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    object-fit: contain;
+}
+
+.sd-activity-token.is-drag-card .sd-activity-caption,
+.sd-activity-assigned .sd-activity-caption {
+    font-size: 12px;
+    line-height: 14px;
+    text-align: center;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.sd-activity-token.is-drag-card.is-dragging,
+.sd-activity-assigned.is-dragging {
+    opacity: .76;
+    transform: scale(.97);
+    box-shadow: 0 0 0 3px rgba(61, 155, 100, .18);
+}
+
+.sd-matching-left,
+.sd-matching-right {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.sd-matching-item-row {
+    display: grid;
+    align-items: center;
+    min-width: 0;
+}
+
+.sd-matching-item-row.is-left {
+    grid-template-columns: minmax(0, 1fr) 12px;
+}
+
+.sd-matching-item-row.is-right {
+    grid-template-columns: 12px minmax(0, 1fr);
+}
+
+.sd-matching-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 7px;
+    width: clamp(100px, 15vw, 144px);
+    aspect-ratio: 1;
+    min-width: 0;
+    height: auto;
+    justify-self: center;
+    padding: 8px;
+    border: 1px solid #d5e7df;
+    border-radius: 12px;
+    background: #fff;
+    color: var(--sd-blue);
+    font: inherit;
+    font-size: 12px;
+    line-height: 1.4;
+    text-align: center;
+    cursor: pointer;
+    touch-action: none;
+}
+
+.sd-matching-card .sd-activity-image-frame {
+    flex: 0 0 68%;
+    width: 100%;
+    height: 68%;
+    min-height: 0;
+    background: #edf5f2;
+}
+
+.sd-matching-card .sd-activity-image {
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    margin: 0;
+    object-fit: contain;
+}
+
+.sd-matching-card .sd-activity-caption {
+    display: -webkit-box;
+    width: 100%;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.sd-matching-card.is-paired {
+    border-color: #83bd97;
+    background: #edf8f0;
+    box-shadow: 0 0 0 2px rgba(78, 157, 109, .12);
+}
+
+.sd-matching-card.is-selected {
+    border-color: #328452;
+    background: #e1f3e7;
+    box-shadow: 0 0 0 3px rgba(61, 155, 100, .18);
+}
+
+.sd-matching-dot {
+    position: relative;
+    z-index: 4;
+    flex: 0 0 10px;
+    width: 10px;
+    height: 10px;
+    border: 2px solid #328452;
+    border-radius: 50%;
+    background: #fff;
+}
+
+.sd-matching-left .sd-matching-dot {
+    justify-self: end;
+}
+
+.sd-matching-right .sd-matching-dot {
+    justify-self: start;
+}
+
+@media (max-width: 575.98px) {
+    .sd-matching-card {
+        width: clamp(88px, 29vw, 128px);
+        padding: 6px;
+        font-size: 11px;
+    }
+}
+
+.sd-activity-token.is-dragging,
+.sd-activity-assigned.is-dragging {
+    opacity: .58;
+    transform: scale(.98);
+}
+
+.sd-activity-source.is-drop-target,
+.sd-activity-target.is-drop-target {
+    border-color: #3d9b64;
+    background: #e8f7ed;
+    box-shadow: 0 0 0 3px rgba(61, 155, 100, .15);
+}
+
+.sd-activity-check {
+    min-width: 180px;
+    margin-top: 16px;
+}
+
+.sd-activity-check:disabled {
+    cursor: not-allowed;
+    opacity: .58;
+}
+
+.sd-matching-columns {
+    gap: clamp(8px, 2vw, 18px);
+}
+
+.sd-matching-left .sd-activity-image-frame,
+.sd-matching-right .sd-activity-image-frame {
+    flex-basis: 68px;
+    width: 68px;
+    height: 68px;
+}
+
+@media (max-width: 575.98px) {
+    .sd-formative-card {
+        padding: 14px;
+    }
+
+    .sd-matching-left .sd-activity-image-frame,
+    .sd-matching-right .sd-activity-image-frame {
+        flex-basis: 44px;
+        width: 44px;
+        height: 44px;
+    }
+
+    .sd-activity-check {
+        width: 100%;
+    }
+}
+
+.sd-formative-card {
+    padding: clamp(14px, 2.5vw, 22px);
+    border-radius: 16px;
+    background:
+        radial-gradient(circle at 100% 0, rgba(214, 239, 225, .45), transparent 34%),
+        #f6fbf8;
+    box-shadow: 0 7px 22px rgba(14, 75, 65, .07);
+}
+
+.sd-formative-title {
+    margin-bottom: 8px;
+}
+
+.sd-formative-prompt {
+    margin: 0 0 10px;
+    font-weight: 600;
+}
+
+.sd-formative-instruction,
+.sd-formative-hint {
+    margin: 0 0 14px;
+}
+
+.sd-drag-drop-board {
+    display: grid;
+    gap: 14px;
+}
+
+.sd-activity-source {
+    padding: 12px;
+    border: 1px dashed #9fc9ad;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #f8fcf9, #edf7f0);
+    transition: border-color .16s ease, background-color .16s ease, box-shadow .16s ease;
+}
+
+.sd-activity-source-title {
+    margin-bottom: 9px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.sd-activity-source-items {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 112px), 1fr));
+    gap: 9px;
+}
+
+.sd-activity-source-items:empty {
+    min-height: 44px;
+}
+
+.sd-activity-target-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 205px), 1fr));
+    gap: 10px;
+    margin: 0;
+}
+
+.sd-activity-target {
+    min-height: 82px;
+    padding: 11px;
+    border: 1px dashed #a9cdb5;
+    border-radius: 13px;
+    background: #eef8f1;
+    box-shadow: 0 3px 12px rgba(12, 72, 58, .05);
+    transition: border-color .16s ease, background-color .16s ease, box-shadow .16s ease;
+}
+
+.sd-activity-target>strong {
+    margin-bottom: 6px;
+    color: #245c3e;
+}
+
+.sd-activity-token,
+.sd-activity-assigned {
+    border: 1px solid #d5e7df;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(7, 41, 55, .06);
+}
+
+.sd-activity-token.is-drag-card,
+.sd-activity-assigned {
+    padding: 8px;
+}
+
+.sd-activity-caption {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.45;
+}
+
+.sd-activity-assigned-list {
+    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+    gap: 7px;
+}
+
+.sd-activity-assigned {
+    margin-top: 8px;
+}
+
+.sd-activity-target.is-drop-target,
+.sd-activity-source.is-drop-target {
+    border-color: #3d9b64;
+    background: #e6f5eb;
+    box-shadow: 0 0 0 3px rgba(61, 155, 100, .15);
+}
+
+.sd-activity-token.is-dragging,
+.sd-activity-assigned.is-dragging {
+    opacity: .56;
+    transform: scale(.97);
+}
+
+.sd-activity-check {
+    min-height: 44px;
+    margin-top: 8px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(50, 127, 82, .13);
+}
+
+.sd-matching-heading {
+    margin-top: 4px;
+}
+
+.sd-matching-instruction {
+    margin: 0 0 12px;
+}
+
+.sd-matching-columns {
+    grid-template-columns: minmax(0, 1fr) clamp(28px, 5vw, 48px) minmax(0, 1fr);
+    gap: 0;
+    padding: 4px 0;
+}
+
+.sd-matching-left,
+.sd-matching-right {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: 9px;
+}
+
+.sd-matching-left {
+    grid-column: 1;
+}
+
+.sd-matching-right {
+    grid-column: 3;
+}
+
+.sd-matching-left .sd-activity-token,
+.sd-matching-right .sd-activity-token {
+    min-height: 78px;
+    padding: 8px;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 3px 10px rgba(7, 41, 55, .06);
+}
+
+.sd-matching-left .sd-activity-image-frame,
+.sd-matching-right .sd-activity-image-frame {
+    flex-basis: 50px;
+    width: 50px;
+    height: 50px;
+}
+
+.sd-matching-left .sd-matching-dot {
+    margin-left: auto;
+}
+
+.sd-matching-right .sd-matching-dot {
+    margin-right: auto;
+}
+
+.sd-matching-left .sd-activity-token.is-paired,
+.sd-matching-right .sd-activity-token.is-paired {
+    border-color: #83bd97;
+    background: #edf8f0;
+    box-shadow: 0 0 0 2px rgba(78, 157, 109, .12);
+}
+
+.sd-matching-left .sd-activity-token.is-selected {
+    border-color: #328452;
+    background: #e1f3e7;
+    box-shadow: 0 0 0 3px rgba(61, 155, 100, .18);
+}
+
+.sd-matching-line {
+    stroke: #328452;
+    stroke-width: 3;
+    filter: drop-shadow(0 1px 1px rgba(22, 89, 49, .2));
+}
+
+.sd-activity-feedback {
+    padding: 12px 14px;
+    font-size: 13px;
+}
+
+@media (max-width: 575.98px) {
+    .sd-activity-source {
+        padding: 9px;
+    }
+
+    .sd-activity-source-items {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 7px;
+    }
+
+    .sd-activity-target-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 7px;
+    }
+
+    .sd-activity-target {
+        min-height: 72px;
+        padding: 8px;
+    }
+
+    .sd-matching-columns {
+        grid-template-columns: minmax(0, 1fr) 22px minmax(0, 1fr);
+    }
+
+    .sd-matching-left .sd-activity-token,
+    .sd-matching-right .sd-activity-token {
+        min-height: 64px;
+        gap: 4px;
+        padding: 6px;
+        font-size: 11px;
+    }
+
+    .sd-matching-left .sd-activity-image-frame,
+    .sd-matching-right .sd-activity-image-frame {
+        flex-basis: 34px;
+        width: 34px;
+        height: 34px;
+    }
+
+    .sd-matching-dot {
+        flex-basis: 10px;
+        width: 10px;
+        height: 10px;
+    }
+}
+
+.sd-matching-columns {
+    grid-template-columns: minmax(0, 1fr) clamp(36px, 6vw, 72px) minmax(0, 1fr);
+    gap: 8px;
+}
+
+.sd-matching-left,
+.sd-matching-right {
+    align-content: start;
+    justify-items: center;
+    gap: 12px;
+}
+
+.sd-matching-item-row.is-left {
+    grid-template-columns: minmax(0, 1fr) 14px;
+    width: 100%;
+}
+
+.sd-matching-item-row.is-right {
+    grid-template-columns: 14px minmax(0, 1fr);
+    width: 100%;
+}
+
+.sd-matching-card {
+    box-sizing: border-box;
+    width: clamp(156px, 17vw, 176px);
+    height: auto;
+    aspect-ratio: 1;
+    gap: 7px;
+    padding: 9px;
+    font-size: 16px;
+}
+
+.sd-matching-card .sd-activity-image-frame {
+    flex-basis: 72%;
+    width: 100%;
+    height: 72%;
+    min-height: 0;
+}
+
+.sd-matching-card .sd-activity-caption {
+    font-size: 16px;
+    line-height: 1.35;
+}
+
+.sd-matching-dot {
+    cursor: crosshair;
+    touch-action: none;
+}
+
+.sd-matching-left .sd-matching-item-row .sd-matching-dot {
+    justify-self: end;
+}
+
+.sd-matching-right .sd-matching-item-row .sd-matching-dot {
+    justify-self: start;
+}
+
+.sd-drag-drop-board {
+    gap: 10px;
+}
+
+.sd-activity-source-items,
+.sd-activity-assigned-list {
+    grid-template-columns: repeat(auto-fit, 132px);
+    justify-content: center;
+    justify-items: center;
+    gap: 8px;
+}
+
+.sd-activity-target-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-width: 0;
+    gap: 10px;
+}
+
+.sd-activity-target {
+    min-width: 0;
+}
+
+.sd-activity-token.is-drag-card,
+.sd-activity-assigned {
+    flex: 0 0 160px;
+    justify-self: center;
+}
+
+@media (max-width: 575.98px) {
+    .sd-matching-columns {
+        grid-template-columns: minmax(0, 1fr) 22px minmax(0, 1fr);
+    }
+
+    .sd-matching-left,
+    .sd-matching-right {
+        gap: 8px;
+    }
+
+    .sd-matching-card {
+        width: clamp(104px, 33vw, 140px);
+        padding: 6px;
+        font-size: 14px;
+    }
+
+    .sd-matching-card .sd-activity-caption {
+        font-size: 14px;
+    }
+
+    .sd-activity-source-items,
+    .sd-activity-assigned-list {
+        grid-template-columns: repeat(auto-fit, 132px);
+        justify-content: center;
+        justify-items: center;
+    }
+
+    .sd-activity-token.is-drag-card,
+    .sd-activity-assigned {
+        flex-basis: 132px;
+    }
+}
+
+.sd-activity-token.is-drag-card,
+.sd-activity-assigned {
+    touch-action: none;
+}
+
+.sd-activity-source-items {
+    grid-template-columns: repeat(auto-fit, minmax(0, 160px));
+    justify-content: center;
+    justify-items: center;
+    align-content: start;
+    min-width: 0;
+}
+
+.sd-activity-assigned-list {
+    grid-template-columns: repeat(auto-fit, 160px);
+    justify-content: center;
+    justify-items: center;
+}
+
+.sd-matching-columns {
+    grid-template-columns: minmax(0, 1fr) clamp(38px, 8vw, 76px) minmax(0, 1fr);
+}
+
+.sd-matching-left .sd-activity-token,
+.sd-matching-right .sd-activity-token {
+    min-height: 64px;
+    padding: 6px 4px;
+    border: 0;
+    border-bottom: 1px solid #e3eee8;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.sd-matching-left .sd-activity-image-frame,
+.sd-matching-right .sd-activity-image-frame {
+    flex-basis: 46px;
+    width: 46px;
+    height: 46px;
+    border-radius: 10px;
+}
+
+.sd-matching-left .sd-activity-token.is-paired,
+.sd-matching-right .sd-activity-token.is-paired {
+    color: #245c3e;
+    background: rgba(232, 246, 237, .68);
+    box-shadow: none;
+}
+
+.sd-matching-left .sd-activity-token.is-selected {
+    color: #1d6039;
+    background: #e5f4e9;
+    box-shadow: inset 0 -2px #328452;
+}
+
+@media (max-width: 575.98px) {
+    .sd-activity-source-items {
+        grid-template-columns: repeat(2, minmax(0, 142px));
+        gap: 8px;
+    }
+
+    .sd-matching-columns {
+        grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr);
+    }
+
+    .sd-matching-left .sd-activity-token,
+    .sd-matching-right .sd-activity-token {
+        min-height: 58px;
+        gap: 4px;
+        padding: 5px 2px;
+    }
+
+    .sd-matching-left .sd-activity-image-frame,
+    .sd-matching-right .sd-activity-image-frame {
+        flex-basis: 32px;
+        width: 32px;
+        height: 32px;
+    }
+}
+
+.sd-formative-card {
+    padding: clamp(14px, 2.5vw, 22px);
+    border-radius: 16px;
+    background:
+        radial-gradient(circle at 100% 0, rgba(214, 239, 225, .45), transparent 34%),
+        #f6fbf8;
+    box-shadow: 0 7px 22px rgba(14, 75, 65, .07);
+}
+
+.sd-formative-title {
+    margin-bottom: 8px;
+}
+
+.sd-formative-prompt {
+    margin: 0 0 10px;
+    font-weight: 600;
+}
+
+.sd-formative-instruction,
+.sd-formative-hint {
+    margin: 0 0 14px;
+}
+
+.sd-drag-drop-board {
+    display: grid;
+    gap: 14px;
+}
+
+.sd-activity-source {
+    padding: 12px;
+    border: 1px dashed #9fc9ad;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #f8fcf9, #edf7f0);
+    transition: border-color .16s ease, background-color .16s ease, box-shadow .16s ease;
+}
+
+.sd-activity-source-title {
+    margin-bottom: 9px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.sd-activity-source-items {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 112px), 1fr));
+    gap: 9px;
+}
+
+.sd-activity-source-items:empty {
+    min-height: 44px;
+}
+
+.sd-activity-target-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 205px), 1fr));
+    gap: 10px;
+    margin: 0;
+}
+
+.sd-activity-target {
+    min-height: 82px;
+    padding: 11px;
+    border: 1px dashed #a9cdb5;
+    border-radius: 13px;
+    background: #eef8f1;
+    box-shadow: 0 3px 12px rgba(12, 72, 58, .05);
+    transition: border-color .16s ease, background-color .16s ease, box-shadow .16s ease;
+}
+
+.sd-activity-target>strong {
+    margin-bottom: 6px;
+    color: #245c3e;
+}
+
+.sd-activity-token,
+.sd-activity-assigned {
+    border: 1px solid #d5e7df;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(7, 41, 55, .06);
+}
+
+.sd-activity-token.is-drag-card,
+.sd-activity-assigned {
+    padding: 8px;
+}
+
+.sd-activity-caption {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.45;
+}
+
+.sd-activity-assigned-list {
+    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+    gap: 7px;
+}
+
+.sd-activity-assigned {
+    margin-top: 8px;
+}
+
+.sd-activity-target.is-drop-target,
+.sd-activity-source.is-drop-target {
+    border-color: #3d9b64;
+    background: #e6f5eb;
+    box-shadow: 0 0 0 3px rgba(61, 155, 100, .15);
+}
+
+.sd-activity-token.is-dragging,
+.sd-activity-assigned.is-dragging {
+    opacity: .56;
+    transform: scale(.97);
+}
+
+.sd-activity-check {
+    min-height: 44px;
+    margin-top: 8px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(50, 127, 82, .13);
+}
+
+.sd-matching-heading {
+    margin-top: 4px;
+}
+
+.sd-matching-instruction {
+    margin: 0 0 12px;
+}
+
+.sd-matching-columns {
+    grid-template-columns: minmax(0, 1fr) clamp(28px, 5vw, 48px) minmax(0, 1fr);
+    gap: 0;
+    padding: 4px 0;
+}
+
+.sd-matching-left,
+.sd-matching-right {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: 9px;
+}
+
+.sd-matching-left {
+    grid-column: 1;
+}
+
+.sd-matching-right {
+    grid-column: 3;
+}
+
+.sd-matching-left .sd-activity-token,
+.sd-matching-right .sd-activity-token {
+    min-height: 78px;
+    padding: 8px;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 3px 10px rgba(7, 41, 55, .06);
+}
+
+.sd-matching-left .sd-activity-image-frame,
+.sd-matching-right .sd-activity-image-frame {
+    flex-basis: 50px;
+    width: 50px;
+    height: 50px;
+}
+
+.sd-matching-left .sd-matching-dot {
+    margin-left: auto;
+}
+
+.sd-matching-right .sd-matching-dot {
+    margin-right: auto;
+}
+
+.sd-matching-left .sd-activity-token.is-paired,
+.sd-matching-right .sd-activity-token.is-paired {
+    border-color: #83bd97;
+    background: #edf8f0;
+    box-shadow: 0 0 0 2px rgba(78, 157, 109, .12);
+}
+
+.sd-matching-left .sd-activity-token.is-selected {
+    border-color: #328452;
+    background: #e1f3e7;
+    box-shadow: 0 0 0 3px rgba(61, 155, 100, .18);
+}
+
+.sd-matching-line {
+    stroke: #328452;
+    stroke-width: 3;
+    filter: drop-shadow(0 1px 1px rgba(22, 89, 49, .2));
+}
+
+.sd-activity-feedback {
+    padding: 12px 14px;
+    font-size: 13px;
+}
+
+@media (max-width: 575.98px) {
+    .sd-activity-source {
+        padding: 9px;
+    }
+
+    .sd-activity-source-items {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 7px;
+    }
+
+    .sd-activity-target-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 7px;
+    }
+
+    .sd-activity-target {
+        min-height: 72px;
+        padding: 8px;
+    }
+
+    .sd-matching-columns {
+        grid-template-columns: minmax(0, 1fr) 22px minmax(0, 1fr);
+    }
+
+    .sd-matching-left .sd-activity-token,
+    .sd-matching-right .sd-activity-token {
+        min-height: 64px;
+        gap: 4px;
+        padding: 6px;
+        font-size: 11px;
+    }
+
+    .sd-matching-left .sd-activity-image-frame,
+    .sd-matching-right .sd-activity-image-frame {
+        flex-basis: 34px;
+        width: 34px;
+        height: 34px;
+    }
+
+    .sd-matching-dot {
+        flex-basis: 10px;
+        width: 10px;
+        height: 10px;
+    }
+}
+
+.sd-matching-columns {
+    grid-template-columns: minmax(0, 1fr) clamp(36px, 6vw, 72px) minmax(0, 1fr);
+    gap: 8px;
+}
+
+.sd-matching-left,
+.sd-matching-right {
+    align-content: start;
+    justify-items: center;
+    gap: 12px;
+}
+
+.sd-matching-item-row.is-left {
+    grid-template-columns: minmax(0, 1fr) 14px;
+    width: 100%;
+}
+
+.sd-matching-item-row.is-right {
+    grid-template-columns: 14px minmax(0, 1fr);
+    width: 100%;
+}
+
+.sd-matching-card {
+    box-sizing: border-box;
+    width: clamp(156px, 17vw, 176px);
+    height: auto;
+    aspect-ratio: 1;
+    gap: 7px;
+    padding: 9px;
+    font-size: 16px;
+}
+
+.sd-matching-card .sd-activity-image-frame {
+    flex-basis: 72%;
+    width: 100%;
+    height: 72%;
+    min-height: 0;
+}
+
+.sd-matching-card .sd-activity-caption {
+    font-size: 16px;
+    line-height: 1.35;
+}
+
+.sd-matching-dot {
+    cursor: crosshair;
+    touch-action: none;
+}
+
+.sd-activity-source-items,
+.sd-activity-assigned-list {
+    grid-template-columns: repeat(auto-fit, 132px);
+    justify-content: center;
+    justify-items: center;
+    gap: 8px;
+}
+
+.sd-activity-target-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    gap: 10px;
+}
+
+.sd-activity-token.is-drag-card,
+.sd-activity-assigned {
+    box-sizing: border-box;
+    width: 160px;
+    height: 160px;
+    min-width: 160px;
+    min-height: 160px;
+    margin: 0;
+    padding: 8px;
+    justify-self: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.sd-activity-token.is-drag-card .sd-activity-image-frame,
+.sd-activity-assigned .sd-activity-image-frame {
+    flex: 0 0 124px;
+    width: 124px;
+    height: 124px;
+    min-height: 124px;
+    max-width: 100%;
+    align-self: center;
+}
+
+.sd-activity-token.is-drag-card,
+.sd-activity-assigned {
+    gap: 4px;
+}
+
+.sd-activity-token.is-dragging,
+.sd-activity-assigned.is-dragging {
+    opacity: .76;
+    transform: scale(.97);
+    box-shadow: 0 0 0 3px rgba(61, 155, 100, .18);
+}
+
+@media (max-width: 575.98px) {
+    .sd-matching-columns {
+        grid-template-columns: minmax(0, 1fr) 22px minmax(0, 1fr);
+    }
+
+    .sd-matching-left,
+    .sd-matching-right {
+        gap: 8px;
+    }
+
+    .sd-matching-card {
+        width: clamp(104px, 33vw, 140px);
+        padding: 6px;
+        font-size: 14px;
+    }
+
+    .sd-matching-card .sd-activity-caption {
+        font-size: 14px;
+    }
+
+    .sd-activity-source-items,
+    .sd-activity-assigned-list {
+        grid-template-columns: repeat(auto-fit, 132px);
+    }
+
+    .sd-activity-token.is-drag-card,
+    .sd-activity-assigned {
+        width: 132px;
+        height: 132px;
+        min-width: 132px;
+        min-height: 132px;
+        gap: 2px;
+        padding: 4px;
+    }
+
+    .sd-activity-token.is-drag-card .sd-activity-image-frame,
+    .sd-activity-assigned .sd-activity-image-frame {
+        flex-basis: 92px;
+        width: 92px;
+        height: 92px;
+        min-height: 92px;
+    }
+}
+
+.sd-matching-item-row.is-left {
+    grid-template-columns: minmax(0, 1fr) 20px;
+}
+
+.sd-matching-item-row.is-right {
+    grid-template-columns: 20px minmax(0, 1fr);
+}
+
+.sd-matching-card {
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    transition: none;
+}
+
+.sd-matching-item-row {
+    user-select: none;
+}
+
+.sd-matching-dot {
+    position: relative;
+    z-index: 2;
+    flex-basis: 20px;
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+    touch-action: none;
+    user-select: none;
+}
+
+.sd-matching-dot.is-selected,
+.sd-matching-dot.is-target-ready {
+    background: #24844a;
+    box-shadow: 0 0 0 4px rgba(36, 132, 74, .16);
+}
+
+.sd-drag-drop-board {
+    gap: 12px;
+}
+
+.sd-activity-source-items,
+.sd-activity-assigned-list {
+    gap: 6px;
+}
+
+.sd-activity-target-grid {
+    gap: 8px;
+}
+
+.sd-activity-token.is-drag-card .sd-activity-image,
+.sd-activity-assigned .sd-activity-image {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    object-fit: contain;
+}
+
+.sd-activity-token.is-drag-card.is-dragging,
+.sd-activity-assigned.is-dragging,
+.sd-activity-token.is-drag-card:active,
+.sd-activity-assigned:active {
+    transform: none;
+}
+
+.sd-activity-feedback {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border: 1px solid rgba(36, 132, 74, .18);
+    border-radius: 12px;
+    background: rgba(36, 132, 74, .045);
+}
+
+.sd-activity-feedback-row {
+    margin: 8px 0 0;
+}
+
+.sd-activity-feedback-row.is-correct {
+    color: #187640;
+}
+
+.sd-activity-feedback-row.is-incorrect {
+    color: #b42318;
+}
+
+.sd-activity-feedback-correction {
+    display: block;
+    margin-top: 12px;
+}
+
+.sd-formative-card.is-locked .sd-drag-drop-board,
+.sd-formative-card.is-locked .sd-matching-columns {
+    pointer-events: none;
+}
+
+@media (max-width: 575.98px) {
+    .sd-matching-columns {
+        grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr);
+    }
+
+}
+
+.sd-formative-content {
+    display: grid;
+    gap: 10px;
+}
+
+.sd-formative-content>.sd-formative-instruction,
+.sd-formative-content>.sd-formative-hint {
+    margin: 0;
+}
+
+.sd-formative-content>.sd-formative-card {
+    margin-top: 0;
+}
+
+.sd-activity-source-items,
+.sd-activity-assigned-list {
+    grid-template-columns: repeat(auto-fit, 160px);
+    justify-content: center;
+    justify-items: center;
+}
+
+.sd-activity-token.is-drag-card .sd-activity-image-frame,
+.sd-activity-assigned .sd-activity-image-frame {
+    position: relative;
+}
+
+@media (max-width: 575.98px) {
+
+    .sd-activity-source-items,
+    .sd-activity-assigned-list {
+        grid-template-columns: repeat(auto-fit, minmax(0, 132px));
+    }
+
+    .sd-activity-target-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+
+/* Penyesuaian tampilan kuis Siswa, khusus halaman materi. */
+.sd-page #lessonPage #questionText {
+    font-size: 17px;
+    line-height: 1.55;
+    font-weight: 600;
+}
+
+.sd-page #lessonPage .sd-formative-prompt {
+    font-size: 16px;
+    line-height: 1.6;
+    font-weight: 600;
+}
+
+.sd-page #lessonPage .sd-formative-instruction,
+.sd-page #lessonPage .sd-formative-hint {
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* ===============================================================
+   LAYOUT KUIS SISWA — titik matching dekat gambar; drag/drop adaptif
+   Seluruh selector dibatasi pada lessonPage supaya halaman lain aman.
+   =============================================================== */
+.sd-page #lessonPage #questionText,
+.sd-page #lessonPage .sd-formative-prompt {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.55;
+}
+
+.sd-page #lessonPage .sd-answer-feedback,
+.sd-page #lessonPage .sd-activity-feedback {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.sd-page #lessonPage .sd-activity-feedback-row {
+    margin: 9px 0;
+}
+
+.sd-page #lessonPage .sd-activity-feedback-correction {
+    display: block;
+    margin-top: 16px;
+    color: #075477;
+}
+
+/* Matching: foto berada di kedua sisi, titik persis di samping kartu,
+   sehingga jarak antarkartu tidak ikut menyempit. */
+.sd-page #lessonPage .sd-matching-columns {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(70px, 1fr) minmax(0, 1fr);
+    align-items: start;
+    width: 100%;
+    gap: 0;
+    padding: 12px 8px;
+}
+
+.sd-page #lessonPage .sd-matching-left,
+.sd-page #lessonPage .sd-matching-right {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    min-width: 0;
+    align-content: start;
+}
+
+.sd-page #lessonPage .sd-matching-left {
+    grid-column: 1;
+}
+
+.sd-page #lessonPage .sd-matching-right {
+    grid-column: 3;
+}
+
+.sd-page #lessonPage .sd-matching-item-row {
+    box-sizing: border-box;
+    display: grid;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+    min-width: 0;
+}
+
+.sd-page #lessonPage .sd-matching-item-row.is-left {
+    grid-template-columns: minmax(0, 270px) 18px;
+    justify-items: stretch;
+    justify-content: start;
+}
+
+.sd-page #lessonPage .sd-matching-item-row.is-right {
+    grid-template-columns: 18px minmax(0, 270px);
+    justify-items: stretch;
+    justify-content: end;
+}
+
+.sd-page #lessonPage .sd-matching-card,
+.sd-page #lessonPage .sd-matching-left .sd-matching-card,
+.sd-page #lessonPage .sd-matching-right .sd-matching-card {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    min-height: 0;
+    height: auto;
+    gap: 8px;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #d5e5e0;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(7, 41, 55, .05);
+    text-align: center;
+    pointer-events: none;
+}
+
+.sd-page #lessonPage .sd-matching-left .sd-matching-card {
+    justify-self: start;
+}
+
+.sd-page #lessonPage .sd-matching-right .sd-matching-card {
+    justify-self: end;
+}
+
+.sd-page #lessonPage .sd-matching-card .sd-activity-image-frame {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 1;
+    flex: 0 0 auto;
+    border-radius: 9px;
+    background: #edf4f0;
+    overflow: hidden;
+}
+
+.sd-page #lessonPage .sd-matching-card .sd-activity-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    object-fit: contain;
+    margin: 0;
+}
+
+.sd-page #lessonPage .sd-matching-card .sd-activity-caption {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.sd-page #lessonPage .sd-matching-dot {
+    box-sizing: border-box;
+    display: block;
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    min-height: 18px;
+    flex-basis: 18px;
+    margin: 0;
+    justify-self: center;
+    align-self: center;
+    cursor: crosshair;
+    z-index: 4;
+}
+
+.sd-page #lessonPage .sd-matching-line {
+    stroke: #39885b;
+    stroke-width: 3;
+}
+
+/* Drag & Drop: kolom berubah sesuai jumlah objek yang masih ditampilkan.
+   Contoh: 2 foto -> 2 kolom, 3 foto -> 3 kolom, dst. */
+.sd-page #lessonPage .sd-drag-drop-board {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+}
+
+.sd-page #lessonPage .sd-activity-source,
+.sd-page #lessonPage .sd-activity-target {
+    box-sizing: border-box;
+    padding: 14px;
+    min-width: 0;
+    border: 1px dashed #b4d6c2;
+    border-radius: 13px;
+    background: #f7fbf8;
+}
+
+.sd-page #lessonPage .sd-activity-source-items {
+    display: grid;
+    grid-template-columns: repeat(var(--sd-object-columns, 2), minmax(0, 1fr));
+    align-items: start;
+    justify-items: stretch;
+    gap: 14px;
+    width: 100%;
+    min-height: 0;
+    margin-top: 10px;
+}
+
+.sd-page #lessonPage .sd-activity-token.is-drag-card,
+.sd-page #lessonPage .sd-activity-assigned {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    min-height: 0;
+    height: auto;
+    margin: 0;
+    padding: 10px;
+    gap: 8px;
+    background: #fff;
+    border: 1px solid #d5e5e0;
+    border-radius: 12px;
+    text-align: center;
+    overflow: hidden;
+}
+
+.sd-page #lessonPage .sd-activity-token.is-drag-card .sd-activity-image-frame,
+.sd-page #lessonPage .sd-activity-assigned .sd-activity-image-frame {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: min(100%, 320px);
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 1;
+    border-radius: 9px;
+    background: #edf4f0;
+    overflow: hidden;
+}
+
+.sd-page #lessonPage .sd-activity-token.is-drag-card .sd-activity-image,
+.sd-page #lessonPage .sd-activity-assigned .sd-activity-image {
+    position: static;
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: none;
+    object-fit: contain;
+    margin: 0;
+}
+
+.sd-page #lessonPage .sd-activity-token.is-drag-card .sd-activity-caption,
+.sd-page #lessonPage .sd-activity-assigned .sd-activity-caption {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.sd-page #lessonPage .sd-activity-target-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 12px;
+    width: 100%;
+}
+
+.sd-page #lessonPage .sd-activity-target>strong {
+    display: block;
+    margin-bottom: 10px;
+    color: #245c3e;
+    font-size: 16px;
+}
+
+.sd-page #lessonPage .sd-activity-assigned-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+    justify-content: start;
+    gap: 10px;
+    width: 100%;
+}
+
+@media (max-width: 760px) {
+    .sd-page #lessonPage .sd-matching-columns {
+        grid-template-columns: minmax(0, 1fr) 30px minmax(0, 1fr);
+        padding: 8px 0;
+    }
+
+    .sd-page #lessonPage .sd-matching-item-row {
+        gap: 3px;
+    }
+
+    .sd-page #lessonPage .sd-matching-item-row.is-left {
+        grid-template-columns: minmax(0, 1fr) 12px;
+    }
+
+    .sd-page #lessonPage .sd-matching-item-row.is-right {
+        grid-template-columns: 12px minmax(0, 1fr);
+    }
+
+    .sd-page #lessonPage .sd-matching-card {
+        padding: 5px;
+    }
+
+    .sd-page #lessonPage .sd-matching-card .sd-activity-caption {
+        font-size: 12px;
+    }
+
+    .sd-page #lessonPage .sd-matching-dot {
+        width: 12px;
+        height: 12px;
+        min-width: 12px;
+        min-height: 12px;
+        flex-basis: 12px;
+    }
+
+    .sd-page #lessonPage .sd-activity-source-items {
+        grid-template-columns: repeat(min(var(--sd-object-columns, 2), 2), minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .sd-page #lessonPage .sd-activity-source,
+    .sd-page #lessonPage .sd-activity-target {
+        padding: 9px;
+    }
+
+    .sd-page #lessonPage .sd-activity-target-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Revisi caption dan hasil aktivitas Siswa — scoped agar halaman lain aman. */
+.sd-page #lessonPage .sd-matching-card,
+.sd-page #lessonPage .sd-matching-left .sd-matching-card,
+.sd-page #lessonPage .sd-matching-right .sd-matching-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: auto;
+    min-height: 0;
+    padding: 10px;
+    gap: 8px;
+    overflow: visible;
+}
+
+.sd-page #lessonPage .sd-matching-card .sd-activity-image-frame {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 100%;
+    height: auto;
+    max-height: 205px;
+    aspect-ratio: 1;
+    overflow: hidden;
+}
+
+.sd-page #lessonPage .sd-matching-card .sd-activity-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.sd-page #lessonPage .sd-matching-card .sd-activity-caption,
+.sd-page #lessonPage .sd-activity-token.is-drag-card .sd-activity-caption,
+.sd-page #lessonPage .sd-activity-assigned .sd-activity-caption {
+    display: block;
+    position: static;
+    flex: 0 0 auto;
+    width: 100%;
+    min-height: 22px;
+    margin: 0;
+    padding: 0;
+    color: #075477;
+    background: transparent;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.5;
+    text-align: center;
+    visibility: visible;
+    opacity: 1;
+    overflow-wrap: anywhere;
+}
+
+.sd-page #lessonPage .sd-activity-feedback {
+    font-weight: 400;
+    font-size: 15px;
+    line-height: 1.65;
+}
+
+.sd-page #lessonPage .sd-activity-feedback strong,
+.sd-page #lessonPage .sd-activity-feedback-row,
+.sd-page #lessonPage .sd-activity-feedback-correction {
+    font-weight: 400;
+}
+
+.sd-page #lessonPage .sd-activity-feedback-row {
+    margin: 5px 0;
+}
+
+.sd-page #lessonPage .sd-activity-feedback-correction {
+    margin: 10px 0 4px;
+    color: #075477;
+}
+
+@media (max-width: 760px) {
+    .sd-page #lessonPage .sd-matching-card .sd-activity-image-frame {
+        max-height: 150px;
+    }
+
+    .sd-page #lessonPage .sd-matching-card .sd-activity-caption {
+        font-size: 13px;
+    }
+}
+
+/* Judul koreksi pasangan saja dicetak tebal; teks hasil lain tetap normal. */
+.sd-page #lessonPage .sd-activity-feedback .sd-activity-feedback-correction {
+    font-weight: 700;
+}
+
+/* Activity images and text-only cards, scoped to the quiz activity board. */
+.sd-page #lessonPage .sd-matching-card .sd-activity-image-frame,
+.sd-page #lessonPage .sd-activity-token.is-drag-card .sd-activity-image-frame,
+.sd-page #lessonPage .sd-activity-assigned .sd-activity-image-frame {
+    position: relative;
+    display: block;
+    width: min(100%, 320px);
+    height: auto;
+    max-height: none;
+    min-height: 0;
+    aspect-ratio: 1;
+    overflow: hidden;
+}
+
+.sd-page #lessonPage .sd-matching-card .sd-activity-image,
+.sd-page #lessonPage .sd-activity-token.is-drag-card .sd-activity-image,
+.sd-page #lessonPage .sd-activity-assigned .sd-activity-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: none;
+    object-fit: cover;
+    object-position: center;
+}
+
+.sd-page #lessonPage .sd-activity-image-fallback {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 8px;
+    background: #edf4f0;
+    color: #638a96;
+    font-size: 12px;
+    text-align: center;
+}
+
+.sd-page #lessonPage .sd-matching-card.is-text-only,
+.sd-page #lessonPage .sd-activity-token.is-drag-card.is-text-only,
+.sd-page #lessonPage .sd-activity-assigned.is-text-only {
+    justify-content: center;
+    min-height: 180px;
+}
+
+@media (max-width: 760px) {
+    .sd-page #lessonPage .sd-matching-card.is-text-only,
+    .sd-page #lessonPage .sd-activity-token.is-drag-card.is-text-only,
+    .sd-page #lessonPage .sd-activity-assigned.is-text-only {
+        min-height: 140px;
     }
 }

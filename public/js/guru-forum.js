@@ -45,6 +45,20 @@ document.addEventListener('DOMContentLoaded', () => {
         return (Array.isArray(chapter.subchapters) ? chapter.subchapters : [])
             .filter(item => Boolean(item.is_published));
     }
+    function chapterLabel(code) {
+        const chapter = forumChapters.find(item => chapterCode(item) === String(code));
+        return chapter
+            ? `BAB ${chapter.nomor_bab} — ${chapter.judul ?? ''}`.trim()
+            : String(code || 'Bab');
+    }
+    function subchapterLabel(chapterValue, subchapterValue) {
+        const code = String(subchapterValue || '').trim();
+        const chapter = forumChapters.find(item => chapterCode(item) === String(chapterValue));
+        const subchapter = chapter
+            ? publishedSubchapters(chapter).find(item => subchapterCode(chapter, item) === code)
+            : null;
+        return `${code}${subchapter?.judul ? ` ${subchapter.judul}` : ''}`.trim() || 'Subbab';
+    }
     function fillChapterSelect(select, placeholder, selected = '') {
         if (!select) return;
         select.replaceChildren(new Option(placeholder, ''));
@@ -227,16 +241,19 @@ document.addEventListener('DOMContentLoaded', () => {
             return `
                 <article class="gf-discussion-card">
                     <div class="gf-card-header">
-                        <div>
-                            <h3>${escapeHtml(discussion.title)}</h3>
-                            <p class="gf-card-meta">
-                                ${escapeHtml(
-                                    discussion.user?.name ||
-                                    'Pengguna SALUANG'
-                                )}
-                                · ${formatDate(discussion.created_at)}
-                                · ${escapeHtml(discussion.subchapter)}
+                        <div class="gf-card-heading">
+                            <div class="gf-card-author">
+                                ${replyAvatar(discussion.user)}
+                                <div class="gf-card-author-info">
+                                    <strong>${escapeHtml(discussion.user?.name || 'Pengguna SALUANG')}</strong>
+                                    <span>${formatDate(discussion.created_at)}</span>
+                                </div>
+                            </div>
+                            <p class="gf-card-meta gf-card-location">
+                                ${escapeHtml(chapterLabel(discussion.chapter))}
+                                · Subbab ${escapeHtml(subchapterLabel(discussion.chapter, discussion.subchapter))}
                             </p>
+                            <h3>${escapeHtml(discussion.title)}</h3>
                         </div>
                         <span class="gf-badge ${
                             answered ? 'is-answered' : ''
@@ -251,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p class="gf-card-excerpt">
                         ${escapeHtml(discussion.body)}
                     </p>
-                    <p class="gf-card-meta">
+                    <p class="gf-card-meta gf-card-reply-count">
                         <i class="bi bi-chat-dots"></i>
                         ${count} tanggapan
                     </p>
@@ -283,6 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </article>
             `;
         }).join('');
+        attachForumAvatarFallback(list);
     }
     /* =========================================
        03. PAGINASI
@@ -399,20 +417,37 @@ document.addEventListener('DOMContentLoaded', () => {
             const discussion = selectedDiscussion;
             $('gfDetailTitle').textContent =
                 discussion.title;
+            const replyCount = Number(
+                discussion.replies_count ?? discussion.replies?.length ?? 0
+            );
+            const answered = replyCount > 0;
             // Pembuat pertanyaan utama juga ditampilkan dengan avatar,
             // persis seperti pemberi tanggapan.
             $('gfDetailContent').innerHTML = `
-                <div class="gf-question-author">
-                    ${replyAvatar(discussion.user)}
-                    <div class="gf-question-author-info">
-                        <strong>${escapeHtml(discussion.user?.name || 'Pengguna SALUANG')}</strong>
-                        <p class="gf-detail-meta gf-question-date">
-                            ${formatDate(discussion.created_at)}
-                            · Subbab ${escapeHtml(discussion.subchapter)}
-                        </p>
+                <div class="gf-question-top">
+                    <div class="gf-question-author">
+                        ${replyAvatar(discussion.user)}
+                        <div class="gf-question-author-info">
+                            <strong>${escapeHtml(discussion.user?.name || 'Pengguna SALUANG')}</strong>
+                            <p class="gf-detail-meta gf-question-date">
+                                ${formatDate(discussion.created_at)}
+                            </p>
+                        </div>
                     </div>
+                    <span class="gf-badge ${answered ? 'is-answered' : ''}">
+                        ${answered ? 'Sudah Terjawab' : 'Belum Terjawab'}
+                    </span>
                 </div>
+                <p class="gf-detail-meta gf-question-meta">
+                    ${escapeHtml(chapterLabel(discussion.chapter))}
+                    · Subbab ${escapeHtml(subchapterLabel(discussion.chapter, discussion.subchapter))}
+                </p>
+                <h3 class="gf-detail-title">${escapeHtml(discussion.title)}</h3>
                 <p class="gf-detail-text gf-question-body">${escapeHtml(discussion.body)}</p>
+                <p class="gf-detail-meta gf-question-reply-count">
+                    <i class="bi bi-chat-dots" aria-hidden="true"></i>
+                    ${replyCount} tanggapan
+                </p>
             `;
             // Bila foto penanya tidak tersedia, kembali ke inisial.
             attachForumAvatarFallback($('gfDetailContent'));

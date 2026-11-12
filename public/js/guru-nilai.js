@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function showEmpty(message) {
         tableBody.innerHTML = `
             <tr>
-                <td colspan="8" class="gn-empty">
+                <td colspan="6" class="gn-empty">
                     ${escapeHtml(message)}
                 </td>
             </tr>
@@ -163,8 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${displayValue(student.name)}</td>
                 <td>${displayValue(student.nisn)}</td>
                 <td>${displayValue(student.class)}</td>
-                <td>${displayScore(student.quiz_score)}</td>
-                <td>${displayScore(student.evaluation_score)}</td>
                 <td>${displayScore(student.final_score)}</td>
                 <td>${renderStatus(student.completion_status)}</td>
                 <td>
@@ -286,10 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 <p class="gn-confirm-text"
                    id="gnConfirmDescription">
-                    Apakah kamu yakin ingin mengirim catatan ini
-                    kepada Orang Tua/Wali?
-                    Catatan akan tersimpan dalam riwayat
-                    dan dapat dibaca melalui Dashboard Orang Tua.
+                    Kirim catatan ini kepada Orang Tua/Wali?
                 </p>
 
                 <div class="gn-confirm-actions">
@@ -317,6 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function openPublishConfirm() {
         return new Promise(resolve => {
             const overlay = ensurePublishConfirmModal();
+            const description = overlay.querySelector('#gnConfirmDescription');
 
             const cancelButton = overlay.querySelector(
                 '[data-gn-confirm-cancel]'
@@ -327,6 +323,8 @@ document.addEventListener('DOMContentLoaded', () => {
             );
 
             const previousFocus = document.activeElement;
+            description.textContent =
+                'Kirim catatan ini kepada Orang Tua/Wali?';
             overlay.hidden = false;
 
             function close(confirmed) {
@@ -421,14 +419,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? result.results : [];
 
             detailTitle.textContent =
-                `Detail Nilai — ${student.name || 'Siswa'}`;
+                `Detail Nilai Siswa: ${student.name || 'Siswa'}`;
 
             const studentInfo = `
                 <div class="gn-detail-grid">
                     ${detailItem('Nama Siswa', student.name)}
                     ${detailItem('NISN', student.nisn)}
                     ${detailItem('Kelas', student.class)}
-                    ${detailItem('Jumlah Riwayat', results.length)}
+                    ${detailItem(
+                'Kuis selesai',
+                `${student.grading?.quiz_completed_count ?? 0} / ${student.grading?.quiz_required_count ?? 0}`
+            )}
+                    ${detailItem('Rata-rata Kuis Subbab', displayScore(student.grading?.quiz_score))}
+                    ${detailItem('Evaluasi Akhir', displayScore(student.grading?.evaluation_score))}
+                    ${detailItem('Nilai Akhir', displayScore(student.grading?.final_score))}
+                    ${detailItem(
+                'Ketuntasan',
+                student.grading?.completion_status === 'tuntas'
+                    ? 'Tuntas'
+                    : student.grading?.completion_status === 'belum_tuntas'
+                        ? 'Belum Tuntas'
+                        : 'Belum Dinilai'
+            )}
+                    ${detailItem('Jumlah Hasil Terbaru', results.length)}
                 </div>
             `;
 
@@ -436,179 +449,200 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!results.length) {
                 history = `
-                    <p style="margin-top:20px">
-                        Belum ada hasil Kuis atau Evaluasi
-                        yang tersimpan untuk siswa ini.
+                    <p class="gn-history-empty">
+                        Belum ada hasil Kuis atau Evaluasi yang berlaku untuk siswa ini.
                     </p>
                 `;
             } else {
                 history = `
-                    <h3 style="margin-top:22px">
-                        Riwayat Hasil Belajar
-                    </h3>
-
+                    <h3 class="gn-history-title">Hasil Belajar Terbaru</h3>
                     <div class="gn-table-wrapper">
-                        <table class="gn-table">
+                        <table class="gn-table gn-history-table">
+                            <colgroup>
+                                <col class="gn-history-topic-column">
+                                <col class="gn-history-type-column">
+                                <col class="gn-history-correct-column">
+                                <col class="gn-history-score-column">
+                                <col class="gn-history-date-column">
+                                <col class="gn-history-note-column">
+                            </colgroup>
                             <thead>
                                 <tr>
-                                    <th>Jenis</th>
-                                    <th>Bab</th>
-                                    <th>Benar</th>
-                                    <th>Nilai</th>
-                                    <th>Selesai</th>
+                                    <th class="gn-history-topic-cell">Bab / Subbab</th>
+                                    <th class="gn-history-type-cell">Jenis</th>
+                                    <th class="gn-history-correct-cell">Jawaban benar</th>
+                                    <th class="gn-history-score-cell">Nilai</th>
+                                    <th class="gn-history-date-cell">Waktu pengerjaan</th>
+                                    <th class="gn-history-note-cell">Catatan</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                ${results.map(item => `
-                                    <tr>
-                                        <td>
-                                            ${item.assessment_type === 'quiz'
-                                                ? 'Kuis'
-                                                : 'Evaluasi'}
-                                        </td>
-                                        <td>${displayValue(item.chapter_name)}</td>
-                                        <td>
-                                            ${displayValue(item.correct_answers)}
-                                            /
-                                            ${displayValue(item.total_questions)}
-                                        </td>
-                                        <td>${displayScore(item.score)}</td>
-                                        <td>${displayDate(item.completed_at)}</td>
-                                    </tr>
-                                `).join('')}
+                                ${results.map((item, index) => {
+                    const type = item.assessment_type === 'quiz'
+                        ? 'quiz'
+                        : 'evaluation';
+                    const typeLabel = type === 'quiz'
+                        ? 'Kuis Subbab'
+                        : 'Evaluasi Akhir';
+                    const chapter = item.chapter_name || 'Bab tidak tersedia';
+                    const subchapter = item.subchapter_name || 'Subbab tidak tercatat';
+                    const context = type === 'quiz'
+                        ? `${typeLabel}, ${chapter}, ${subchapter}`
+                        : `${typeLabel} dari ${displayValue(item.teacher_name || 'Guru')}`;
+                    const gradingNote = type === 'evaluation'
+                        && item.valid_for_grading === false
+                        ? 'Nilai ini tetap tercatat dalam riwayat, tetapi tidak dihitung dalam Nilai Akhir karena bank Evaluasi telah berubah.'
+                        : '';
+                    const resultKey = `${type}:${item.id}`;
+                    const textareaId = `gnTeacherNote${index}`;
+
+                    return `
+                                        <tr>
+                                            <td class="gn-history-topic-cell">
+                                                ${type === 'quiz'
+                            ? `${displayValue(chapter)}<br><small>${displayValue(subchapter)}</small>`
+                            : `Evaluasi oleh ${displayValue(item.teacher_name || 'Guru')}`}
+                                            </td>
+                                            <td class="gn-history-type-cell">${typeLabel}</td>
+                                            <td class="gn-history-correct-cell">
+                                                ${displayValue(item.correct_answers)}
+                                                /
+                                                ${displayValue(item.total_questions)}
+                                            </td>
+                                            <td class="gn-history-score-cell">${displayScore(item.score)}</td>
+                                            <td class="gn-history-date-cell">${displayDate(item.completed_at)}</td>
+                                            <td class="gn-history-note-cell">
+                                                <button type="button"
+                                                        class="gn-btn gn-btn-outline gn-note-open"
+                                                        data-note-toggle
+                                                        data-note-key="${escapeHtml(resultKey)}"
+                                                        aria-expanded="false">
+                                                    Beri Catatan
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr class="gn-note-row"
+                                            data-note-panel
+                                            data-note-key="${escapeHtml(resultKey)}"
+                                            hidden>
+                                            <td colspan="6" class="gn-history-form-cell">
+                                                <section class="gn-teacher-feedback"
+                                                         aria-label="Catatan untuk ${escapeHtml(context)}">
+                                                    <h4>Catatan untuk ${escapeHtml(context)}</h4>
+                                                    <p class="gn-note-help">
+                                                        ${gradingNote || `Hasil ini memperoleh nilai ${displayScore(item.score)} dengan ${displayValue(item.correct_answers)} dari ${displayValue(item.total_questions)} jawaban benar, selesai ${displayDate(item.completed_at)}.`}
+                                                    </p>
+                                                    <label for="${textareaId}">
+                                                        Catatan perkembangan untuk Orang Tua/Wali
+                                                    </label>
+                                                    <textarea id="${textareaId}"
+                                                              class="gn-note-input"
+                                                              rows="4"
+                                                              maxlength="5000"
+                                                              placeholder="Tuliskan apresiasi, saran, atau arahan belajar untuk hasil ini..."></textarea>
+                                                    <div class="gn-note-actions">
+                                                        <span class="gn-note-status"
+                                                              role="status"
+                                                              aria-live="polite">Muat draf untuk hasil ini.</span>
+                                                        <div class="gn-note-buttons">
+                                                            <button type="button"
+                                                                    class="gn-btn gn-btn-outline"
+                                                                    data-note-action="draft">
+                                                                <i class="bi bi-save"></i>
+                                                                Simpan Draf
+                                                            </button>
+                                                            <button type="button"
+                                                                    class="gn-btn gn-btn-pdf"
+                                                                    data-note-action="publish">
+                                                                <i class="bi bi-send"></i>
+                                                                Kirim ke Orang Tua
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </section>
+                                            </td>
+                                        </tr>
+                                    `;
+                }).join('')}
                             </tbody>
                         </table>
                     </div>
                 `;
             }
 
-            detailContent.innerHTML = studentInfo + history + `
-                <section class="gn-teacher-feedback"
-                         aria-label="Catatan Guru untuk Orang Tua">
+            detailContent.innerHTML = studentInfo + history;
 
-                    <h3>Catatan Guru untuk Orang Tua/Wali</h3>
-
-                    <p class="gn-note-help">
-                        Simpan sebagai draf jika belum siap,
-                        atau kirim agar dapat dibaca Orang Tua/Wali.
-                    </p>
-
-                    <label for="gnTeacherNote">
-                        Catatan perkembangan siswa untuk Orang Tua/Wali
-                    </label>
-
-                    <textarea
-                        id="gnTeacherNote"
-                        rows="5"
-                        maxlength="5000"
-                        placeholder="Tuliskan apresiasi, saran, atau arahan belajar untuk siswa..."
-                    ></textarea>
-
-                    <div class="gn-note-actions">
-                        <span id="gnNoteStatus"
-                              role="status"
-                              aria-live="polite">
-                            Memuat catatan...
-                        </span>
-
-                        <div class="gn-note-buttons">
-                            <button
-                                type="button"
-                                class="gn-btn gn-btn-outline"
-                                id="gnSaveTeacherNote">
-                                <i class="bi bi-save"></i>
-                                Simpan Draf
-                            </button>
-
-                            <button
-                                type="button"
-                                class="gn-btn gn-btn-pdf"
-                                id="gnPublishTeacherNote">
-                                <i class="bi bi-send"></i>
-                                Kirim ke Orang Tua
-                            </button>
-                        </div>
-                    </div>
-                </section>
-            `;
-
-            const noteInput = byId('gnTeacherNote');
-            const draftButton = byId('gnSaveTeacherNote');
-            const publishButton = byId('gnPublishTeacherNote');
-            const noteStatus = byId('gnNoteStatus');
-
-            const noteUrl =
+            const feedbackUrl =
                 `${API}/${encodeURIComponent(studentId)}/feedback`;
 
-            function updateNoteStatus(status = 'kosong') {
-                if (status === 'terkirim') {
-                    noteInput.value = '';
-
-                    noteStatus.innerHTML = `
-                        <span class="gn-note-success">
-                            <i class="bi bi-check-circle-fill"></i>
-                            Catatan berhasil dikirim.
-                            Silakan tulis catatan berikutnya.
-                        </span>
-                    `;
-
-                } else if (status === 'draf') {
-                    noteStatus.textContent =
-                        'Draf catatan berhasil disimpan.';
-
-                } else {
-                    noteStatus.textContent =
-                        'Belum ada catatan. Silakan tulis catatan baru.';
-                }
-
-                publishButton.innerHTML =
-                    '<i class="bi bi-send"></i> Kirim ke Orang Tua';
+            function updateNoteStatus(statusElement, value) {
+                const messages = {
+                    empty: 'Belum ada draf. Silakan tulis catatan baru.',
+                    draft: 'Draf catatan untuk hasil ini berhasil disimpan.',
+                    sent: 'Catatan berhasil dikirim. Silakan tulis catatan berikutnya.',
+                };
+                statusElement.textContent = messages[value] || value;
             }
 
-            draftButton.disabled = true;
-            publishButton.disabled = true;
+            async function loadDraft(panel, type, resultId) {
+                const noteInput = panel.querySelector('.gn-note-input');
+                const status = panel.querySelector('.gn-note-status');
+                const actionButtons = panel.querySelectorAll('[data-note-action]');
+                panel.dataset.loading = 'true';
+                noteInput.disabled = true;
+                const query = new URLSearchParams({
+                    assessment_type: type,
+                    assessment_result_id: resultId,
+                    audience: 'orang_tua',
+                });
 
-            try {
-                const existing = await requestApi(noteUrl);
+                actionButtons.forEach(button => {
+                    button.disabled = true;
+                });
+                status.textContent = 'Memuat draf catatan...';
 
-                if (
-                    detailModal.hidden ||
-                    version !== detailVersion ||
-                    !noteInput.isConnected
-                ) {
-                    return;
-                }
+                try {
+                    const existing = await requestApi(`${feedbackUrl}?${query}`);
 
-                noteInput.value = existing.note || '';
+                    if (
+                        detailModal.hidden ||
+                        version !== detailVersion ||
+                        !noteInput.isConnected
+                    ) {
+                        return;
+                    }
 
-                if (existing.note) {
-                    updateNoteStatus('draf');
-                } else {
-                    updateNoteStatus('kosong');
-                }
-
-                draftButton.disabled = false;
-                publishButton.disabled = false;
-
-            } catch (error) {
-                if (noteInput.isConnected) {
-                    noteStatus.textContent = error.message;
+                    noteInput.value = existing.note || '';
+                    updateNoteStatus(status, noteInput.value ? 'draft' : 'empty');
+                    panel.dataset.loaded = 'true';
+                } catch (error) {
+                    if (noteInput.isConnected) {
+                        status.textContent = error.message;
+                    }
+                    showToast(error.message, true);
+                } finally {
+                    delete panel.dataset.loading;
+                    if (noteInput.isConnected) noteInput.disabled = false;
+                    actionButtons.forEach(button => {
+                        if (button.isConnected) button.disabled = false;
+                    });
                 }
             }
 
-            async function saveTeacherNote(action) {
+            async function saveTeacherNote(panel, type, resultId, action) {
+                const noteInput = panel.querySelector('.gn-note-input');
+                const status = panel.querySelector('.gn-note-status');
+                const actionButtons = panel.querySelectorAll('[data-note-action]');
                 const note = noteInput.value.trim();
 
                 if (!note) {
-                    noteStatus.textContent =
-                        'Isi catatan terlebih dahulu.';
+                    status.textContent = 'Isi catatan terlebih dahulu.';
                     noteInput.focus();
                     return;
                 }
 
                 if (action === 'publish') {
                     const confirmed = await openPublishConfirm();
-
                     if (!confirmed) return;
 
                     if (
@@ -620,37 +654,35 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
-                draftButton.disabled = true;
-                publishButton.disabled = true;
-
-                noteStatus.textContent =
-                    action === 'publish'
-                        ? 'Mengirim catatan...'
-                        : 'Menyimpan draf...';
+                actionButtons.forEach(button => {
+                    button.disabled = true;
+                });
+                status.textContent = action === 'publish'
+                    ? 'Mengirim catatan...'
+                    : 'Menyimpan draf...';
 
                 try {
                     const csrf = document.querySelector(
                         'meta[name="csrf-token"]'
                     )?.content || '';
-
-                    const response = await fetch(noteUrl, {
+                    const response = await fetch(feedbackUrl, {
                         method: 'PUT',
                         credentials: 'same-origin',
                         headers: {
                             'Accept': 'application/json',
                             'Content-Type': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest',
-                            'X-CSRF-TOKEN': csrf
+                            'X-CSRF-TOKEN': csrf,
                         },
                         body: JSON.stringify({
-                            note: note,
+                            note,
                             audience: 'orang_tua',
-                            action: action
-                        })
+                            action,
+                            assessment_type: type,
+                            assessment_result_id: resultId,
+                        }),
                     });
-
-                    const result = await response.json()
-                        .catch(() => ({}));
+                    const result = await response.json().catch(() => ({}));
 
                     if (!response.ok) {
                         throw new Error(
@@ -669,43 +701,56 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     if (action === 'publish') {
-                        updateNoteStatus('terkirim');
-
-                        showToast(
-                            'Catatan berhasil dikirim ke Orang Tua/Wali.'
-                        );
+                        noteInput.value = '';
+                        panel.dataset.loaded = 'true';
+                        updateNoteStatus(status, 'sent');
+                        showToast('Catatan berhasil dikirim ke Orang Tua/Wali.');
                     } else {
-                        updateNoteStatus('draf');
-
-                        showToast(
-                            'Draf catatan berhasil disimpan.'
-                        );
+                        updateNoteStatus(status, 'draft');
+                        showToast('Draf catatan berhasil disimpan.');
                     }
-
                 } catch (error) {
-                    if (noteStatus.isConnected) {
-                        noteStatus.textContent = error.message;
-                    }
-
+                    if (status.isConnected) status.textContent = error.message;
                     showToast(error.message, true);
-
                 } finally {
-                    if (draftButton.isConnected) {
-                        draftButton.disabled = false;
-                    }
-
-                    if (publishButton.isConnected) {
-                        publishButton.disabled = false;
-                    }
+                    actionButtons.forEach(button => {
+                        if (button.isConnected) button.disabled = false;
+                    });
                 }
             }
 
-            draftButton.addEventListener('click', () => {
-                saveTeacherNote('draft');
+            detailContent.querySelectorAll('[data-note-toggle]').forEach(button => {
+                button.addEventListener('click', () => {
+                    const key = button.dataset.noteKey;
+                    const panel = Array.from(
+                        detailContent.querySelectorAll('[data-note-panel]')
+                    ).find(candidate => candidate.dataset.noteKey === key);
+                    if (!panel) return;
+
+                    panel.hidden = !panel.hidden;
+                    button.setAttribute('aria-expanded', String(!panel.hidden));
+                    if (panel.hidden) return;
+
+                    const [type, resultId] = key.split(':');
+                    if (!panel.dataset.loaded && !panel.dataset.loading) {
+                        loadDraft(panel, type, resultId);
+                    }
+                });
             });
 
-            publishButton.addEventListener('click', () => {
-                saveTeacherNote('publish');
+            detailContent.querySelectorAll('[data-note-panel]').forEach(panel => {
+                const key = panel.dataset.noteKey;
+                const [type, resultId] = key.split(':');
+                panel.querySelectorAll('[data-note-action]').forEach(button => {
+                    button.addEventListener('click', () => {
+                        saveTeacherNote(
+                            panel,
+                            type,
+                            resultId,
+                            button.dataset.noteAction
+                        );
+                    });
+                });
             });
 
         } catch (error) {
@@ -770,9 +815,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const query = params.toString();
 
-            const url = `${API}/export/excel${
-                query ? `?${query}` : ''
-            }`;
+            const url = `${API}/export/excel${query ? `?${query}` : ''
+                }`;
 
             window.location.assign(url);
         });
@@ -796,9 +840,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const query = params.toString();
 
-            const url = `${API}/export/pdf${
-                query ? `?${query}` : ''
-            }`;
+            const url = `${API}/export/pdf${query ? `?${query}` : ''
+                }`;
 
             window.location.assign(url);
         });
@@ -807,4 +850,23 @@ document.addEventListener('DOMContentLoaded', () => {
     /* 11. MUAT DATA AWAL */
 
     loadGrades();
+
+    window.addEventListener('load', () => {
+        const url = new URL(window.location.href);
+        const rawStudentId = url.searchParams.get('student_id');
+        if (rawStudentId === null) return;
+
+        const studentId = Number(rawStudentId);
+        url.searchParams.delete('student_id');
+        url.searchParams.set('page', 'nilai');
+        window.history.replaceState(
+            { ...window.history.state, page: 'nilai' },
+            '',
+            url
+        );
+
+        if (Number.isSafeInteger(studentId) && studentId > 0) {
+            openStudentDetail(studentId);
+        }
+    }, { once: true });
 });

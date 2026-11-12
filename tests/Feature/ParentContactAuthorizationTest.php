@@ -14,7 +14,7 @@ class ParentContactAuthorizationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_teacher_contacts_require_explicit_class_assignments_and_only_approved_links(): void
+    public function test_teacher_contacts_require_learning_access_and_only_approved_links(): void
     {
         $this->getJson('/guru/parent-contacts?class=VII%20A')->assertUnauthorized();
 
@@ -59,7 +59,9 @@ class ParentContactAuthorizationTest extends TestCase
         $this->assertStringNotContainsString('0844444444', $contactsA->getContent());
         $this->assertStringNotContainsString('0855555555', $contactsA->getContent());
 
-        $this->getJson('/guru/parent-contacts?class=VII%20B')->assertForbidden();
+        $this->getJson('/guru/parent-contacts?class=VII%20B')
+            ->assertOk()
+            ->assertJsonPath('total', 0);
         $this->getJson("/guru/parent-contacts/{$relationB->id}")->assertNotFound();
         $this->getJson("/guru/parent-contacts/{$multiRelationB->id}")->assertNotFound();
         $this->getJson("/guru/parent-contacts/{$pendingRelation->id}")->assertNotFound();
@@ -88,7 +90,8 @@ class ParentContactAuthorizationTest extends TestCase
 
         $this->actingAs($unassignedTeacher)
             ->getJson('/guru/parent-contacts?class=VII%20A')
-            ->assertForbidden();
+            ->assertOk()
+            ->assertJsonPath('total', 0);
         $this->actingAs($studentA)
             ->getJson('/guru/parent-contacts?class=VII%20A')
             ->assertForbidden();
@@ -108,6 +111,57 @@ class ParentContactAuthorizationTest extends TestCase
             ->where('guardian_id', $multiChildParent->id)
             ->where('status', 'approved')
             ->count());
+    }
+
+    public function test_teacher_can_contact_approved_guardian_for_student_with_owned_quiz_result_without_class_assignment(): void
+    {
+        $teacher = $this->createUser('guru', 'guru-contact-quiz-owner');
+        $otherTeacher = $this->createUser('guru', 'guru-contact-other-owner');
+        $student = $this->createStudent('student-contact-quiz-owner', 'VII B');
+        $parent = $this->createUser('orang_tua', 'parent-contact-quiz-owner');
+        $relation = $this->link($student, $parent, 'approved');
+        $chapterId = DB::table('chapters')->insertGetId([
+            'user_id' => $teacher->id,
+            'nomor_bab' => 6,
+            'judul' => 'Bab VI',
+            'is_published' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        DB::table('student_assessment_results')->insert([
+            'user_id' => $student->id,
+            'assessment_type' => 'quiz',
+            'chapter_id' => $chapterId,
+            'total_questions' => 5,
+            'correct_answers' => 4,
+            'score' => 80,
+            'completed_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->actingAs($teacher)
+            ->getJson('/guru/parent-contacts?class=VII%20B')
+            ->assertOk()
+            ->assertJsonPath('total', 1)
+            ->assertJsonPath('data.0.relationship_id', $relation->id);
+        $this->getJson("/guru/parent-contacts/{$relation->id}/messages")
+            ->assertOk()
+            ->assertJsonCount(0, 'messages');
+        $this->getJson("/guru/parent-contacts/{$relation->id}/presence")
+            ->assertOk();
+        $this->actingAs($otherTeacher)
+            ->getJson("/guru/parent-contacts/{$relation->id}/messages")
+            ->assertNotFound();
+
+        $parentThreads = $this->actingAs($parent)
+            ->getJson('/orang-tua/chat/teachers');
+        $this->assertSame(200, $parentThreads->status(), $parentThreads->getContent());
+        $parentThreads->assertJsonCount(1, 'teachers')
+            ->assertJsonPath('teachers.0.id', $teacher->id);
+        $this->postJson('/chat/presence/activity')
+            ->assertOk()
+            ->assertJsonPath('recorded', true);
     }
 
     public function test_parent_registration_persists_phone_and_creates_only_pending_child_link(): void

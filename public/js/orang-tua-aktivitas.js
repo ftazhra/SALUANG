@@ -28,8 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function draw() {
         if (!list) return;
         const matches = activities.filter(item =>
-            (chapter.value === 'all' || String(item.chapter_id) === chapter.value) &&
-            (subchapter.value === 'all' || String(item.subchapter_id) === subchapter.value) &&
+            (item.type === 'evaluasi' || chapter.value === 'all' || String(item.chapter_id) === chapter.value) &&
+            (item.type === 'evaluasi' || subchapter.value === 'all' || String(item.subchapter_id) === subchapter.value) &&
             (selectedType === 'semua' || item.type === selectedType)
         ).sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
         list.replaceChildren();
@@ -41,7 +41,15 @@ document.addEventListener('DOMContentLoaded', () => {
             iconWrap.appendChild(icon);
             const main = insert('div', '', 'pa-entry-main');
             main.append(insert('strong', item.title || 'Aktivitas belajar', 'pa-entry-title'));
-            const parts = [item.chapter_title, item.subchapter_title, item.detail].filter(Boolean);
+            const parts = [
+                item.type === 'evaluasi'
+                    ? (item.attribution_status === 'unverified'
+                        ? 'Atribusi Guru belum terverifikasi'
+                        : `Guru ${item.teacher_name || 'Guru'}`)
+                    : item.chapter_title,
+                item.subchapter_title,
+                item.type === 'evaluasi' ? null : item.detail
+            ].filter(Boolean);
             main.append(insert('span', parts.join(' · '), 'pa-entry-detail'));
             row.append(iconWrap, main, insert('time', displayDate(item.date), 'pa-entry-date'));
             list.append(row);

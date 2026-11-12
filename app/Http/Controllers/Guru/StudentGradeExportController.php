@@ -1,10 +1,8 @@
 <?php
 namespace App\Http\Controllers\Guru;
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Services\EvaluationResultService;
+use App\Services\StudentGradeService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Schema;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -15,7 +13,7 @@ class StudentGradeExportController extends Controller
     | 01. UNDUH LAPORAN EXCEL
     |--------------------------------------------------------------------------
     */
-    public function excel(Request $request, EvaluationResultService $evaluationResults): StreamedResponse
+    public function excel(Request $request, StudentGradeService $grades): StreamedResponse
     {
         abort_unless(
             $request->user()?->role === 'guru',
@@ -30,51 +28,8 @@ class StudentGradeExportController extends Controller
                 'in:tuntas,belum_tuntas,belum_dinilai',
             ],
         ]);
-        $hasNisn = Schema::hasColumn('users', 'nisn');
-        $hasKelas = Schema::hasColumn('users', 'kelas');
-        $teacherId = (int) $request->user()->id;
-        $quizResults = $evaluationResults->latestQuizByStudentForTeacher($teacherId);
-        $evaluationAttempts = $evaluationResults->latestByStudentForTeacher($teacherId);
-        $studentIds = array_values(array_unique([
-            ...array_keys($quizResults),
-            ...array_keys($evaluationAttempts),
-        ]));
-        $query = User::query()
-            ->where('role', 'siswa')
-            ->whereIn('id', $studentIds);
-        if (!empty($filters['search'])) {
-            $keyword = $filters['search'];
-            $query->where(function ($builder) use (
-                $keyword,
-                $hasNisn
-            ) {
-                $builder->where(
-                    'name',
-                    'like',
-                    "%{$keyword}%"
-                );
-                if ($hasNisn) {
-                    $builder->orWhere(
-                        'nisn',
-                        'like',
-                        "%{$keyword}%"
-                    );
-                }
-            });
-        }
-        if (!empty($filters['class'])) {
-            if ($hasKelas) {
-                $query->where('kelas', $filters['class']);
-            } else {
-                $query->whereRaw('1 = 0');
-            }
-        }
-        $students = $query->orderBy('name')->get();
-        // Ketuntasan belum dikonfigurasi di SALUANG.
-        if (!empty($filters['completion']) &&
-            $filters['completion'] !== 'belum_dinilai') {
-            $students = $students->take(0);
-        }
+        $overview = $grades->overview((int) $request->user()->id, $filters);
+        $students = $overview['data'];
         /*
         |--------------------------------------------------------------------------
         | 02. SIAPKAN WORKBOOK
@@ -84,15 +39,14 @@ class StudentGradeExportController extends Controller
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Rekap Nilai Siswa');
         $sheet->setCellValue('A1', 'SALUANG — REKAP NILAI SISWA');
-        $sheet->mergeCells('A1:G1');
+        $sheet->mergeCells('A1:F1');
         $headers = [
             'Nama Siswa',
             'NISN',
             'Kelas',
-            'Kuis',
-            'Evaluasi',
             'Nilai Akhir',
             'Ketuntasan',
+            'Detail',
         ];
         foreach ($headers as $index => $header) {
             $column = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(
@@ -110,36 +64,35 @@ class StudentGradeExportController extends Controller
         */
         $row = 4;
         foreach ($students as $student) {
-            $quiz = $quizResults[$student->id] ?? null;
-            $evaluation = $evaluationAttempts[$student->id] ?? null;
-            $sheet->setCellValue("A{$row}", $student->name);
-            // NISN disimpan sebagai teks agar angka nol awal aman.
             $sheet->setCellValueExplicit(
-                "B{$row}",
-                $hasNisn ? (string) ($student->nisn ?? '') : '',
+                "A{$row}",
+                (string) ($student['name'] ?? ''),
                 \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
             );
-            $sheet->setCellValue(
-                "C{$row}",
-                $hasKelas ? ($student->kelas ?? '') : ''
+            $sheet->setCellValueExplicit(
+                "B{$row}",
+                (string) ($student['nisn'] ?? ''),
+                \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
             );
-            if ($quiz !== null) {
-                $sheet->setCellValue(
-                    "D{$row}",
-                    (float) $quiz['score']
-                );
-            }
-            if ($evaluation !== null) {
-                $sheet->setCellValue(
-                    "E{$row}",
-                    (float) $evaluation['score']
-                );
-            }
-            // Belum ada rumus Nilai Akhir.
-            $sheet->setCellValue("F{$row}", '');
+            $sheet->setCellValueExplicit(
+                "C{$row}",
+                (string) ($student['class'] ?? ''),
+                \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
+            );
+            $sheet->setCellValue("D{$row}", $student['final_score']);
             $sheet->setCellValue(
-                "G{$row}",
-                'Belum Dinilai'
+                "E{$row}",
+                match ($student['completion_status']) {
+                    'tuntas' => 'Tuntas',
+                    'belum_tuntas' => 'Belum Tuntas',
+                    default => 'Belum Dinilai',
+                }
+            );
+            $sheet->setCellValue(
+                "F{$row}",
+                $student['quiz_completed_count'] > 0 || $student['evaluation_completed']
+                    ? 'Riwayat tersedia'
+                    : 'Belum ada riwayat'
             );
             $row++;
         }
@@ -148,27 +101,27 @@ class StudentGradeExportController extends Controller
         | 04. FORMAT TAMPILAN
         |--------------------------------------------------------------------------
         */
-        $sheet->getStyle('A1:G1')
+        $sheet->getStyle('A1:F1')
             ->getFont()
             ->setBold(true)
             ->setSize(15);
-        $sheet->getStyle('A3:G3')
+        $sheet->getStyle('A3:F3')
             ->getFont()
             ->setBold(true);
-        $sheet->getStyle('A3:G3')
+        $sheet->getStyle('A3:F3')
             ->getFill()
             ->setFillType(
                 \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID
             )
             ->getStartColor()
             ->setARGB('FFE5F3EA');
-        foreach (range('A', 'G') as $column) {
+        foreach (range('A', 'F') as $column) {
             $sheet->getColumnDimension($column)
                 ->setAutoSize(true);
         }
         $sheet->freezePane('A4');
         $lastRow = max(3, $row - 1);
-        $sheet->setAutoFilter("A3:G{$lastRow}");
+        $sheet->setAutoFilter("A3:F{$lastRow}");
         /*
         |--------------------------------------------------------------------------
         | 05. KIRIM FILE XLSX

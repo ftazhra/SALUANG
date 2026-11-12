@@ -81,10 +81,7 @@ return new class extends Migration
 
     private function indexExists(string $indexName): bool
     {
-        return DB::table('information_schema.statistics')
-            ->where('TABLE_SCHEMA', DB::getDatabaseName())
-            ->where('TABLE_NAME', 'student_teacher_notes')
-            ->where('INDEX_NAME', $indexName)
-            ->exists();
+        return collect(Schema::getIndexes('student_teacher_notes'))
+            ->contains(fn (array $index) => $index['name'] === $indexName);
     }
 };

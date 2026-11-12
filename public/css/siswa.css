@@ -23,7 +23,7 @@ body.sd-page {
     background: var(--sd-bg);
     color: var(--sd-blue);
     font-family: Poppins, sans-serif;
-    font-size: 11px;
+    font-size: 14px;
 }
 body.sd-page button,
 body.sd-page input {
@@ -122,7 +122,7 @@ body.sd-page [hidden] {
     border-radius: 9px;
     background: transparent;
     color: var(--sd-blue);
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     text-align: left;
     transition: background .2s, color .2s;
@@ -169,14 +169,14 @@ body.sd-page [hidden] {
 }
 .sd-chapter-button strong {
     color: #20794d;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 700;
     letter-spacing: .4px;
 }
 .sd-chapter-button span {
     width: 100%;
     min-width: 0;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 400;
     line-height: 1.55;
     overflow-wrap: normal;
@@ -197,7 +197,7 @@ body.sd-page [hidden] {
     border-radius: 8px;
     background: transparent;
     color: #809ba5;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 400;
     line-height: 1.55;
     text-align: left;
@@ -227,7 +227,7 @@ body.sd-page [hidden] {
     border: 0;
     background: transparent;
     color: #df4646;
-    font-size: 10px;
+    font-size: 14px;
     font-weight: 600;
     text-decoration: none;
 }
@@ -319,7 +319,7 @@ body.sd-page [hidden] {
     outline: 0;
     background: transparent;
     color: var(--sd-blue);
-    font-size: 9px;
+    font-size: 14px;
 }
 .sd-search input::placeholder {
     color: #809ca7;
@@ -337,7 +337,7 @@ body.sd-page [hidden] {
     color: var(--sd-blue);
 }
 .sd-icon {
-    font-size: 17px;
+    font-size: 14px;
 }
 .sd-user {
     display: flex;
@@ -357,7 +357,7 @@ body.sd-page [hidden] {
 .sd-user small {
     display: block;
     color: var(--sd-muted);
-    font-size: 8px;
+    font-size: 12px;
 }
 /* 14.1. Tampilan dropdown profil */
 .sd-dropdown {
@@ -367,7 +367,7 @@ body.sd-page [hidden] {
     border-radius: 11px;
     background: #fffdf6;
     box-shadow: 0 8px 24px rgba(7, 84, 119, .12);
-    font-size: 11px;
+    font-size: 14px;
 }
 /* 14.2. Pilihan di dalam dropdown */
 .sd-dropdown .dropdown-item {
@@ -378,7 +378,7 @@ body.sd-page [hidden] {
     border-radius: 7px;
     background: transparent;
     color: #075477;
-    font-size: 11px;
+    font-size: 14px;
     transition:
         background-color .2s ease,
         color .2s ease,
@@ -427,16 +427,16 @@ body.sd-page [hidden] {
     border-radius: 6px;
     background: #e4f5eb;
     color: #207950;
-    font-size: 8px;
+    font-size: 14px;
     font-weight: 700;
 }
 .sd-muted {
     color: var(--sd-muted);
-    font-size: 9px;
+    font-size: 14px;
 }
 .sd-heading {
     margin: 0 0 15px;
-    font-size: 13px;
+    font-size: 24px;
     font-weight: 600;
 }
 .sd-heading i {
@@ -461,7 +461,7 @@ body.sd-page [hidden] {
     border-radius: 8px;
     background: #fff;
     color: var(--sd-blue);
-    font-size: 10px;
+    font-size: 13px;
     font-weight: 600;
 }
 .sd-nav-btn.next {
@@ -478,24 +478,24 @@ body.sd-page [hidden] {
 }
 .sd-counter {
     color: var(--sd-muted);
-    font-size: 9px;
+    font-size: 12px;
     text-align: center;
 }
 /* 21. JUDUL DAN TEKS */
 .sd-breadcrumb {
     margin: 19px 0 12px;
     color: var(--sd-muted);
-    font-size: 9px;
+    font-size: 12px;
 }
 .sd-title {
     margin: 11px 0 13px;
-    font-size: clamp(20px, 2vw, 26px);
+    font-size: clamp(22px, 1.8vw, 24px);
     font-weight: 600;
     line-height: 1.4;
 }
 .sd-copy {
     color: #356e7c;
-    font-size: 11px;
+    font-size: 14px;
     line-height: 1.9;
 }
 .sd-copy p:last-child {
@@ -674,9 +674,9 @@ body.sd-page [hidden] {
     color: #075477;
     transition: background-color .18s ease, color .18s ease;
 }
-.sd-page .sd-tools .sd-user:hover > i:last-child,
+.sd-page .sd-tools .sd-user > i:last-child:hover,
 .sd-page .sd-tools .sd-user:focus-visible > i:last-child,
-.sd-page .sd-tools .sd-user[aria-expanded="true"] > i:last-child {
+.sd-page .sd-tools .sd-user > i:last-child:focus-visible {
     background-color: #cfeaf9;
     color: #064968;
 }
@@ -815,4 +815,44 @@ body.sd-page [hidden] {
 }
 @media (prefers-reduced-motion: reduce) {
     .sd-menu.sd-material-menu .sd-material-chevron { transition: none; }
+}
+
+/* Keterbacaan dashboard dan navigasi Siswa. */
+:root {
+    --sd-muted: #526b74;
+}
+.sd-page .sd-menu,
+.sd-page .sd-nav-btn,
+.sd-page .sd-primary,
+.sd-page .sd-dropdown .dropdown-item {
+    font-size: 14px;
+    line-height: 1.5;
+}
+.sd-page .sd-copy {
+    color: #315e68;
+    font-size: 14px;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+.sd-page .sd-muted,
+.sd-page .sd-breadcrumb,
+.sd-page .sd-counter,
+.sd-page .sd-user small {
+    color: #526b74;
+    font-size: 12px;
+    line-height: 1.6;
+}
+.sd-page .sd-heading {
+    font-size: 24px;
+    line-height: 1.5;
+}
+.sd-page .sd-pill {
+    font-size: 14px;
+}
+.sd-page .sd-search input {
+    font-size: 14px;
+}
+.sd-page .sd-search input::placeholder {
+    color: #526b74;
+    opacity: 1;
 }

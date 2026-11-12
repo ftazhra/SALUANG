@@ -1,5 +1,6 @@
 <section class="gd-material-page" data-guru-section="materi" id="guruMaterialPage" hidden>
-
+
+
 
     {{-- ======================================================
          01. DAFTAR BAB
@@ -45,7 +46,8 @@
             </button>
         </div>
     </div>
-
+
+
 
     {{-- ======================================================
          02. DETAIL BAB
@@ -90,7 +92,8 @@
                     </figcaption>
                 </figure>
             </div>
-
+
+
 
             {{-- TUJUAN PEMBELAJARAN --}}
             <div class="gm-detail-section">
@@ -104,7 +107,8 @@
                     </li>
                 </ol>
             </div>
-
+
+
 
             {{-- YUK, PIKIRKAN --}}
             <div class="gm-detail-section">
@@ -117,7 +121,8 @@
                 </p>
             </div>
         </article>
-
+
+
 
         {{-- DAFTAR SUBBAB --}}
         <section class="gm-subchapter-section">
@@ -139,7 +144,8 @@
             </div>
         </section>
     </div>
-
+
+
 
     {{-- ======================================================
          03. MODAL TAMBAH / EDIT BAB
@@ -157,7 +163,8 @@
             </div>
             <form id="gmChapterForm">
                 <input type="hidden" id="gmChapterId">
-
+
+
 
                 {{-- NOMOR BAB --}}
                 <div class="gm-field">
@@ -166,7 +173,8 @@
                     </label>
                     <input type="number" id="gmChapterNumber" min="1" placeholder="Contoh: 1" required>
                 </div>
-
+
+
 
                 {{-- JUDUL BAB --}}
                 <div class="gm-field">
@@ -176,7 +184,8 @@
                     <input type="text" id="gmChapterTitle" maxlength="255" placeholder="Masukkan judul Bab"
                         required>
                 </div>
-
+
+
 
                 {{-- DESKRIPSI BAB --}}
                 <div class="gm-field">
@@ -190,7 +199,8 @@
                         dan cakupan materi pada Bab ini.
                     </small>
                 </div>
-
+
+
 
                 {{-- GAMBAR PENGENALAN BAB --}}
                 <div class="gm-field">
@@ -210,7 +220,8 @@
                     <input type="text" id="gmChapterIntroductionTitle" maxlength="255"
                         placeholder="Contoh: Ekosistem Lahan Basah Kalimantan Selatan">
                 </div>
-
+
+
 
                 {{-- TUJUAN PEMBELAJARAN --}}
                 <div class="gm-field">
@@ -222,7 +233,8 @@
                         Tujuan akan ditampilkan dengan nomor urut.
                     </p>
                     <div id="gmObjectivesList">
-
+
+
 
                         {{-- Input dibuat JavaScript Guru --}}
                     </div>
@@ -231,7 +243,8 @@
                         Tambah Tujuan Pembelajaran
                     </button>
                 </div>
-
+
+
 
                 {{-- YUK, PIKIRKAN --}}
                 <div class="gm-field">
@@ -247,7 +260,8 @@
                         Pertanyaan ini akan ditampilkan kepada Siswa pada halaman Pengenalan Bab.
                     </small>
                 </div>
-
+
+
 
                 {{-- PUBLIKASI BAB --}}
                 <label class="gm-checkbox">
@@ -265,7 +279,8 @@
             </form>
         </div>
     </div>
-
+
+
 
     {{-- ======================================================
          04. MODAL TAMBAH / EDIT SUBBAB
@@ -330,7 +345,8 @@
                         ditekan.
                     </p>
                 </section>
-
+
+
 
                 {{-- EDITOR ISI MATERI --}}
                 <div class="gm-field" id="gmTextBlockEditor" hidden>
@@ -339,26 +355,30 @@
                         Pilih Edit pada blok teks. Pemformatan rich text tetap tersedia.
                     </p>
                     <div class="gm-rich-editor">
-
+
+
 
                         {{-- TOOLBAR --}}
                         <div class="gm-rich-toolbar" id="gmRichToolbar" role="toolbar"
                             aria-label="Alat pemformatan materi">
-
+
+
 
                             {{-- BOLD --}}
                             <button type="button" class="gm-rich-tool" data-gm-command="bold"
                                 title="Tebal (Ctrl+B)" aria-label="Tebal">
                                 <strong>B</strong>
                             </button>
-
+
+
 
                             {{-- ITALIC --}}
                             <button type="button" class="gm-rich-tool" data-gm-command="italic"
                                 title="Miring (Ctrl+I)" aria-label="Miring">
                                 <em>I</em>
                             </button>
-
+
+
 
                             {{-- UNDERLINE --}}
                             <button type="button" class="gm-rich-tool" data-gm-command="underline"
@@ -366,21 +386,24 @@
                                 <u>U</u>
                             </button>
                             <span class="gm-rich-separator" aria-hidden="true"></span>
-
+
+
 
                             {{-- HEADING 2 --}}
                             <button type="button" class="gm-rich-tool gm-rich-tool-text" data-gm-block="H2"
                                 title="Judul bagian" aria-label="Judul bagian">
                                 H2
                             </button>
-
+
+
 
                             {{-- HEADING 3 --}}
                             <button type="button" class="gm-rich-tool gm-rich-tool-text" data-gm-block="H3"
                                 title="Subjudul" aria-label="Subjudul">
                                 H3
                             </button>
-
+
+
 
                             {{-- PARAGRAF --}}
                             <button type="button" class="gm-rich-tool gm-rich-tool-text" data-gm-block="P"
@@ -388,14 +411,16 @@
                                 ¶
                             </button>
                             <span class="gm-rich-separator" aria-hidden="true"></span>
-
+
+
 
                             {{-- ORDERED LIST --}}
                             <button type="button" class="gm-rich-tool" data-gm-command="insertOrderedList"
                                 title="Daftar bernomor" aria-label="Daftar bernomor">
                                 <i class="bi bi-list-ol"></i>
                             </button>
-
+
+
 
                             {{-- UNORDERED LIST --}}
                             <button type="button" class="gm-rich-tool" data-gm-command="insertUnorderedList"
@@ -403,7 +428,8 @@
                                 <i class="bi bi-list-ul"></i>
                             </button>
                             <span class="gm-rich-separator" aria-hidden="true"></span>
-
+
+
 
                             {{-- REMOVE FORMATTING --}}
                             <button type="button" class="gm-rich-tool" data-gm-command="removeFormat"
@@ -411,14 +437,16 @@
                                 <i class="bi bi-eraser"></i>
                             </button>
                         </div>
-
+
+
 
                         {{-- AREA EDITOR YANG TERLIHAT --}}
                         <textarea id="gmRichContentEditor" class="gm-rich-content gm-multiline-input" aria-label="Isi materi pembelajaran"
                             rows="8"
                             placeholder="Mulai tulis materi di sini. Gunakan toolbar untuk mengatur judul, paragraf, dan daftar..."></textarea>
                     </div>
-
+
+
 
                     {{-- TEXTAREA UNTUK KOMPATIBILITAS API --}}
                     <textarea id="gmSubchapterContent" rows="8" class="gm-rich-source" aria-label="Data sumber materi"
@@ -430,7 +458,8 @@
                     </small>
                     <p class="gm-editor-status" id="gmEditorStatus" role="status" aria-live="polite"></p>
                 </div>
-
+
+
 
                 {{-- Aktivitas disimpan sebagai blok teks agar aman tanpa perubahan database. --}}
                 <div class="gm-content-block-callout" id="gmActivityEditor" hidden>
@@ -492,8 +521,17 @@
                         <textarea id="gmBlockMediaCaption" class="gm-multiline-input" rows="2" maxlength="500"
                             placeholder="Keterangan singkat"></textarea>
                     </div>
+                    <div class="gm-field" id="gmBlockImageLayoutField" hidden>
+                        <label for="gmBlockImageLayout">Posisi gambar</label>
+                        <select id="gmBlockImageLayout">
+                            <option value="full">Tengah / lebar penuh</option>
+                            <option value="right">Kanan, teks mengalir di kiri</option>
+                            <option value="left">Kiri, teks mengalir di kanan</option>
+                        </select>
+                    </div>
                 </div>
-
+
+
 
                 {{-- PUBLIKASI SUBBAB --}}
                 <label class="gm-checkbox">
@@ -511,10 +549,38 @@
             </div>
         </div>
     </div>
-
+
+
 
     {{-- ======================================================
-         05. MODAL KONFIRMASI HAPUS
+         05. KONFIRMASI PERUBAHAN SUBBAB BELUM DISIMPAN
+         ====================================================== --}}
+    <div class="gm-modal gm-unsaved-changes-modal" id="gmUnsavedChangesModal" hidden>
+        <div class="gm-modal-backdrop" id="gmUnsavedChangesBackdrop"></div>
+        <div class="gm-modal-dialog gm-unsaved-changes-dialog" role="alertdialog" aria-modal="true"
+            aria-labelledby="gmUnsavedChangesTitle" aria-describedby="gmUnsavedChangesDescription" tabindex="-1">
+            <div class="gm-unsaved-changes-icon" aria-hidden="true">
+                <i class="bi bi-exclamation-circle"></i>
+            </div>
+            <h2 id="gmUnsavedChangesTitle">Perubahan Belum Disimpan</h2>
+            <p id="gmUnsavedChangesDescription">
+                Perubahan materi yang belum disimpan akan hilang. Yakin ingin keluar?
+            </p>
+            <div class="gm-modal-actions">
+                <button type="button" class="gm-btn gm-btn-primary" id="gmKeepEditingChanges">
+                    Kembali Mengedit
+                </button>
+                <button type="button" class="gm-btn gm-btn-danger" id="gmDiscardChanges">
+                    Keluar Tanpa Menyimpan
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+
+    {{-- ======================================================
+         06. MODAL KONFIRMASI HAPUS
          ====================================================== --}}
     <div class="gm-modal" id="gmDeleteModal" hidden>
         <div class="gm-modal-backdrop" data-gm-close></div>
@@ -540,227 +606,19 @@
             </div>
         </div>
     </div>
-
+
+
 
     {{-- ======================================================
-         06. PESAN STATUS CRUD
+         07. PESAN STATUS CRUD
          ====================================================== --}}
     <div class="gm-toast" id="gmToast" role="status" aria-live="polite" hidden></div>
 </section>
-
+
+
 
 {{-- ==========================================================
      07. STYLING KHUSUS EDITOR
      Hanya memengaruhi modal Subbab Guru.
      Tidak mengubah CSS Dashboard Siswa.
      ========================================================== --}}
-<style>
-    #gmSubchapterModal .gm-rich-editor {
-        overflow: visible;
-        background: transparent;
-    }
-
-    #gmSubchapterModal .gm-rich-toolbar {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 5px;
-        padding: 10px 12px;
-        border-bottom: 1px solid #dce9e2;
-        background: #f5faf7;
-    }
-
-    #gmSubchapterModal .gm-rich-tool {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 36px;
-        height: 36px;
-        padding: 6px 9px;
-        border: 1px solid transparent;
-        border-radius: 7px;
-        background: transparent;
-        color: #19566a;
-        font-family: inherit;
-        font-size: 15px;
-        cursor: pointer;
-        transition:
-            background .15s ease,
-            border-color .15s ease;
-    }
-
-    #gmSubchapterModal .gm-rich-tool:hover,
-    #gmSubchapterModal .gm-rich-tool:focus-visible {
-        border-color: #b8dcc8;
-        background: #e0f2e8;
-        outline: none;
-    }
-
-    #gmSubchapterModal .gm-rich-tool-text {
-        font-size: 13px;
-        font-weight: 700;
-    }
-
-    #gmSubchapterModal .gm-rich-separator {
-        width: 1px;
-        height: 25px;
-        margin: 0 5px;
-        background: #cbded5;
-    }
-
-    #gmSubchapterModal .gm-rich-content {
-        min-height: 150px;
-        max-height: none;
-        overflow-y: visible;
-        padding: 10px 12px;
-        border: 1px solid #ccdfdd;
-        border-radius: 9px;
-        outline: none;
-        background: #fff;
-        color: #075477;
-        font-family: inherit;
-        font-size: 11px;
-        line-height: 1.7;
-        overflow-wrap: anywhere;
-        white-space: normal;
-    }
-
-    #gmSubchapterModal .gm-rich-content:focus {
-        border-color: #65b69a;
-        box-shadow: 0 0 0 3px rgba(101, 182, 154, .13);
-    }
-
-    #gmSubchapterModal .gm-rich-content:empty::before {
-        content: attr(data-placeholder);
-        color: #8299a2;
-        pointer-events: none;
-    }
-
-    #gmSubchapterModal .gm-rich-content h2 {
-        margin: 20px 0 11px;
-        color: #085775;
-        font-size: 22px;
-        font-weight: 700;
-        line-height: 1.4;
-    }
-
-    #gmSubchapterModal .gm-rich-content h3 {
-        margin: 17px 0 9px;
-        color: #085775;
-        font-size: 18px;
-        font-weight: 700;
-    }
-
-    #gmSubchapterModal .gm-rich-content p {
-        margin: 0 0 14px;
-    }
-
-    #gmSubchapterModal .gm-rich-content ul,
-    #gmSubchapterModal .gm-rich-content ol {
-        margin: 10px 0 18px;
-        padding-left: 28px;
-    }
-
-    #gmSubchapterModal .gm-rich-content li {
-        margin-bottom: 7px;
-    }
-
-    #gmSubchapterModal .gm-rich-content strong,
-    #gmSubchapterModal .gm-rich-content b {
-        font-weight: 700;
-    }
-
-    #gmSubchapterModal .gm-rich-content em,
-    #gmSubchapterModal .gm-rich-content i {
-        font-style: italic;
-    }
-
-    #gmSubchapterModal .gm-rich-content u {
-        text-decoration: underline;
-    }
-
-    #gmSubchapterModal .gm-rich-source {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        border: 0;
-        overflow: hidden;
-        opacity: 0;
-        pointer-events: none;
-    }
-
-    #gmSubchapterModal .gm-editor-status {
-        min-height: 20px;
-        margin: 8px 0 0;
-        color: #317b55;
-        font-size: 12px;
-    }
-
-    @media (max-width: 767.98px) {
-        #gmSubchapterModal .gm-rich-toolbar {
-            padding: 8px;
-        }
-
-        #gmSubchapterModal .gm-rich-content {
-            padding: 10px 12px;
-            min-height: 150px;
-            font-size: 11px;
-        }
-    }
-
-    /* SALUANG: file picker Pengenalan Bab, native input & ID dipertahankan. */
-    #gmChapterModal #gmChapterIntroductionImage.gm-chapter-intro-file {
-        display: block;
-        width: 100%;
-        min-height: 58px;
-        box-sizing: border-box;
-        padding: 8px 12px;
-        border: 1px solid #c8e1d9;
-        border-radius: 12px;
-        background: #fff;
-        color: #527887;
-        font: inherit;
-        font-size: 13px;
-        line-height: 1.5;
-        cursor: pointer;
-    }
-
-    #gmChapterModal #gmChapterIntroductionImage.gm-chapter-intro-file::file-selector-button {
-        min-height: 36px;
-        margin-right: 12px;
-        padding: 6px 14px;
-        border: 1px solid #8dc4a1;
-        border-radius: 10px;
-        background: #dcf2e5;
-        color: #176646;
-        font: inherit;
-        font-size: 13px;
-        font-weight: 700;
-        cursor: pointer;
-    }
-
-    #gmChapterModal #gmChapterIntroductionImage.gm-chapter-intro-file:hover::file-selector-button {
-        background: #ceeada;
-    }
-
-    #gmChapterModal #gmChapterIntroductionImage.gm-chapter-intro-file:focus-visible {
-        outline: 3px solid #66b89c;
-        outline-offset: 2px;
-    }
-
-    @media (max-width: 575px) {
-        #gmChapterModal #gmChapterIntroductionImage.gm-chapter-intro-file {
-            min-height: 54px;
-            padding: 7px 10px;
-            font-size: 13px;
-        }
-
-        #gmChapterModal #gmChapterIntroductionImage.gm-chapter-intro-file::file-selector-button {
-            min-height: 34px;
-            padding: 5px 11px;
-            margin-right: 8px;
-            font-size: 13px;
-        }
-    }
-</style>

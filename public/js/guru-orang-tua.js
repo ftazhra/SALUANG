@@ -18,6 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const contactDetail = byId('gpContactDetail');
     const guardianName = byId('gpGuardianName');
     const guardianRelation = byId('gpGuardianRelation');
+    const presenceDot = byId('gpPresenceDot');
+    const presenceText = byId('gpPresenceText');
+    const unreadCount = byId('gpUnreadCount');
     const guardianPhone = byId('gpGuardianPhone');
     const relationship = byId('gpRelationship');
     const studentName = byId('gpStudentName');
@@ -38,10 +41,20 @@ document.addEventListener('DOMContentLoaded', () => {
     let requestVersion = 0;
     let chatRequestVersion = 0;
     let pendingMessage = null;
+    let lastActivitySentAt = 0;
     /* 02. HELPER */
     function displayValue(value) {
         const text = String(value ?? '').trim();
         return text || '—';
+    }
+    function displayGuardianRelationship(value) {
+        const relation = String(value ?? '').trim().toLowerCase();
+
+        if (relation === 'orang_tua' || relation === 'orang tua') {
+            return 'Orang Tua/Wali';
+        }
+
+        return displayValue(value);
     }
     function setText(element, value) {
         if (element) {
@@ -63,6 +76,8 @@ document.addEventListener('DOMContentLoaded', () => {
         chatRequestVersion += 1;
         pendingMessage = null;
         selectedRelationshipId.value = '';
+        renderPresence(null);
+        renderUnreadCount(0);
         contactDetail.hidden = true;
         whatsappLink.hidden = true;
         whatsappLink.removeAttribute('href');
@@ -74,6 +89,47 @@ document.addEventListener('DOMContentLoaded', () => {
             showMessage(message)
         );
     }
+    function renderPresence(presence) {
+        const isOnline = presence?.is_online === true;
+        const lastSeen = presence?.last_seen_at ? new Date(presence.last_seen_at) : null;
+        let label = 'Offline';
+        if (isOnline) {
+            label = 'Online';
+        } else if (lastSeen && !Number.isNaN(lastSeen.getTime())) {
+            const minutes = Math.max(0, Math.round((Date.now() - lastSeen.getTime()) / 60000));
+            if (minutes < 1) label = 'Terakhir aktif kurang dari 1 menit lalu';
+            else if (minutes < 60) label = `Terakhir aktif ${minutes} menit lalu`;
+            else if (minutes < 1440) label = `Terakhir aktif ${Math.round(minutes / 60)} jam lalu`;
+            else label = `Terakhir aktif ${Math.round(minutes / 1440)} hari lalu`;
+        }
+        presenceDot?.classList.toggle('is-online', isOnline);
+        if (presenceDot) presenceDot.title = label;
+        setText(presenceText, label);
+    }
+    function renderUnreadCount(count) {
+        const unread = Number(count) || 0;
+        unreadCount.hidden = unread < 1;
+        unreadCount.textContent = unread ? `${unread} pesan belum dibaca` : '';
+    }
+    function sendActivity() {
+        if (document.visibilityState !== 'visible' || Date.now() - lastActivitySentAt < 30000) return;
+        lastActivitySentAt = Date.now();
+        fetch('/chat/presence/activity', {
+            method: 'POST',
+            credentials: 'same-origin',
+            keepalive: true,
+            headers: {
+                Accept: 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        }).catch(() => {
+            lastActivitySentAt = 0;
+        });
+    }
+    ['pointerdown', 'keydown', 'touchstart', 'wheel'].forEach(eventName => {
+        document.addEventListener(eventName, sendActivity, { passive: true });
+    });
     /* 03. NORMALISASI NOMOR WHATSAPP */
     function whatsappNumber(phone) {
         const raw = String(phone ?? '').trim();
@@ -105,8 +161,8 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedRelationshipId.value = String(selectedId);
         contactDetail.hidden = false;
         setText(guardianName, guardian.name);
-        setText(guardianRelation, guardian.relationship);
-        setText(relationship, guardian.relationship);
+        setText(guardianRelation, displayGuardianRelationship(guardian.relationship));
+        setText(relationship, displayGuardianRelationship(guardian.relationship));
         setText(guardianPhone, guardian.phone);
         setText(studentName, student.name);
         setText(studentClass, student.class);
@@ -121,11 +177,15 @@ document.addEventListener('DOMContentLoaded', () => {
         setText(
             chatSubtitle,
             `Narahubung: ${displayValue(guardian.name)} — ` +
-            `${displayValue(guardian.relationship)}`
+            `${displayGuardianRelationship(guardian.relationship)}`
         );
+        renderPresence(contact.presence);
+        renderUnreadCount(contact.unread_count);
         chatInput.disabled = false;
         sendButton.disabled = false;
-        loadConversation();
+        loadConversation().then(() => loadPresence()).catch(error => {
+            setText(presenceText, error.message);
+        });
         renderContacts();
     }
     /* 05. TAMPILKAN DAFTAR KONTAK */
@@ -176,6 +236,14 @@ document.addEventListener('DOMContentLoaded', () => {
             studentLabel.textContent = displayValue(student.name);
 
             button.appendChild(studentLabel);
+            const unread = Number(contact.unread_count) || 0;
+            if (unread > 0) {
+                const badge = document.createElement('span');
+                badge.className = 'gp-contact-unread';
+                badge.textContent = String(unread);
+                badge.setAttribute('aria-label', `${unread} pesan belum dibaca`);
+                button.appendChild(badge);
+            }
 
             button.addEventListener('click', () => {
                 selectContact(contact);
@@ -329,6 +397,48 @@ document.addEventListener('DOMContentLoaded', () => {
             return (character === 'x' ? random : (random & 3) | 8).toString(16);
         });
     }
+    async function openRequestedConversation() {
+        const relationshipId = Number(new URLSearchParams(location.search).get('relationship_id'));
+        if (!relationshipId) return;
+        sendActivity();
+
+        const response = await fetch(`${API}/${encodeURIComponent(relationshipId)}`, {
+            credentials: 'same-origin',
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.message || `Gagal membuka percakapan (HTTP ${response.status}).`);
+
+        const className = String(result.data?.student?.class ?? '');
+        const classButton = classButtons.find(button => button.dataset.gpClass === className);
+        if (!classButton) throw new Error('Kelas percakapan tidak tersedia untuk akun ini.');
+
+        selectedClass = className;
+        classButtons.forEach(button => {
+            const active = button === classButton;
+            button.classList.toggle('active', active);
+            button.setAttribute('aria-expanded', String(active));
+        });
+        await loadContacts();
+        const contact = contacts.find(item => Number(item.relationship_id) === relationshipId);
+        if (!contact) throw new Error('Narahubung tidak lagi tersedia.');
+        selectContact(contact);
+    }
+    async function loadPresence() {
+        if (!selectedId) return;
+        const response = await fetch(`${API}/${encodeURIComponent(selectedId)}/presence`, {
+            credentials: 'same-origin',
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.message || `Gagal memuat status (HTTP ${response.status}).`);
+        if (!selectedId) return;
+        renderPresence(result);
+        renderUnreadCount(result.unread_count);
+        const selectedContact = contacts.find(item => Number(item.relationship_id) === selectedId);
+        if (selectedContact) selectedContact.unread_count = Number(result.unread_count) || 0;
+        renderContacts();
+    }
     async function loadConversation() {
         if (!selectedId) return;
         const selectedRelationship = selectedId;
@@ -343,12 +453,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error(result.message || `Gagal memuat pesan (HTTP ${response.status}).`);
             if (version !== chatRequestVersion || selectedRelationship !== selectedId) return;
             const rows = Array.isArray(result.messages) ? result.messages : [];
+            renderUnreadCount(0);
+            const selectedContact = contacts.find(item => Number(item.relationship_id) === selectedRelationship);
+            if (selectedContact) selectedContact.unread_count = 0;
+            renderContacts();
             chatMessages.replaceChildren();
             if (!rows.length) {
                 chatMessages.append(showMessage('Belum ada pesan. Mulai percakapan dengan Orang Tua.'));
                 return;
             }
-
             rows.forEach(message => {
                 const row = document.createElement('div');
 
@@ -394,6 +507,11 @@ document.addEventListener('DOMContentLoaded', () => {
             chatMessages.replaceChildren(showMessage(error.message));
         }
     }
+    window.setInterval(async () => {
+        if (!selectedId || page.hidden || document.visibilityState !== 'visible') return;
+        await loadConversation();
+        loadPresence().catch(error => setText(presenceText, error.message));
+    }, 20000);
     /* 09. KIRIM BALASAN CHAT INTERNAL */
     chatForm.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -431,4 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'Pilih kelas, kemudian pilih narahubung orang tua.'
     );
     renderContacts();
+    openRequestedConversation().catch(error => {
+        chatMessages.replaceChildren(showMessage(error.message));
+    });
 });

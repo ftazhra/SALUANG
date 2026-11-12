@@ -32,6 +32,13 @@ class ParentActivityIntegrationTest extends TestCase
             'judul' => 'Bab VI Ekologi',
             'is_published' => true,
         ]);
+        DB::table('teacher_class_assignments')->insert([
+            'teacher_id' => $teacher->id,
+            'class_name' => 'VII A',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $student->update(['kelas' => 'VII A']);
         $subchapter = Subchapter::create([
             'chapter_id' => $chapter->id,
             'nomor_subbab' => 1,
@@ -75,12 +82,32 @@ class ParentActivityIntegrationTest extends TestCase
             'updated_at' => now()->subMinutes(30),
         ]);
 
-        $snapshot = collect(range(1, 15))->map(fn (int $number) => [
-            'id' => $number,
-            'user_id' => $teacher->id,
-            'nomor_soal' => $number,
-            'tipe_soal' => 'pilihan_ganda',
-        ])->all();
+        $snapshot = [];
+        foreach (range(1, 15) as $number) {
+            $questionId = DB::table('evaluation_questions')->insertGetId([
+                'user_id' => $teacher->id,
+                'nomor_soal' => $number,
+                'tipe_soal' => 'pilihan_ganda',
+                'pertanyaan' => "Evaluasi {$number}",
+                'konten_soal' => json_encode([
+                    'pilihan_a' => 'A',
+                    'pilihan_b' => 'B',
+                    'pilihan_c' => 'C',
+                    'pilihan_d' => 'D',
+                ]),
+                'kunci_jawaban' => json_encode(['jawaban' => 'A']),
+                'pembahasan' => null,
+                'is_published' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $snapshot[] = [
+                'id' => $questionId,
+                'user_id' => $teacher->id,
+                'nomor_soal' => $number,
+                'tipe_soal' => 'pilihan_ganda',
+            ];
+        }
         foreach ([
             ['score' => 40, 'correct_count' => 6, 'minutes_ago' => 25],
             ['score' => 80, 'correct_count' => 12, 'minutes_ago' => 20],
@@ -88,6 +115,7 @@ class ParentActivityIntegrationTest extends TestCase
             $attemptAt = now()->subMinutes($attempt['minutes_ago']);
             DB::table('evaluation_attempts')->insert([
                 'user_id' => $student->id,
+                'teacher_id' => $teacher->id,
                 'question_snapshot' => json_encode($snapshot),
                 'answers' => json_encode([]),
                 'ends_at' => $attemptAt,
@@ -162,7 +190,8 @@ class ParentActivityIntegrationTest extends TestCase
             ['diskusi', 'diskusi', 'evaluasi', 'evaluasi', 'kuis', 'materi'],
             $events->pluck('type')->all()
         );
-        $this->assertSame($chapter->id, $events->firstWhere('type', 'evaluasi')['chapter_id']);
+        $this->assertNull($events->firstWhere('type', 'evaluasi')['chapter_id']);
+        $this->assertSame($teacher->name, $events->firstWhere('type', 'evaluasi')['teacher_name']);
         $this->assertNull($events->firstWhere('type', 'evaluasi')['subchapter_id']);
         $this->assertSame($subchapter->id, $events->firstWhere('type', 'materi')['subchapter_id']);
         $this->assertSame($subchapter->id, $events->firstWhere('type', 'kuis')['subchapter_id']);
@@ -179,7 +208,7 @@ class ParentActivityIntegrationTest extends TestCase
 
         $chapterEvents = $events->filter(fn (array $event) => $event['chapter_id'] === $chapter->id);
         $subchapterEvents = $events->filter(fn (array $event) => $event['subchapter_id'] === $subchapter->id);
-        $this->assertCount(6, $chapterEvents);
+        $this->assertCount(4, $chapterEvents);
         $this->assertCount(4, $subchapterEvents);
         $this->assertSame(80.0, (float) $events->firstWhere('type', 'evaluasi')['score']);
 

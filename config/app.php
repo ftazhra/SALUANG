@@ -53,6 +53,7 @@ return [
     */
 
     'url' => env('APP_URL', 'http://localhost'),
+    'evaluation_default_teacher_id' => env('SALUANG_DEFAULT_EVALUATION_TEACHER_ID'),
 
     /*
     |--------------------------------------------------------------------------

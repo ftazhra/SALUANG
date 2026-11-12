@@ -2,8 +2,11 @@
 namespace App\Http\Controllers\Guru;
 use App\Http\Controllers\Controller;
 use App\Models\EvaluationQuestion;
+use App\Services\WebsiteNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 class EvaluationController extends Controller
@@ -41,14 +44,13 @@ class EvaluationController extends Controller
     */
     private function questionType(int $number): string
     {
-        return match (true) {
-            $number >= 1 && $number <= 5 => 'pilihan_ganda',
-            $number >= 6 && $number <= 10 => 'drag_drop',
-            $number >= 11 && $number <= 15 => 'menghubungkan',
-            default => throw ValidationException::withMessages([
+        if ($number < 1 || $number > 15) {
+            throw ValidationException::withMessages([
                 'nomor_soal' => 'Nomor soal harus antara 1 sampai 15.',
-            ]),
-        };
+            ]);
+        }
+
+        return 'pilihan_ganda';
     }
     /*
     |--------------------------------------------------------------------------
@@ -71,11 +73,7 @@ class EvaluationController extends Controller
             ],
             'tipe_soal' => [
                 'required',
-                Rule::in([
-                    'pilihan_ganda',
-                    'drag_drop',
-                    'menghubungkan',
-                ]),
+                Rule::in(['pilihan_ganda']),
             ],
             'pertanyaan' => [
                 'required',
@@ -84,11 +82,16 @@ class EvaluationController extends Controller
             ],
             'konten_soal' => [
                 'required',
-                'array',
+                'array:pilihan_a,pilihan_b,pilihan_c,pilihan_d',
             ],
-            'kunci_jawaban' => [
+            'konten_soal.pilihan_a' => ['required', 'string', 'max:2000'],
+            'konten_soal.pilihan_b' => ['required', 'string', 'max:2000'],
+            'konten_soal.pilihan_c' => ['required', 'string', 'max:2000'],
+            'konten_soal.pilihan_d' => ['required', 'string', 'max:2000'],
+            'kunci_jawaban' => ['required', 'array:jawaban'],
+            'kunci_jawaban.jawaban' => [
                 'required',
-                'array',
+                Rule::in(['A', 'B', 'C', 'D']),
             ],
             'pembahasan' => [
                 'nullable',
@@ -100,130 +103,42 @@ class EvaluationController extends Controller
             ],
         ]);
         $number = (int) $data['nomor_soal'];
-        $expectedType = $this->questionType($number);
-        if ($data['tipe_soal'] !== $expectedType) {
+        if ($data['tipe_soal'] !== $this->questionType($number)) {
             throw ValidationException::withMessages([
                 'tipe_soal' =>
-                "Soal nomor {$number} harus menggunakan tipe {$expectedType}.",
+                "Soal nomor {$number} harus berupa pilihan ganda A–D.",
             ]);
         }
-        /*
-         * Pilihan ganda membutuhkan 4 pilihan
-         * dan satu kunci A, B, C, atau D.
-         */
-        if ($expectedType === 'pilihan_ganda') {
-            $validated = $request->validate([
-                'konten_soal.pilihan_a' => [
-                    'required',
-                    'string',
-                    'max:2000',
-                ],
-                'konten_soal.pilihan_b' => [
-                    'required',
-                    'string',
-                    'max:2000',
-                ],
-                'konten_soal.pilihan_c' => [
-                    'required',
-                    'string',
-                    'max:2000',
-                ],
-                'konten_soal.pilihan_d' => [
-                    'required',
-                    'string',
-                    'max:2000',
-                ],
-                'kunci_jawaban.jawaban' => [
-                    'required',
-                    Rule::in(['A', 'B', 'C', 'D']),
-                ],
-            ]);
-            $data['konten_soal'] = $validated['konten_soal'];
-            $data['kunci_jawaban'] = $validated['kunci_jawaban'];
-        }
-        /*
-         * Soal interaktif:
-         *
-         * items   = daftar objek/gambar yang dijawab
-         * targets = daftar kategori atau pasangan tujuan
-         * pairs   = pemetaan ID item ke ID target benar
-         *
-         */
-        if (in_array($expectedType, [
-            'drag_drop',
-            'menghubungkan',
-        ], true)) {
-            $validated = $request->validate([
-                'konten_soal.items' => [
-                    'required',
-                    'array',
-                    'min:1',
-                ],
-                'konten_soal.items.*.id' => [
-                    'required',
-                    'string',
-                    'max:100',
-                ],
-                'konten_soal.items.*.label' => [
-                    'required',
-                    'string',
-                    'max:255',
-                ],
-                'konten_soal.items.*.image' => [
-                    'nullable',
-                    'string',
-                    'max:2048',
-                ],
-                'konten_soal.targets' => [
-                    'required',
-                    'array',
-                    'min:1',
-                ],
-                'konten_soal.targets.*.id' => [
-                    'required',
-                    'string',
-                    'max:100',
-                ],
-                'konten_soal.targets.*.label' => [
-                    'required',
-                    'string',
-                    'max:255',
-                ],
-                'kunci_jawaban.pairs' => [
-                    'required',
-                    'array',
-                    'min:1',
-                ],
-            ]);
-            $items = collect($validated['konten_soal']['items']);
-            $targets = collect($validated['konten_soal']['targets']);
-            $pairs = $validated['kunci_jawaban']['pairs'];
-            $itemIds = $items->pluck('id')->all();
-            $targetIds = $targets->pluck('id')->all();
-            if (
-                count($itemIds) !== count(array_unique($itemIds)) ||
-                count($targetIds) !== count(array_unique($targetIds))
-            ) {
-                throw ValidationException::withMessages([
-                    'konten_soal' => 'ID item dan target harus unik.',
-                ]);
-            }
-            if (
-                count($pairs) !== count($itemIds) ||
-                array_diff($itemIds, array_keys($pairs)) ||
-                array_diff(array_keys($pairs), $itemIds) ||
-                array_diff(array_values($pairs), $targetIds)
-            ) {
-                throw ValidationException::withMessages([
-                    'kunci_jawaban' =>
-                    'Setiap item harus memiliki pasangan target yang valid.',
-                ]);
-            }
-            $data['konten_soal'] = $validated['konten_soal'];
-            $data['kunci_jawaban'] = $validated['kunci_jawaban'];
-        }
+        $data['tipe_soal'] = 'pilihan_ganda';
         return $data;
     }
+
+    private function archiveQuestion(EvaluationQuestion $question, int $teacherId): void
+    {
+        $snapshot = [
+            'id' => $question->id,
+            'user_id' => $question->user_id,
+            'nomor_soal' => $question->nomor_soal,
+            'tipe_soal' => $question->tipe_soal,
+            'pertanyaan' => $question->getRawOriginal('pertanyaan'),
+            'konten_soal' => $question->getRawOriginal('konten_soal'),
+            'kunci_jawaban' => $question->getRawOriginal('kunci_jawaban'),
+            'pembahasan' => $question->getRawOriginal('pembahasan'),
+            'is_published' => $question->getRawOriginal('is_published'),
+            '_attempt_id_cutoff' => Schema::hasTable('evaluation_attempts')
+                ? DB::table('evaluation_attempts')->max('id')
+                : null,
+        ];
+
+        DB::table('evaluation_question_archives')->insert([
+            'question_id' => $question->id,
+            'teacher_id' => $teacherId,
+            'question_snapshot' => json_encode($snapshot, JSON_THROW_ON_ERROR),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | 01. DAFTAR SOAL EVALUASI
@@ -249,12 +164,22 @@ class EvaluationController extends Controller
     | 02. TAMBAH SOAL
     |--------------------------------------------------------------------------
     */
-    public function store(Request $request): JsonResponse
+    public function store(
+        Request $request,
+        WebsiteNotificationService $notifications
+    ): JsonResponse
     {
         $this->ensureGuru($request);
         $data = $this->validateQuestion($request);
         $data['user_id'] = $request->user()->id;
         $question = EvaluationQuestion::create($data);
+        if ($question->is_published) {
+            $notifications->publishedContent(
+                (int) $request->user()->id,
+                'evaluation_question',
+                (int) $question->id
+            );
+        }
         return response()->json([
             'message' => 'Soal evaluasi berhasil ditambahkan.',
             'question' => $question,
@@ -281,12 +206,35 @@ class EvaluationController extends Controller
     */
     public function update(
         Request $request,
-        int $question
+        int $question,
+        WebsiteNotificationService $notifications
     ): JsonResponse {
         $this->ensureGuru($request);
         $existing = $this->ownedQuestion($request, $question);
         $data = $this->validateQuestion($request, $existing);
-        $existing->update($data);
+        $wasPublished = (bool) $existing->is_published;
+        if ($existing->tipe_soal !== 'pilihan_ganda') {
+            if (!Schema::hasTable('evaluation_question_archives')) {
+                return response()->json([
+                    'message' => 'Konversi belum dapat disimpan. Arsip soal lama belum tersedia.',
+                ], 503);
+            }
+
+            DB::transaction(function () use ($existing, $data, $request) {
+                $this->archiveQuestion($existing, (int) $request->user()->id);
+                $existing->update($data);
+            });
+        } else {
+            $existing->update($data);
+        }
+
+        if (!$wasPublished && $existing->fresh()->is_published) {
+            $notifications->publishedContent(
+                (int) $request->user()->id,
+                'evaluation_question',
+                (int) $existing->id
+            );
+        }
         return response()->json([
             'message' => 'Soal evaluasi berhasil diperbarui.',
             'question' => $existing->fresh(),
@@ -303,7 +251,16 @@ class EvaluationController extends Controller
     ): JsonResponse {
         $this->ensureGuru($request);
         $existing = $this->ownedQuestion($request, $question);
-        $existing->delete();
+        if (!Schema::hasTable('evaluation_question_archives')) {
+            return response()->json([
+                'message' => 'Soal belum dapat dihapus. Arsip soal evaluasi belum tersedia.',
+            ], 503);
+        }
+
+        DB::transaction(function () use ($existing, $request) {
+            $this->archiveQuestion($existing, (int) $request->user()->id);
+            $existing->delete();
+        });
         return response()->json([
             'message' => 'Soal evaluasi berhasil dihapus.',
         ]);

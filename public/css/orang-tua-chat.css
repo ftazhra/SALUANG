@@ -10,7 +10,7 @@
     border-radius: 9px;
     min-height: 37px;
     padding: 8px 14px;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 500
 }
 
@@ -27,14 +27,14 @@
 
 .pc-chat-card h1 {
     color: #075477;
-    font-size: 21px;
+    font-size: 24px;
     font-weight: 700;
     margin: 0 0 9px
 }
 
 .pc-chat-subtitle {
     color: #648491;
-    font-size: 11px;
+    font-size: 12px;
     margin: 0 0 25px;
     line-height: 1.65
 }
@@ -50,33 +50,87 @@
 }
 
 .pc-chat-teacher h2 {
-    font-size: 13px;
+    font-size: 18px;
     color: #174860;
     font-weight: 700;
     margin: 0 0 12px
 }
 
+.pc-teacher-status-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    color: #547787;
+    font-size: 12px;
+    font-weight: 600
+}
+
+.pc-teacher-presence {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #a6b5b8;
+    box-shadow: 0 0 0 3px rgba(166, 181, 184, .15);
+    display: inline-block
+}
+
+.pc-teacher-presence.is-online {
+    background: #2fa86f;
+    box-shadow: 0 0 0 3px rgba(47, 168, 111, .15)
+}
+
+.pc-chat-unread {
+    display: inline-flex;
+    align-items: center;
+    margin: 0 0 12px;
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: #dcedf8;
+    color: #075477 !important;
+    font-size: 11px !important;
+    font-weight: 700;
+}
+
+.pc-chat-unread[hidden] {
+    display: none;
+}
+
 .pc-chat-teacher p {
-    font-size: 11px;
+    font-size: 14px;
     color: #075477;
     margin: 0 0 14px
 }
 
 .pc-chat-teacher span {
     color: #678794;
-    font-size: 10px
+    font-size: 12px;
 }
 
 .pc-chat-open,
 .pc-compose button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
     border: 0;
     border-radius: 9px;
     background: #4c9c66;
     color: #fff;
     padding: 11px 17px;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 600;
     white-space: nowrap
+}
+
+.pc-compose button i {
+    font-size: 13px;
+    line-height: 1;
+}
+
+.pc-compose button:focus-visible {
+    outline: 2px solid #77b4d3;
+    outline-offset: 2px;
 }
 
 .pc-chat-open:hover:not(:disabled),
@@ -95,14 +149,17 @@
     border-radius: 10px;
     color: #547787;
     padding: 20px;
-    font-size: 11px;
+    font-size: 14px;
     line-height: 1.7
 }
 
 .pc-chat-error {
     color: #a52d2d;
     margin-top: 13px;
-    font-size: 11px
+    font-size: 14px;
+    border: 1px solid #d7e9e6;
+    border-radius: 12px;
+    overflow: hidden
 }
 
 .pc-conversation {
@@ -124,7 +181,7 @@
 .pc-conversation-header h2 {
     margin: 0;
     color: #075477;
-    font-size: 12px
+    font-size: 18px
 }
 
 .pc-messages {
@@ -146,7 +203,7 @@
     border-bottom-left-radius: 4px;
     background: #fff;
     color: #075477;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1.7;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
@@ -165,7 +222,7 @@
 .pc-message-meta {
     display: block;
     color: #728f97;
-    font-size: 9px;
+    font-size: 12px;
     line-height: 1.5;
     margin-top: 7px;
     opacity: .75;
@@ -177,8 +234,9 @@
 }
 
 .pc-empty {
-    font-size: 11px;
-    color: #648491
+    font-size: 14px;
+    color: #648491;
+    padding: 14px 17px
 }
 
 .pc-message-form {
@@ -188,7 +246,7 @@
 
 .pc-message-form label {
     display: block;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
     margin-bottom: 7px
 }
@@ -208,7 +266,7 @@
     padding: 11px;
     color: #075477;
     font: inherit;
-    font-size: 11px
+    font-size: 14px
 }
 
 .pc-compose textarea:focus {

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use App\Services\WebsiteNotificationService;
 use RuntimeException;
 use Throwable;
 class MaterialController extends Controller
@@ -90,7 +91,10 @@ class MaterialController extends Controller
     | 02. TAMBAH BAB
     |--------------------------------------------------------------------------
     */
-    public function store(Request $request): JsonResponse
+    public function store(
+        Request $request,
+        WebsiteNotificationService $notifications
+    ): JsonResponse
     {
         $this->ensureGuru($request);
         $data = $request->validate([
@@ -166,6 +170,13 @@ class MaterialController extends Controller
             $this->deleteStoredFiles([$storedPath]);
             throw $exception;
         }
+        if ($chapter->is_published) {
+            $notifications->publishedContent(
+                (int) $request->user()->id,
+                'chapter',
+                (int) $chapter->id
+            );
+        }
         return response()->json([
             'message' => 'Bab berhasil ditambahkan.',
             'chapter' => $chapter,
@@ -201,7 +212,8 @@ class MaterialController extends Controller
     */
     public function update(
         Request $request,
-        int $chapter
+        int $chapter,
+        WebsiteNotificationService $notifications
     ): JsonResponse {
         $this->ensureGuru($request);
         $chapter = $this->chapterOwnedByGuru(
@@ -285,6 +297,7 @@ class MaterialController extends Controller
             );
         }
         $oldPath = $chapter->gambar_pengenalan_path;
+        $wasPublished = (bool) $chapter->is_published;
         if ($storedPath) {
             $data['gambar_pengenalan_path'] = $storedPath;
         } elseif ($removeIntroductionImage) {
@@ -302,6 +315,13 @@ class MaterialController extends Controller
             && $oldPath !== $storedPath
         ) {
             $this->deleteOrphanedFiles([$oldPath]);
+        }
+        if (!$wasPublished && $chapter->fresh()->is_published) {
+            $notifications->publishedContent(
+                (int) $request->user()->id,
+                'chapter',
+                (int) $chapter->id
+            );
         }
         return response()->json([
             'message' => 'Bab berhasil diperbarui.',
@@ -343,7 +363,8 @@ class MaterialController extends Controller
     */
     public function storeSubchapter(
         Request $request,
-        int $chapter
+        int $chapter,
+        WebsiteNotificationService $notifications
     ): JsonResponse {
         $this->ensureGuru($request);
         $chapter = $this->chapterOwnedByGuru(
@@ -396,6 +417,13 @@ class MaterialController extends Controller
         }
         $subchapter->load(['media', 'contentBlocks.media']);
         $this->attachMaterialBlocks($subchapter);
+        if ($chapter->is_published && $subchapter->is_published) {
+            $notifications->publishedContent(
+                (int) $request->user()->id,
+                'subchapter',
+                (int) $subchapter->id
+            );
+        }
         return response()->json([
             'message' => 'Subbab berhasil ditambahkan.',
             'subchapter' => $subchapter,
@@ -409,7 +437,8 @@ class MaterialController extends Controller
     public function updateSubchapter(
         Request $request,
         int $chapter,
-        int $subchapter
+        int $subchapter,
+        WebsiteNotificationService $notifications
     ): JsonResponse {
         $this->ensureGuru($request);
         $chapter = $this->chapterOwnedByGuru(
@@ -436,6 +465,7 @@ class MaterialController extends Controller
             throw $exception;
         }
         $subchapterData = $this->subchapterData($data);
+        $wasPublished = (bool) $subchapter->is_published;
         if ($blocks !== null) {
             unset($subchapterData['konten']);
         }
@@ -471,6 +501,17 @@ class MaterialController extends Controller
         $this->deleteOrphanedFiles($oldPaths);
         $subchapter->load(['media', 'contentBlocks.media']);
         $this->attachMaterialBlocks($subchapter);
+        if (
+            $chapter->is_published
+            && !$wasPublished
+            && $subchapter->fresh()->is_published
+        ) {
+            $notifications->publishedContent(
+                (int) $request->user()->id,
+                'subchapter',
+                (int) $subchapter->id
+            );
+        }
         return response()->json([
             'message' => 'Subbab berhasil diperbarui.',
             'subchapter' => $subchapter,
@@ -616,7 +657,7 @@ class MaterialController extends Controller
                 'content_blocks' => ['array', 'max:100'],
                 'content_blocks.*' => [
                     'required',
-                    'array:type,content,title,media_id,legacy_media_type,source,youtube_url,caption',
+                    'array:type,content,title,media_id,legacy_media_type,source,youtube_url,caption,layout',
                 ],
                 'content_blocks.*.type' => [
                     'required',
@@ -659,6 +700,10 @@ class MaterialController extends Controller
                     'string',
                     'max:500',
                 ],
+                'content_blocks.*.layout' => [
+                    'sometimes',
+                    Rule::in(['full', 'left', 'right']),
+                ],
             ]
         )->validate()['content_blocks'];
         $seenMedia = [];
@@ -677,7 +722,19 @@ class MaterialController extends Controller
                 ]);
             }
             if (!in_array($type, ['image', 'video'], true)) {
+                if (array_key_exists('layout', $block)) {
+                    throw ValidationException::withMessages([
+                        "content_blocks.$position.layout" =>
+                            'Pengaturan posisi hanya berlaku untuk blok gambar.',
+                    ]);
+                }
                 continue;
+            }
+            if ($type === 'video' && array_key_exists('layout', $block)) {
+                throw ValidationException::withMessages([
+                    "content_blocks.$position.layout" =>
+                        'Pengaturan posisi hanya berlaku untuk blok gambar.',
+                ]);
             }
             $mediaId = $block['media_id'] ?? null;
             $legacyMediaType = $block['legacy_media_type'] ?? null;
@@ -897,6 +954,9 @@ class MaterialController extends Controller
                 'image', 'video' => [
                     'title' => $block['title'] ?? null,
                     'caption' => $block['caption'] ?? null,
+                    ...($block['type'] === 'image' && array_key_exists('layout', $block)
+                        ? ['layout' => $block['layout']]
+                        : []),
                 ],
             };
             $subchapter->contentBlocks()->create([

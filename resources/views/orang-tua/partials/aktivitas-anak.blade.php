@@ -4,7 +4,6 @@
             <h2>Aktivitas Anak</h2>
             <p>Pantau aktivitas belajar anak berdasarkan Bab dan Subbab.</p>
         </div>
-        <button type="button" class="parent-outline-button" data-parent-page="beranda">Kembali ke Beranda</button>
     </div>
 
     <div class="pa-select-grid">

@@ -6,7 +6,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 class MaterialController extends Controller
 {
-    public function index(Request $request): JsonResponse
+    public function index(
+        Request $request
+    ): JsonResponse
     {
         abort_unless(
             $request->user()?->role === 'siswa',
@@ -19,6 +21,7 @@ class MaterialController extends Controller
                 $query->where('role', 'guru');
             })
             ->with([
+                'guru:id,name',
                 'subchapters' => function ($query) {
                     $query->where('is_published', true)
                         ->orderBy('nomor_subbab')

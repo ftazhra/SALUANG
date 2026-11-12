@@ -4,9 +4,55 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
 class ProfileController extends Controller
 {
+    public function updateInformation(Request $request): JsonResponse
+    {
+        abort_unless(
+            $request->user()?->role === 'siswa',
+            403,
+            'Hanya Siswa yang dapat mengubah informasi profil.'
+        );
+
+        $user = $request->user();
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'username' => [
+                'required',
+                'alpha_dash:ascii',
+                'max:50',
+                Rule::unique('users', 'username')->ignore($user->id),
+            ],
+            'email' => [
+                'nullable',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($user->id),
+            ],
+            'kelas' => ['nullable', 'string', 'max:20'],
+            'sekolah' => ['nullable', 'string', 'max:255'],
+            'nomor_telepon' => ['nullable', 'string', 'max:20'],
+        ]);
+
+        $user->fill($data)->save();
+
+        return response()->json([
+            'message' => 'Informasi profil berhasil diperbarui.',
+            'student' => $user->only([
+                'id',
+                'name',
+                'username',
+                'nisn',
+                'email',
+                'kelas',
+                'sekolah',
+                'nomor_telepon',
+            ]),
+        ]);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | 01. MENGUBAH FOTO PROFIL SISWA

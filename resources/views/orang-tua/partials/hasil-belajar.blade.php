@@ -2,10 +2,15 @@
     <div class="pr-head">
         <div>
             <h2>Hasil Belajar Anak</h2>
-            <p>Lihat hasil kuis dan evaluasi anak berdasarkan Bab dan Subbab.</p>
+            <p>Lihat hasil kuis berdasarkan materi dan Evaluasi Akhir berdasarkan Guru.</p>
         </div>
-        <button type="button" class="parent-outline-button" data-parent-page="beranda">Kembali ke Beranda</button>
     </div>
+
+    <section class="pr-final-grade-summary" aria-labelledby="prFinalGradeTitle">
+        <h3 id="prFinalGradeTitle">Nilai Akhir per Guru</h3>
+        <p>Kuis dan Evaluasi Akhir masing-masing berbobot 50%; KKM 70.</p>
+        <div id="prFinalGradeRows" class="pr-final-grade-list" aria-live="polite"></div>
+    </section>
 
     <div class="pr-select-grid">
         <label class="pr-field" for="prChapter"><strong>Bab</strong>
@@ -28,7 +33,7 @@
 
     <div class="pr-table-scroll">
         <table class="pr-table">
-            <thead><tr><th>Nama</th><th>Jenis</th><th>Materi</th><th>Nilai</th><th>Status</th><th>Detail</th></tr></thead>
+            <thead><tr><th>Materi</th><th>Jenis</th><th>Nama</th><th>Nilai</th><th>Status</th><th>Detail</th></tr></thead>
             <tbody id="prRows">
                 <tr><td colspan="6" class="pr-empty">Memuat hasil belajar...</td></tr>
             </tbody>
@@ -38,4 +43,5 @@
 </article>
 <script type="application/json" id="prChaptersJson">@json($chapters ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)</script>
 <script type="application/json" id="prResultsJson">@json($learningResults ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)</script>
+<script type="application/json" id="prFinalGradesJson">@json($finalGrades ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)</script>
 <script type="application/json" id="prApprovedJson">@json(!empty($child))</script>

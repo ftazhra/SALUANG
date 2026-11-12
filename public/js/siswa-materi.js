@@ -210,6 +210,7 @@
     function renderMaterialContent(container, value, applyActivityCards = true) {
         if (!container) return;
         container.replaceChildren();
+        container.classList.remove('sd-content-flow-wrap');
         const source = normalizeMaterialSource(value);
         if (!source) {
             container.appendChild(
@@ -251,7 +252,7 @@
         if (applyActivityCards) wrapLearningActivities(container);
     }
     // ======================================================
-    function renderSubchapterMedia(container, entries) {
+    function renderSubchapterMedia(container, entries, layout = 'full', clearBefore = false) {
         if (!container) return false;
         container.replaceChildren();
         if (!Array.isArray(entries) || entries.length === 0) {
@@ -260,6 +261,10 @@
         entries.forEach(media => {
             const item = document.createElement('section');
             item.className = 'sd-media-item';
+            if (media.media_type === 'image' && ['left', 'right'].includes(layout)) {
+                item.classList.add(`sd-media-item-wrap-${layout}`);
+                if (clearBefore) item.classList.add('sd-media-item-wrap-clear');
+            }
             if (media.title) {
                 const title = document.createElement('h3');
                 title.className = 'sd-media-title';
@@ -484,12 +489,17 @@
     function renderMaterialBlocks(container, blocks) {
         if (!container || !Array.isArray(blocks)) return false;
         container.replaceChildren();
+        const wrapsImage = blocks.some(block =>
+            block.type === 'image' && ['left', 'right'].includes(block.payload?.layout)
+        );
+        container.classList.toggle('sd-content-flow-wrap', wrapsImage);
         if (!blocks.length) {
             container.appendChild(
                 el('p', '', 'Materi Subbab belum diisi Guru.')
             );
             return false;
         }
+        let previousWasWrappedImage = false;
         blocks.forEach(block => {
             if (block.type === 'text') {
                 const section = el('section', 'sd-content-block');
@@ -498,9 +508,30 @@
                     block.payload?.content || ''
                 );
                 container.appendChild(section);
+                previousWasWrappedImage = false;
+                return;
+            }
+            const layout = block.type === 'image' ? (block.payload?.layout || 'full') : 'full';
+            const wraps = block.type === 'image' && ['left', 'right'].includes(layout);
+            if (wraps && block.media) {
+                const mediaHolder = document.createElement('div');
+                renderSubchapterMedia(
+                    mediaHolder,
+                    [{
+                        ...block.media,
+                        title: block.payload?.title || block.media.title,
+                        caption: block.payload?.caption || block.media.caption
+                    }],
+                    layout,
+                    previousWasWrappedImage
+                );
+                const mediaItem = mediaHolder.firstElementChild;
+                if (mediaItem) container.appendChild(mediaItem);
+                previousWasWrappedImage = true;
                 return;
             }
             const section = el('section', 'sd-content-block');
+            if (block.type !== 'text') section.classList.add('sd-content-block-clear');
             if (block.type === 'callout') {
                 if (isStudentActivity(block.payload?.title)) {
                     renderStudentActivity(section, block.payload || {});
@@ -523,6 +554,7 @@
                 );
             }
             container.appendChild(section);
+            previousWasWrappedImage = false;
         });
         return true;
     }

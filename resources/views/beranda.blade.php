@@ -56,7 +56,7 @@
                     </p>
 
                     <div class="hero-actions">
-                        <a href="#panduan" class="btn btn-blue">Mulai Belajar</a>
+                        <a href="{{ route('login') }}" class="btn btn-blue">Mulai Belajar</a>
                         <a href="#tentang" class="btn btn-white">Kenali SALUANG</a>
                     </div>
 
@@ -262,17 +262,14 @@
                         <div>
                             <h3>Materi</h3>
                             <strong>
-                                Belajar dari Bab dan Subbab yang tersusun rapi.
+                                Belajar melalui materi yang dikelola Guru.
                             </strong>
 
                             <p>
-                                Siswa dapat membuka BAB 1 — Karakteristik dan
-                                Klasifikasi Makhluk Hidup. Di dalamnya tersedia
-                                Subbab 1.1 Makhluk Hidup atau Benda Mati?,
-                                Subbab 1.2 Mengapa Makhluk Hidup Dikelompokkan?,
-                                dan Subbab 1.3 Makhluk Hidup Beraneka Ragam.
-                                Gunakan navigasi Previous dan Next untuk
-                                berpindah materi.
+                                Guru mengelola materi sesuai pembelajaran kelas.
+                                Siswa dapat membuka Bab dan Subbab yang tersedia,
+                                membaca penjelasan, mengamati media pendukung,
+                                serta menggunakan navigasi Previous dan Next.
                             </p>
 
                             <a href="#fitur">Kembali ke Fitur</a>
@@ -287,15 +284,15 @@
                         <div>
                             <h3>Kuis</h3>
                             <strong>
-                                Uji pemahaman melalui pertanyaan pilihan ganda.
+                                Uji pemahaman lewat pilihan ganda, drag &amp; drop, dan menghubungkan.
                             </strong>
 
                             <p>
                                 Setelah mempelajari Subbab, siswa dapat
                                 mengerjakan kuis untuk menguji pemahaman.
-                                Pilih jawaban yang tersedia, lalu perhatikan
-                                umpan balik dan pembahasan soal untuk mengetahui
-                                materi yang perlu dipelajari kembali.
+                                Berbagai tipe soal seperti pilihan ganda,
+                                drag &amp; drop, dan menghubungkan membantu
+                                memahami konsep secara lebih interaktif.
                             </p>
 
                             <a href="#fitur">Kembali ke Fitur</a>
@@ -314,8 +311,8 @@
                             </strong>
 
                             <p>
-                                Evaluasi Akhir BAB 1 berisi 20 soal dengan waktu
-                                pengerjaan 45 menit. Siswa membaca petunjuk,
+                                Evaluasi Akhir berisi 15 soal dengan waktu
+                                pengerjaan 45 menit dan KKM 70. Siswa membaca petunjuk,
                                 mengerjakan soal, memeriksa jawaban, dan
                                 menyelesaikan evaluasi sesuai alur yang
                                 tersedia pada dashboard.
@@ -403,8 +400,8 @@
                             'judul' => 'Melihat materi',
                             'poin' => [
                                 'Klik menu Materi pada sidebar dashboard.',
-                                'Buka BAB 1 — Karakteristik dan Klasifikasi Makhluk Hidup.',
-                                'Pilih Subbab 1.1, 1.2, atau 1.3 yang ingin dipelajari.',
+                                'Buka materi yang tersedia pada dashboard.',
+                                'Pilih Bab atau Subbab yang ingin dipelajari.',
                                 'Baca penjelasan materi sampai selesai.',
                                 'Amati gambar pembelajaran jika tersedia.',
                                 'Gunakan tombol Previous dan Next untuk berpindah halaman.',
@@ -415,8 +412,8 @@
                             'poin' => [
                                 'Buka salah satu Subbab yang sudah dipelajari.',
                                 'Temukan bagian kuis di dalam Subbab.',
-                                'Baca pertanyaan dengan teliti.',
-                                'Pilih jawaban A, B, C, atau D.',
+                                'Baca petunjuk dan pertanyaan dengan teliti.',
+                                'Kerjakan sesuai tipe aktivitas yang tersedia.',
                                 'Perhatikan umpan balik dan pembahasan jawaban.',
                                 'Gunakan hasil kuis untuk mengulang materi yang belum dipahami.',
                             ],
@@ -425,9 +422,9 @@
                             'judul' => 'Mengikuti evaluasi',
                             'poin' => [
                                 'Klik menu Evaluasi pada sidebar.',
-                                'Baca petunjuk Evaluasi Akhir BAB 1.',
+                                'Baca petunjuk Evaluasi Akhir.',
                                 'Mulai evaluasi ketika sudah siap.',
-                                'Kerjakan 20 soal dalam waktu 45 menit.',
+                                'Kerjakan 15 soal dalam waktu 45 menit; KKM adalah 70.',
                                 'Gunakan navigasi soal untuk berpindah pertanyaan.',
                                 'Periksa jawaban sebelum menyelesaikan evaluasi.',
                             ],
@@ -748,7 +745,7 @@
                             Jelajahi materi IPA dan kenali lingkungan
                             lahan basah di sekitar kita.
                         </p>
-                        <a href="#panduan" class="btn btn-yellow">Mulai Belajar</a>
+                        <a href="{{ route('login') }}" class="btn btn-yellow">Mulai Belajar</a>
                     </div>
                 </div>
             </div>

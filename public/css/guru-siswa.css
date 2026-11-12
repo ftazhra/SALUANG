@@ -1,0 +1,448 @@
+.gd-stat-link {
+    width: 100%;
+    border: 1px solid var(--gd-line);
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+
+.gd-stat-link:hover,
+.gd-stat-link:focus-visible {
+    transform: translateY(-3px);
+    border-color: #607c6e;
+    box-shadow: 0 8px 20px rgba(7, 84, 119, .1);
+}
+
+.gd-stat-link:focus-visible {
+    outline: 3px solid rgba(79, 157, 105, .28);
+    outline-offset: 2px;
+}
+
+.gstu-page {
+    width: 100%;
+    min-width: 0;
+    color: #075474;
+}
+
+.gstu-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 22px 0 16px;
+}
+
+.gstu-heading h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.gstu-heading p {
+    margin: 0;
+    color: #5a7a90;
+    font-size: 14px;
+}
+
+.gstu-filters {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(180px, 1fr);
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.gstu-scope-notice {
+    margin: -4px 0 16px;
+    padding: 11px 13px;
+    border-radius: 9px;
+    background: #fff7e8;
+    color: #825d21;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.gstu-scope-notice[hidden] {
+    display: none !important;
+}
+
+.gstu-filters label,
+.gstu-form-grid label {
+    display: grid;
+    gap: 7px;
+    min-width: 0;
+    color: #28586a;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.gstu-filters input,
+.gstu-filters select,
+.gstu-form-grid input,
+.gstu-form-grid select {
+    width: 100%;
+    min-height: 41px;
+    padding: 9px 12px;
+    border: 1px solid #d4e2df;
+    border-radius: 9px;
+    background: #fff;
+    color: #174a60;
+    font: 400 14px Poppins, sans-serif;
+}
+
+.gstu-table-wrap {
+    overflow-x: auto;
+    border: 1px solid #d6e7e3;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.gstu-table {
+    width: 100%;
+    min-width: 760px;
+    border-collapse: collapse;
+}
+
+.gstu-table th,
+.gstu-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #e6efec;
+    text-align: left;
+    vertical-align: middle;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+.gstu-table th {
+    background: #f4f9f6;
+    color: #075474;
+    font-weight: 700;
+}
+
+.gstu-table tr:last-child td {
+    border-bottom: 0;
+}
+
+.gstu-empty {
+    padding: 26px !important;
+    color: #607a86;
+    text-align: center !important;
+}
+
+.gstu-row-actions {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 280px;
+}
+
+.gstu-row-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 78px;
+    min-height: 36px;
+    padding: 7px 10px;
+    border: 1px solid #d6e7e3;
+    border-radius: 8px;
+    background: #fff;
+    color: #075474;
+    font: 500 13px Poppins, sans-serif;
+    cursor: pointer;
+}
+
+.gstu-row-action:hover,
+.gstu-row-action:focus-visible {
+    background: #e6f5ea;
+}
+
+.gstu-row-action.is-show,
+.gstu-row-action.is-edit {
+    color: #075477;
+}
+
+.gstu-row-action.is-show:hover,
+.gstu-row-action.is-edit:hover {
+    border-color: #9fc9de;
+    background: #dceefa;
+}
+
+.gstu-row-action.is-delete {
+    color: #b52b2b;
+}
+
+.gstu-row-action.is-delete:hover {
+    border-color: #e4b7b7;
+    background: #fff0ef;
+}
+
+.gstu-pagination,
+.gstu-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.gstu-pagination {
+    color: #5a7a90;
+    font-size: 14px;
+}
+
+
+/* PAGINATION DAFTAR SISWA */
+
+.gstu-pagination>div,
+.gstu-actions {
+    display: flex;
+}
+
+/* Jarak antara tombol panah */
+.gstu-pagination .gstu-pagination-controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Ukuran dan tampilan tombol */
+.gstu-pagination .gstu-pagination-controls .gstu-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
+    min-height: 42px;
+    padding: 0;
+
+    border: 1px solid #ccded9;
+    border-radius: 10px;
+
+    background: #ffffff;
+    color: #075477;
+
+    font-size: 14px;
+    cursor: pointer;
+
+    transition:
+        background-color .2s ease,
+        border-color .2s ease,
+        transform .2s ease;
+}
+
+/* Ukuran ikon */
+.gstu-pagination .gstu-pagination-controls .gstu-outline i {
+    font-size: 15px;
+    line-height: 1;
+}
+
+/* Hover */
+.gstu-pagination .gstu-pagination-controls .gstu-outline:not(:disabled):hover {
+    background: #d7eafa;
+    border-color: #486d82;
+    transform: translateY(-2px);
+}
+
+/* Tombol tidak aktif */
+.gstu-pagination .gstu-pagination-controls .gstu-outline:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+.gstu-primary,
+.gstu-outline,
+.gstu-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 39px;
+    padding: 9px 14px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    font: 600 14px Poppins, sans-serif;
+    cursor: pointer;
+}
+
+.gstu-primary {
+    background: #41835b;
+    color: #ffffff;
+}
+
+.gstu-primary:hover {
+    background: #398b56;
+}
+
+.gstu-outline {
+    border-color: #6e7875;
+    background: #fff;
+    color: #075474;
+}
+
+.gstu-danger {
+    background: #c44545;
+    color: #fff;
+}
+
+.gstu-modal[hidden],
+.gstu-toast[hidden] {
+    display: none !important;
+}
+
+.gstu-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: grid;
+    place-items: center;
+    padding: 18px;
+}
+
+.gstu-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 33, 43, .55);
+}
+
+.gstu-dialog {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 680px);
+    max-height: min(90vh, 780px);
+    overflow-y: auto;
+    padding: 24px;
+    border-radius: 15px;
+    background: #fff;
+    box-shadow: 0 18px 50px rgba(8, 33, 43, .2);
+}
+
+.gstu-dialog h2 {
+    margin: 0 38px 18px 0;
+    color: #075474;
+    font-size: 18px;
+}
+
+.gstu-dialog>p {
+    color: #5a7a90;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.gstu-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 8px;
+    background: #f0f5f3;
+    color: #446b77;
+    cursor: pointer;
+}
+
+.gstu-form-grid,
+.gstu-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 13px;
+}
+
+.gstu-detail-grid {
+    margin: 0;
+}
+
+.gstu-detail-grid div {
+    padding: 11px;
+    border-radius: 9px;
+    background: #f4f9f6;
+    overflow-wrap: anywhere;
+}
+
+.gstu-detail-grid dt {
+    color: #607a86;
+    font-size: 14px;
+}
+
+.gstu-detail-grid dd {
+    margin: 5px 0 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.gstu-confirm {
+    width: min(100%, 420px);
+}
+
+.gstu-error {
+    color: #b52b2b;
+    font-size: 14px;
+}
+
+.gstu-toast {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 4000;
+    max-width: min(420px, calc(100vw - 32px));
+    padding: 13px 17px;
+    border-radius: 10px;
+    background: #075474;
+    color: #fff;
+    font-size: 14px;
+    box-shadow: 0 8px 24px rgba(7, 84, 119, .2);
+}
+
+@media (max-width: 680px) {
+    .gstu-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .gstu-filters,
+    .gstu-form-grid,
+    .gstu-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .gstu-dialog {
+        padding: 18px;
+    }
+}
+
+#gstuFormModal .gstu-dialog {
+    width: min(100%, 620px);
+    max-height: min(90vh, 560px);
+    padding: 22px 24px;
+}
+
+#gstuFormModal .gstu-dialog h2 {
+    margin-bottom: 16px;
+}
+
+#gstuFormModal .gstu-form-grid {
+    gap: 12px 16px;
+}
+
+#gstuFormModal .gstu-actions {
+    justify-content: flex-end;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid #e6efec;
+}
+
+@media (max-width: 680px) {
+    #gstuFormModal .gstu-dialog {
+        max-height: 90vh;
+        padding: 18px;
+    }
+
+    #gstuFormModal .gstu-form-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+    }
+}

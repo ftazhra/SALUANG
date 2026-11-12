@@ -13,7 +13,7 @@
 .op-progress-heading h2 {
     margin: 0;
     color: #075477;
-    font-size: 21px;
+    font-size: 18px;
     font-weight: 700;
     line-height: 1.4;
 }
@@ -21,7 +21,7 @@
 .op-progress-heading p {
     margin: 10px 0 0;
     color: #708e9c;
-    font-size: 11px;
+    font-size: 14px;
     line-height: 1.7;
 }
 
@@ -38,7 +38,7 @@
     min-width: 0;
     gap: 9px;
     color: #134d65;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 600;
 }
 
@@ -50,7 +50,7 @@
     padding: 0 44px 0 14px;
 
     font-family: Poppins, sans-serif;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 400;
     color: #075477;
 
@@ -105,13 +105,13 @@
 
 .op-progress-card-title strong {
     color: #0b4562;
-    font-size: 13px;
+    font-size: 18px;
     line-height: 1.5;
 }
 
 .op-progress-card-title span {
     color: #287a4b;
-    font-size: 13px;
+    font-size: 18px;
     font-weight: 700;
 }
 
@@ -134,7 +134,7 @@
 .op-progress-card-meta {
     margin: 15px 0 17px;
     color: #7793a0;
-    font-size: 10px;
+    font-size: 12px;
 }
 
 .op-progress-subchapters {
@@ -146,27 +146,49 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 18px;
-    padding: 13px 14px;
-    background: #eef8f4;
-    border-radius: 9px;
-    color: #174e6c;
-    font-size: 11px;
-}
-
-.op-progress-subchapter span {
+    gap: 14px;
     min-width: 0;
+    padding: 10px 12px;
+    border-bottom: 1px solid #e6efec;
+    background: #eef8f4;
+    color: #174e6c;
+    font-size: 13px;
 }
 
-.op-progress-subchapter b {
+.op-progress-subchapter-info {
+    display: grid;
+    min-width: 0;
+    gap: 3px;
+}
+
+.op-progress-subchapter-title {
+    min-width: 0;
+    color: #075477;
+    font-size: 13px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.op-progress-subchapter-info small {
+    color: #627a82;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.op-progress-subchapter-count {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    min-height: 28px;
+    padding: 4px 7px;
+    border-radius: 8px;
+    background: #e8f5ed;
+    color: #287a4b;
     white-space: nowrap;
-    color: #39754e;
-    font-size: 10px;
-    font-weight: 600;
-}
-
-.op-progress-subchapter b.is-finished {
-    color: #138652;
+    font-size: 12px;
+    font-weight: 700;
 }
 
 .op-progress [hidden] {
@@ -182,12 +204,38 @@
         padding: 18px 15px;
     }
 
+    /* Keterangan dan status pada kartu Progres Belajar. */
+    .op-progress-heading p,
+    .op-progress-filter,
+    .op-progress-filter select,
+    .op-progress-card-title strong,
+    .op-progress-card-title span,
+    .op-progress-subchapter,
+    .op-progress-subchapter-title {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+    .op-progress-heading p,
+    .op-progress-card-meta,
+    .op-progress-subchapter-info small {
+        color: #526b74;
+    }
+    .op-progress-card-meta,
+    .op-progress-subchapter-info small {
+        font-size: 12px;
+        line-height: 1.6;
+    }
+    .op-progress-subchapter-count {
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
     .op-progress-heading {
         flex-wrap: wrap;
     }
 
     .op-progress-heading h2 {
-        font-size: 17px;
+        font-size: 18px;
     }
 
     .op-progress-filters {
@@ -200,6 +248,12 @@
     }
 
     .op-progress-subchapter {
-        align-items: flex-start;
+        align-items: center;
     }
+
+    .parent-subchapter-row {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
 }

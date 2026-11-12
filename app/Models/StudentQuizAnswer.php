@@ -17,6 +17,7 @@ class StudentQuizAnswer extends Model
     ];
     public function question(): BelongsTo
     {
-        return $this->belongsTo(QuizQuestion::class, 'quiz_question_id');
+        return $this->belongsTo(QuizQuestion::class, 'quiz_question_id')
+            ->withTrashed();
     }
 }

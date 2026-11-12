@@ -91,8 +91,6 @@
                         <th>Nama Siswa</th>
                         <th>NISN</th>
                         <th>Kelas</th>
-                        <th>Kuis</th>
-                        <th>Evaluasi</th>
                         <th>Nilai Akhir</th>
                         <th>Ketuntasan</th>
                         <th>Detail</th>
@@ -101,7 +99,7 @@
 
                 <tbody id="gnStudentTableBody">
                     <tr>
-                        <td colspan="8" class="gn-empty">
+                        <td colspan="6" class="gn-empty">
                             Data nilai siswa belum tersedia.
                         </td>
                     </tr>

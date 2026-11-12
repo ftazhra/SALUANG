@@ -37,7 +37,7 @@
 .gn-heading p {
     margin: 0;
     color: #718d96;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1.8;
 }
 /* TOMBOL UMUM */
@@ -51,7 +51,7 @@
     border: 1px solid transparent;
     border-radius: 9px;
     font-family: inherit;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     line-height: 1.4;
     cursor: pointer;
@@ -108,7 +108,7 @@
     gap: 8px;
 }
 .gn-field label {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     color: #28586a;
 }
@@ -122,7 +122,7 @@
     background: #ffffff;
     color: #174a60;
     font-family: inherit;
-    font-size: 12px;
+    font-size: 14px;
     outline: none;
     transition: border-color .2s ease,
                 box-shadow .2s ease;
@@ -162,12 +162,12 @@
 .gn-table td {
     padding: 15px 13px;
     border-bottom: 1px solid #e6eeeb;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1.6;
 }
 .gn-table th {
     color: #315c67;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 700;
     white-space: nowrap;
 }
@@ -184,6 +184,50 @@
 .gn-table tbody tr:hover {
     background: #f9fcfa;
 }
+.gn-history-table {
+    width: 100%;
+    min-width: 820px;
+    table-layout: fixed;
+}
+.gn-history-table .gn-history-type-column { width: 14%; }
+.gn-history-table .gn-history-topic-column { width: 25%; }
+.gn-history-table .gn-history-correct-column { width: 14%; }
+.gn-history-table .gn-history-score-column { width: 10%; }
+.gn-history-table .gn-history-date-column { width: 20%; }
+.gn-history-table .gn-history-note-column { width: 17%; }
+.gn-history-table th,
+.gn-history-table td {
+    padding: 12px 10px;
+    vertical-align: middle;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+.gn-history-table th {
+    text-align: left;
+}
+.gn-history-table .gn-history-type-cell,
+.gn-history-table .gn-history-correct-cell,
+.gn-history-table .gn-history-score-cell {
+    text-align: center;
+}
+.gn-history-table .gn-history-note-cell {
+    text-align: center;
+}
+.gn-history-table .gn-history-note-cell .gn-note-open {
+    max-width: 100%;
+    white-space: normal;
+}
+.gn-history-table .gn-history-form-cell {
+    padding: 0 !important;
+    text-align: left;
+}
+.gn-history-table .gn-note-row:hover {
+    background: #f8fbfa;
+}
+.gn-history-table .gn-history-topic-cell small {
+    color: #627a82;
+    line-height: 1.6;
+}
 .gn-empty {
     padding: 38px 16px !important;
     text-align: center;
@@ -194,7 +238,7 @@
     display: inline-block;
     padding: 6px 10px;
     border-radius: 999px;
-    font-size: 10px;
+    font-size: 14px;
     font-weight: 600;
     white-space: nowrap;
 }
@@ -219,7 +263,7 @@
     gap: 12px;
     margin-top: 16px;
     color: #718d96;
-    font-size: 11px;
+    font-size: 14px;
 }
 /* MODAL DETAIL */
 .gn-modal {
@@ -239,9 +283,10 @@
 .gn-modal-dialog {
     position: relative;
     z-index: 1;
-    width: min(100%, 720px);
-    max-height: 90vh;
+    width: min(100%, 1080px);
+    max-height: 88vh;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 27px;
     border-radius: 16px;
     background: #ffffff;
@@ -256,7 +301,7 @@
 }
 .gn-modal-header h2 {
     margin: 0;
-    font-size: 19px;
+    font-size: 18px;
     font-weight: 700;
     color: #075477;
 }
@@ -292,12 +337,12 @@
     display: block;
     margin-bottom: 7px;
     color: #718d96;
-    font-size: 11px;
+    font-size: 12px;
 }
 .gn-detail-item strong {
     display: block;
     color: #075477;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
 }
 /* NOTIFIKASI */
@@ -311,7 +356,7 @@
     border-radius: 11px;
     background: #075477;
     color: #ffffff;
-    font-size: 12px;
+    font-size: 14px;
     box-shadow: 0 10px 30px rgba(8, 50, 68, .2);
 }
 /* RESPONSIVE */
@@ -326,12 +371,21 @@
         grid-template-columns: 1fr;
     }
 }
+.gn-page .gn-modal-header h2 {
+    font-size: 21px;
+}
+.gn-page .gn-history-title {
+    font-size: 18px;
+}
+.gn-page .gn-teacher-feedback h4 {
+    overflow-wrap: anywhere;
+}
 @media (max-width: 600px) {
     .gn-panel {
         padding: 17px;
     }
     .gn-heading h1 {
-        font-size: 21px;
+        font-size: 24px;
     }
     .gn-modal {
         padding: 12px;
@@ -339,18 +393,44 @@
     .gn-modal-dialog {
         padding: 18px;
     }
+    .gn-history-table {
+        min-width: 700px;
+    }
     .gn-detail-grid {
         grid-template-columns: 1fr;
     }
 }
 /* Catatan Guru per siswa */
-.gn-teacher-feedback { margin-top: 24px; border: 1px solid #dce9e5; background: #f8fbfa; padding: 20px; border-radius: 12px; }
-.gn-teacher-feedback h3 { margin: 0 0 7px; color: #075477; font-size: 17px; }
+.gn-teacher-feedback { margin-top: 12px; border: 1px solid #dce9e5; background: #f8fbfa; padding: 20px; border-radius: 12px; }
+.gn-teacher-feedback { box-sizing: border-box; min-width: 0; overflow-wrap: anywhere; }
+.gn-teacher-feedback h4 { margin: 0 0 7px; color: #075477; font-size: 15px; }
 .gn-teacher-feedback .gn-note-help { margin: 0 0 14px; font-size: 12px; color: #718d96; }
 .gn-teacher-feedback label { display:block; margin-bottom: 8px; color: #075477; font-size: 12px; font-weight: 600; }
-.gn-teacher-feedback textarea { display:block; width:100%; padding: 12px 14px; resize:vertical; border: 1px solid #cbded9; border-radius: 9px; background:white; font: 12px/1.6 Poppins,sans-serif; color: #174a60; }
+.gn-teacher-feedback textarea { display:block; box-sizing:border-box; width:100%; padding: 12px 14px; resize:vertical; border: 1px solid #cbded9; border-radius: 9px; background:white; font: 14px/1.6 Poppins,sans-serif; color: #174a60; overflow-wrap:anywhere; }
 .gn-teacher-feedback textarea:focus { outline: 2px solid #b1d7c1; outline-offset: 1px; }
 
+.gn-history-title {
+    margin: 22px 0 12px;
+    color: #075477;
+    font-size: 18px;
+}
+
+.gn-history-empty {
+    margin-top: 20px;
+    color: #627a82;
+    font-size: 14px;
+}
+
+.gn-note-row > td {
+    padding: 0 !important;
+    background: #f8fbfa;
+}
+
+.gn-note-open {
+    min-height: 36px;
+    padding: 8px 11px;
+    white-space: nowrap;
+}
 
 /* Area status dan tombol Catatan Guru */
 .gn-note-actions {
@@ -361,10 +441,10 @@
     margin-top: 16px;
 }
 
-.gn-note-actions #gnNoteStatus {
+.gn-note-actions .gn-note-status {
     display: block;
-    color: #537f8c;
-    font-size: 12px;
+    color: #527d8a;
+    font-size: 14px;
     line-height: 1.6;
 }
 
@@ -376,8 +456,7 @@
     width: 100%;
 }
 
-#gnSaveTeacherNote,
-#gnPublishTeacherNote {
+.gn-note-buttons [data-note-action] {
     width: 100%;
     min-width: 0;
     min-height: 46px;
@@ -391,24 +470,25 @@
     text-align: center;
 }
 
-#gnSaveTeacherNote {
+.gn-note-buttons [data-note-action="draft"] {
     background: #ffffff;
     color: #075477;
     border: 1px solid #cbded9;
 }
 
-#gnSaveTeacherNote:hover:not(:disabled) {
+.gn-note-buttons [data-note-action="draft"]:hover:not(:disabled) {
     background: #f2f8f5;
 }
 
-#gnPublishTeacherNote {
+.gn-note-buttons [data-note-action="publish"] {
     background: #4c9968;
     color: #ffffff;
     border: 1px solid #4c9968;
 }
 
-#gnPublishTeacherNote:hover:not(:disabled) {
+.gn-note-buttons [data-note-action="publish"]:hover:not(:disabled) {
     background: #367a50;
+    color: #ffffff;
 }
 
 @media (max-width: 480px) {
@@ -435,10 +515,10 @@
 }
 
 .gn-confirm-box {
-    width: min(100%, 420px);
+    width: min(100%, 380px);
     box-sizing: border-box;
-    padding: 28px;
-    border-radius: 18px;
+    padding: 22px;
+    border-radius: 16px;
     background: #ffffff;
     box-shadow: 0 20px 55px rgba(8, 33, 43, .2);
     text-align: center;
@@ -459,26 +539,26 @@
 .gn-confirm-icon {
     display: grid;
     place-items: center;
-    width: 58px;
-    height: 58px;
-    margin: 0 auto 16px;
+    width: 46px;
+    height: 46px;
+    margin: 0 auto 12px;
     border-radius: 50%;
     background: #e8f5ed;
     color: #4c9968;
-    font-size: 25px;
+    font-size: 14px;
 }
 
 .gn-confirm-title {
-    margin: 0 0 10px;
-    font-size: 19px;
+    margin: 0 0 7px;
+    font-size: 18px;
     font-weight: 700;
     color: #075477;
 }
 
 .gn-confirm-text {
     margin: 0;
-    font-size: 12px;
-    line-height: 1.8;
+    font-size: 14px;
+    line-height: 1.6;
     color: #718d96;
 }
 
@@ -486,7 +566,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
-    margin-top: 24px;
+    margin-top: 17px;
 }
 
 .gn-confirm-btn {
@@ -494,11 +574,11 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    min-height: 44px;
-    padding: 10px 14px;
+    min-height: 40px;
+    padding: 9px 12px;
     border-radius: 10px;
     font-family: inherit;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
 }
@@ -521,6 +601,56 @@
 
 @media (max-width: 480px) {
     .gn-confirm-box {
-        padding: 22px;
+        padding: 18px;
     }
+}
+
+/* Filter, tabel, histori, dan detail Nilai Guru. */
+.gn-page .gn-heading p,
+.gn-page .gn-table-footer,
+.gn-page .gn-history-table .gn-history-topic-cell small,
+.gn-page .gn-empty,
+.gn-page .gn-history-empty,
+.gn-page .gn-teacher-feedback .gn-note-help,
+.gn-page .gn-confirm-text {
+    color: #405f68 !important;
+    font-size: 12px;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+}
+.gn-page .gn-btn,
+.gn-page .gn-field label,
+.gn-page .gn-status,
+.gn-page .gn-teacher-feedback label,
+.gn-page .gn-confirm-btn {
+    font-size: 14px;
+    line-height: 1.5;
+}
+.gn-page .gn-field input,
+.gn-page .gn-field select,
+.gn-page .gn-teacher-feedback textarea {
+    font-size: 14px;
+    line-height: 1.6;
+}
+.gn-page .gn-table th,
+.gn-page .gn-history-table th {
+    color: #31545e;
+    font-size: 14px;
+    line-height: 1.5;
+}
+.gn-page .gn-table td,
+.gn-page .gn-history-table td,
+.gn-page .gn-detail-item small {
+    color: #315e68;
+    font-size: 13px;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+}
+.gn-page .gn-detail-item strong,
+.gn-page .gn-history-title {
+    font-size: 18px;
+    line-height: 1.5;
+}
+.gn-page .gn-empty {
+    color: #405f68 !important;
 }

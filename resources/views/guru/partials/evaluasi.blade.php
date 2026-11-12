@@ -22,14 +22,9 @@
             <div>
                 <h1>Kelola Evaluasi</h1>
                 <p>
-                    Kelola 15 soal Evaluasi Akhir yang akan
-                    dikerjakan oleh Siswa.
+                    Kelola 15 soal pilihan ganda Evaluasi Akhir yang akan dikerjakan Siswa.
                 </p>
             </div>
-            <button type="button" class="ge-btn ge-btn-primary" id="geAddQuestion">
-                <i class="bi bi-plus-lg"></i>
-                Tambah Soal
-            </button>
         </div>
         {{-- RINGKASAN --}}
 
@@ -62,19 +57,10 @@
         <div class="ge-info">
             <i class="bi bi-info-circle"></i>
             <div class="ge-info-content">
-                <strong>Pembagian Jenis Soal Evaluasi</strong>
+                <strong>Ketentuan Soal Evaluasi</strong>
                 <ul class="ge-info-list">
                     <li>
-                        <strong>Nomor 1–5:</strong>
-                        Pilihan Ganda A–D
-                    </li>
-                    <li>
-                        <strong>Nomor 6–10:</strong>
-                        Drag-and-Drop Gambar
-                    </li>
-                    <li>
-                        <strong>Nomor 11–15:</strong>
-                        Menghubungkan Pasangan Gambar
+                        Nomor 1–15 wajib berupa pilihan ganda dengan pilihan A, B, C, dan D.
                     </li>
                 </ul>
             </div>
@@ -149,8 +135,7 @@
                         Tambah Soal Evaluasi
                     </h2>
                     <p>
-                        Isi pertanyaan dan kunci jawaban
-                        sesuai jenis soal.
+                        Isi pertanyaan, pilihan jawaban, dan kunci jawaban.
                     </p>
                 </div>
                 <button type="button" class="ge-modal-close" data-ge-close aria-label="Tutup">
@@ -173,32 +158,15 @@
                             @endfor
                         </select>
                     </div>
-                    <div class="ge-field">
-                        <label for="geQuestionType">
-                            Jenis Soal
-                        </label>
-                        <select id="geQuestionType" disabled>
-                            <option value="">
-                                Pilih nomor soal terlebih dahulu
-                            </option>
-                            <option value="pilihan_ganda">
-                                Pilihan Ganda
-                            </option>
-                            <option value="drag_drop">
-                                Drag-and-Drop
-                            </option>
-                            <option value="menghubungkan">
-                                Menghubungkan Pasangan
-                            </option>
-                        </select>
-                    </div>
                 </div>
+                <input type="hidden" id="geQuestionType" value="pilihan_ganda">
                 <div class="ge-field">
                     <label for="geQuestionText">
                         Pertanyaan
                     </label>
                     <textarea id="geQuestionText" rows="4" placeholder="Tuliskan pertanyaan evaluasi..." required></textarea>
                 </div>
+                <p class="ge-field-help" id="geConversionNotice" role="status" hidden></p>
                 {{-- PILIHAN GANDA --}}
 
                 <div class="ge-type-fields" id="geMultipleChoiceFields" hidden>

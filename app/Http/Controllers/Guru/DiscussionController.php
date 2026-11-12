@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Guru;
 use App\Http\Controllers\Controller;
 use App\Models\Discussion;
 use App\Models\Chapter;
+use App\Models\User;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -10,6 +11,21 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 class DiscussionController extends Controller
 {
+    private function attachForumAvatar(?User $author): void
+    {
+        if (!$author) {
+            return;
+        }
+
+        $path = $author->profile_photo_path;
+        $author->setAttribute(
+            'forum_avatar_url',
+            is_string($path) && $path !== ''
+                ? asset('storage/' . ltrim($path, '/'))
+                : null
+        );
+    }
+
     /**
      * Menggunakan materi Guru yang dipublikasikan sebagai sumber validasi.
      * Format disimpan tetap "bab-N" dan "N.M" agar data Forum lama kompatibel.
@@ -102,7 +118,7 @@ class DiscussionController extends Controller
         ]);
         $this->validateChapterPair($filters, $forumOptions);
         $query = Discussion::query()
-            ->with('user:id,name')
+            ->with('user:id,name,profile_photo_path')
             ->withCount('replies');
         // 03.1. Filter Bab
         if (!empty($filters['chapter'])) {
@@ -149,6 +165,7 @@ class DiscussionController extends Controller
             ->paginate(10);
         $userId = $request->user()->id;
         $discussions->getCollection()->each(function ($discussion) use ($userId) {
+            $this->attachForumAvatar($discussion->user);
             $discussion->setAttribute(
                 'is_owner',
                 (int) $discussion->user_id === (int) $userId
@@ -229,29 +246,9 @@ class DiscussionController extends Controller
                     ->oldest();
             },
         ]);
-        // Penulis pertanyaan utama: foto profil atau fallback inisial di frontend.
-        if ($discussion->user) {
-            $path = $discussion->user->profile_photo_path;
-            $discussion->user->setAttribute(
-                'forum_avatar_url',
-                is_string($path) && $path !== ''
-                    ? asset('storage/' . ltrim($path, '/'))
-                    : null
-            );
-        }
-        // Sertakan URL foto untuk avatar, bukan path penyimpanan internal.
+        $this->attachForumAvatar($discussion->user);
         $discussion->replies->each(function ($reply) {
-            $author = $reply->user;
-            if (!$author) {
-                return;
-            }
-            $path = $author->profile_photo_path;
-            $author->setAttribute(
-                'forum_avatar_url',
-                is_string($path) && $path !== ''
-                    ? asset('storage/' . ltrim($path, '/'))
-                    : null
-            );
+            $this->attachForumAvatar($reply->user);
         });
         // 05.2. Hitung jumlah tanggapan
         $discussion->loadCount('replies');

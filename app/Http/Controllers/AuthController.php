@@ -36,6 +36,13 @@ class AuthController extends Controller
     */
     public function register(Request $request): RedirectResponse
     {
+        foreach (['kelas', 'sekolah'] as $field) {
+            $value = $request->input($field);
+            if (is_string($value)) {
+                $request->merge([$field => trim($value)]);
+            }
+        }
+
         // Validasi berdasarkan peran yang dipilih.
         $data = $request->validate([
             'role' => [
@@ -188,6 +195,7 @@ class AuthController extends Controller
             if ($role === 'siswa') {
                 $user->nisn = $data['nisn'];
                 $user->kelas = $data['kelas'];
+                $user->nomor_telepon = $data['nomor_telepon'] ?? null;
             }
             /*
             | DATA KHUSUS GURU
@@ -341,6 +349,7 @@ class AuthController extends Controller
                     'siswa.role',
                     'siswa'
                 )
+                ->whereNull('siswa.deleted_at')
                 ->where(
                     'siswa.nisn',
                     $data['nisn_anak']
