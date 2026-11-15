@@ -282,6 +282,34 @@
     overflow-wrap: anywhere;
 }
 
+.gq-activity-instruction {
+    margin: 0 0 20px;
+    padding: 14px 16px;
+    background: #eaf6ef;
+    border: 1px solid #b8ddc5;
+    border-left: 4px solid #4e9d6d;
+    border-radius: 10px;
+    color: #315e68;
+}
+
+.gq-activity-instruction strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #287b4e;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.gq-activity-instruction p {
+    margin: 0;
+    color: #355f6c;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
 .gq-answer-list {
     display: grid;
     gap: 10px;
@@ -383,15 +411,16 @@
     background: rgba(7, 41, 55, .55);
 }
 
+
 .gq-modal-dialog {
     position: relative;
     z-index: 1;
-    width: min(100%, 580px);
-    max-height: calc(100vh - 40px);
-    padding: 25px;
+    width: min(100%, 760px);
+    max-height: min(90vh, 900px);
+    padding: 28px;
     overflow-y: auto;
     border: 1px solid #dce9e6;
-    border-radius: 15px;
+    border-radius: 18px;
     background: #fffefa;
     box-shadow: 0 16px 48px rgba(7, 41, 55, .18);
 }
@@ -2625,4 +2654,254 @@
     outline: 2px solid #329ecb;
     outline-offset: 3px;
     border-radius: 8px;
+}
+
+/* Patch pratinjau interaktif Menghubungkan: hindari crop dan pemotongan label. */
+#gqPreviewContent .gq-preview-activity-board.is-matching {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(42px, 5vw, 70px) minmax(0, 1fr);
+    gap: 0;
+    width: 100%;
+    align-items: start;
+}
+
+#gqPreviewContent .gq-preview-match-column {
+    display: grid;
+    grid-auto-rows: minmax(215px, auto);
+    row-gap: 12px;
+    min-width: 0;
+    align-content: start;
+    justify-items: stretch;
+}
+
+#gqPreviewContent .gq-preview-match-row.is-left {
+    grid-template-columns: minmax(0, 1fr) 20px;
+    column-gap: 10px;
+}
+
+#gqPreviewContent .gq-preview-match-row.is-right {
+    grid-template-columns: 20px minmax(0, 1fr);
+    column-gap: 10px;
+}
+
+#gqPreviewContent .gq-preview-match-row {
+    align-items: stretch;
+    min-height: 215px;
+}
+
+#gqPreviewContent .gq-preview-match-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+    min-height: 215px;
+    height: 100%;
+    aspect-ratio: auto;
+    padding: 12px;
+    gap: 8px;
+    border: 1px solid #d5e7df;
+    border-radius: 13px;
+    background: #fff;
+    box-shadow: none;
+    overflow: visible;
+}
+
+#gqPreviewContent .gq-preview-match-item.has-image {
+    justify-content: flex-start;
+}
+
+#gqPreviewContent .gq-preview-match-item.has-image .gq-preview-image-frame {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 0;
+    height: 150px;
+    max-height: 165px;
+    aspect-ratio: auto;
+    overflow: hidden;
+    background: #fff;
+}
+
+#gqPreviewContent .gq-preview-match-item .gq-preview-image-frame img {
+    display: block;
+    position: static;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    object-position: center;
+}
+
+#gqPreviewContent .gq-preview-match-item>span:not(.gq-preview-image-frame):not(.gq-preview-dot) {
+    display: block;
+    flex: 0 0 auto;
+    width: 100%;
+    margin-top: auto;
+    overflow: visible;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    -webkit-line-clamp: unset;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.45;
+    text-align: center;
+}
+
+#gqPreviewContent .gq-preview-match-item.is-text-only>span:not(.gq-preview-image-frame):not(.gq-preview-dot) {
+    margin: auto 0;
+}
+
+#gqPreviewContent .gq-preview-match-row .gq-preview-dot {
+    align-self: center;
+    justify-self: center;
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    min-height: 18px;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+@media (max-width: 700px) {
+    #gqPreviewContent .gq-preview-activity-board.is-matching {
+        grid-template-columns: minmax(0, 1fr) 36px minmax(0, 1fr);
+    }
+
+    #gqPreviewContent .gq-preview-match-column {
+        grid-auto-rows: minmax(160px, auto);
+        row-gap: 10px;
+    }
+
+    #gqPreviewContent .gq-preview-match-row.is-left {
+        grid-template-columns: minmax(0, 1fr) 14px;
+        column-gap: 4px;
+    }
+
+    #gqPreviewContent .gq-preview-match-row.is-right {
+        grid-template-columns: 14px minmax(0, 1fr);
+        column-gap: 4px;
+    }
+
+    #gqPreviewContent .gq-preview-match-row,
+    #gqPreviewContent .gq-preview-match-item {
+        min-height: 160px;
+    }
+
+    #gqPreviewContent .gq-preview-match-item {
+        padding: 7px;
+    }
+
+    #gqPreviewContent .gq-preview-match-item.has-image .gq-preview-image-frame {
+        height: 95px;
+        max-height: 110px;
+    }
+
+    #gqPreviewContent .gq-preview-match-item>span:not(.gq-preview-image-frame):not(.gq-preview-dot) {
+        font-size: 12px;
+    }
+
+    #gqPreviewContent .gq-preview-match-row .gq-preview-dot {
+        width: 14px;
+        height: 14px;
+        min-width: 14px;
+        min-height: 14px;
+    }
+}
+
+/* PATCH: caption objek Drag & Drop di Pratinjau Guru tidak boleh terpotong. */
+#gqPreviewContent .gq-activity-detail-board.is-drag-drop .gq-activity-detail-grid,
+#gqPreviewContent .gq-activity-detail-board.is-drag-drop .gq-activity-detail-category-objects.is-card-grid {
+    grid-auto-rows: max-content;
+    align-items: start;
+}
+
+#gqPreviewContent .gq-activity-detail-board.is-drag-drop .gq-activity-detail-card {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    aspect-ratio: auto !important;
+    overflow: visible !important;
+    justify-content: flex-start;
+    padding: 12px;
+}
+
+#gqPreviewContent .gq-activity-detail-board.is-drag-drop .gq-activity-detail-caption {
+    display: block !important;
+    width: 100%;
+    height: auto !important;
+    min-height: 0;
+    max-height: none !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    -webkit-line-clamp: unset !important;
+    -webkit-box-orient: initial !important;
+    overflow-wrap: anywhere;
+    line-height: 1.5;
+    font-size: 14px;
+    padding-bottom: 2px;
+}
+
+#gqPreviewContent .gq-activity-detail-board.is-drag-drop .gq-activity-detail-image-frame {
+    aspect-ratio: 1;
+    height: auto;
+    max-height: 175px;
+    overflow: hidden;
+}
+
+#gqPreviewContent .gq-activity-detail-board.is-drag-drop .gq-activity-detail-image-frame img {
+    object-fit: contain;
+}
+
+@media (max-width: 700px) {
+    #gqPreviewContent .gq-activity-detail-board.is-drag-drop .gq-activity-detail-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* Perbaikan caption Pratinjau Interaktif Drag-and-Drop: bukan detail statis. */
+#gqPreviewContent .gq-preview-activity-board.is-drag-drop .gq-preview-activity-items,
+#gqPreviewContent .gq-preview-activity-board.is-drag-drop .gq-preview-assigned-list {
+    grid-auto-rows: max-content;
+    align-items: start
+}
+
+#gqPreviewContent .gq-preview-activity-board.is-drag-drop .gq-preview-activity-item.is-drag-card,
+#gqPreviewContent .gq-preview-activity-board.is-drag-drop .gq-preview-assigned {
+    height: auto !important;
+    min-height: 132px;
+    max-height: none !important;
+    aspect-ratio: auto !important;
+    overflow: visible !important;
+    justify-content: flex-start;
+    padding: 9px;
+}
+
+#gqPreviewContent .gq-preview-activity-board.is-drag-drop .gq-preview-activity-item.is-drag-card>span:not(.gq-preview-image-frame),
+#gqPreviewContent .gq-preview-activity-board.is-drag-drop .gq-preview-assigned>span:not(.gq-preview-image-frame) {
+    display: block !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    text-overflow: clip !important;
+    -webkit-line-clamp: unset !important;
+    -webkit-box-orient: initial !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow-wrap: anywhere;
+    line-height: 1.5;
+    width: 100%;
+    padding: 3px 2px 5px;
+}
+
+#gqPreviewContent .gq-preview-activity-board.is-drag-drop .gq-preview-activity-item.is-drag-card .gq-preview-image-frame,
+#gqPreviewContent .gq-preview-activity-board.is-drag-drop .gq-preview-assigned .gq-preview-image-frame {
+    flex: 0 0 82px;
+    height: 82px;
+    min-height: 82px;
 }

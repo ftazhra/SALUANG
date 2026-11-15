@@ -14,7 +14,7 @@
                         <span id="pcTeacherStatus">Status tidak tersedia</span>
                     </div>
                     <span id="pcTeacherUnread" class="pc-chat-unread" hidden></span>
-                    <p>SMP Negeri 21 Banjarmasin</p>
+                    <p>{{ $child->sekolah ?: 'Sekolah belum tercantum' }}</p>
                     <span>Siswa: {{ $child->name ?? 'Siswa' }} · {{ $child->kelas ?? '-' }}</span>
                 </div>
                 <button type="button" class="pc-chat-open" id="pcChatOpen" disabled>Buka Percakapan</button>
@@ -29,7 +29,8 @@
                 <form id="pcChatForm" class="pc-message-form">
                     <label for="pcMessageInput">Tulis pesan untuk Guru</label>
                     <div class="pc-compose">
-                        <textarea id="pcMessageInput" rows="2" maxlength="2000" required placeholder="Tulis pesan Anda..."></textarea><button type="submit" id="pcSendMessage"><i class="bi bi-send-fill" aria-hidden="true"></i><span>Kirim</span></button>
+                        <textarea id="pcMessageInput" rows="2" maxlength="2000" required placeholder="Tulis pesan Anda..."></textarea><button type="submit" id="pcSendMessage"><i class="bi bi-send-fill"
+                                aria-hidden="true"></i><span>Kirim</span></button>
                     </div>
                 </form>
             </section>

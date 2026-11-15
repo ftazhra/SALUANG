@@ -251,6 +251,11 @@
                         <div id="forumRepliesList"></div>
 
                         <form id="forumReplyForm">
+                            <div id="forumReplyContext" class="sd-forum-reply-context" hidden>
+                                <span id="forumReplyContextName"></span>
+                                <button type="button" id="forumReplyCancel"
+                                    aria-label="Batal membalas komentar">Batal</button>
+                            </div>
 
                             <div class="sd-forum-field">
 

@@ -47,6 +47,37 @@
             : 'Belum ada materi yang dipublikasikan Guru.';
         setText(get('sdHomeLessonTitle'), title);
         setText(get('sdAchievementMaterialTitle'), title);
+        const lessonImage = get('sdHomeLessonImage');
+        const placeholder = get('sdHomeLessonImageLoading');
+        if (lessonImage && placeholder) {
+            // Selama respons Bab terbaru belum ada, Blade hanya menampilkan placeholder.
+            // Jangan pernah menampilkan aset Bab lama sebagai default sebelum API selesai.
+            const uploaded = String(chapter?.gambar_pengenalan_url || '').trim();
+            const version = chapter?.updated_at ? Date.parse(chapter.updated_at) : null;
+            const imageUrl = uploaded && Number.isFinite(version)
+                ? `${uploaded}${uploaded.includes('?') ? '&' : '?'}v=${version}`
+                : uploaded;
+            lessonImage.onload = null;
+            lessonImage.onerror = null;
+            lessonImage.hidden = true;
+            placeholder.hidden = false;
+            placeholder.textContent = imageUrl ? 'Memuat gambar materi...' : 'Gambar bab belum tersedia';
+            lessonImage.removeAttribute('src');
+            if (imageUrl) {
+                lessonImage.alt = `Gambar pengenalan ${title}`;
+                lessonImage.onload = () => {
+                    if (lessonImage.getAttribute('src') !== imageUrl) return;
+                    lessonImage.hidden = false;
+                    placeholder.hidden = true;
+                };
+                lessonImage.onerror = () => {
+                    lessonImage.hidden = true;
+                    placeholder.textContent = 'Gambar materi belum dapat dimuat';
+                    placeholder.hidden = false;
+                };
+                lessonImage.src = imageUrl;
+            }
+        }
         setText(
             document.querySelector('#homePage .sd-home-lesson .sd-pill'),
             chapter ? `BAB ${chapter.nomor_bab}` : 'MATERI PEMBELAJARAN'

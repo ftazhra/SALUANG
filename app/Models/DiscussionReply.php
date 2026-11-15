@@ -1,13 +1,17 @@
 <?php
+
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
 class DiscussionReply extends Model
 {
     protected $fillable = [
         'discussion_id',
         'user_id',
         'body',
+        'parent_reply_id',
     ];
     public function discussion(): BelongsTo
     {

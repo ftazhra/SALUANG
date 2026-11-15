@@ -1144,3 +1144,49 @@
     font-size: 14px;
     line-height: 1.6;
 }
+
+/* Revisi: modal edit evaluasi serasi dengan editor PG pada Kelola Kuis */
+#geQuestionModal .ge-modal-dialog {
+    width: min(100%, 800px);
+    background: #fffefa;
+    border: 1px solid #dce9e6;
+    border-radius: 18px;
+    padding: 24px 28px;
+}
+
+#geQuestionModal .ge-options-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 16px;
+}
+
+#geQuestionModal .ge-field textarea {
+    min-height: 75px;
+    resize: vertical;
+}
+
+#geQuestionModal .ge-field textarea#geQuestionText {
+    min-height: 105px;
+}
+
+#geQuestionModal .ge-field textarea#geExplanation {
+    min-height: 110px;
+}
+
+#geQuestionModal .ge-modal-header {
+    margin-bottom: 18px;
+}
+
+#geQuestionModal .ge-form-actions {
+    margin-top: 15px;
+}
+
+@media (max-width: 620px) {
+    #geQuestionModal .ge-modal-dialog {
+        padding: 18px;
+    }
+
+    #geQuestionModal .ge-options-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -69,9 +69,10 @@
                                     </h3>
 
                                     <p style="margin: 0; line-height: 1.7;">
-                                        Minta anak membuat kode penghubung
-                                        melalui menu Profil pada akun Siswa SALUANG.
-                                        Masukkan kode enam digit tersebut di bawah ini.
+                                        Gunakan kode dari <strong>akun SALUANG anak yang NISN-nya Anda
+                                            daftarkan</strong>.
+                                        Buka Profil pada akun Siswa anak tersebut, lalu buat kode penghubung enam digit.
+                                        Kode milik siswa lain tidak dapat digunakan, meskipun kode itu masih aktif.
                                     </p>
                                 </div>
 

@@ -64,10 +64,11 @@ document.addEventListener('DOMContentLoaded', function () {
     let questionIndex = 0;
     let quizVersion = 0;
     let quizAnswerPending = false;
-    const navigationEntry = performance.getEntriesByType?.('navigation')?.[0];
-    let restartQuizOnFirstOpen = navigationEntry
-        ? navigationEntry.type === 'reload'
-        : performance.navigation?.type === 1;
+    // Pada setiap pemuatan halaman (termasuk F5/login), setiap SUBBAB
+    // memulai ulang attempt sementara sekali saat pertama kali kuis dibuka.
+    // Set ini hanya hidup di memori halaman; refresh otomatis mengosongkannya.
+    // Attempt yang sudah completed dan riwayat nilai tidak ikut dihapus.
+    const initializedQuizSubchapterIds = new Set();
     const savedAnswers = new Map();
     const activityAnswers = new Map();
     const matchingLineUpdaters = new Set();
@@ -116,6 +117,105 @@ document.addEventListener('DOMContentLoaded', function () {
             top: 0,
             behavior: 'smooth'
         });
+    }
+    function showToast(message, isError = false) {
+        const existing = document.getElementById('siswaToast');
+        if (existing) existing.remove();
+
+        const toast = document.createElement('div');
+        toast.id = 'siswaToast';
+        toast.setAttribute('role', 'status');
+        toast.setAttribute('aria-live', 'polite');
+        toast.textContent = message;
+        toast.style.position = 'fixed';
+        toast.style.right = '20px';
+        toast.style.bottom = '20px';
+        toast.style.zIndex = '3200';
+        toast.style.maxWidth = '360px';
+        toast.style.padding = '12px 16px';
+        toast.style.borderRadius = '12px';
+        toast.style.border = isError ? '1px solid #f0c5c5' : '1px solid #c8e7d4';
+        toast.style.background = isError ? '#fff0ef' : '#eaf7ef';
+        toast.style.color = isError ? '#a52f2f' : '#17643e';
+        toast.style.boxShadow = '0 8px 24px rgba(7, 84, 119, 0.12)';
+        toast.style.fontSize = '14px';
+        toast.style.fontWeight = '600';
+        document.body.appendChild(toast);
+        clearTimeout(showToast.timer);
+        showToast.timer = setTimeout(() => toast.remove(), 3500);
+    }
+    function showDialog({ title, message, confirmText = 'OK', onConfirm }) {
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.inset = '0';
+        overlay.style.zIndex = '3300';
+        overlay.style.display = 'flex';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        overlay.style.background = 'rgba(7, 41, 55, 0.52)';
+
+        const dialog = document.createElement('div');
+        dialog.setAttribute('role', 'dialog');
+        dialog.setAttribute('aria-modal', 'true');
+        dialog.style.width = 'min(92vw, 420px)';
+        dialog.style.padding = '24px';
+        dialog.style.borderRadius = '16px';
+        dialog.style.background = '#fff';
+        dialog.style.boxShadow = '0 16px 48px rgba(7, 41, 55, 0.18)';
+
+        const heading = document.createElement('h2');
+        heading.textContent = title;
+        heading.style.margin = '0 0 12px';
+        heading.style.color = '#075477';
+        heading.style.fontSize = '20px';
+        heading.style.textAlign = 'center';
+
+        const paragraph = document.createElement('p');
+        paragraph.textContent = message;
+        paragraph.style.margin = '0';
+        paragraph.style.color = '#638a96';
+        paragraph.style.fontSize = '14px';
+        paragraph.style.lineHeight = '1.7';
+        paragraph.style.textAlign = 'center';
+
+        const actions = document.createElement('div');
+        actions.style.display = 'flex';
+        actions.style.justifyContent = 'flex-end';
+        actions.style.gap = '10px';
+        actions.style.marginTop = '22px';
+
+        const confirmButton = document.createElement('button');
+        confirmButton.type = 'button';
+        confirmButton.textContent = confirmText;
+        confirmButton.style.border = '0';
+        confirmButton.style.borderRadius = '10px';
+        confirmButton.style.padding = '10px 16px';
+        confirmButton.style.background = '#4e9d6d';
+        confirmButton.style.color = '#fff';
+        confirmButton.style.fontWeight = '600';
+        confirmButton.style.cursor = 'pointer';
+        confirmButton.addEventListener('click', () => {
+            if (typeof onConfirm === 'function') onConfirm();
+            overlay.remove();
+        });
+
+        actions.appendChild(confirmButton);
+        dialog.appendChild(heading);
+        dialog.appendChild(paragraph);
+        dialog.appendChild(actions);
+        overlay.appendChild(dialog);
+        document.body.appendChild(overlay);
+        confirmButton.focus();
+
+        overlay.addEventListener('click', event => {
+            if (event.target === overlay) overlay.remove();
+        });
+        document.addEventListener('keydown', function onKeydown(event) {
+            if (event.key === 'Escape' && document.body.contains(overlay)) {
+                overlay.remove();
+                document.removeEventListener('keydown', onKeydown);
+            }
+        }, { once: true });
     }
     // ======================================================
     // 03. URUTAN PEMBELAJARAN
@@ -704,6 +804,7 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             let response = await fetch(url, {
                 credentials: 'same-origin',
+                cache: 'no-store',
                 signal: AbortSignal.timeout(15000),
                 headers: {
                     'Accept': 'application/json'
@@ -736,8 +837,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 );
                 return;
             }
-            const restart = restartQuizOnFirstOpen;
-            if (quizQuestions.length) restartQuizOnFirstOpen = false;
+            // Reset berlaku per subbab, bukan hanya pada subbab pertama.
+            // Saat masuk pertama kali setelah refresh, jangan pulihkan jawaban
+            // sementara dari attempt lama. Perubahan soal Guru juga memicu reset.
+            const restart = !initializedQuizSubchapterIds.has(subchapterId)
+                || Boolean(result.active_attempt_outdated);
             let attemptId = result.active_attempt?.id || null;
             if (quizQuestions.length && (restart || !attemptId)) {
                 attemptId = await createQuizAttempt(
@@ -750,6 +854,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     `${url}?attempt_id=${encodeURIComponent(attemptId)}`,
                     {
                         credentials: 'same-origin',
+                        cache: 'no-store',
                         signal: AbortSignal.timeout(15000),
                         headers: {
                             'Accept': 'application/json'
@@ -777,6 +882,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 );
                 result.active_attempt = attemptResult.active_attempt;
             }
+            // Tandai hanya ketika upaya memuat kuis berhasil. Jika terjadi
+            // masalah jaringan, subbab akan mencoba reset lagi saat dibuka.
+            if (quizQuestions.length) initializedQuizSubchapterIds.add(subchapterId);
             currentQuiz = quizQuestions
                 .sort((a, b) => Number(a.nomor_soal) - Number(b.nomor_soal))
                 .map((item, index) => {
@@ -812,10 +920,16 @@ document.addEventListener('DOMContentLoaded', function () {
                         ...item,
                         display_number: displayNumber
                     }, item.student_answer, item.activity_feedback || null);
+
                     return {
                         ...item,
                         type: item.activity_type,
                         question: item.pertanyaan,
+                        instruction: String(
+                            item.activity_payload?.instruction
+                            || item.instruction
+                            || ''
+                        ).trim(),
                         display_number: displayNumber
                     };
                 });
@@ -1156,45 +1270,46 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     function renderActivityFeedback(activity, feedback) {
         if (!feedback) return null;
-        const panel = el('section', 'sd-activity-feedback');
+        const panel = el('section', 'sd-activity-feedback sd-feedback-summary');
         panel.setAttribute('aria-live', 'polite');
-        if (activity.activity_type === 'drag_drop') {
-            const results = feedback.items || [];
-            results.forEach(item => {
-                const row = el('p', `sd-activity-feedback-row ${item.is_correct ? 'is-correct' : 'is-incorrect'}`);
-                const name = item.item || 'Objek';
-                const category = item.student_category;
-                row.textContent = item.is_correct
-                    ? `${name} sudah tepat di kategori ${category}.`
-                    : category
-                        ? `${name} belum tepat di kategori ${category}.`
-                        : `${name} belum ditempatkan.`;
-                panel.appendChild(row);
-            });
-            // Pola sama dengan Menghubungkan: koreksi hanya muncul bila ada jawaban keliru.
-            if (results.some(item => !item.is_correct)) {
-                panel.appendChild(el('p', 'sd-activity-feedback-correction', 'Kategori yang tepat:'));
-                results.forEach(item => {
-                    const name = item.item || 'Objek';
-                    const correctCategory = item.correct_category || 'belum tersedia';
-                    panel.appendChild(el('p', 'sd-activity-feedback-row is-correct', `${name} di kategori ${correctCategory}.`));
+        const isDragDrop = activity.activity_type === 'drag_drop';
+        const rows = isDragDrop
+            ? (feedback.items || [])
+            : (feedback.student_pairs || []);
+        const correct = rows.filter(item => item.is_correct).length;
+        const total = isDragDrop
+            ? (activity.items || []).length
+            : (feedback.correct_pairs || []).length;
+        const title = el('h3', 'sd-feedback-title', 'Hasil dan Pembahasan');
+        const summary = el('p', 'sd-feedback-score',
+            isDragDrop
+                ? `${correct} dari ${total} objek ditempatkan dengan tepat.`
+                : `${correct} pasangan tepat dari ${total} pasangan jawaban yang tersedia.`
+        );
+        panel.append(title, summary);
+        const hasWrong = rows.some(item => !item.is_correct);
+        if (hasWrong || rows.length < total) {
+            const correction = el('div', 'sd-feedback-corrections');
+            correction.appendChild(el('h4', 'sd-feedback-corrections-title', 'Pasangan / kategori yang tepat'));
+            if (isDragDrop) {
+                (feedback.items || []).forEach(item => {
+                    correction.appendChild(el('p', '',
+                        `${item.item || 'Objek'}: ${item.correct_category || 'Kategori belum tersedia'}`));
+                });
+            } else {
+                (feedback.correct_pairs || []).forEach(pair => {
+                    correction.appendChild(el('p', '', `${pair.left}: ${pair.right}`));
                 });
             }
-            return panel;
+            panel.appendChild(correction);
         }
-
-        (feedback.student_pairs || []).forEach(pair => {
-            const row = el('p', `sd-activity-feedback-row ${pair.is_correct ? 'is-correct' : 'is-incorrect'}`);
-            row.textContent = pair.is_correct
-                ? `Pasangan ${pair.left} dan ${pair.right} sudah tepat.`
-                : `Pasangan ${pair.left} dan ${pair.right} belum tepat.`;
-            panel.appendChild(row);
-        });
-        if ((feedback.student_pairs || []).some(pair => !pair.is_correct)) {
-            panel.appendChild(el('p', 'sd-activity-feedback-correction', 'Pasangan yang tepat:'));
-            (feedback.correct_pairs || []).forEach(pair => {
-                panel.appendChild(el('p', 'sd-activity-feedback-row is-correct', `${pair.left} dengan ${pair.right}.`));
-            });
+        const explanation = String(feedback.explanation || '').trim();
+        if (explanation) {
+            panel.appendChild(el('h4', 'sd-feedback-heading', 'Pembahasan Guru'));
+            panel.appendChild(el('p', 'sd-feedback-explanation', explanation));
+        } else {
+            panel.appendChild(el('p', 'sd-feedback-explanation',
+                'Pembahasan dari Guru belum tersedia untuk soal ini.'));
         }
         return panel;
     }
@@ -1376,6 +1491,54 @@ document.addEventListener('DOMContentLoaded', function () {
         board.appendChild(categories);
         container.appendChild(board);
     }
+    // Saat menarik garis, gulir kontainer terdekat secara otomatis di tepi layar.
+    // Menangani scroll halaman Siswa maupun area modal pratinjau Guru.
+    function matchingAutoScroll(startEvent, onPositionChange) {
+        let pointerX = startEvent.clientX;
+        let pointerY = startEvent.clientY;
+        let active = true;
+        let frameId = null;
+        const findScrollParent = node => {
+            for (let current = node?.parentElement; current; current = current.parentElement) {
+                const style = window.getComputedStyle(current);
+                if (/(auto|scroll)/.test(style.overflowY)
+                    && current.scrollHeight > current.clientHeight + 2) return current;
+            }
+            return null;
+        };
+        const scrollParent = findScrollParent(startEvent.target);
+        const tick = () => {
+            if (!active) return;
+            const bounds = scrollParent
+                ? scrollParent.getBoundingClientRect()
+                : { top: 0, bottom: window.innerHeight };
+            const margin = Math.min(92, (bounds.bottom - bounds.top) / 3);
+            let speed = 0;
+            if (pointerY >= bounds.top && pointerY < bounds.top + margin) {
+                speed = -Math.max(3, (bounds.top + margin - pointerY) / margin * 18);
+            } else if (pointerY <= bounds.bottom && pointerY > bounds.bottom - margin) {
+                speed = Math.max(3, (pointerY - (bounds.bottom - margin)) / margin * 18);
+            }
+            if (speed) {
+                if (scrollParent) scrollParent.scrollTop += speed;
+                else window.scrollBy(0, speed);
+                onPositionChange({ clientX: pointerX, clientY: pointerY });
+            }
+            frameId = window.requestAnimationFrame(tick);
+        };
+        frameId = window.requestAnimationFrame(tick);
+        return {
+            move(event) {
+                pointerX = event.clientX;
+                pointerY = event.clientY;
+                onPositionChange(event);
+            },
+            stop() {
+                active = false;
+                if (frameId !== null) window.cancelAnimationFrame(frameId);
+            }
+        };
+    }
     function renderMatchingActivity(container, activity, state) {
         const columns = el('div', 'sd-matching-columns');
         const lines = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -1424,8 +1587,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     line.setAttribute('x2', String(pointerEvent.clientX - rect.left));
                     line.setAttribute('y2', String(pointerEvent.clientY - rect.top));
                 };
-                const onPointerMove = pointerEvent => updateTemporary(pointerEvent);
+                const scroller = matchingAutoScroll(event, updateTemporary);
+                const onPointerMove = pointerEvent => scroller.move(pointerEvent);
                 const onPointerUp = pointerEvent => {
+                    scroller.stop();
                     document.removeEventListener('pointermove', onPointerMove);
                     document.removeEventListener('pointerup', onPointerUp);
                     document.removeEventListener('pointercancel', onPointerUp);
@@ -1523,6 +1688,9 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         };
         matchingLineUpdaters.add(updateLines);
+        columns.querySelectorAll('img').forEach(img => {
+            if (!img.complete) img.addEventListener('load', updateLines, { once: true });
+        });
         requestAnimationFrame(updateLines);
     }
     function showQuizMessage(message) {
@@ -1637,11 +1805,26 @@ document.addEventListener('DOMContentLoaded', function () {
             const questionPrompt = normalizePrompt(question.question);
             const instruction = String(question.instruction || '').trim();
             if (instruction && normalizePrompt(instruction) !== questionPrompt) {
-                activityContent.appendChild(el(
+                const instructionBox = el('div', 'sd-formative-instruction');
+
+                const instructionLabel = el(
+                    'strong',
+                    '',
+                    'Petunjuk Soal'
+                );
+
+                const instructionText = el(
                     'p',
-                    'sd-formative-instruction',
+                    '',
                     instruction
-                ));
+                );
+
+                instructionBox.append(
+                    instructionLabel,
+                    instructionText
+                );
+
+                activityContent.appendChild(instructionBox);
             } else if (!instruction) {
                 activityContent.appendChild(el(
                     'p',
@@ -2406,10 +2589,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 '[data-extra]'
             );
             if (extra) {
-                alert(
-                    extra.dataset.extra +
-                    ' akan dibuat pada tahap berikutnya.'
-                );
+                showDialog({
+                    title: 'Informasi',
+                    message: extra.dataset.extra + ' akan dibuat pada tahap berikutnya.',
+                    confirmText: 'Oke'
+                });
             }
         }
     );
@@ -2463,7 +2647,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (step) {
                 openStep(step);
             } else {
-                alert('Materi tidak ditemukan.');
+                showToast('Materi tidak ditemukan.', true);
             }
         }
     );

@@ -50,6 +50,7 @@ class AssignTeacherClass extends Command
         $classExists = DB::table('users')
             ->where('role', 'siswa')
             ->where('kelas', $className)
+            ->where('sekolah', $teacher->sekolah)
             ->exists();
         if (!$classExists) {
             $this->error('Tidak ada Siswa terdaftar pada kelas tersebut.');

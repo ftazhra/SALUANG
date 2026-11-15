@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Controllers\Guru;
+
 use App\Http\Controllers\Controller;
 use App\Models\Discussion;
 use App\Models\Chapter;
@@ -9,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+
 class DiscussionController extends Controller
 {
     private function attachForumAvatar(?User $author): void
@@ -282,6 +285,11 @@ class DiscussionController extends Controller
                 'min:2',
                 'max:5000',
             ],
+            'parent_reply_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('discussion_replies', 'id')->where('discussion_id', $discussion->id),
+            ],
         ]);
         // 06.2. Simpan tanggapan ke database
         $reply = $discussion
@@ -289,6 +297,7 @@ class DiscussionController extends Controller
             ->create([
                 'user_id' => $request->user()->id,
                 'body' => $data['body'],
+                'parent_reply_id' => $data['parent_reply_id'] ?? null,
             ]);
         // 06.3. Sertakan nama pembuat tanggapan
         $reply->load('user:id,name');

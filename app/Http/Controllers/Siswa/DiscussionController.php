@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Controllers\Siswa;
+
 use App\Http\Controllers\Controller;
 use App\Models\Discussion;
 use App\Models\Chapter;
@@ -8,6 +10,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+
 class DiscussionController extends Controller
 {
     /**
@@ -286,6 +289,11 @@ class DiscussionController extends Controller
                 'min:2',
                 'max:5000',
             ],
+            'parent_reply_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('discussion_replies', 'id')->where('discussion_id', $discussion->id),
+            ],
         ]);
         // 06.2. Simpan tanggapan ke database
         $reply = $discussion
@@ -293,6 +301,7 @@ class DiscussionController extends Controller
             ->create([
                 'user_id' => $request->user()->id,
                 'body' => $data['body'],
+                'parent_reply_id' => $data['parent_reply_id'] ?? null,
             ]);
         // 06.3. Sertakan nama pembuat tanggapan
         $reply->load('user:id,name,profile_photo_path,foto_profil');

@@ -74,6 +74,126 @@ document.addEventListener('DOMContentLoaded', () => {
         element.classList.toggle('is-error', error);
     }
 
+    function showToast(message, error = false) {
+        const existing = document.getElementById('gpAppToast');
+        if (existing) existing.remove();
+
+        const toast = document.createElement('div');
+        toast.id = 'gpAppToast';
+        toast.setAttribute('role', 'status');
+        toast.setAttribute('aria-live', 'polite');
+        toast.textContent = message;
+        toast.style.position = 'fixed';
+        toast.style.right = '20px';
+        toast.style.bottom = '20px';
+        toast.style.zIndex = '3200';
+        toast.style.maxWidth = '360px';
+        toast.style.padding = '12px 16px';
+        toast.style.borderRadius = '12px';
+        toast.style.background = error ? '#fff0ef' : '#eaf7ef';
+        toast.style.border = error ? '1px solid #f0c5c5' : '1px solid #c8e7d4';
+        toast.style.color = error ? '#a52f2f' : '#17643e';
+        toast.style.boxShadow = '0 8px 24px rgba(7, 84, 119, 0.12)';
+        toast.style.fontSize = '14px';
+        toast.style.fontWeight = '600';
+        document.body.appendChild(toast);
+
+        clearTimeout(showToast.timer);
+        showToast.timer = setTimeout(() => toast.remove(), 3500);
+    }
+
+    function showConfirmDialog({ title, message, confirmText = 'Ya, Hapus', cancelText = 'Batal', onConfirm }) {
+        const wrapper = document.createElement('div');
+        wrapper.id = 'gpConfirmDialog';
+        wrapper.style.position = 'fixed';
+        wrapper.style.inset = '0';
+        wrapper.style.zIndex = '3300';
+        wrapper.style.display = 'flex';
+        wrapper.style.alignItems = 'center';
+        wrapper.style.justifyContent = 'center';
+        wrapper.style.background = 'rgba(7, 41, 55, 0.52)';
+
+        const dialog = document.createElement('div');
+        dialog.setAttribute('role', 'dialog');
+        dialog.setAttribute('aria-modal', 'true');
+        dialog.setAttribute('aria-labelledby', 'gpConfirmTitle');
+        dialog.style.width = 'min(92vw, 420px)';
+        dialog.style.background = '#fff';
+        dialog.style.borderRadius = '16px';
+        dialog.style.padding = '24px';
+        dialog.style.boxShadow = '0 16px 48px rgba(7, 41, 55, 0.18)';
+
+        const icon = document.createElement('div');
+        icon.innerHTML = '<i class="bi bi-exclamation-triangle" style="font-size: 28px; color: #d44949;"></i>';
+        icon.style.display = 'grid';
+        icon.style.placeItems = 'center';
+        icon.style.width = '58px';
+        icon.style.height = '58px';
+        icon.style.margin = '0 auto 16px';
+        icon.style.borderRadius = '50%';
+        icon.style.background = '#fff0e9';
+
+        const heading = document.createElement('h2');
+        heading.id = 'gpConfirmTitle';
+        heading.textContent = title;
+        heading.style.margin = '0 0 12px';
+        heading.style.textAlign = 'center';
+        heading.style.color = '#075477';
+        heading.style.fontSize = '20px';
+
+        const description = document.createElement('p');
+        description.textContent = message;
+        description.style.margin = '0';
+        description.style.textAlign = 'center';
+        description.style.color = '#638a96';
+        description.style.lineHeight = '1.7';
+        description.style.fontSize = '14px';
+
+        const actions = document.createElement('div');
+        actions.style.display = 'flex';
+        actions.style.justifyContent = 'flex-end';
+        actions.style.gap = '10px';
+        actions.style.marginTop = '22px';
+
+        const cancelButton = document.createElement('button');
+        cancelButton.type = 'button';
+        cancelButton.textContent = cancelText;
+        cancelButton.className = 'gm-btn gm-btn-outline';
+        cancelButton.addEventListener('click', () => wrapper.remove());
+
+        const confirmButton = document.createElement('button');
+        confirmButton.type = 'button';
+        confirmButton.textContent = confirmText;
+        confirmButton.className = 'gm-btn gm-btn-danger';
+        confirmButton.addEventListener('click', async () => {
+            confirmButton.disabled = true;
+            confirmButton.textContent = 'Memproses...';
+            try {
+                if (typeof onConfirm === 'function') {
+                    await onConfirm();
+                }
+            } finally {
+                wrapper.remove();
+            }
+        });
+
+        actions.append(cancelButton, confirmButton);
+        dialog.append(icon, heading, description, actions);
+        wrapper.appendChild(dialog);
+        document.body.appendChild(wrapper);
+        cancelButton.focus();
+
+        wrapper.addEventListener('click', event => {
+            if (event.target === wrapper) wrapper.remove();
+        });
+        document.addEventListener('keydown', function onKeydown(event) {
+            if (event.key === 'Escape' && document.body.contains(wrapper)) {
+                wrapper.remove();
+                document.removeEventListener('keydown', onKeydown);
+            }
+        }, { once: true });
+    }
+
     function getErrorMessage(result, fallback) {
         const firstError = result?.errors
             ? Object.values(result.errors).flat()[0]
@@ -303,31 +423,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     deletePhotoButton.addEventListener('click', async () => {
-        const confirmed = window.confirm(
-            'Yakin ingin menghapus foto profil?'
-        );
+        showConfirmDialog({
+            title: 'Hapus Foto Profil?',
+            message: 'Apakah Anda yakin ingin menghapus foto profil ini?',
+            confirmText: 'Ya, Hapus',
+            onConfirm: async () => {
+                deletePhotoButton.disabled = true;
+                photoFilename.textContent = 'Menghapus foto...';
 
-        if (!confirmed) return;
+                try {
+                    await requestApi(
+                        `${API}/photo`,
+                        'DELETE'
+                    );
 
-        deletePhotoButton.disabled = true;
-        photoFilename.textContent = 'Menghapus foto...';
+                    setAvatarInitial(displayName.textContent.trim());
 
-        try {
-            await requestApi(
-                `${API}/photo`,
-                'DELETE'
-            );
-
-            setAvatarInitial(displayName.textContent.trim());
-
-            deletePhotoButton.hidden = true;
-            photoFilename.textContent =
-                'Foto profil berhasil dihapus.';
-
-        } catch (error) {
-            photoFilename.textContent = error.message;
-            deletePhotoButton.disabled = false;
-        }
+                    deletePhotoButton.hidden = true;
+                    photoFilename.textContent = 'Foto profil berhasil dihapus.';
+                } catch (error) {
+                    photoFilename.textContent = error.message;
+                    deletePhotoButton.disabled = false;
+                    throw error;
+                }
+            }
+        });
     });
 
     /* 09. BUKA / TUTUP FORM PASSWORD */
@@ -383,7 +503,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             showMessage(passwordMessage, '');
 
-            window.alert('Kata sandi berhasil diperbarui.');
+            showToast('Kata sandi berhasil diperbarui.');
 
         } catch (error) {
             showMessage(passwordMessage, error.message, true);

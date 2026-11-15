@@ -37,6 +37,8 @@
                     <p>Masuk untuk melanjutkan perjalanan belajarmu.</p>
                 </div>
 
+                <p class="sl-class-note">Media pembelajaran IPA Kelas VII SMP untuk berbagai sekolah.</p>
+
                 @if ($errors->any())
                     <div class="sl-alert">
                         {{ $errors->first() }}

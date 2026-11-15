@@ -1,7 +1,4 @@
 <section class="gd-material-page" data-guru-section="materi" id="guruMaterialPage" hidden>
-
-
-
     {{-- ======================================================
          01. DAFTAR BAB
          ====================================================== --}}
@@ -47,8 +44,6 @@
         </div>
     </div>
 
-
-
     {{-- ======================================================
          02. DETAIL BAB
          ====================================================== --}}
@@ -93,8 +88,6 @@
                 </figure>
             </div>
 
-
-
             {{-- TUJUAN PEMBELAJARAN --}}
             <div class="gm-detail-section">
                 <h2>
@@ -108,8 +101,6 @@
                 </ol>
             </div>
 
-
-
             {{-- YUK, PIKIRKAN --}}
             <div class="gm-detail-section">
                 <h2>
@@ -121,8 +112,6 @@
                 </p>
             </div>
         </article>
-
-
 
         {{-- DAFTAR SUBBAB --}}
         <section class="gm-subchapter-section">
@@ -145,8 +134,6 @@
         </section>
     </div>
 
-
-
     {{-- ======================================================
          03. MODAL TAMBAH / EDIT BAB
          ====================================================== --}}
@@ -164,8 +151,6 @@
             <form id="gmChapterForm">
                 <input type="hidden" id="gmChapterId">
 
-
-
                 {{-- NOMOR BAB --}}
                 <div class="gm-field">
                     <label for="gmChapterNumber">
@@ -173,8 +158,6 @@
                     </label>
                     <input type="number" id="gmChapterNumber" min="1" placeholder="Contoh: 1" required>
                 </div>
-
-
 
                 {{-- JUDUL BAB --}}
                 <div class="gm-field">
@@ -184,8 +167,6 @@
                     <input type="text" id="gmChapterTitle" maxlength="255" placeholder="Masukkan judul Bab"
                         required>
                 </div>
-
-
 
                 {{-- DESKRIPSI BAB --}}
                 <div class="gm-field">
@@ -199,8 +180,6 @@
                         dan cakupan materi pada Bab ini.
                     </small>
                 </div>
-
-
 
                 {{-- GAMBAR PENGENALAN BAB --}}
                 <div class="gm-field">
@@ -221,8 +200,6 @@
                         placeholder="Contoh: Ekosistem Lahan Basah Kalimantan Selatan">
                 </div>
 
-
-
                 {{-- TUJUAN PEMBELAJARAN --}}
                 <div class="gm-field">
                     <label>
@@ -234,8 +211,6 @@
                     </p>
                     <div id="gmObjectivesList">
 
-
-
                         {{-- Input dibuat JavaScript Guru --}}
                     </div>
                     <button type="button" class="gm-btn gm-btn-outline" id="gmAddObjective">
@@ -243,8 +218,6 @@
                         Tambah Tujuan Pembelajaran
                     </button>
                 </div>
-
-
 
                 {{-- YUK, PIKIRKAN --}}
                 <div class="gm-field">
@@ -260,8 +233,6 @@
                         Pertanyaan ini akan ditampilkan kepada Siswa pada halaman Pengenalan Bab.
                     </small>
                 </div>
-
-
 
                 {{-- PUBLIKASI BAB --}}
                 <label class="gm-checkbox">
@@ -279,8 +250,6 @@
             </form>
         </div>
     </div>
-
-
 
     {{-- ======================================================
          04. MODAL TAMBAH / EDIT SUBBAB
@@ -346,121 +315,6 @@
                     </p>
                 </section>
 
-
-
-                {{-- EDITOR ISI MATERI --}}
-                <div class="gm-field" id="gmTextBlockEditor" hidden>
-                    <label for="gmRichContentEditor">Editor teks blok terpilih</label>
-                    <p class="gm-field-help">
-                        Pilih Edit pada blok teks. Pemformatan rich text tetap tersedia.
-                    </p>
-                    <div class="gm-rich-editor">
-
-
-
-                        {{-- TOOLBAR --}}
-                        <div class="gm-rich-toolbar" id="gmRichToolbar" role="toolbar"
-                            aria-label="Alat pemformatan materi">
-
-
-
-                            {{-- BOLD --}}
-                            <button type="button" class="gm-rich-tool" data-gm-command="bold"
-                                title="Tebal (Ctrl+B)" aria-label="Tebal">
-                                <strong>B</strong>
-                            </button>
-
-
-
-                            {{-- ITALIC --}}
-                            <button type="button" class="gm-rich-tool" data-gm-command="italic"
-                                title="Miring (Ctrl+I)" aria-label="Miring">
-                                <em>I</em>
-                            </button>
-
-
-
-                            {{-- UNDERLINE --}}
-                            <button type="button" class="gm-rich-tool" data-gm-command="underline"
-                                title="Garis bawah (Ctrl+U)" aria-label="Garis bawah">
-                                <u>U</u>
-                            </button>
-                            <span class="gm-rich-separator" aria-hidden="true"></span>
-
-
-
-                            {{-- HEADING 2 --}}
-                            <button type="button" class="gm-rich-tool gm-rich-tool-text" data-gm-block="H2"
-                                title="Judul bagian" aria-label="Judul bagian">
-                                H2
-                            </button>
-
-
-
-                            {{-- HEADING 3 --}}
-                            <button type="button" class="gm-rich-tool gm-rich-tool-text" data-gm-block="H3"
-                                title="Subjudul" aria-label="Subjudul">
-                                H3
-                            </button>
-
-
-
-                            {{-- PARAGRAF --}}
-                            <button type="button" class="gm-rich-tool gm-rich-tool-text" data-gm-block="P"
-                                title="Paragraf biasa" aria-label="Paragraf biasa">
-                                ¶
-                            </button>
-                            <span class="gm-rich-separator" aria-hidden="true"></span>
-
-
-
-                            {{-- ORDERED LIST --}}
-                            <button type="button" class="gm-rich-tool" data-gm-command="insertOrderedList"
-                                title="Daftar bernomor" aria-label="Daftar bernomor">
-                                <i class="bi bi-list-ol"></i>
-                            </button>
-
-
-
-                            {{-- UNORDERED LIST --}}
-                            <button type="button" class="gm-rich-tool" data-gm-command="insertUnorderedList"
-                                title="Daftar bullet" aria-label="Daftar bullet">
-                                <i class="bi bi-list-ul"></i>
-                            </button>
-                            <span class="gm-rich-separator" aria-hidden="true"></span>
-
-
-
-                            {{-- REMOVE FORMATTING --}}
-                            <button type="button" class="gm-rich-tool" data-gm-command="removeFormat"
-                                title="Hapus pemformatan" aria-label="Hapus pemformatan">
-                                <i class="bi bi-eraser"></i>
-                            </button>
-                        </div>
-
-
-
-                        {{-- AREA EDITOR YANG TERLIHAT --}}
-                        <textarea id="gmRichContentEditor" class="gm-rich-content gm-multiline-input" aria-label="Isi materi pembelajaran"
-                            rows="8"
-                            placeholder="Mulai tulis materi di sini. Gunakan toolbar untuk mengatur judul, paragraf, dan daftar..."></textarea>
-                    </div>
-
-
-
-                    {{-- TEXTAREA UNTUK KOMPATIBILITAS API --}}
-                    <textarea id="gmSubchapterContent" rows="8" class="gm-rich-source" aria-label="Data sumber materi"
-                        tabindex="-1" placeholder="Tuliskan isi materi pembelajaran"></textarea>
-                    <small>
-                        Blok teks yang ingin diformat, lalu
-                        pilih Bold, Italic, Underline, Heading,
-                        daftar angka, atau bullet.
-                    </small>
-                    <p class="gm-editor-status" id="gmEditorStatus" role="status" aria-live="polite"></p>
-                </div>
-
-
-
                 {{-- Aktivitas disimpan sebagai blok teks agar aman tanpa perubahan database. --}}
                 <div class="gm-content-block-callout" id="gmActivityEditor" hidden>
                     <div class="gm-field">
@@ -474,12 +328,103 @@
                             <option value="Ayo Berlatih!">Ayo Berlatih!</option>
                         </select>
                     </div>
-                    <div class="gm-field">
-                        <label for="gmActivityContent">Isi atau pertanyaan aktivitas</label>
-                        <textarea id="gmActivityContent" class="gm-multiline-input" rows="6"
-                            placeholder="Tuliskan pertanyaan dan kegiatan di sini. Gunakan baris baru untuk daftar atau paragraf."></textarea>
-                    </div>
+                    <p class="gm-field-help">Atur jenis aktivitas, lalu tulis isinya di editor teks tepat di bawah ini.
+                    </p>
                 </div>
+                {{-- EDITOR ISI MATERI --}}
+                <div class="gm-field" id="gmTextBlockEditor" hidden>
+                    <label for="gmRichContentEditor">Editor teks blok terpilih</label>
+                    <p class="gm-field-help">
+                        Enter untuk pindah baris. Dua kali Enter untuk satu baris kosong; Backspace atau tombol Jarak
+                        untuk mengatur sendiri.
+                    </p>
+                    <div class="gm-rich-editor">
+
+                        {{-- TOOLBAR --}}
+                        <div class="gm-rich-toolbar" id="gmRichToolbar" role="toolbar"
+                            aria-label="Alat pemformatan materi">
+
+                            {{-- BOLD --}}
+                            <button type="button" class="gm-rich-tool" data-gm-command="bold"
+                                title="Tebal (Ctrl+B)" aria-label="Tebal">
+                                <strong>B</strong>
+                            </button>
+
+                            {{-- ITALIC --}}
+                            <button type="button" class="gm-rich-tool" data-gm-command="italic"
+                                title="Miring (Ctrl+I)" aria-label="Miring">
+                                <em>I</em>
+                            </button>
+
+                            {{-- UNDERLINE --}}
+                            <button type="button" class="gm-rich-tool" data-gm-command="underline"
+                                title="Garis bawah (Ctrl+U)" aria-label="Garis bawah">
+                                <u>U</u>
+                            </button>
+                            <span class="gm-rich-separator" aria-hidden="true"></span>
+
+                            {{-- HEADING 2 --}}
+                            <button type="button" class="gm-rich-tool gm-rich-tool-text" data-gm-block="H2"
+                                title="Judul bagian" aria-label="Judul bagian">
+                                H2
+                            </button>
+
+                            {{-- HEADING 3 --}}
+                            <button type="button" class="gm-rich-tool gm-rich-tool-text" data-gm-block="H3"
+                                title="Subjudul" aria-label="Subjudul">
+                                H3
+                            </button>
+
+                            {{-- PARAGRAF --}}
+                            <button type="button" class="gm-rich-tool gm-rich-tool-text" data-gm-block="P"
+                                title="Paragraf biasa" aria-label="Paragraf biasa">
+                                ¶
+                            </button>
+                            <span class="gm-rich-separator" aria-hidden="true"></span>
+
+                            {{-- ORDERED LIST --}}
+                            <button type="button" class="gm-rich-tool" data-gm-command="insertOrderedList"
+                                title="Daftar bernomor" aria-label="Daftar bernomor">
+                                <i class="bi bi-list-ol"></i>
+                            </button>
+
+                            {{-- UNORDERED LIST --}}
+                            <button type="button" class="gm-rich-tool" data-gm-command="insertUnorderedList"
+                                title="Daftar bullet" aria-label="Daftar bullet">
+                                <i class="bi bi-list-ul"></i>
+                            </button>
+                            <span class="gm-rich-separator" aria-hidden="true"></span>
+
+                            {{-- Jarak dikendalikan pengguna, bukan margin otomatis. --}}
+                            <button type="button" class="gm-rich-tool gm-rich-tool-text" data-gm-spacing="add"
+                                title="Tambah satu baris kosong" aria-label="Tambah satu baris kosong">+
+                                Jarak</button>
+                            <button type="button" class="gm-rich-tool gm-rich-tool-text" data-gm-spacing="remove"
+                                title="Kurangi satu baris kosong" aria-label="Kurangi satu baris kosong">−
+                                Jarak</button>
+                            <span class="gm-rich-separator" aria-hidden="true"></span>
+                            {{-- REMOVE FORMATTING --}}
+                            <button type="button" class="gm-rich-tool" data-gm-command="removeFormat"
+                                title="Hapus pemformatan" aria-label="Hapus pemformatan">
+                                <i class="bi bi-eraser"></i>
+                            </button>
+                        </div>
+
+                        {{-- AREA EDITOR YANG TERLIHAT --}}
+                        <textarea id="gmRichContentEditor" class="gm-rich-content gm-multiline-input" aria-label="Isi materi pembelajaran"
+                            rows="8"
+                            placeholder="Mulai tulis materi di sini. Gunakan toolbar untuk mengatur judul, paragraf, dan daftar..."></textarea>
+                    </div>
+
+                    {{-- TEXTAREA UNTUK KOMPATIBILITAS API --}}
+                    <textarea id="gmSubchapterContent" rows="8" class="gm-rich-source" aria-label="Data sumber materi"
+                        tabindex="-1" placeholder="Tuliskan isi materi pembelajaran"></textarea>
+                    <small>
+                        Pilih teks untuk memformatnya. Spasi antarbagiannya dapat kamu tambah atau kurangi sendiri.
+                    </small>
+                    <p class="gm-editor-status" id="gmEditorStatus" role="status" aria-live="polite"></p>
+                </div>
+
                 <div class="gm-content-block-callout" id="gmCalloutEditor" hidden>
                     <div class="gm-field">
                         <label for="gmCalloutTitle">Judul informasi <span>(opsional)</span></label>
@@ -506,6 +451,10 @@
                         <input type="file" id="gmBlockMediaFile">
                         <small id="gmBlockMediaFileHelp"></small>
                     </div>
+                    <div class="gm-field" id="gmBlockMediaPreviewField" hidden>
+                        <label>Pratinjau Media</label>
+                        <div id="gmBlockMediaPreview"></div>
+                    </div>
                     <div class="gm-field" id="gmBlockYoutubeField" hidden>
                         <label for="gmBlockYoutubeUrl">Tautan YouTube</label>
                         <input type="url" id="gmBlockYoutubeUrl" maxlength="2048"
@@ -531,8 +480,6 @@
                     </div>
                 </div>
 
-
-
                 {{-- PUBLIKASI SUBBAB --}}
                 <label class="gm-checkbox">
                     <input type="checkbox" id="gmSubchapterPublished">
@@ -549,8 +496,6 @@
             </div>
         </div>
     </div>
-
-
 
     {{-- ======================================================
          05. KONFIRMASI PERUBAHAN SUBBAB BELUM DISIMPAN
@@ -576,8 +521,6 @@
             </div>
         </div>
     </div>
-
-
 
     {{-- ======================================================
          06. MODAL KONFIRMASI HAPUS
@@ -607,15 +550,11 @@
         </div>
     </div>
 
-
-
     {{-- ======================================================
          07. PESAN STATUS CRUD
          ====================================================== --}}
     <div class="gm-toast" id="gmToast" role="status" aria-live="polite" hidden></div>
 </section>
-
-
 
 {{-- ==========================================================
      07. STYLING KHUSUS EDITOR

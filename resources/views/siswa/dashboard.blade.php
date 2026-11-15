@@ -27,8 +27,8 @@
          03. CSS DASHBOARD
     ====================================================== -->
     <link rel="stylesheet" href="{{ asset('css/siswa.css') }}?v=40">
-    <link rel="stylesheet" href="{{ asset('css/siswa-beranda.css') }}?v=7">
-    <link rel="stylesheet" href="{{ asset('css/siswa-materi.css') }}?v=20261111a">
+    <link rel="stylesheet" href="{{ asset('css/siswa-beranda.css') }}?v=20261115r3">
+    <link rel="stylesheet" href="{{ asset('css/siswa-materi.css') }}?v=20261115r3">
     <link rel="stylesheet" href="{{ asset('css/siswa-evaluasi.css') }}?v=61">
     <link rel="stylesheet" href="{{ asset('css/siswa-forum.css') }}?v=7">
     <link rel="stylesheet" href="{{ asset('css/siswa-profil.css') }}?v=5">
@@ -221,23 +221,24 @@
                     <div class="dropdown-menu dropdown-menu-end p-3 sd-dropdown website-notification-menu">
                         <strong>Notifikasi</strong>
                         <div class="website-notification-list">
-                        @forelse ($notifications ?? [] as $notification)
-                            <article class="website-notification-item" data-notification-item
-                                data-notification-unread="{{ $notification['is_read'] ? 'false' : 'true' }}">
-                                <a class="website-notification-link{{ $notification['is_read'] ? '' : ' is-unread' }}"
-                                    href="{{ $notification['url'] }}">
-                                <strong>{{ $notification['title'] }}</strong>
-                                <span>{{ $notification['message'] }}</span>
-                                <small>{{ $notification['is_read'] ? 'Dibaca' : 'Belum dibaca' }} · {{ $notification['date']?->format('d M Y, H:i') ?? '-' }}</small>
-                                </a>
-                                <button type="button" class="website-notification-delete"
-                                    data-notification-delete="{{ route('notifications.destroy', $notification['id']) }}"
-                                    aria-label="Hapus notifikasi: {{ $notification['title'] }}"
-                                    title="Hapus notifikasi">×</button>
-                            </article>
-                        @empty
-                            <p class="website-notification-empty" data-notification-empty>Belum ada notifikasi</p>
-                        @endforelse
+                            @forelse ($notifications ?? [] as $notification)
+                                <article class="website-notification-item" data-notification-item
+                                    data-notification-unread="{{ $notification['is_read'] ? 'false' : 'true' }}">
+                                    <a class="website-notification-link{{ $notification['is_read'] ? '' : ' is-unread' }}"
+                                        href="{{ $notification['url'] }}">
+                                        <strong>{{ $notification['title'] }}</strong>
+                                        <span>{{ $notification['message'] }}</span>
+                                        <small>{{ $notification['is_read'] ? 'Dibaca' : 'Belum dibaca' }} ·
+                                            {{ $notification['date']?->format('d M Y, H:i') ?? '-' }}</small>
+                                    </a>
+                                    <button type="button" class="website-notification-delete"
+                                        data-notification-delete="{{ route('notifications.destroy', $notification['id']) }}"
+                                        aria-label="Hapus notifikasi: {{ $notification['title'] }}"
+                                        title="Hapus notifikasi">×</button>
+                                </article>
+                            @empty
+                                <p class="website-notification-empty" data-notification-empty>Belum ada notifikasi</p>
+                            @endforelse
                         </div>
                         <p class="website-notification-error" data-notification-error role="status" hidden></p>
                     </div>
@@ -400,11 +401,11 @@
     ====================================================== --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script src="{{ asset('js/siswa-beranda.js') }}?v=3" defer></script>
+    <script src="{{ asset('js/siswa-beranda.js') }}?v=20261115r3" defer></script>
 
-    <script src="{{ asset('js/siswa-materi.js') }}?v=2" defer></script>
+    <script src="{{ asset('js/siswa-materi.js') }}?v=20261115r2" defer></script>
 
-    <script src="{{ asset('js/siswa.js') }}?v=20261111a" defer></script>
+    <script src="{{ asset('js/siswa.js') }}?v=20261115r3" defer></script>
 
     <script src="{{ asset('js/siswa-evaluasi.js') }}?v=61" defer></script>
 

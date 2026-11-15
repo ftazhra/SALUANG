@@ -1098,7 +1098,7 @@
 /* Paragraf penjelasan materi rata kanan-kiri, bukan caption media. */
 #lessonPage .sd-content-block:not(.sd-content-block-callout)>p,
 #lessonPage .sd-content-block:not(.sd-content-block-callout)>div:not(.sd-media-item)>p {
-    text-align: justify;
+    text-align: left;
     text-justify: inter-word;
 }
 
@@ -1113,13 +1113,12 @@
 #lessonContent {
     display: flow-root;
     padding: 0 !important;
-    line-height: 1.8 !important;
-    color: #315e68;
+    line-height: 1.5 !important;
 }
 
 /* 2. Jarak antarblok pembelajaran */
 #lessonContent>.sd-content-block {
-    margin: 0 0 32px !important;
+    margin: 0 0 8px !important;
 }
 
 #lessonContent>.sd-content-block:last-child {
@@ -1128,26 +1127,51 @@
 
 /* 3. Paragraf materi: justify dan spasi 1,5 */
 #lessonContent .sd-content-block:not(.sd-content-block-media) p {
-    font-size: 15px;
-    color: #315e68;
-    text-align: justify;
-    line-height: 1.8 !important;
-    margin: 0 0 16px;
+    font-size: 14px;
+    text-align: left;
+    line-height: 1.55 !important;
+    margin: 0 0 6px;
+}
+
+#lessonContent .sd-content-block :is(ul, ol) {
+    margin: 2px 0 8px;
+    padding-left: 1.8rem;
+    text-align: left;
 }
 
 #lessonContent .sd-content-block li {
-    font-size: 15px;
-    color: #315e68;
-    text-align: justify;
-    line-height: 1.8 !important;
-    margin-bottom: 12px;
+    font-size: 14px;
+    text-align: left;
+    line-height: 1.55 !important;
+    margin-bottom: 3px;
 }
 
 /* 4. Jarak judul dengan isi materi */
 #lessonContent .sd-content-block h2,
 #lessonContent .sd-content-block h3 {
-    margin: 20px 0 14px !important;
-    line-height: 1.5;
+    margin: 8px 0 4px !important;
+    line-height: 1.45;
+}
+
+/* Judul/subjudul tetap di margin utama; hanya daftar yang menjorok. */
+#lessonPage #lessonContent .sd-content-block :is(ul, ol) {
+    display: block;
+    clear: none;
+    box-sizing: border-box;
+    width: auto;
+    max-width: 100%;
+    padding-left: 24px;
+    margin: 6px 0 10px;
+    list-style-position: outside;
+    text-align: left;
+}
+
+#lessonPage #lessonContent .sd-content-block :is(ul, ol)>li {
+    display: list-item;
+    padding-left: 4px;
+    text-indent: 0;
+    text-align: left;
+    overflow-wrap: break-word;
 }
 
 /* 5. Card gambar seperti pratinjau Guru */
@@ -1176,7 +1200,7 @@
 /* 7. Keterangan gambar CENTER dan tidak mepet */
 #lessonContent .sd-media-caption {
     display: block;
-    margin: 24px auto 0 !important;
+    margin: 10px auto 0 !important;
     padding: 0 12px;
     text-align: center !important;
     font-size: 12px;
@@ -1186,19 +1210,21 @@
 #lessonPage #lessonContent>.sd-media-item.sd-media-item-wrap-right,
 #lessonPage #lessonContent>.sd-media-item.sd-media-item-wrap-left {
     box-sizing: border-box;
-    width: min(42%, 360px) !important;
-    max-width: 42% !important;
+    width: min(33%, 420px) !important;
+    max-width: 33% !important;
     padding: 12px !important;
 }
 
 #lessonPage #lessonContent>.sd-media-item.sd-media-item-wrap-right {
     float: right;
-    margin: 0 0 16px 18px !important;
+    clear: both;
+    margin: 0 0 20px 18px !important;
 }
 
 #lessonPage #lessonContent>.sd-media-item.sd-media-item-wrap-left {
     float: left;
-    margin: 0 18px 16px 0 !important;
+    clear: both;
+    margin: 0 18px 20px 0 !important;
 }
 
 #lessonPage #lessonContent>.sd-media-item.sd-media-item-wrap-right .sd-media-picture,
@@ -1223,8 +1249,12 @@
     clear: both;
 }
 
+#lessonContent p:empty {
+    display: none;
+}
+
 #lessonContent p:not(.sd-media-caption) {
-    text-align: justify;
+    text-align: left;
 }
 
 #lessonContent.sd-content-flow-wrap>.sd-content-block:not(.sd-content-block-clear) {
@@ -1241,7 +1271,7 @@
 
 /* 8. Judul gambar juga CENTER */
 #lessonContent .sd-media-title {
-    margin: 0 0 20px !important;
+    margin: 0 0 8px !important;
     text-align: center !important;
     line-height: 1.5;
 }
@@ -1256,8 +1286,8 @@
 #lessonContent .sd-learning-activity {
     box-sizing: border-box;
     width: min(100%, 760px);
-    margin: 24px auto 32px;
-    padding: 24px;
+    margin: 12px auto 16px;
+    padding: 18px;
     border: 1px solid #cce4d6;
     border-radius: 14px;
     background: #eef8f3;
@@ -1274,12 +1304,12 @@
 }
 
 #lessonContent .sd-learning-activity-body :is(p, li) {
-    text-align: justify;
-    line-height: 1.5 !important;
+    text-align: left;
+    line-height: 1.55 !important;
 }
 
 #lessonContent .sd-learning-activity-body p {
-    margin: 0 0 12px !important;
+    margin: 0 0 6px !important;
 }
 
 #lessonContent .sd-learning-activity-body> :last-child {
@@ -1297,7 +1327,7 @@
     }
 
     #lessonContent>.sd-content-block {
-        margin-bottom: 24px !important;
+        margin-bottom: 8px !important;
     }
 
     #lessonContent .sd-media-item {
@@ -1339,18 +1369,33 @@
     text-align: left !important;
 }
 
-#guruMaterialPage .gm-learning-activity-body,
-#lessonPage .sd-learning-activity-body {
+#guruMaterialPage .gm-learning-activity-body {
     font-size: 14px;
     line-height: 1.5 !important;
-    text-align: justify;
+    text-align: left;
 }
 
-#guruMaterialPage .gm-learning-activity-body p,
-#lessonPage .sd-learning-activity-body p {
-    margin: 0 0 12px !important;
+#lessonPage .sd-learning-activity-body {
+    display: flow-root;
+    font-size: 14px;
+    line-height: 1.65 !important;
+    text-align: left;
+}
+
+#guruMaterialPage .gm-learning-activity-body p {
+    margin: 0 0 6px !important;
     line-height: 1.5 !important;
-    text-align: justify !important;
+    text-align: left !important;
+}
+
+#lessonPage .sd-learning-activity-body p {
+    display: block;
+    height: auto;
+    min-height: 0;
+    margin: 0 0 12px !important;
+    line-height: 1.65 !important;
+    text-align: left !important;
+    overflow-wrap: anywhere;
 }
 
 #guruMaterialPage .gm-learning-activity-body p:last-child,
@@ -1407,9 +1452,8 @@
 #lessonPage #lessonContent .sd-learning-activity-body,
 #lessonPage #lessonContent .sd-learning-activity-body p,
 #lessonPage #lessonContent .sd-learning-activity-body li {
-    font-size: 15px !important;
-    line-height: 1.8 !important;
-    text-align: justify;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
 }
 
 /* Lebar card Ayo tetap sejajar dengan teks materi */
@@ -1434,6 +1478,13 @@
     margin: 0 0 10px !important;
 }
 
+#lessonPage #lessonContent .sd-learning-activity-body,
+#lessonPage #lessonContent .sd-learning-activity-body p,
+#lessonPage #lessonContent .sd-learning-activity-body li {
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+}
+
 #lessonPage #lessonContent .sd-learning-activity-body p:last-child,
 #lessonPage #lessonContent .sd-learning-activity-body ul:last-child,
 #lessonPage #lessonContent .sd-learning-activity-body ol:last-child {
@@ -1445,7 +1496,7 @@
 }
 
 #lessonPage #lessonContent .sd-learning-activity {
-    margin: 24px 0 28px !important;
+    margin: 12px 0 16px !important;
 }
 
 #lessonPage .sd-content-block:has(> .gm-summary-card) {
@@ -1689,18 +1740,43 @@
     list-style-position: outside;
 }
 
-#lessonPage #lessonContent ol,
-#lessonPage #lessonContent ul {
-    margin: 6px 0 8px;
-    padding-left: 20px;
+#lessonPage #lessonContent ol {
+    display: block;
+    box-sizing: border-box;
+    max-width: 100%;
+    margin: 4px 0 10px;
+    padding-left: 24px;
+    text-align: left;
 }
 
-#lessonPage #lessonContent li {
+/* Bullet materi: indentasi rapi dan konsisten */
+#lessonPage #lessonContent ul {
+    display: block;
+    box-sizing: border-box;
+    max-width: 100%;
+    margin: 6px 0 10px;
+    padding-left: 32px;
+    list-style-type: disc;
+    list-style-position: outside;
+    text-align: left;
+}
+
+#lessonPage #lessonContent ul>li {
+    display: list-item;
+    margin: 0 0 6px;
+    padding-left: 4px;
+    list-style-type: disc;
+    text-indent: 0;
+    line-height: 1.6;
+}
+
+#lessonPage #lessonContent ol>li {
     display: list-item;
     margin-bottom: 3px;
-    padding-left: 2px;
+    padding-left: 4px;
     font-size: inherit;
     line-height: 1.55;
+    text-align: left;
 }
 
 #lessonPage .sd-material-media {
@@ -2170,7 +2246,6 @@
     justify-content: start;
 }
 
-
 /* Drag & Drop — gambar besar, kartu tetap kotak */
 .sd-activity-token.is-drag-card .sd-activity-image,
 .sd-activity-assigned .sd-activity-image {
@@ -2230,7 +2305,7 @@
     justify-content: flex-start;
     gap: 7px;
     width: clamp(100px, 15vw, 144px);
-    aspect-ratio: 1;
+    min-height: 156px;
     min-width: 0;
     height: auto;
     justify-self: center;
@@ -2248,9 +2323,9 @@
 }
 
 .sd-matching-card .sd-activity-image-frame {
-    flex: 0 0 68%;
+    flex: 0 0 auto;
     width: 100%;
-    height: 68%;
+    height: 86px;
     min-height: 0;
     background: #edf5f2;
 }
@@ -2264,11 +2339,12 @@
 }
 
 .sd-matching-card .sd-activity-caption {
-    display: -webkit-box;
+    display: block;
     width: 100%;
-    overflow: hidden;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    overflow: visible;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.5;
 }
 
 .sd-matching-card.is-paired {
@@ -3293,7 +3369,6 @@
     .sd-matching-columns {
         grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr);
     }
-
 }
 
 .sd-formative-content {
@@ -3334,414 +3409,188 @@
     }
 }
 
-
-/* Penyesuaian tampilan kuis Siswa, khusus halaman materi. */
-.sd-page #lessonPage #questionText {
-    font-size: 17px;
-    line-height: 1.55;
-    font-weight: 600;
-}
-
-.sd-page #lessonPage .sd-formative-prompt {
+/* SALUANG 2026-11: Kuis interaktif Siswa, mengikuti Petunjuk Soal Guru. */
+.sd-page #lessonPage .sd-formative-instruction {
+    margin: 4px 0 18px;
+    padding: 17px 20px;
+    border: 1px solid #b8ddc5;
+    border-left: 5px solid #4e9d6d;
+    border-radius: 12px;
+    background: #eaf6ef;
+    color: #315e68;
     font-size: 16px;
-    line-height: 1.6;
-    font-weight: 600;
+    line-height: 1.7;
 }
 
-.sd-page #lessonPage .sd-formative-instruction,
-.sd-page #lessonPage .sd-formative-hint {
-    font-size: 13px;
-    line-height: 1.6;
-}
-
-/* ===============================================================
-   LAYOUT KUIS SISWA — titik matching dekat gambar; drag/drop adaptif
-   Seluruh selector dibatasi pada lessonPage supaya halaman lain aman.
-   =============================================================== */
-.sd-page #lessonPage #questionText,
-.sd-page #lessonPage .sd-formative-prompt {
-    font-size: 15px;
-    font-weight: 600;
-    line-height: 1.55;
-}
-
-.sd-page #lessonPage .sd-answer-feedback,
-.sd-page #lessonPage .sd-activity-feedback {
-    font-size: 14px;
-    line-height: 1.6;
-}
-
-.sd-page #lessonPage .sd-activity-feedback-row {
-    margin: 9px 0;
-}
-
-.sd-page #lessonPage .sd-activity-feedback-correction {
+.sd-page #lessonPage .sd-formative-instruction strong {
     display: block;
-    margin-top: 16px;
-    color: #075477;
+    margin-bottom: 7px;
+    color: #287b4e;
+    font-size: 18px;
+    font-weight: 700;
 }
 
-/* Matching: foto berada di kedua sisi, titik persis di samping kartu,
-   sehingga jarak antarkartu tidak ikut menyempit. */
+.sd-page #lessonPage .sd-formative-instruction p {
+    margin: 0;
+    color: #315e68;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.7;
+}
+
+/* Kartu menghubungkan memakai ruang kolom, tidak dipaksa berbentuk persegi. */
 .sd-page #lessonPage .sd-matching-columns {
-    box-sizing: border-box;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(70px, 1fr) minmax(0, 1fr);
-    align-items: start;
-    width: 100%;
+    grid-template-columns: minmax(0, 1fr) clamp(32px, 4.5vw, 64px) minmax(0, 1fr);
     gap: 0;
-    padding: 12px 8px;
 }
 
 .sd-page #lessonPage .sd-matching-left,
 .sd-page #lessonPage .sd-matching-right {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 14px;
-    min-width: 0;
-    align-content: start;
-}
-
-.sd-page #lessonPage .sd-matching-left {
-    grid-column: 1;
-}
-
-.sd-page #lessonPage .sd-matching-right {
-    grid-column: 3;
-}
-
-.sd-page #lessonPage .sd-matching-item-row {
-    box-sizing: border-box;
-    display: grid;
-    align-items: center;
-    gap: 5px;
-    width: 100%;
-    min-width: 0;
-}
-
-.sd-page #lessonPage .sd-matching-item-row.is-left {
-    grid-template-columns: minmax(0, 270px) 18px;
     justify-items: stretch;
-    justify-content: start;
 }
 
-.sd-page #lessonPage .sd-matching-item-row.is-right {
-    grid-template-columns: 18px minmax(0, 270px);
-    justify-items: stretch;
-    justify-content: end;
-}
-
-.sd-page #lessonPage .sd-matching-card,
-.sd-page #lessonPage .sd-matching-left .sd-matching-card,
-.sd-page #lessonPage .sd-matching-right .sd-matching-card {
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    max-width: none;
-    min-width: 0;
-    min-height: 0;
+.sd-page #lessonPage .sd-matching-card {
+    width: min(100%, 460px);
+    max-width: 460px;
+    min-height: 160px;
     height: auto;
-    gap: 8px;
-    padding: 10px;
-    background: #fff;
-    border: 1px solid #d5e5e0;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(7, 41, 55, .05);
-    text-align: center;
-    pointer-events: none;
-}
-
-.sd-page #lessonPage .sd-matching-left .sd-matching-card {
-    justify-self: start;
-}
-
-.sd-page #lessonPage .sd-matching-right .sd-matching-card {
-    justify-self: end;
+    aspect-ratio: auto;
+    justify-self: center;
+    gap: 10px;
+    padding: 12px;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.55;
 }
 
 .sd-page #lessonPage .sd-matching-card .sd-activity-image-frame {
-    display: grid;
-    place-items: center;
-    width: 100%;
-    height: auto;
-    min-height: 0;
-    aspect-ratio: 1;
     flex: 0 0 auto;
-    border-radius: 9px;
-    background: #edf4f0;
-    overflow: hidden;
-}
-
-.sd-page #lessonPage .sd-matching-card .sd-activity-image {
-    display: block;
     width: 100%;
-    height: 100%;
-    max-height: none;
-    object-fit: contain;
-    margin: 0;
+    height: clamp(105px, 14vw, 190px);
+    min-height: 0;
 }
 
 .sd-page #lessonPage .sd-matching-card .sd-activity-caption {
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 1.4;
-}
-
-.sd-page #lessonPage .sd-matching-dot {
-    box-sizing: border-box;
     display: block;
-    width: 18px;
-    height: 18px;
-    min-width: 18px;
-    min-height: 18px;
-    flex-basis: 18px;
-    margin: 0;
-    justify-self: center;
-    align-self: center;
-    cursor: crosshair;
-    z-index: 4;
-}
-
-.sd-page #lessonPage .sd-matching-line {
-    stroke: #39885b;
-    stroke-width: 3;
-}
-
-/* Drag & Drop: kolom berubah sesuai jumlah objek yang masih ditampilkan.
-   Contoh: 2 foto -> 2 kolom, 3 foto -> 3 kolom, dst. */
-.sd-page #lessonPage .sd-drag-drop-board {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
-}
-
-.sd-page #lessonPage .sd-activity-source,
-.sd-page #lessonPage .sd-activity-target {
-    box-sizing: border-box;
-    padding: 14px;
-    min-width: 0;
-    border: 1px dashed #b4d6c2;
-    border-radius: 13px;
-    background: #f7fbf8;
-}
-
-.sd-page #lessonPage .sd-activity-source-items {
-    display: grid;
-    grid-template-columns: repeat(var(--sd-object-columns, 2), minmax(0, 1fr));
-    align-items: start;
-    justify-items: stretch;
-    gap: 14px;
     width: 100%;
-    min-height: 0;
-    margin-top: 10px;
+    overflow: visible;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.55;
+    white-space: normal;
+    overflow-wrap: break-word;
+    -webkit-line-clamp: unset;
+}
+
+/* Drag and Drop: teks tidak dipotong dan tinggi kartu mengikuti caption. */
+.sd-page #lessonPage .sd-activity-source-items,
+.sd-page #lessonPage .sd-activity-assigned-list {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 185px));
 }
 
 .sd-page #lessonPage .sd-activity-token.is-drag-card,
 .sd-page #lessonPage .sd-activity-assigned {
     box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     width: 100%;
-    max-width: none;
     min-width: 0;
-    min-height: 0;
+    max-width: 185px;
+}
+
+.sd-page #lessonPage .sd-activity-token.is-drag-card,
+.sd-page #lessonPage .sd-activity-assigned {
     height: auto;
-    margin: 0;
-    padding: 10px;
-    gap: 8px;
-    background: #fff;
-    border: 1px solid #d5e5e0;
-    border-radius: 12px;
-    text-align: center;
-    overflow: hidden;
-}
-
-.sd-page #lessonPage .sd-activity-token.is-drag-card .sd-activity-image-frame,
-.sd-page #lessonPage .sd-activity-assigned .sd-activity-image-frame {
-    position: relative;
-    display: grid;
-    place-items: center;
-    flex: 0 0 auto;
-    width: min(100%, 320px);
-    height: auto;
-    min-height: 0;
-    aspect-ratio: 1;
-    border-radius: 9px;
-    background: #edf4f0;
-    overflow: hidden;
-}
-
-.sd-page #lessonPage .sd-activity-token.is-drag-card .sd-activity-image,
-.sd-page #lessonPage .sd-activity-assigned .sd-activity-image {
-    position: static;
-    display: block;
-    width: 100%;
-    height: 100%;
-    max-width: 100%;
-    max-height: none;
-    object-fit: contain;
-    margin: 0;
-}
-
-.sd-page #lessonPage .sd-activity-token.is-drag-card .sd-activity-caption,
-.sd-page #lessonPage .sd-activity-assigned .sd-activity-caption {
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 1.4;
-}
-
-.sd-page #lessonPage .sd-activity-target-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: start;
-    gap: 12px;
-    width: 100%;
-}
-
-.sd-page #lessonPage .sd-activity-target>strong {
-    display: block;
-    margin-bottom: 10px;
-    color: #245c3e;
-    font-size: 16px;
-}
-
-.sd-page #lessonPage .sd-activity-assigned-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
-    justify-content: start;
-    gap: 10px;
-    width: 100%;
-}
-
-@media (max-width: 760px) {
-    .sd-page #lessonPage .sd-matching-columns {
-        grid-template-columns: minmax(0, 1fr) 30px minmax(0, 1fr);
-        padding: 8px 0;
-    }
-
-    .sd-page #lessonPage .sd-matching-item-row {
-        gap: 3px;
-    }
-
-    .sd-page #lessonPage .sd-matching-item-row.is-left {
-        grid-template-columns: minmax(0, 1fr) 12px;
-    }
-
-    .sd-page #lessonPage .sd-matching-item-row.is-right {
-        grid-template-columns: 12px minmax(0, 1fr);
-    }
-
-    .sd-page #lessonPage .sd-matching-card {
-        padding: 5px;
-    }
-
-    .sd-page #lessonPage .sd-matching-card .sd-activity-caption {
-        font-size: 12px;
-    }
-
-    .sd-page #lessonPage .sd-matching-dot {
-        width: 12px;
-        height: 12px;
-        min-width: 12px;
-        min-height: 12px;
-        flex-basis: 12px;
-    }
-
-    .sd-page #lessonPage .sd-activity-source-items {
-        grid-template-columns: repeat(min(var(--sd-object-columns, 2), 2), minmax(0, 1fr));
-        gap: 8px;
-    }
-
-    .sd-page #lessonPage .sd-activity-source,
-    .sd-page #lessonPage .sd-activity-target {
-        padding: 9px;
-    }
-
-    .sd-page #lessonPage .sd-activity-target-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Revisi caption dan hasil aktivitas Siswa — scoped agar halaman lain aman. */
-.sd-page #lessonPage .sd-matching-card,
-.sd-page #lessonPage .sd-matching-left .sd-matching-card,
-.sd-page #lessonPage .sd-matching-right .sd-matching-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    height: auto;
-    min-height: 0;
-    padding: 10px;
-    gap: 8px;
+    min-height: 160px;
     overflow: visible;
 }
 
-.sd-page #lessonPage .sd-matching-card .sd-activity-image-frame {
-    position: relative;
-    display: grid;
-    place-items: center;
-    flex: 0 0 auto;
-    width: 100%;
-    height: auto;
-    max-height: 205px;
-    aspect-ratio: 1;
-    overflow: hidden;
-}
-
-.sd-page #lessonPage .sd-matching-card .sd-activity-image {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-
-.sd-page #lessonPage .sd-matching-card .sd-activity-caption,
 .sd-page #lessonPage .sd-activity-token.is-drag-card .sd-activity-caption,
 .sd-page #lessonPage .sd-activity-assigned .sd-activity-caption {
     display: block;
-    position: static;
-    flex: 0 0 auto;
-    width: 100%;
-    min-height: 22px;
+    overflow: visible;
+    white-space: normal;
+    overflow-wrap: break-word;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.45;
+    -webkit-line-clamp: unset;
+}
+
+.sd-page #lessonPage .sd-activity-target {
+    border: 2px dashed #8ac4ab;
+    border-radius: 13px;
+    background: #eaf5ff;
+}
+
+.sd-page #lessonPage .sd-activity-target:nth-child(even) {
+    border-color: #a6bbdb;
+    background: #f0edff;
+}
+
+.sd-page #lessonPage .sd-feedback-summary {
+    border: 1px solid #c4dfd0;
+    border-radius: 14px;
+    background: #f4faf6;
+    padding: 20px 22px;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+.sd-page #lessonPage .sd-feedback-title {
+    margin: 0 0 8px;
+    font-size: 19px;
+    color: #17643e;
+}
+
+.sd-page #lessonPage .sd-feedback-score {
     margin: 0;
-    padding: 0;
-    color: #075477;
-    background: transparent;
-    font-size: 15px;
-    font-weight: 500;
-    line-height: 1.5;
-    text-align: center;
-    visibility: visible;
-    opacity: 1;
-    overflow-wrap: anywhere;
+    font-size: 16px;
+    color: #315e68;
 }
 
-.sd-page #lessonPage .sd-activity-feedback {
-    font-weight: 400;
-    font-size: 15px;
-    line-height: 1.65;
-}
-
-.sd-page #lessonPage .sd-activity-feedback strong,
-.sd-page #lessonPage .sd-activity-feedback-row,
-.sd-page #lessonPage .sd-activity-feedback-correction {
-    font-weight: 400;
-}
-
-.sd-page #lessonPage .sd-activity-feedback-row {
-    margin: 5px 0;
-}
-
-.sd-page #lessonPage .sd-activity-feedback-correction {
-    margin: 10px 0 4px;
+.sd-page #lessonPage .sd-feedback-heading {
+    margin: 17px 0 6px;
+    font-size: 16px;
     color: #075477;
 }
 
-@media (max-width: 760px) {
+.sd-page #lessonPage .sd-feedback-explanation {
+    margin: 0;
+    white-space: pre-wrap;
+    font-size: 15px;
+    color: #315e68;
+}
+
+.sd-page #lessonPage .sd-feedback-corrections {
+    margin-top: 12px;
+    padding: 9px 12px;
+    border: 1px solid #d5e8e3;
+    border-radius: 9px;
+    background: #fff;
+    font-size: 14px;
+}
+
+.sd-page #lessonPage .sd-feedback-corrections summary {
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.sd-page #lessonPage .sd-feedback-corrections p {
+    margin: 8px 0;
+}
+
+@media (max-width: 575.98px) {
+    .sd-page #lessonPage .sd-matching-columns {
+        grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr);
+    }
+
+    .sd-page #lessonPage .sd-matching-card {
+        width: 100%;
+        min-height: 135px;
+        padding: 8px;
+    }
+
     .sd-page #lessonPage .sd-matching-card .sd-activity-image-frame {
-        max-height: 150px;
+        height: 100px;
     }
 
     .sd-page #lessonPage .sd-matching-card .sd-activity-caption {
@@ -3749,60 +3598,482 @@
     }
 }
 
-/* Judul koreksi pasangan saja dicetak tebal; teks hasil lain tetap normal. */
-.sd-page #lessonPage .sd-activity-feedback .sd-activity-feedback-correction {
-    font-weight: 700;
+
+/* Patch Menghubungkan: kartu seimbang, media utuh, titik tidak menempel, teks lengkap. */
+.sd-page #lessonPage .sd-matching-columns {
+    grid-template-columns: minmax(0, 1fr) clamp(42px, 5vw, 74px) minmax(0, 1fr);
+    column-gap: 0;
+    align-items: start;
+    width: 100%;
 }
 
-/* Activity images and text-only cards, scoped to the quiz activity board. */
-.sd-page #lessonPage .sd-matching-card .sd-activity-image-frame,
-.sd-page #lessonPage .sd-activity-token.is-drag-card .sd-activity-image-frame,
-.sd-page #lessonPage .sd-activity-assigned .sd-activity-image-frame {
-    position: relative;
-    display: block;
-    width: min(100%, 320px);
-    height: auto;
-    max-height: none;
+.sd-page #lessonPage .sd-matching-left,
+.sd-page #lessonPage .sd-matching-right {
+    display: grid;
+    grid-auto-rows: minmax(230px, auto);
+    row-gap: 14px;
+    align-content: start;
+    min-width: 0;
+}
+
+.sd-page #lessonPage .sd-matching-item-row.is-left {
+    grid-template-columns: minmax(0, 1fr) 24px;
+    column-gap: 11px;
+}
+
+.sd-page #lessonPage .sd-matching-item-row.is-right {
+    grid-template-columns: 24px minmax(0, 1fr);
+    column-gap: 11px;
+}
+
+.sd-page #lessonPage .sd-matching-item-row {
+    align-items: stretch;
+    min-height: 230px;
+}
+
+.sd-page #lessonPage .sd-matching-card {
+    width: 100%;
+    max-width: none;
+    min-height: 230px;
+    height: 100%;
+    aspect-ratio: auto;
+    box-sizing: border-box;
+    padding: 13px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: visible;
+    gap: 9px;
+    border-radius: 14px;
+}
+
+.sd-page #lessonPage .sd-matching-card.has-image {
+    justify-content: flex-start;
+}
+
+.sd-page #lessonPage .sd-matching-card.has-image .sd-activity-image-frame {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 auto;
+    width: 100%;
     min-height: 0;
-    aspect-ratio: 1;
+    height: 155px;
+    max-height: 175px;
     overflow: hidden;
+    background: #fff;
 }
 
-.sd-page #lessonPage .sd-matching-card .sd-activity-image,
-.sd-page #lessonPage .sd-activity-token.is-drag-card .sd-activity-image,
-.sd-page #lessonPage .sd-activity-assigned .sd-activity-image {
+.sd-page #lessonPage .sd-matching-card .sd-activity-image {
+    position: static;
+    inset: auto;
     display: block;
     width: 100%;
     height: 100%;
     max-width: 100%;
-    max-height: none;
-    object-fit: cover;
+    max-height: 100%;
+    object-fit: contain;
     object-position: center;
 }
 
-.sd-page #lessonPage .sd-activity-image-fallback {
-    display: grid;
-    place-items: center;
+.sd-page #lessonPage .sd-matching-card .sd-activity-caption {
+    flex: 0 0 auto;
     width: 100%;
-    height: 100%;
-    padding: 8px;
-    background: #edf4f0;
-    color: #638a96;
-    font-size: 12px;
+    margin-top: auto;
+    color: #075477;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.45;
     text-align: center;
+    overflow-wrap: anywhere;
+    white-space: normal;
 }
 
-.sd-page #lessonPage .sd-matching-card.is-text-only,
-.sd-page #lessonPage .sd-activity-token.is-drag-card.is-text-only,
-.sd-page #lessonPage .sd-activity-assigned.is-text-only {
-    justify-content: center;
-    min-height: 180px;
+.sd-page #lessonPage .sd-matching-card.is-text-only .sd-activity-caption {
+    margin: auto 0;
 }
 
-@media (max-width: 760px) {
-    .sd-page #lessonPage .sd-matching-card.is-text-only,
-    .sd-page #lessonPage .sd-activity-token.is-drag-card.is-text-only,
-    .sd-page #lessonPage .sd-activity-assigned.is-text-only {
-        min-height: 140px;
+.sd-page #lessonPage .sd-matching-item-row .sd-matching-dot {
+    align-self: center;
+    justify-self: center;
+    margin: 0;
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    min-height: 18px;
+    box-sizing: border-box;
+    cursor: crosshair;
+}
+
+.sd-page #lessonPage .sd-feedback-corrections-title {
+    margin: 0 0 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #075477;
+}
+
+@media (max-width: 700px) {
+    .sd-page #lessonPage .sd-matching-columns {
+        grid-template-columns: minmax(0, 1fr) 36px minmax(0, 1fr);
     }
+
+    .sd-page #lessonPage .sd-matching-item-row.is-left {
+        grid-template-columns: minmax(0, 1fr) 15px;
+        column-gap: 5px;
+    }
+
+    .sd-page #lessonPage .sd-matching-item-row.is-right {
+        grid-template-columns: 15px minmax(0, 1fr);
+        column-gap: 5px;
+    }
+
+    .sd-page #lessonPage .sd-matching-left,
+    .sd-page #lessonPage .sd-matching-right {
+        grid-auto-rows: minmax(180px, auto);
+        row-gap: 10px;
+    }
+
+    .sd-page #lessonPage .sd-matching-item-row,
+    .sd-page #lessonPage .sd-matching-card {
+        min-height: 180px;
+    }
+
+    .sd-page #lessonPage .sd-matching-card {
+        padding: 8px;
+    }
+
+    .sd-page #lessonPage .sd-matching-card.has-image .sd-activity-image-frame {
+        height: 105px;
+        max-height: 115px;
+    }
+
+    .sd-page #lessonPage .sd-matching-card .sd-activity-caption {
+        font-size: 12px;
+    }
+
+    .sd-page #lessonPage .sd-matching-item-row .sd-matching-dot {
+        width: 14px;
+        height: 14px;
+        min-width: 14px;
+        min-height: 14px;
+    }
+}
+
+/* Revisi: judul pengenalan Bab tidak mengalahkan konten pembelajaran */
+#chapterPage .sd-objectives-card .sd-heading,
+#chapterPage .sd-prompt-card .sd-heading {
+    font-size: clamp(18px, 1.55vw, 21px);
+    line-height: 1.4;
+}
+
+#chapterPage .sd-objectives-card .sd-heading i,
+#chapterPage .sd-prompt-card .sd-heading i {
+    font-size: 1em;
+}
+
+/* PATCH: Yuk, Pikirkan! menonjolkan pemisahan heading dan pertanyaan. */
+#chapterPage .sd-prompt-card {
+    border-color: #cde3e5;
+}
+
+#chapterPage .sd-prompt-card>.sd-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #d9e9e9;
+    color: #075477;
+}
+
+#chapterPage .sd-prompt-card>.sd-heading i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    border-radius: 10px;
+    background: #e4f3f1;
+    color: #0e7b72;
+}
+
+#chapterPage .sd-prompt-card>.sd-prompt {
+    margin: 0;
+    padding: 14px 16px;
+    border: 1px solid #d4e8e5;
+    border-left: 4px solid #4e9d88;
+    border-radius: 10px;
+    background: #f0f8f4;
+    font-size: 15px;
+    line-height: 1.65;
+}
+
+#chapterPage .sd-prompt-card>.sd-prompt .sd-copy {
+    font-size: 15px;
+    line-height: 1.65;
+    margin: 0;
+    text-align: left;
+}
+
+/* ================================================================
+   SALUANG — ALIRAN MATERI TANPA TUMPUKAN
+   Teks dari JS kini anak langsung #lessonContent ketika ada gambar kiri/kanan.
+   Jangan gunakan display:contents untuk menyatukan blok: elemen paragraf
+   harus memiliki tinggi normal sehingga tidak menimpa paragraf berikutnya.
+   ================================================================ */
+#lessonPage .sd-material-card {
+    container-type: inline-size;
+}
+
+#lessonPage #lessonContent {
+    display: flow-root;
+    font-size: 15px;
+    line-height: 1.6;
+    overflow-wrap: break-word;
+}
+
+#lessonPage #lessonContent>.sd-flow-text-node {
+    display: block;
+    height: auto;
+    min-height: 0;
+    clear: none;
+    position: static;
+}
+
+#lessonPage #lessonContent> :is(p, div, h2, h3, ul, ol).sd-flow-text-node {
+    line-height: 1.6 !important;
+    margin-top: 0 !important;
+    margin-bottom: 6px !important;
+    text-align: justify !important;
+    text-align-last: left;
+    word-spacing: normal;
+    overflow-wrap: break-word;
+}
+
+#lessonPage #lessonContent> :is(h2, h3).sd-flow-text-node {
+    text-align: left !important;
+    margin-top: 8px !important;
+    margin-bottom: 3px !important;
+    line-height: 1.45 !important;
+}
+
+#lessonPage #lessonContent>.sd-flow-text-node :is(p, div, h2, h3, li) {
+    height: auto !important;
+    min-height: 0;
+    line-height: 1.6 !important;
+}
+
+#lessonPage #lessonContent>.sd-flow-text-node :is(p, li) {
+    text-align: justify !important;
+    text-align-last: left;
+}
+
+#lessonPage #lessonContent>.sd-flow-text-node :is(p, h2, h3, ul, ol) {
+    margin-top: 0 !important;
+    margin-bottom: 6px !important;
+}
+
+#lessonPage #lessonContent> :is(ul, ol).sd-flow-text-node,
+#lessonPage #lessonContent>.sd-flow-text-node :is(ul, ol) {
+    display: block !important;
+    padding-left: 25px !important;
+    margin: 3px 0 8px !important;
+    list-style-position: outside !important;
+    text-align: justify !important;
+}
+
+#lessonPage #lessonContent> :is(ul, ol).sd-flow-text-node>li,
+#lessonPage #lessonContent>.sd-flow-text-node :is(ul, ol)>li {
+    display: list-item !important;
+    height: auto !important;
+    margin: 0 0 4px !important;
+    padding-left: 3px !important;
+    text-indent: 0 !important;
+    line-height: 1.6 !important;
+    text-align: justify !important;
+}
+
+#lessonPage #lessonContent>.sd-flow-text-node:empty,
+#lessonPage #lessonContent>p.sd-flow-text-node:has(> br:only-child) {
+    height: 8px !important;
+    min-height: 8px !important;
+    margin-bottom: 0 !important;
+}
+
+/* Tetap pertahankan float asli agar paragraf kembali selebar halaman begitu
+   melewati bagian bawah gambar. */
+#lessonPage #lessonContent>.sd-media-item.sd-media-item-wrap-left,
+#lessonPage #lessonContent>.sd-media-item.sd-media-item-wrap-right {
+    display: block !important;
+    width: min(34%, 470px) !important;
+    max-width: min(34%, 470px) !important;
+    height: auto !important;
+    padding: 12px !important;
+    margin-top: 0 !important;
+    margin-bottom: 14px !important;
+}
+
+#lessonPage #lessonContent>.sd-media-item.sd-media-item-wrap-left {
+    float: left !important;
+    margin-left: 0 !important;
+    margin-right: 20px !important;
+}
+
+#lessonPage #lessonContent>.sd-media-item.sd-media-item-wrap-right {
+    float: right !important;
+    margin-right: 0 !important;
+    margin-left: 20px !important;
+}
+
+#lessonPage #lessonContent>.sd-media-item:is(.sd-media-item-wrap-left, .sd-media-item-wrap-right) .sd-media-picture {
+    width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+}
+
+#lessonPage #lessonContent>.sd-media-item:is(.sd-media-item-wrap-left, .sd-media-item-wrap-right) :is(.sd-media-title, .sd-media-caption) {
+    text-align: center !important;
+    text-align-last: center !important;
+}
+
+/* Isolasi kartu Ayo; jangan izinkan aturan paragraf biasa mengubah posisinya. */
+#lessonPage #lessonContent .sd-learning-activity {
+    display: flow-root !important;
+    clear: both;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible;
+}
+
+#lessonPage #lessonContent .sd-learning-activity-body {
+    display: flow-root !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible;
+}
+
+#lessonPage #lessonContent .sd-learning-activity-body>* {
+    display: block;
+    position: static !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 0 8px !important;
+    line-height: 1.6 !important;
+}
+
+#lessonPage #lessonContent .sd-learning-activity-body :is(p, li, div) {
+    position: static !important;
+    height: auto !important;
+    min-height: 0 !important;
+    line-height: 1.6 !important;
+    text-align: justify !important;
+}
+
+#lessonPage #lessonContent .sd-learning-activity-body :is(ul, ol) {
+    padding-left: 24px !important;
+    list-style-position: outside !important;
+}
+
+#lessonPage #lessonContent .sd-learning-activity-body> :last-child {
+    margin-bottom: 0 !important;
+}
+
+@container (max-width: 760px) {
+
+    #lessonPage #lessonContent>.sd-media-item.sd-media-item-wrap-left,
+    #lessonPage #lessonContent>.sd-media-item.sd-media-item-wrap-right {
+        float: none !important;
+        clear: both;
+        width: min(100%, 520px) !important;
+        max-width: 100% !important;
+        margin: 8px auto 12px !important;
+    }
+}
+
+/* SALUANG: jaga teks yang disanitasi agar kotak daftar/paragraf mengikuti isinya.
+   Jarak tambahan karena overlap dihitung JavaScript hanya jika diperlukan. */
+#lessonPage #lessonContent>.sd-flow-text-node {
+    box-sizing: border-box;
+    min-height: min-content;
+    overflow: visible;
+    vertical-align: baseline;
+}
+
+#lessonPage #lessonContent> :is(ol, ul).sd-flow-text-node {
+    list-style-position: outside !important;
+    padding-left: 24px !important;
+    margin-top: 3px !important;
+    margin-bottom: 8px !important;
+}
+
+#lessonPage #lessonContent> :is(ol, ul).sd-flow-text-node li {
+    display: list-item !important;
+    position: static !important;
+    height: auto !important;
+    line-height: 1.6 !important;
+}
+
+
+/* ================================================================
+   SALUANG - DAFTAR DI SAMPING GAMBAR (SEMUA MATERI)
+   PENTING: Jangan pakai display: flow-root / overflow:hidden pada
+   ul/ol. Kotak semacam itu tidak dapat mengikuti tepi float sehingga
+   daftar terkunci dalam kolom sempit sampai seluruh daftar selesai.
+   display:block biasa membiarkan tiap baris mengalir secara alami:
+   di samping gambar saat masih ada gambar, selebar halaman setelahnya.
+   ================================================================ */
+#lessonPage #lessonContent> :is(ul, ol).sd-flow-text-node,
+#lessonPage #lessonContent>.sd-flow-text-node :is(ul, ol) {
+    display: block !important;
+    overflow: visible !important;
+    clear: none !important;
+    box-sizing: border-box;
+    width: auto !important;
+    max-width: 100%;
+    margin: 4px 0 9px !important;
+    padding-left: 32px !important;
+    padding-right: 0 !important;
+    list-style-position: outside !important;
+    text-align: justify !important;
+}
+
+#lessonPage #lessonContent> :is(ul, ol).sd-flow-text-node>li,
+#lessonPage #lessonContent>.sd-flow-text-node :is(ul, ol)>li {
+    display: list-item !important;
+    padding-left: 3px !important;
+    margin: 0 0 5px !important;
+    text-indent: 0 !important;
+    height: auto !important;
+    line-height: 1.6 !important;
+}
+
+/* Jarak visual gambar sudah diatur pada elemen float-nya.
+   Jangan menambahkan margin-inline pada daftar yang membuat ruang kosong. */
+
+/* ============================================================
+   SALUANG - Penanda daftar mengikuti aliran teks di samping gambar.
+   Float memungkinkan setiap BARIS mengalir di samping gambar, tetapi
+   penanda outside berada di luar baris sehingga menabrak kartu gambar.
+   Inside menempatkan penanda di aliran baris tanpa mengunci daftar
+   menjadi kolom (tidak memakai flow-root ataupun overflow:hidden).
+   ============================================================ */
+#lessonPage #lessonContent> :is(ul, ol).sd-flow-text-node,
+#lessonPage #lessonContent>.sd-flow-text-node :is(ul, ol) {
+    list-style-position: inside !important;
+    padding-left: 0 !important;
+    padding-inline-start: 0 !important;
+    margin-inline-start: 0 !important;
+    display: block !important;
+    overflow: visible !important;
+    clear: none !important;
+}
+
+#lessonPage #lessonContent> :is(ul, ol).sd-flow-text-node>li,
+#lessonPage #lessonContent>.sd-flow-text-node :is(ul, ol)>li {
+    list-style-position: inside !important;
+    padding-left: 0 !important;
+    padding-inline-start: 0 !important;
+    text-indent: 0 !important;
 }

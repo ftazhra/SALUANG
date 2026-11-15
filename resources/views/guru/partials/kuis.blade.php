@@ -5,7 +5,7 @@
 
 <section class="gq-page" data-guru-section="kuis" id="guruQuizPage" hidden>
 
-{{-- 01. NAVIGASI ATAS HALAMAN KUIS --}}
+    {{-- 01. NAVIGASI ATAS HALAMAN KUIS --}}
     <div class="gd-page-navigation">
 
         <button type="button" class="gd-nav-btn" data-guru-previous>
@@ -98,7 +98,7 @@
         </button>
     </div>
 
-{{-- =====================================================
+    {{-- =====================================================
          06. MODAL TAMBAH / EDIT SOAL
          ===================================================== --}}
     <div class="gq-modal" id="gqQuestionModal" hidden>
@@ -174,19 +174,22 @@
                         </select>
                     </div>
 
-                    <div class="gq-field">
-                        <label for="gqExplanation">Pembahasan</label>
-                        <textarea id="gqExplanation" rows="4" placeholder="Tuliskan pembahasan jawaban"></textarea>
-                    </div>
                 </div>
 
                 <div id="gqActivityFields" hidden>
                     <div class="gq-field">
                         <label for="gqActivityInstruction">Petunjuk soal</label>
-                        <textarea id="gqActivityInstruction" rows="2"
-                            placeholder="Contoh: Kelompokkan hewan berdasarkan habitatnya."></textarea>
+                        <textarea id="gqActivityInstruction" rows="2" placeholder="Contoh: Kelompokkan hewan berdasarkan habitatnya."></textarea>
                     </div>
                     <div id="gqActivityEditor"></div>
+                </div>
+
+                <div class="gq-field">
+                    <label for="gqExplanation">Pembahasan / penjelasan jawaban</label>
+                    <textarea id="gqExplanation" rows="4" maxlength="5000"
+                        placeholder="Jelaskan konsep, alasan jawaban benar, atau cara mengelompokkan/menghubungkan objek."></textarea>
+                    <p class="gq-activity-hint">Pembahasan ditampilkan kepada Siswa setelah jawaban diperiksa. Berlaku
+                        untuk semua jenis kuis.</p>
                 </div>
 
                 <label class="gq-checkbox">
@@ -208,7 +211,7 @@
         </div>
     </div>
 
-{{-- =====================================================
+    {{-- =====================================================
          07. MODAL PRATINJAU SOAL
          ===================================================== --}}
     <div class="gq-modal" id="gqPreviewModal" hidden>
@@ -237,7 +240,7 @@
         </div>
     </div>
 
-{{-- =====================================================
+    {{-- =====================================================
          08. MODAL KONFIRMASI HAPUS
          ===================================================== --}}
     <div class="gq-modal" id="gqDeleteModal" hidden>
@@ -270,7 +273,7 @@
         </div>
     </div>
 
-{{-- =====================================================
+    {{-- =====================================================
          09. PESAN HASIL CRUD
          ===================================================== --}}
     <div class="gq-toast" id="gqToast" role="status" aria-live="polite" hidden>

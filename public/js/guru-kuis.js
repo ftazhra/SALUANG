@@ -112,6 +112,54 @@ document.addEventListener('DOMContentLoaded', () => {
         previewLineObserver = null;
         previewLineUpdate = null;
     }
+    // Saat menarik garis, gulir kontainer terdekat secara otomatis di tepi layar.
+    // Menangani scroll halaman Siswa maupun area modal pratinjau Guru.
+    function matchingAutoScroll(startEvent, onPositionChange) {
+        let pointerX = startEvent.clientX;
+        let pointerY = startEvent.clientY;
+        let active = true;
+        let frameId = null;
+        const findScrollParent = node => {
+            for (let current = node?.parentElement; current; current = current.parentElement) {
+                const style = window.getComputedStyle(current);
+                if (/(auto|scroll)/.test(style.overflowY)
+                    && current.scrollHeight > current.clientHeight + 2) return current;
+            }
+            return null;
+        };
+        const scrollParent = findScrollParent(startEvent.target);
+        const tick = () => {
+            if (!active) return;
+            const bounds = scrollParent
+                ? scrollParent.getBoundingClientRect()
+                : { top: 0, bottom: window.innerHeight };
+            const margin = Math.min(92, (bounds.bottom - bounds.top) / 3);
+            let speed = 0;
+            if (pointerY >= bounds.top && pointerY < bounds.top + margin) {
+                speed = -Math.max(3, (bounds.top + margin - pointerY) / margin * 18);
+            } else if (pointerY <= bounds.bottom && pointerY > bounds.bottom - margin) {
+                speed = Math.max(3, (pointerY - (bounds.bottom - margin)) / margin * 18);
+            }
+            if (speed) {
+                if (scrollParent) scrollParent.scrollTop += speed;
+                else window.scrollBy(0, speed);
+                onPositionChange({ clientX: pointerX, clientY: pointerY });
+            }
+            frameId = window.requestAnimationFrame(tick);
+        };
+        frameId = window.requestAnimationFrame(tick);
+        return {
+            move(event) {
+                pointerX = event.clientX;
+                pointerY = event.clientY;
+                onPositionChange(event);
+            },
+            stop() {
+                active = false;
+                if (frameId !== null) window.cancelAnimationFrame(frameId);
+            }
+        };
+    }
     function openModal(modal) {
         closeModals();
         if (modal) modal.hidden = false;
@@ -481,13 +529,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (question.activity_type && question.activity_type !== 'multiple_choice') {
             const activityBoard = buildActivityBoardMarkup(question);
+            const instruction = String(
+                question.activity_payload?.instruction || ''
+            ).trim();
+
             questionDetail.innerHTML = `
-                <article class="gq-question-card gq-activity-question-card gq-question-card--uniform">
-                    ${questionHeadingMarkup(question)}
-                    <p class="gq-question-text">${escapeHtml(question.pertanyaan)}</p>
-                    <div class="gq-activity-detail-board ${activityBoard.boardClass}">
-                        ${activityBoard.markup}
-                    </div>
+            <article class="gq-question-card gq-activity-question-card gq-question-card--uniform">
+            ${questionHeadingMarkup(question)}
+
+            <p class="gq-question-text">${escapeHtml(question.pertanyaan)}</p>
+
+            ${instruction ? `
+                <div class="gq-activity-instruction">
+                    <strong>Petunjuk Soal</strong>
+                    <p>${escapeHtml(instruction)}</p>
+                </div>
+            ` : ''}
+
+            <div class="gq-activity-detail-board ${activityBoard.boardClass}">
+                ${activityBoard.markup}
+            </div>
+            <div class="gq-activity-instruction" style="margin-top: 18px;">
+                <strong>Pembahasan Guru</strong>
+                <p>${escapeHtml(question.pembahasan || 'Belum ada pembahasan untuk soal ini.')}</p>
+            </div>
                     <div class="gq-question-actions">
                         <button type="button" class="gq-btn gq-btn-outline"
                             data-gq-action="preview" data-id="${question.id}">
@@ -688,18 +753,54 @@ document.addEventListener('DOMContentLoaded', () => {
             </button>
         `;
     }
+    function rightMatchingSelectionHtml(rightIndex) {
+        const leftItems = activityDraft?.left_items || [];
+        const selectedLeft = leftItems.map((item, index) =>
+            (item.right_indices || []).map(Number).includes(rightIndex) ? index : -1
+        ).filter(index => index !== -1);
+        const chips = selectedLeft.map(index => `
+            <button type="button" class="gq-matching-chip"
+                data-right-matching-remove="${rightIndex}" data-right-matching-left="${index}"
+                aria-label="Batalkan pasangan ${escapeHtml(leftItems[index].label || `Bagian kiri ${index + 1}`)}">
+                <span>${escapeHtml(leftItems[index].label || `Bagian kiri ${index + 1}`)}</span>
+                <span aria-hidden="true">&times;</span>
+            </button>
+        `).join('');
+        return `
+            <div class="gq-matching-chips">
+                ${chips || '<span class="gq-matching-placeholder">Belum ada pasangan dipilih</span>'}
+            </div>
+            <button type="button" class="gq-matching-select-trigger"
+                data-right-matching-toggle="${rightIndex}" aria-expanded="false">
+                <span>${selectedLeft.length ? 'Ubah pasangan jawaban' : 'Pilih pasangan jawaban'}</span>
+                <i class="bi bi-chevron-down" aria-hidden="true"></i>
+            </button>
+        `;
+    }
+    function refreshRightMatchingSelections() {
+        (activityDraft?.right_items || []).forEach((_, index) => {
+            const container = activityEditor.querySelector(
+                `[data-right-matching-selection="${index}"]`
+            );
+            if (container) container.innerHTML = rightMatchingSelectionHtml(index);
+        });
+    }
     function refreshMatchingSelections() {
         activityDraft?.left_items?.forEach((_, index) => matchingSelectionMarkup(index));
+        refreshRightMatchingSelections();
         if (activeMatchingMenu) {
-            const { leftIndex, menu } = activeMatchingMenu;
-            const selected = (activityDraft.left_items[leftIndex]?.right_indices || []).map(Number);
-            menu.innerHTML = activityDraft.right_items.map((target, targetIndex) => `
-                <label class="gq-matching-option">
-                    <input type="checkbox" value="${targetIndex}"
-                        ${selected.includes(targetIndex) ? 'checked' : ''}>
-                    <span>${escapeHtml(target.label || `Pasangan ${targetIndex + 1}`)}</span>
-                </label>
-            `).join('');
+            const { side, index, menu } = activeMatchingMenu;
+            fillMatchingMenu(menu, side, index);
+            const selector = side === 'left'
+                ? `[data-matching-toggle="${index}"]`
+                : `[data-right-matching-toggle="${index}"]`;
+            activeMatchingMenu.button = activityEditor.querySelector(selector);
+            if (activeMatchingMenu.button) {
+                activeMatchingMenu.button.setAttribute('aria-expanded', 'true');
+                positionMatchingMenu(menu, activeMatchingMenu.button);
+            } else {
+                closeMatchingMenu();
+            }
         }
     }
     function positionMatchingMenu(menu, trigger) {
@@ -718,36 +819,56 @@ document.addEventListener('DOMContentLoaded', () => {
             : rect.top - menuHeight - 6;
         menu.style.top = `${Math.max(12, Math.min(top, window.innerHeight - menuHeight - 12))}px`;
     }
-    function openMatchingMenu(trigger, leftIndex) {
+    function fillMatchingMenu(menu, side, index) {
+        if (side === 'left') {
+            const item = activityDraft.left_items[index];
+            const selected = (item.right_indices || []).map(Number);
+            menu.innerHTML = activityDraft.right_items.map((target, targetIndex) => `
+                <label class="gq-matching-option">
+                    <input type="checkbox" value="${targetIndex}"
+                        ${selected.includes(targetIndex) ? 'checked' : ''}>
+                    <span>${escapeHtml(target.label || `Bagian kanan ${targetIndex + 1}`)}</span>
+                </label>
+            `).join('');
+        } else {
+            const selected = activityDraft.left_items.map((item, leftIndex) =>
+                (item.right_indices || []).map(Number).includes(index) ? leftIndex : -1
+            ).filter(leftIndex => leftIndex >= 0);
+            menu.innerHTML = activityDraft.left_items.map((left, leftIndex) => `
+                <label class="gq-matching-option">
+                    <input type="checkbox" value="${leftIndex}"
+                        ${selected.includes(leftIndex) ? 'checked' : ''}>
+                    <span>${escapeHtml(left.label || `Bagian kiri ${leftIndex + 1}`)}</span>
+                </label>
+            `).join('');
+        }
+    }
+    function openMatchingMenu(trigger, side, index) {
         closeMatchingMenu();
         const menu = document.createElement('div');
         menu.className = 'gq-matching-options';
         menu.setAttribute('role', 'group');
-        menu.setAttribute('aria-label', 'Pilihan pasangan jawaban');
-        const leftItem = activityDraft.left_items[leftIndex];
-        const selected = (leftItem.right_indices || []).map(Number);
-        menu.innerHTML = activityDraft.right_items.map((target, targetIndex) => `
-            <label class="gq-matching-option">
-                <input type="checkbox" value="${targetIndex}"
-                    ${selected.includes(targetIndex) ? 'checked' : ''}>
-                <span>${escapeHtml(target.label || `Pasangan ${targetIndex + 1}`)}</span>
-            </label>
-        `).join('');
+        menu.setAttribute('aria-label', `Pilihan pasangan bagian ${side === 'left' ? 'kiri' : 'kanan'}`);
+        fillMatchingMenu(menu, side, index);
         menu.addEventListener('change', event => {
-            const checkbox = event.target.closest('input[type="checkbox"]');
-            if (!checkbox) return;
-            const selectedIndices = [...menu.querySelectorAll('input:checked')]
-                .map(option => Number(option.value));
-            activityDraft.left_items[leftIndex].right_indices = selectedIndices;
-            matchingSelectionMarkup(leftIndex);
-            activeMatchingMenu.button = activityEditor.querySelector(
-                `[data-matching-toggle="${leftIndex}"]`
-            );
-            positionMatchingMenu(menu, activeMatchingMenu.button);
+            if (!event.target.matches('input[type="checkbox"]')) return;
+            const selected = [...menu.querySelectorAll('input:checked')]
+                .map(input => Number(input.value));
+            if (side === 'left') {
+                activityDraft.left_items[index].right_indices = selected;
+            } else {
+                activityDraft.left_items.forEach((left, leftIndex) => {
+                    const indices = new Set((left.right_indices || []).map(Number));
+                    if (selected.includes(leftIndex)) indices.add(index);
+                    else indices.delete(index);
+                    left.right_indices = [...indices].sort((a, b) => a - b);
+                });
+            }
+            refreshMatchingSelections();
         });
         document.body.appendChild(menu);
         trigger.setAttribute('aria-expanded', 'true');
-        activeMatchingMenu = { leftIndex, menu, button: trigger };
+        activeMatchingMenu = { side, index, menu, button: trigger };
         positionMatchingMenu(menu, trigger);
     }
     document.addEventListener('pointerdown', event => {
@@ -778,12 +899,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const targets = activityDraft[targetCollection] || [];
         const objectLabel = isDragDrop ? 'Objek' : 'Bagian kiri';
         const targetLabel = isDragDrop ? 'Kategori' : 'Bagian kanan';
+        // Gambar yang sudah tersimpan ditampilkan lagi saat soal diedit.
+        // Data lama dapat berisi path penyimpanan relatif atau URL publik.
+        const previewImageUrl = item => {
+            const value = String(item.image_preview_url || item.image_url || '').trim();
+            if (!value) return '';
+            if (/^(?:https?:\/\/|blob:|data:image\/)/i.test(value) || value.startsWith('/')) return value;
+            return `/${value.replace(/^\.\//, '')}`;
+        };
         const imageField = (collection, index, item) => `
             <div class="gq-activity-image-editor">
                 <div class="gq-activity-image-preview" data-image-preview>
-                    ${item.image_preview_url || item.image_url
-                ? `<img src="${escapeHtml(item.image_preview_url || item.image_url)}" alt="Pratinjau ${escapeHtml(item.label || objectLabel.toLowerCase())}">`
-                : '<span><i class="bi bi-image"></i> Pratinjau gambar</span>'}
+                    ${previewImageUrl(item)
+                ? `<img src="${escapeHtml(previewImageUrl(item))}" alt="Gambar tersimpan: ${escapeHtml(item.label || objectLabel.toLowerCase())}" loading="lazy">`
+                : '<span><i class="bi bi-image"></i> Belum ada gambar pada bagian ini</span>'}
                 </div>
                 <label class="gq-file-label">
                     Unggah JPG, JPEG, PNG, atau WebP (maks. 4 MB)
@@ -840,7 +969,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 `).join('')
-                || '<span class="gq-matching-placeholder">Belum ada pasangan dipilih</span>'}
+            || '<span class="gq-matching-placeholder">Belum ada pasangan dipilih</span>'}
                             </div>
                             <button type="button" class="gq-matching-select-trigger"
                                 data-matching-toggle="${index}" aria-expanded="false">
@@ -859,17 +988,25 @@ document.addEventListener('DOMContentLoaded', () => {
             </fieldset>
         `).join('');
         const targetEditors = targets.map((item, index) => `
-            <fieldset class="gq-activity-item">
+            <fieldset class="gq-activity-item gq-object-card">
                 <legend>${targetLabel} ${index + 1}</legend>
+                ${!isDragDrop ? imageField(targetCollection, index, item) : ''}
                 <div class="gq-field">
-                    <label>${targetLabel} / nama</label>
+                    <label>${targetLabel} / caption</label>
                     <input type="text" maxlength="100" required
                         data-activity-collection="${targetCollection}"
                         data-activity-index="${index}" data-activity-field="label"
                         value="${escapeHtml(item.label)}"
                         placeholder="Contoh: Makhluk Hidup">
                 </div>
-                ${!isDragDrop ? imageField(targetCollection, index, item) : ''}
+                ${!isDragDrop ? `
+                    <div class="gq-field">
+                        <label>Kunci jawaban: pasangan (bisa memilih beberapa)</label>
+                        <div class="gq-matching-selection" data-right-matching-selection="${index}">
+                            ${rightMatchingSelectionHtml(index)}
+                        </div>
+                    </div>
+                ` : ''}
                 <button type="button" class="gq-btn gq-btn-outline"
                     data-activity-remove="${targetCollection}" data-activity-index="${index}">
                     Hapus ${targetLabel.toLowerCase()}
@@ -903,6 +1040,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 : 'Pilih satu atau beberapa pasangan yang sesuai untuk setiap objek.'}
             </p>
         `;
+        activityEditor.querySelectorAll('.gq-activity-image-preview img').forEach(image => {
+            image.addEventListener('error', () => {
+                const placeholder = document.createElement('span');
+                placeholder.textContent = 'Gambar lama tidak dapat dimuat. Periksa file gambar pada penyimpanan.';
+                image.replaceWith(placeholder);
+            }, { once: true });
+        });
     }
     function setFormActivityType(type) {
         const isMcq = type === 'multiple_choice';
@@ -1048,7 +1192,8 @@ document.addEventListener('DOMContentLoaded', () => {
             pertanyaan:
                 document.getElementById('gqQuestionText').value.trim(),
             is_published:
-                document.getElementById('gqPublished').checked
+                document.getElementById('gqPublished').checked,
+            pembahasan: document.getElementById('gqExplanation').value.trim()
         };
         if (type === 'multiple_choice') {
             Object.assign(payload, {
@@ -1056,8 +1201,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 pilihan_b: document.getElementById('gqOptionB').value.trim(),
                 pilihan_c: document.getElementById('gqOptionC').value.trim(),
                 pilihan_d: document.getElementById('gqOptionD').value.trim(),
-                kunci_jawaban: document.getElementById('gqCorrectAnswer').value,
-                pembahasan: document.getElementById('gqExplanation').value.trim()
+                kunci_jawaban: document.getElementById('gqCorrectAnswer').value
             });
         } else {
             Object.assign(payload, activityPayloadFromForm(type));
@@ -1311,10 +1455,29 @@ document.addEventListener('DOMContentLoaded', () => {
             heading.className = 'gq-preview-question';
             heading.textContent = `Soal ${displayQuestionNumber(question)}`;
             previewContent.appendChild(heading);
+
             previewContent.appendChild(Object.assign(document.createElement('p'), {
                 className: 'gq-preview-question-prompt',
                 textContent: question.pertanyaan || ''
             }));
+            const instruction = String(
+                question.activity_payload?.instruction || ''
+            ).trim();
+
+            if (instruction) {
+                const instructionBox = document.createElement('div');
+                instructionBox.className = 'gq-activity-instruction';
+
+                const label = document.createElement('strong');
+                label.textContent = 'Petunjuk Soal';
+
+                const content = document.createElement('p');
+                content.textContent = instruction;
+
+                instructionBox.append(label, content);
+                previewContent.appendChild(instructionBox);
+            }
+
             const board = document.createElement('div');
             board.className = isDragDrop
                 ? 'gq-preview-activity-board is-drag-drop'
@@ -1549,8 +1712,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             line.setAttribute('x2', String(pointerEvent.clientX - rect.left));
                             line.setAttribute('y2', String(pointerEvent.clientY - rect.top));
                         };
-                        const onPointerMove = pointerEvent => updateTemporary(pointerEvent);
+                        const scroller = matchingAutoScroll(event, updateTemporary);
+                        const onPointerMove = pointerEvent => scroller.move(pointerEvent);
                         const onPointerUp = pointerEvent => {
+                            scroller.stop();
                             document.removeEventListener('pointermove', onPointerMove);
                             document.removeEventListener('pointerup', onPointerUp);
                             document.removeEventListener('pointercancel', onPointerUp);
@@ -1608,6 +1773,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 board.append(lines, leftColumn, rightColumn);
                 previewLineUpdate = updateLines;
+                board.querySelectorAll('img').forEach(img => {
+                    if (!img.complete) img.addEventListener('load', updateLines, { once: true });
+                });
                 if (typeof ResizeObserver !== 'undefined') {
                     previewLineObserver = new ResizeObserver(updateLines);
                     previewLineObserver.observe(board);
@@ -1629,6 +1797,14 @@ document.addEventListener('DOMContentLoaded', () => {
             previewContent.appendChild(checkButton);
             if (previewChecked) {
                 previewContent.appendChild(renderPreviewFeedback());
+                const explanation = document.createElement('section');
+                explanation.className = 'gq-activity-instruction';
+                const label = document.createElement('strong');
+                label.textContent = 'Pembahasan Guru';
+                const paragraph = document.createElement('p');
+                paragraph.textContent = question.pembahasan || 'Belum ada pembahasan untuk soal ini.';
+                explanation.append(label, paragraph);
+                previewContent.appendChild(explanation);
             }
         };
         render();
@@ -1746,7 +1922,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     || `Kategori ${index + 1}`;
             });
         }
-        if (key === 'label' && collection === 'right_items') {
+        if (key === 'label' && ['right_items', 'left_items'].includes(collection)) {
             refreshMatchingSelections();
         }
     });
@@ -1798,14 +1974,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     activityEditor.addEventListener('click', event => {
-        const matchingToggle = event.target.closest('[data-matching-toggle]');
+        const matchingToggle = event.target.closest('[data-matching-toggle], [data-right-matching-toggle]');
         if (matchingToggle && activityDraft) {
-            const leftIndex = Number(matchingToggle.dataset.matchingToggle);
-            if (activeMatchingMenu?.leftIndex === leftIndex) {
+            const side = matchingToggle.hasAttribute('data-matching-toggle') ? 'left' : 'right';
+            const index = Number(side === 'left'
+                ? matchingToggle.dataset.matchingToggle
+                : matchingToggle.dataset.rightMatchingToggle);
+            if (activeMatchingMenu?.side === side && activeMatchingMenu?.index === index) {
                 closeMatchingMenu();
             } else {
-                openMatchingMenu(matchingToggle, leftIndex);
+                openMatchingMenu(matchingToggle, side, index);
             }
+            return;
+        }
+        const rightRemove = event.target.closest('[data-right-matching-remove]');
+        if (rightRemove && activityDraft) {
+            const rightIndex = Number(rightRemove.dataset.rightMatchingRemove);
+            const leftIndex = Number(rightRemove.dataset.rightMatchingLeft);
+            const item = activityDraft.left_items?.[leftIndex];
+            if (!item) return;
+            item.right_indices = (item.right_indices || []).map(Number)
+                .filter(index => index !== rightIndex);
+            refreshMatchingSelections();
             return;
         }
         const matchingRemove = event.target.closest('[data-matching-remove]');

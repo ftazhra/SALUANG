@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastPage = 1;
     let currentFilter = 'all';
     let selectedDiscussion = null;
+    let replyingTo = null;
     let pendingDeleteId = null;
     let searchTimer = null;
     let toastTimer = null;
@@ -255,14 +256,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             </p>
                             <h3>${escapeHtml(discussion.title)}</h3>
                         </div>
-                        <span class="gf-badge ${
-                            answered ? 'is-answered' : ''
-                        }">
-                            ${
-                                answered
-                                    ? 'Sudah Terjawab'
-                                    : 'Belum Terjawab'
-                            }
+                        <span class="gf-badge ${answered ? 'is-answered' : ''
+                }">
+                            ${answered
+                    ? 'Sudah Terjawab'
+                    : 'Belum Terjawab'
+                }
                         </span>
                     </div>
                     <p class="gf-card-excerpt">
@@ -485,27 +484,75 @@ document.addEventListener('DOMContentLoaded', () => {
             else img.addEventListener('error', showInitial, { once: true });
         });
     }
+    function setReplyTarget(reply) {
+        replyingTo = reply ? { id: Number(reply.id), name: String(reply.user?.name || 'Pengguna SALUANG') } : null;
+        const context = $('gfReplyContext');
+        if (context) context.hidden = !replyingTo;
+        if ($('gfReplyContextName')) $('gfReplyContextName').textContent = replyingTo ? 'Membalas ' + replyingTo.name : '';
+        if (replyingTo) {
+            $('gfReplyBody').focus();
+            replyForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+    $('gfReplyCancel')?.addEventListener('click', () => setReplyTarget(null));
     function renderReplies(replies) {
+        const container = $('gfRepliesList');
         if (!replies.length) {
-            $('gfRepliesList').innerHTML = `
-                <div class="gf-empty">
-                    <i class="bi bi-chat"></i>
-                    <p>Belum ada tanggapan.</p>
-                </div>
-            `;
+            container.innerHTML = '<div class="gf-empty"><p>Belum ada tanggapan.</p></div>';
             return;
         }
-        $('gfRepliesList').innerHTML = replies.map(reply => `
-            <div class="gf-reply-card">
-                ${replyAvatar(reply.user)}
+        const cards = new Map();
+        replies.forEach(reply => {
+            const card = document.createElement('article');
+            card.className = 'gf-reply-card';
+            card.dataset.replyId = String(reply.id);
+            card.innerHTML = `${replyAvatar(reply.user)}
                 <div class="gf-reply-content">
                     <strong>${escapeHtml(reply.user?.name || 'Pengguna SALUANG')}</strong>
                     <p class="gf-detail-meta gf-reply-date">${formatDate(reply.created_at)}</p>
                     <p class="gf-reply-message">${escapeHtml(reply.body)}</p>
-                </div>
-            </div>
-        `).join('');
-        attachForumAvatarFallback($('gfRepliesList'));
+                    <button type="button" class="gf-reply-button">Balas</button>
+                </div>`;
+            card.querySelector('.gf-reply-button').addEventListener('click', () => setReplyTarget(reply));
+            cards.set(String(reply.id), card);
+        });
+        container.replaceChildren();
+        replies.forEach(reply => {
+            const card = cards.get(String(reply.id));
+            const parent = reply.parent_reply_id ? cards.get(String(reply.parent_reply_id)) : null;
+            if (parent && parent !== card) {
+                let children = Array.from(parent.children).find(el => el.classList.contains('gf-reply-children'));
+                if (!children) {
+                    children = document.createElement('div');
+                    children.className = 'gf-reply-children';
+                    parent.appendChild(children);
+                }
+                children.appendChild(card);
+            } else container.appendChild(card);
+        });
+        limitVisibleReplyBranches(container);
+        attachForumAvatarFallback(container);
+    }
+    // Dua balasan langsung terlihat; jumlah lainnya ditampilkan saat diminta.
+    function limitVisibleReplyBranches(root) {
+        root.querySelectorAll('.gf-reply-children').forEach(group => {
+            const cards = Array.from(group.children).filter(el => el.classList.contains('gf-reply-card'));
+            if (cards.length <= 2) return;
+            const hiddenCount = cards.length - 2;
+            cards.slice(2).forEach(card => { card.hidden = true; });
+            const toggle = document.createElement('button');
+            toggle.type = 'button';
+            toggle.className = 'gf-more-replies';
+            toggle.textContent = `Lihat ${hiddenCount} balasan lainnya`;
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.addEventListener('click', () => {
+                const expanding = toggle.getAttribute('aria-expanded') !== 'true';
+                cards.slice(2).forEach(card => { card.hidden = !expanding; });
+                toggle.setAttribute('aria-expanded', String(expanding));
+                toggle.textContent = expanding ? 'Sembunyikan balasan' : `Lihat ${hiddenCount} balasan lainnya`;
+            });
+            group.appendChild(toggle);
+        });
     }
     replyForm.addEventListener('submit', async event => {
         event.preventDefault();
@@ -519,11 +566,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await requestApi(
                 `${discussionUrl(id)}/replies`,
                 'POST',
-                { body }
+                { body, parent_reply_id: replyingTo?.id || null }
             );
             showToast(
                 result.message || 'Tanggapan berhasil dikirim.'
             );
+            setReplyTarget(null);
             await openDiscussionDetail(id);
             await loadDiscussions(currentPage);
         } catch (error) {

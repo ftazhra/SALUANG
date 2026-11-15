@@ -83,8 +83,11 @@
 
                             <div class="sd-home-lesson">
 
-                                <img src="{{ asset('images/lesson-interaksi-makhluk-hidup.png') }}"
-                                    alt="Ekosistem lahan basah">
+                                <div class="sd-home-lesson-visual">
+                                    <div id="sdHomeLessonImageLoading" class="sd-home-lesson-placeholder"
+                                        role="status">Memuat gambar materi...</div>
+                                    <img id="sdHomeLessonImage" alt="Gambar materi pembelajaran" hidden>
+                                </div>
 
                                 <div>
                                     <span class="sd-pill">

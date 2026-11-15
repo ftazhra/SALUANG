@@ -6,8 +6,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebar = document.getElementById('guruSidebar');
     const main = document.getElementById('guruMain');
     const fold = document.getElementById('guruFold');
+    const mobileToggle = document.getElementById('guruSidebarToggle');
+    const mobileClose = document.getElementById('guruSidebarClose');
+    const backdrop = document.getElementById('guruSidebarBackdrop');
+    const mobileMedia = window.matchMedia('(max-width: 900px)');
+
+    function setGuruMobileSidebarOpen(isOpen) {
+        if (!sidebar) return;
+        sidebar.classList.toggle('is-open', isOpen);
+        backdrop?.classList.toggle('is-visible', isOpen);
+        mobileToggle?.setAttribute('aria-expanded', String(isOpen));
+        mobileToggle?.setAttribute('aria-label', isOpen ? 'Tutup menu' : 'Buka menu');
+        document.body.classList.toggle('gd-sidebar-open', isOpen && mobileMedia.matches);
+    }
+
     if (sidebar && main && fold) {
         fold.addEventListener('click', () => {
+            if (mobileMedia.matches) return;
+
             const collapsed = sidebar.classList.toggle('collapsed');
             main.classList.toggle('expanded', collapsed);
             fold.setAttribute(
@@ -28,6 +44,39 @@ document.addEventListener('DOMContentLoaded', () => {
             );
         });
     }
+
+    if (mobileToggle && sidebar) {
+        mobileToggle.addEventListener('click', () => {
+            setGuruMobileSidebarOpen(!sidebar.classList.contains('is-open'));
+        });
+    }
+
+    mobileClose?.addEventListener('click', () => setGuruMobileSidebarOpen(false));
+    backdrop?.addEventListener('click', () => setGuruMobileSidebarOpen(false));
+
+    const syncGuruMobileLayout = () => {
+        if (!sidebar || !main) return;
+
+        if (mobileMedia.matches) {
+            // Mode drawer tidak mewarisi status lipat desktop agar semua label menu tetap terlihat.
+            sidebar.classList.remove('collapsed');
+            main.classList.remove('expanded');
+            fold?.setAttribute('aria-expanded', 'true');
+            fold?.setAttribute('aria-label', 'Perkecil sidebar');
+            fold?.setAttribute('title', 'Perkecil sidebar');
+            document.body.classList.toggle('gd-sidebar-open', sidebar.classList.contains('is-open'));
+            return;
+        }
+
+        setGuruMobileSidebarOpen(false);
+        const collapsed = sidebar.classList.contains('collapsed');
+        fold?.setAttribute('aria-expanded', String(!collapsed));
+        fold?.setAttribute('aria-label', collapsed ? 'Perbesar sidebar' : 'Perkecil sidebar');
+        fold?.setAttribute('title', collapsed ? 'Perbesar sidebar' : 'Perkecil sidebar');
+    };
+
+    window.addEventListener('resize', syncGuruMobileLayout);
+    syncGuruMobileLayout();
     /* =============================================
        07.2 URUTAN HALAMAN
        ============================================= */
@@ -168,6 +217,9 @@ document.addEventListener('DOMContentLoaded', () => {
     pageButtons.forEach((button) => {
         button.addEventListener('click', () => {
             navigateGuruPage(button.dataset.guruPage);
+            if (mobileMedia.matches) {
+                setGuruMobileSidebarOpen(false);
+            }
             if (button.hasAttribute('data-guru-scroll-settings')) {
                 // Konten Profil baru terlihat setelah showGuruPage().
                 requestAnimationFrame(() => {
@@ -234,6 +286,9 @@ document.addEventListener('DOMContentLoaded', () => {
        ============================================= */
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
+            if (sidebar?.classList.contains('is-open')) {
+                setGuruMobileSidebarOpen(false);
+            }
             closeGuruDropdowns();
         }
     });

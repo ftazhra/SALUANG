@@ -7,17 +7,21 @@
     color: #075477;
     font-family: 'Poppins', sans-serif;
 }
+
 .gd-material-page [hidden] {
     display: none !important;
 }
+
 .gd-material-page button,
 .gd-material-page input,
 .gd-material-page textarea {
     font-family: inherit;
 }
+
 .gd-material-page button {
     cursor: pointer;
 }
+
 /* 02. JUDUL DAN AKSI HALAMAN */
 .gm-heading {
     display: flex;
@@ -26,24 +30,28 @@
     gap: 18px;
     margin: 22px 0;
 }
+
 .gm-heading h1 {
     margin: 0 0 8px;
     color: #075477;
     font-size: 24px;
     font-weight: 700;
 }
+
 .gm-heading h2 {
     margin: 0 0 8px;
     color: #075477;
     font-size: 18px;
     font-weight: 700;
 }
+
 .gm-heading p {
     margin: 0;
     color: #7d9ba5;
     font-size: 14px;
     line-height: 1.5;
 }
+
 /* 03. TOMBOL */
 .gm-btn {
     display: inline-flex;
@@ -65,14 +73,17 @@
         transform .2s ease,
         box-shadow .2s ease;
 }
+
 .gm-btn i {
     font-size: 14px;
 }
+
 .gm-btn-primary {
     background: #4e9d6d;
     border-color: #4e9d6d;
     color: #ffffff;
 }
+
 .gm-btn-primary:hover {
     background: #327f52;
     border-color: #327f52;
@@ -80,39 +91,46 @@
     transform: translateY(-2px);
     box-shadow: 0 5px 12px rgba(50, 127, 82, .18);
 }
+
 .gm-btn-outline {
     background: #ffffff;
     border-color: #cddfda;
     color: #075477;
 }
+
 .gm-btn-outline:hover {
     background: #dceefa;
     border-color: #9fc9de;
     color: #075477;
     transform: translateY(-2px);
 }
+
 .gm-btn-danger {
     background: #df4646;
     border-color: #df4646;
     color: #ffffff;
 }
+
 .gm-btn-danger:hover {
     background: #b82d2d;
     border-color: #b82d2d;
     color: #ffffff;
     transform: translateY(-2px);
 }
+
 .gm-btn:disabled {
     opacity: .55;
     cursor: not-allowed;
     transform: none;
 }
+
 /* 04. DAFTAR BAB */
 .gm-chapter-list {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
 }
+
 .gm-chapter-card {
     min-width: 0;
     padding: 22px;
@@ -124,10 +142,12 @@
         box-shadow .2s ease,
         transform .2s ease;
 }
+
 .gm-chapter-card:hover {
     border-color: #a9cfdc;
     box-shadow: 0 6px 18px rgba(7, 84, 119, .08);
 }
+
 .gm-chapter-label {
     display: inline-block;
     margin-bottom: 10px;
@@ -136,6 +156,7 @@
     font-weight: 700;
     letter-spacing: .04em;
 }
+
 .gm-chapter-card h2,
 .gm-chapter-card h3 {
     margin: 0 0 12px;
@@ -144,6 +165,7 @@
     font-weight: 700;
     line-height: 1.5;
 }
+
 .gm-chapter-card p {
     margin: 0 0 14px;
     color: #537a8c;
@@ -151,18 +173,21 @@
     line-height: 1.5;
     overflow-wrap: anywhere;
 }
+
 .gm-chapter-meta {
     margin-bottom: 15px;
     color: #7d9ba5;
     font-size: 12px;
     line-height: 1.5;
 }
+
 .gm-chapter-actions,
 .gm-subchapter-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 9px;
 }
+
 /* 05. TAMPILAN KOSONG / MEMUAT */
 .gm-empty {
     grid-column: 1 / -1;
@@ -178,16 +203,19 @@
     background: #fffefa;
     text-align: center;
 }
+
 .gm-empty i {
     color: #4e9d6d;
     font-size: 32px;
 }
+
 .gm-empty p {
     margin: 0;
     color: #638a96;
     font-size: 14px;
     line-height: 1.5;
 }
+
 /* 06. TOMBOL KEMBALI */
 .gm-back-actions {
     display: flex;
@@ -196,6 +224,7 @@
     gap: 10px;
     margin: 16px 0 20px;
 }
+
 /* 07. KARTU DETAIL BAB */
 .gm-detail-card {
     padding: 24px;
@@ -203,12 +232,14 @@
     border-radius: 14px;
     background: #fffefa;
 }
+
 .gm-detail-top {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 16px;
 }
+
 .gm-detail-top h1 {
     margin: 0 0 12px;
     color: #075477;
@@ -216,11 +247,13 @@
     font-weight: 700;
     line-height: 1.5;
 }
+
 .gm-detail-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 9px;
 }
+
 .gm-detail-description {
     margin: 8px 0 0;
     color: #537a8c;
@@ -230,18 +263,22 @@
     overflow-wrap: anywhere;
     text-align: justify;
 }
+
 .gm-introduction-layout {
     margin-top: 8px;
 }
+
 .gm-introduction-layout.has-image {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(200px, 38%);
     align-items: center;
     gap: 20px;
 }
+
 .gm-introduction-layout .gm-detail-description {
     margin: 0;
 }
+
 .gm-introduction-image {
     display: block;
     width: 100%;
@@ -250,9 +287,11 @@
     border-radius: 10px;
     object-fit: cover;
 }
+
 .gm-introduction-image[hidden] {
     display: none;
 }
+
 .gm-introduction-figure {
     display: block;
     min-width: 0;
@@ -260,6 +299,7 @@
     padding: 0;
     gap: 0;
 }
+
 .gm-introduction-caption {
     margin: 6px 0 0;
     padding: 0;
@@ -269,6 +309,7 @@
     text-align: center;
     overflow-wrap: anywhere;
 }
+
 .gm-introduction-caption strong {
     display: block;
     margin: 0;
@@ -276,9 +317,11 @@
     font-weight: 600;
     line-height: 1.5;
 }
+
 .gm-introduction-caption[hidden] {
     display: none;
 }
+
 .gm-introduction-preview {
     display: block;
     width: min(100%, 420px);
@@ -289,15 +332,19 @@
     object-fit: contain;
     background: #fffefa;
 }
+
 .gm-introduction-preview[hidden] {
     display: none;
 }
+
 .gm-image-remove {
     margin-top: 12px;
 }
+
 .gm-image-remove[hidden] {
     display: none;
 }
+
 /* 08. DAFTAR SUBBAB */
 .gm-subchapter-section {
     margin-top: 24px;
@@ -306,26 +353,31 @@
     border-radius: 14px;
     background: #fffefa;
 }
+
 .gm-subchapter-section .gm-heading {
     margin: 0 0 20px;
 }
+
 .gm-subchapter-list {
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
+
 .gm-subchapter-card {
     padding: 18px;
     border: 1px solid #d5e8e3;
     border-radius: 11px;
     background: #eef8f4;
 }
+
 .gm-subchapter-card h3 {
     margin: 0 0 9px;
     color: #075477;
     font-size: 16px;
     font-weight: 700;
 }
+
 .gm-subchapter-card p {
     margin: 0 0 14px;
     color: #537a8c;
@@ -333,6 +385,7 @@
     line-height: 1.8;
     overflow-wrap: anywhere;
 }
+
 /* 09. MODAL FORMULIR CRUD */
 .gm-modal {
     position: fixed;
@@ -343,17 +396,25 @@
     justify-content: center;
     padding: 20px;
 }
-.gm-unsaved-changes-modal {
-    z-index: 3010;
+
+#gmDeleteModal {
+    z-index: 3020;
 }
+
+.gm-unsaved-changes-modal {
+    z-index: 3030;
+}
+
 .gm-modal[hidden] {
     display: none !important;
 }
+
 .gm-modal-backdrop {
     position: absolute;
     inset: 0;
     background: rgba(7, 41, 55, .55);
 }
+
 .gm-modal-dialog {
     position: relative;
     z-index: 1;
@@ -366,6 +427,7 @@
     background: #fffefa;
     box-shadow: 0 16px 48px rgba(7, 41, 55, .18);
 }
+
 .gm-modal-header {
     display: flex;
     align-items: center;
@@ -373,12 +435,14 @@
     gap: 14px;
     margin-bottom: 22px;
 }
+
 .gm-modal-header h2 {
     margin: 0;
     color: #075477;
     font-size: 18px;
     font-weight: 700;
 }
+
 .gm-modal-close {
     display: grid;
     place-items: center;
@@ -390,9 +454,11 @@
     color: #075477;
     cursor: pointer;
 }
+
 .gm-modal-close:hover {
     background: #d7eafa;
 }
+
 /* 10. KOLOM FORM */
 .gm-field {
     display: flex;
@@ -400,11 +466,13 @@
     gap: 8px;
     margin-bottom: 17px;
 }
+
 .gm-field label {
     color: #075477;
     font-size: 13px;
     font-weight: 600;
 }
+
 .gm-field input,
 .gm-field textarea {
     display: block;
@@ -418,16 +486,19 @@
     color: #075477;
     font-size: 14px;
 }
+
 .gm-field textarea {
     min-height: 110px;
     resize: vertical;
     line-height: 1.8;
 }
+
 .gm-field input:focus,
 .gm-field textarea:focus {
     border-color: #65b69a;
     box-shadow: 0 0 0 3px rgba(101, 182, 154, .13);
 }
+
 .gm-checkbox {
     display: flex;
     align-items: center;
@@ -437,9 +508,11 @@
     font-size: 14px;
     cursor: pointer;
 }
+
 .gm-checkbox input {
     accent-color: #41835b;
 }
+
 .gm-modal-actions {
     display: flex;
     flex-wrap: wrap;
@@ -447,10 +520,12 @@
     gap: 10px;
     margin-top: 22px;
 }
+
 .gm-unsaved-changes-dialog {
     max-width: 500px;
     text-align: center;
 }
+
 .gm-unsaved-changes-icon {
     display: grid;
     place-items: center;
@@ -463,6 +538,7 @@
     color: #a76b20;
     font-size: 24px;
 }
+
 .gm-unsaved-changes-dialog h2 {
     margin: 0 0 9px;
     color: #075477;
@@ -470,15 +546,18 @@
     font-weight: 700;
     line-height: 1.4;
 }
-.gm-unsaved-changes-dialog > p {
+
+.gm-unsaved-changes-dialog>p {
     margin: 0;
     color: #526b74;
     font-size: 14px;
     line-height: 1.7;
 }
+
 .gm-unsaved-changes-dialog .gm-modal-actions {
     justify-content: center;
 }
+
 /* Edit Subbab: compact block-first workflow */
 #gmSubchapterModal .gm-editor-modal-dialog {
     display: grid;
@@ -491,6 +570,7 @@
     padding: 0;
     overflow: hidden;
 }
+
 #gmSubchapterModal .gm-modal-header {
     flex: 0 0 auto;
     margin: 0;
@@ -498,6 +578,7 @@
     border-bottom: 1px solid #e1ece7;
     background: #fffefa;
 }
+
 #gmSubchapterModal #gmSubchapterForm {
     flex: 1 1 auto;
     min-height: 0;
@@ -506,23 +587,28 @@
     padding: 18px 24px 32px;
     overscroll-behavior: contain;
 }
+
 #gmSubchapterModal .gm-subchapter-fields {
     display: grid;
     grid-template-columns: minmax(130px, .28fr) minmax(0, 1fr);
     gap: 14px;
 }
+
 #gmSubchapterModal .gm-subchapter-fields .gm-field {
     margin-bottom: 14px;
 }
+
 #gmSubchapterModal .gm-content-block-editor {
     margin: 4px 0 14px;
     padding: 14px;
     border-color: #d6e7e3;
     background: #f8fbf8;
 }
+
 #gmSubchapterModal .gm-content-block-heading h3 {
     font-size: 16px;
 }
+
 #gmSubchapterModal .gm-content-block-heading p,
 #gmSubchapterModal .gm-content-block-help,
 #gmSubchapterModal .gm-content-block-empty,
@@ -530,37 +616,46 @@
     font-size: 12px;
     line-height: 1.55;
 }
+
 #gmSubchapterModal .gm-content-block-add {
     align-items: center;
     margin-top: 9px;
 }
+
 #gmSubchapterModal .gm-content-block-add select {
     min-height: 38px;
 }
+
 #gmSubchapterModal .gm-content-block-add .gm-btn,
 #gmSubchapterModal .gm-content-block-actions .gm-btn {
     min-height: 34px;
     padding: 6px 9px;
     font-size: 13px;
 }
+
 #gmSubchapterModal .gm-content-block-list {
     padding: 1px;
 }
+
 #gmSubchapterModal .gm-content-block-card {
     gap: 12px;
     padding: 10px 12px;
 }
+
 #gmSubchapterModal .gm-content-block-summary strong {
     font-size: 14px;
 }
+
 #gmSubchapterModal .gm-content-block-summary span {
     max-width: 480px;
     font-size: 14px;
 }
+
 #gmSubchapterModal .gm-content-block-actions {
     flex: 0 0 auto;
     gap: 6px;
 }
+
 #gmSubchapterModal .gm-content-block-placeholder {
     margin: 10px 0 0;
     padding: 9px 11px;
@@ -568,24 +663,54 @@
     background: #edf5f1;
     color: #52716c;
 }
+
 #gmSubchapterModal .gm-content-block-callout,
 #gmSubchapterModal .gm-content-block-media-editor {
-    margin: 0 0 14px;
-    padding: 14px;
+    margin: 0 0 10px;
+    padding: 12px;
 }
+
 #gmSubchapterModal .gm-content-block-callout .gm-field,
 #gmSubchapterModal .gm-content-block-media-editor .gm-field {
     gap: 6px;
     margin-bottom: 12px;
 }
+
 #gmSubchapterModal .gm-content-block-media-editor .gm-field:last-child {
     margin-bottom: 0;
 }
+
+/* Pratinjau gambar dan video pada editor media */
+#gmBlockMediaPreview {
+    padding: 12px;
+    border: 1px solid #dce9e6;
+    border-radius: 12px;
+    background: #f8fcfa;
+    text-align: center;
+}
+
+.gm-block-media-preview-content {
+    display: block;
+    width: 100%;
+    max-width: 480px;
+    max-height: 300px;
+    margin: 0 auto;
+    border-radius: 8px;
+    object-fit: contain;
+}
+
+iframe.gm-block-media-preview-content {
+    aspect-ratio: 16 / 9;
+    max-height: none;
+    border: 0;
+}
+
 #gmSubchapterModal .gm-content-block-media-editor input[type="file"] {
     min-height: 40px;
     padding: 7px 9px;
     background: #fff;
 }
+
 #gmSubchapterModal .gm-modal-actions {
     flex: 0 0 auto;
     margin: 0;
@@ -593,17 +718,20 @@
     border-top: 1px solid #e1ece7;
     background: #fffefa;
 }
+
 #gmSubchapterModal #gmSaveSubchapter {
     min-width: 150px;
     min-height: 42px;
     font-size: 13px;
     font-weight: 700;
 }
+
 @media (max-width: 767.98px) {
     #gmSubchapterModal {
         align-items: flex-end;
         padding: 8px;
     }
+
     #gmSubchapterModal .gm-editor-modal-dialog {
         width: 100%;
         height: 96vh;
@@ -612,39 +740,49 @@
         max-height: 96dvh;
         border-radius: 14px 14px 8px 8px;
     }
+
     #gmSubchapterModal .gm-modal-header {
         padding: 14px 16px;
     }
+
     #gmSubchapterModal #gmSubchapterForm {
         padding: 14px 16px 28px;
     }
+
     #gmSubchapterModal .gm-subchapter-fields {
         grid-template-columns: minmax(80px, .35fr) minmax(0, 1fr);
         gap: 9px;
     }
+
     #gmSubchapterModal .gm-content-block-editor {
         padding: 11px;
     }
+
     #gmSubchapterModal .gm-content-block-card {
         align-items: flex-start;
         flex-direction: column;
     }
+
     #gmSubchapterModal .gm-content-block-actions {
         width: 100%;
         justify-content: flex-start;
     }
+
     #gmSubchapterModal .gm-modal-actions {
         padding: 10px 16px max(10px, env(safe-area-inset-bottom));
     }
+
     #gmSubchapterModal .gm-modal-actions .gm-btn {
         min-height: 40px;
     }
 }
+
 /* 11. MODAL HAPUS */
 .gm-delete-dialog {
     max-width: 430px;
     text-align: center;
 }
+
 .gm-delete-icon {
     display: grid;
     place-items: center;
@@ -656,17 +794,20 @@
     color: #d44949;
     font-size: 14px;
 }
+
 .gm-delete-dialog h2 {
     margin: 0 0 12px;
     color: #075477;
     font-size: 18px;
 }
+
 .gm-delete-dialog p {
     margin: 0;
     color: #638a96;
     font-size: 14px;
     line-height: 1.8;
 }
+
 /* 12. PESAN STATUS */
 .gm-toast {
     position: fixed;
@@ -683,66 +824,83 @@
     font-weight: 600;
     box-shadow: 0 8px 24px rgba(7, 84, 119, .12);
 }
+
 .gm-toast.is-error {
     border-color: #f0c5c5;
     background: #fff0ef;
     color: #a52f2f;
 }
+
 /* 13. RESPONSIVE TABLET */
 @media (max-width: 991.98px) {
     .gm-chapter-list {
         grid-template-columns: 1fr;
     }
+
     .gm-detail-top {
         flex-direction: column;
     }
+
     .gm-introduction-layout.has-image {
         grid-template-columns: minmax(0, 1fr) minmax(180px, 38%);
     }
 }
+
 /* 14. RESPONSIVE HANDPHONE */
 @media (max-width: 767.98px) {
     .gm-heading {
         flex-direction: column;
         align-items: stretch;
     }
+
     .gm-heading h1 {
         font-size: 24px;
     }
+
     .gm-detail-card,
     .gm-subchapter-section {
         padding: 17px;
     }
+
     .gm-detail-top h1 {
         font-size: 24px;
     }
+
     .gm-introduction-layout.has-image {
         grid-template-columns: 1fr;
     }
+
     .gm-introduction-image {
         max-width: 100%;
     }
+
     .gm-modal {
         padding: 12px;
     }
+
     .gm-modal-dialog {
         padding: 18px;
         max-height: calc(100vh - 24px);
     }
+
     .gm-unsaved-changes-dialog .gm-modal-actions {
         flex-direction: column;
     }
+
     .gm-unsaved-changes-dialog .gm-modal-actions .gm-btn {
         width: 100%;
     }
+
     .gm-back-actions .gm-btn {
         flex: 1 1 auto;
     }
+
     .gm-toast {
         right: 16px;
         bottom: 16px;
     }
 }
+
 /* 15. AKSESIBILITAS */
 .gd-material-page button:focus-visible,
 .gd-material-page input:focus-visible,
@@ -750,11 +908,13 @@
     outline: 3px solid #329ecb;
     outline-offset: 3px;
 }
+
 /* Tampilan editor rich text dan file picker Materi Guru. */
 #gmSubchapterModal .gm-rich-editor {
     overflow: visible;
     background: transparent;
 }
+
 #gmSubchapterModal .gm-rich-toolbar {
     display: flex;
     align-items: center;
@@ -764,6 +924,7 @@
     border-bottom: 1px solid #dce9e2;
     background: #f5faf7;
 }
+
 #gmSubchapterModal .gm-rich-tool {
     display: inline-flex;
     align-items: center;
@@ -782,22 +943,26 @@
         background .15s ease,
         border-color .15s ease;
 }
+
 #gmSubchapterModal .gm-rich-tool:hover,
 #gmSubchapterModal .gm-rich-tool:focus-visible {
     border-color: #5e7066;
     background: #e0f2e8;
     outline: none;
 }
+
 #gmSubchapterModal .gm-rich-tool-text {
     font-size: 13px;
     font-weight: 700;
 }
+
 #gmSubchapterModal .gm-rich-separator {
     width: 1px;
     height: 25px;
     margin: 0 5px;
     background: #cbded5;
 }
+
 #gmSubchapterModal .gm-rich-content {
     min-height: 150px;
     max-height: none;
@@ -814,15 +979,18 @@
     overflow-wrap: anywhere;
     white-space: normal;
 }
+
 #gmSubchapterModal .gm-rich-content:focus {
     border-color: #48816d;
     box-shadow: 0 0 0 3px rgba(101, 182, 154, .13);
 }
+
 #gmSubchapterModal .gm-rich-content:empty::before {
     content: attr(data-placeholder);
     color: #677980;
     pointer-events: none;
 }
+
 #gmSubchapterModal .gm-rich-content h2 {
     margin: 20px 0 11px;
     color: #085775;
@@ -830,34 +998,42 @@
     font-weight: 700;
     line-height: 1.4;
 }
+
 #gmSubchapterModal .gm-rich-content h3 {
     margin: 17px 0 9px;
     color: #085775;
     font-size: 16px;
     font-weight: 700;
 }
+
 #gmSubchapterModal .gm-rich-content p {
     margin: 0 0 14px;
 }
+
 #gmSubchapterModal .gm-rich-content ul,
 #gmSubchapterModal .gm-rich-content ol {
     margin: 10px 0 18px;
     padding-left: 28px;
 }
+
 #gmSubchapterModal .gm-rich-content li {
     margin-bottom: 7px;
 }
+
 #gmSubchapterModal .gm-rich-content strong,
 #gmSubchapterModal .gm-rich-content b {
     font-weight: 700;
 }
+
 #gmSubchapterModal .gm-rich-content em,
 #gmSubchapterModal .gm-rich-content i {
     font-style: italic;
 }
+
 #gmSubchapterModal .gm-rich-content u {
     text-decoration: underline;
 }
+
 #gmSubchapterModal .gm-rich-source {
     position: absolute;
     width: 1px;
@@ -868,22 +1044,26 @@
     opacity: 0;
     pointer-events: none;
 }
+
 #gmSubchapterModal .gm-editor-status {
     min-height: 20px;
     margin: 8px 0 0;
     color: #317b55;
     font-size: 12px;
 }
+
 @media (max-width: 767.98px) {
     #gmSubchapterModal .gm-rich-toolbar {
         padding: 8px;
     }
+
     #gmSubchapterModal .gm-rich-content {
         padding: 10px 12px;
         min-height: 150px;
         font-size: 13px;
     }
 }
+
 #gmChapterModal #gmChapterIntroductionImage.gm-chapter-intro-file {
     display: block;
     width: 100%;
@@ -899,6 +1079,7 @@
     line-height: 1.5;
     cursor: pointer;
 }
+
 /* File picker Pengenalan Bab mempertahankan input native dan ID. */
 #gmChapterModal #gmChapterIntroductionImage.gm-chapter-intro-file::file-selector-button {
     min-height: 36px;
@@ -913,19 +1094,23 @@
     font-weight: 700;
     cursor: pointer;
 }
+
 #gmChapterModal #gmChapterIntroductionImage.gm-chapter-intro-file:hover::file-selector-button {
     background: #ceeada;
 }
+
 #gmChapterModal #gmChapterIntroductionImage.gm-chapter-intro-file:focus-visible {
     outline: 3px solid #66b89c;
     outline-offset: 2px;
 }
+
 @media (max-width: 575px) {
     #gmChapterModal #gmChapterIntroductionImage.gm-chapter-intro-file {
         min-height: 54px;
         padding: 7px 10px;
         font-size: 14px;
     }
+
     #gmChapterModal #gmChapterIntroductionImage.gm-chapter-intro-file::file-selector-button {
         min-height: 34px;
         padding: 5px 11px;
@@ -933,13 +1118,16 @@
         font-size: 14px;
     }
 }
+
 @media (prefers-reduced-motion: reduce) {
-    .gd-material-page \\*,
-    .gd-material-page \\*::before,
-    .gd-material-page \\*::after {
+
+    .gd-material-page *,
+    .gd-material-page *::before,
+    .gd-material-page *::after {
         transition: none !important;
     }
 }
+
 /* =========================================
    INPUT TUJUAN PEMBELAJARAN
    ========================================= */
@@ -949,21 +1137,25 @@
     font-size: 12px;
     line-height: 1.7;
 }
+
 #gmObjectivesList {
     display: flex;
     flex-direction: column;
     gap: 10px;
     margin-bottom: 12px;
 }
+
 .gm-objective-row {
     display: flex;
     align-items: center;
     gap: 10px;
 }
+
 .gm-objective-row input {
     flex: 1;
     min-width: 0;
 }
+
 .gm-remove-objective {
     display: grid;
     place-items: center;
@@ -977,9 +1169,11 @@
     cursor: pointer;
     transition: background-color .2s ease;
 }
+
 .gm-remove-objective:hover {
     background: #ffd9d5;
 }
+
 /* =========================================
    DETAIL PENGENALAN BAB
    ========================================= */
@@ -988,6 +1182,7 @@
     padding-top: 18px;
     border-top: 1px solid #e1ece8;
 }
+
 .gm-detail-section h2 {
     display: flex;
     align-items: center;
@@ -997,9 +1192,11 @@
     font-size: 18px;
     font-weight: 700;
 }
+
 .gm-detail-section h2 i {
     color: #4e9d6d;
 }
+
 .gm-detail-section p,
 .gm-detail-section li {
     color: #537a8c;
@@ -1008,20 +1205,25 @@
     overflow-wrap: anywhere;
     text-align: justify;
 }
+
 .gm-detail-section p {
     margin: 0;
     white-space: pre-line;
 }
-.gm-detail-section p + p {
+
+.gm-detail-section p+p {
     margin-top: 12px;
 }
+
 .gm-detail-section ol {
     margin: 0;
     padding-left: 23px;
 }
+
 .gm-detail-section li+li {
     margin-top: 8px;
 }
+
 /* =====================================================
    PENYEMPURNAAN EDITOR GURU — KOLOM TEKS & MODAL
    Hanya memengaruhi halaman Kelola Materi Guru.
@@ -1033,6 +1235,7 @@
     grid-template-rows: auto minmax(0, 1fr) auto;
     overflow: hidden;
 }
+
 #gmSubchapterModal #gmSubchapterForm {
     min-width: 0;
     min-height: 0;
@@ -1042,12 +1245,14 @@
     box-sizing: border-box;
     padding-bottom: 36px;
 }
+
 #gmSubchapterModal .gm-content-block-list {
     height: auto;
     min-height: 0;
     max-height: none;
     overflow: visible;
 }
+
 #gmSubchapterModal .gm-modal-actions {
     position: static;
     inset: auto;
@@ -1055,6 +1260,7 @@
     width: 100%;
     box-sizing: border-box;
 }
+
 /* Samakan textarea panjang dengan referensi Keterangan Video.
    Kolom judul yang satu baris sengaja tidak diubah. */
 #gmChapterModal .gm-field textarea.gm-multiline-input,
@@ -1077,12 +1283,14 @@
     outline: none;
     box-shadow: none;
 }
+
 #gmChapterModal .gm-field textarea.gm-multiline-input::placeholder,
 #gmSubchapterModal .gm-field textarea.gm-multiline-input::placeholder,
 #gmSubchapterModal textarea.gm-rich-content.gm-multiline-input::placeholder {
     color: #87939a;
     opacity: 1;
 }
+
 #gmChapterModal .gm-field textarea.gm-multiline-input:focus,
 #gmSubchapterModal .gm-field textarea.gm-multiline-input:focus,
 #gmSubchapterModal textarea.gm-rich-content.gm-multiline-input:focus {
@@ -1090,11 +1298,13 @@
     outline: none;
     box-shadow: 0 0 0 4px rgba(101, 182, 154, .14);
 }
+
 @media (max-width: 767.98px) {
     #gmSubchapterModal .gm-editor-modal-dialog {
         display: grid;
         grid-template-rows: auto minmax(0, 1fr) auto;
     }
+
     #gmChapterModal .gm-field textarea.gm-multiline-input,
     #gmSubchapterModal .gm-field textarea.gm-multiline-input,
     #gmSubchapterModal textarea.gm-rich-content.gm-multiline-input {
@@ -1102,6 +1312,7 @@
         padding: 14px 15px;
     }
 }
+
 /* ============================================================
    FINAL: SEMUA INPUT TEKS GURU SESUAI GAYA KETERANGAN VIDEO
    Perbaikan kotak Judul Video/Gambar/Media yang sebelumnya
@@ -1129,11 +1340,13 @@
     box-shadow: none;
     transition: border-color .18s ease, box-shadow .18s ease;
 }
+
 #gmChapterModal .gm-field input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"])::placeholder,
 #gmSubchapterModal .gm-field input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"])::placeholder {
     color: #87939a;
     opacity: 1;
 }
+
 #gmChapterModal .gm-field input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
 #gmSubchapterModal .gm-field input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
 #gmSubchapterModal .gm-content-block-add select:focus,
@@ -1142,6 +1355,7 @@
     outline: none;
     box-shadow: 0 0 0 4px rgba(101, 182, 154, .14);
 }
+
 /* Pastikan textarea tetap mendapatkan dimensi seperti referensi. */
 #gmChapterModal .gm-field textarea.gm-multiline-input,
 #gmSubchapterModal .gm-field textarea.gm-multiline-input,
@@ -1149,6 +1363,7 @@
     border-radius: 15px;
     font-size: 14px;
 }
+
 /* ============================================================
    SALUANG: SELECT & FILE PICKER — tampilan konsisten
    Native upload tetap dipakai agar perilaku dan JS lama aman.
@@ -1159,17 +1374,20 @@
     gap: 10px;
     align-items: center;
 }
+
 #gmSubchapterModal .gm-content-block-add>label:not(.visually-hidden) {
     flex: 0 0 auto;
     margin: 0;
     font-size: 13px !important;
     font-weight: 600;
 }
+
 #gmSubchapterModal .gm-content-block-add>select {
     flex: 1 1 260px;
     width: auto;
     min-width: 0;
 }
+
 #gmSubchapterModal .gm-content-block-add>.gm-btn {
     flex: 0 0 auto;
     min-height: 50px;
@@ -1177,6 +1395,7 @@
     border-radius: 14px;
     font-size: 13px;
 }
+
 #gmSubchapterModal select,
 #gmChapterModal select {
     -webkit-appearance: none;
@@ -1187,7 +1406,7 @@
     border: 1px solid #c7dfd8;
     border-radius: 15px;
     background-color: #fff;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http\\://www\.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23075477' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23075477' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 16px center;
     background-size: 16px 16px;
@@ -1196,12 +1415,14 @@
     box-shadow: none;
     cursor: pointer;
 }
+
 #gmSubchapterModal select:focus,
 #gmChapterModal select:focus {
     outline: none;
     border-color: #65b69a;
     box-shadow: 0 0 0 4px rgba(101, 182, 154, .14);
 }
+
 /* Native file input: gaya tombol upload tanpa mengubah fungsi unggah */
 #gmSubchapterModal input[type="file"] {
     display: block;
@@ -1214,9 +1435,10 @@
     border-radius: 15px;
     background: #fff;
     color: #537a8c;
-    font:  40014pxx "Poppins", sans-serif;
+    font: 40014pxx "Poppins", sans-serif;
     cursor: pointer;
 }
+
 #gmSubchapterModal input[type="file"]::file-selector-button {
     margin-right: 14px;
     padding: 11px 16px;
@@ -1224,51 +1446,100 @@
     border-radius: 11px;
     background: #eaf7ef;
     color: #176747;
-    font:  60014pxx "Poppins", sans-serif;
+    font: 60014pxx "Poppins", sans-serif;
     cursor: pointer;
     transition: background-color .2s ease, border-color .2s ease;
 }
+
 #gmSubchapterModal input[type="file"]:hover::file-selector-button {
     background: #d9f0e2;
     border-color: #88be9e;
 }
+
 #gmSubchapterModal input[type="file"]:focus-visible {
     outline: none;
     border-color: #65b69a;
     box-shadow: 0 0 0 4px rgba(101, 182, 154, .14);
 }
+
 @media (max-width: 575.98px) {
     #gmSubchapterModal .gm-content-block-add>select {
         flex-basis: 100%;
     }
+
     #gmSubchapterModal .gm-content-block-add>.gm-btn {
         width: 100%;
     }
+
     #gmSubchapterModal input[type="file"] {
         font-size: 14px;
     }
 }
+
 /* SALUANG_GURU_MEDIA_PREVIEW_V1 — hanya area Guru */
 #guruMaterialPage .gm-subchapter-content:not([hidden]) {
     display: flow-root;
+    width: 100%;
+    max-width: 100%;
+    margin-top: 15px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
     font-size: 15px !important;
-    line-height: 1.8 !important;
+    line-height: 1.6 !important;
     color: #315e68;
 }
-#guruMaterialPage .gm-subchapter-content p {
-    margin: 0 0 16px;
-    font-size: inherit;
-    line-height: 1.8;
-    text-align: justify;
+
+#guruMaterialPage .gm-subchapter-content>h2,
+#guruMaterialPage .gm-subchapter-content>h3,
+#guruMaterialPage .gm-subchapter-content>h4 {
+    clear: none;
+    display: block;
+    margin: 8px 0 3px;
+    color: #075477;
+    line-height: 1.5;
 }
+
+#guruMaterialPage .gm-subchapter-content p {
+    margin: 0 0 5px;
+    font-size: inherit;
+    line-height: 1.6;
+    text-align: left;
+}
+
+#guruMaterialPage .gm-subchapter-content p:empty,
+#guruMaterialPage .gm-subchapter-content p:has(> br:only-child) {
+    min-height: 0;
+    height: 8px;
+    line-height: 8px;
+    margin: 0;
+}
+
 #guruMaterialPage .gm-subchapter-content p:has(+ ol),
 #guruMaterialPage .gm-subchapter-content p:has(+ ul) {
     margin-bottom: 4px !important;
 }
-#guruMaterialPage .gm-subchapter-content p + ol,
-#guruMaterialPage .gm-subchapter-content p + ul {
+
+#guruMaterialPage .gm-subchapter-content p+ol,
+#guruMaterialPage .gm-subchapter-content p+ul {
     margin-top: 0 !important;
 }
+
+#guruMaterialPage .gm-subchapter-content :is(ol, ul) {
+    clear: none;
+    display: block;
+    margin: 2px 0 8px;
+    padding-left: clamp(1.75rem, 2vw, 2.25rem);
+    list-style-position: outside;
+    text-align: left;
+}
+
+#guruMaterialPage .gm-subchapter-content li {
+    margin: 0;
+    padding-left: .35rem;
+    overflow-wrap: break-word;
+    text-align: left;
+}
+
 #guruMaterialPage .gm-preview-media {
     margin: 16px 0;
     padding: 12px;
@@ -1277,6 +1548,7 @@
     border-radius: 14px;
     background: #fff;
 }
+
 #guruMaterialPage .gm-preview-media>img,
 #guruMaterialPage .gm-preview-media>video,
 #guruMaterialPage .gm-preview-media>iframe {
@@ -1287,11 +1559,13 @@
     background: #f1f7f4;
     object-fit: contain;
 }
+
 #guruMaterialPage .gm-preview-media>iframe {
     height: auto;
     aspect-ratio: 16/9;
     border: 0;
 }
+
 #guruMaterialPage .gm-preview-media figcaption {
     display: grid;
     gap: 3px;
@@ -1300,37 +1574,46 @@
     line-height: 1.5;
     color: #527883;
 }
+
 #guruMaterialPage .gm-preview-media figcaption strong {
     font-weight: 600;
     color: #075477;
 }
+
 #guruMaterialPage .gm-preview-unavailable {
     margin: 0;
     color: #6b8490;
     font-size: 14px;
     line-height: 1.5;
 }
+
 #guruMaterialPage .gm-subchapter-actions [data-gm-action="view-subchapter"] {
     font-size: 13px;
     gap: 8px;
 }
+
 #guruMaterialPage .gm-preview-chevron {
     font-size: 14px;
     margin-left: 3px;
 }
+
 #gmSubchapterModal .gm-content-block-add {
     gap: 10px;
 }
+
 #gmSubchapterModal .gm-content-block-add>label:not(.visually-hidden) {
     font-size: 13px !important;
 }
+
 #gmSubchapterModal #gmContentBlockType {
     font-size: 13px !important;
     background-position: right 16px center;
 }
+
 #gmSubchapterModal .gm-content-block-add>.gm-btn {
     font-size: 13px !important;
 }
+
 /* SALUANG: penyesuaian terakhir menu pilihan blok dan teks pratinjau */
 #gmSubchapterModal .gm-content-block-add {
     display: grid !important;
@@ -1338,6 +1621,7 @@
     gap: 10px !important;
     align-items: center;
 }
+
 #gmSubchapterModal .gm-content-block-add #gmContentBlockType {
     grid-column: 2;
     grid-row: 1;
@@ -1349,20 +1633,23 @@
     font-size: 13px !important;
     font-weight: 400 !important;
 }
+
 #gmSubchapterModal .gm-content-block-add>.gm-btn {
     grid-column: 3;
     grid-row: 1;
     font-size: 13px !important;
 }
+
 #gmSubchapterModal .gm-content-block-add>label:not(.visually-hidden) {
     grid-column: 1;
     grid-row: 1;
     font-size: 13px !important;
     font-weight: 600;
 }
+
 #guruMaterialPage .gm-subchapter-content {
     font-size: 15px !important;
-    line-height: 1.8 !important;
+    line-height: 1.6 !important;
     margin-top: 15px;
     color: #315e68;
 }
@@ -1371,9 +1658,11 @@
     font-size: 12px;
     line-height: 1.5;
 }
+
 #guruMaterialPage .gm-subchapter-content .gm-preview-media figcaption span {
     font-size: 12px;
 }
+
 #guruMaterialPage .gm-subchapter-content .gm-preview-unavailable {
     padding: 14px;
     background: #f7faf9;
@@ -1382,22 +1671,27 @@
     font-size: 13px;
     line-height: 1.5;
 }
+
 @media (max-width: 767.98px) {
     #gmSubchapterModal .gm-content-block-add {
         grid-template-columns: minmax(0, 1fr);
     }
+
     #gmSubchapterModal .gm-content-block-add>label:not(.visually-hidden) {
         grid-column: 1;
         grid-row: 1;
     }
+
     #gmSubchapterModal .gm-content-block-add #gmContentBlockType {
         grid-column: 1;
         grid-row: 2;
     }
+
     #gmSubchapterModal .gm-content-block-add::after {
         grid-column: 1;
         grid-row: 2;
     }
+
     #gmSubchapterModal .gm-content-block-add>.gm-btn {
         grid-column: 1;
         grid-row: 3;
@@ -1418,16 +1712,19 @@
         line-height: 1.75;
         overflow-wrap: anywhere;
     }
+
     #guruMaterialPage .gm-subchapter-content figcaption {
         font-size: 12px;
     }
+
     .gd-material-page .gm-btn,
     .gd-material-page .gm-field label,
     .gd-material-page .gm-checkbox,
-    .gd-material-page .gm-content-block-add > label {
+    .gd-material-page .gm-content-block-add>label {
         font-size: 13px;
         line-height: 1.5;
     }
+
     .gd-material-page .gm-field input,
     .gd-material-page .gm-field select,
     .gd-material-page .gm-field textarea,
@@ -1436,11 +1733,13 @@
         font-size: 14px;
         line-height: 1.6;
     }
+
     .gd-material-page .gm-field input::placeholder,
     .gd-material-page .gm-field textarea::placeholder {
         color: #526b74;
         opacity: 1;
     }
+
     .gd-material-page .gm-field-help,
     .gd-material-page .gm-image-name,
     .gd-material-page .gm-media-caption,
@@ -1449,10 +1748,13 @@
         font-size: 12px;
         line-height: 1.65;
     }
+
     #guruMaterialPage .gm-subchapter-content .gm-learning-activity-title {
         font-size: 13px !important;
     }
+
     @media (max-width: 575.98px) {
+
         #guruMaterialPage .gm-subchapter-content,
         #guruMaterialPage .gm-subchapter-content p,
         #guruMaterialPage .gm-subchapter-content li {
@@ -1460,19 +1762,26 @@
         }
     }
 }
+
 /* ============================================================
    SALUANG — PERATAAN PRATINJAU MATERI DASHBOARD GURU
    Hanya memengaruhi tampilan Lihat Materi, bukan editor/siswa.
    ============================================================ */
 /* Teks utama materi dibaca rata kanan-kiri, bukan rata tengah. */
 #guruMaterialPage .gm-subchapter-content>p,
-#guruMaterialPage .gm-subchapter-content>div:not(.gm-preview-media),
+#guruMaterialPage .gm-subchapter-content>div:not(.gm-preview-media) {
+    text-align: left;
+    overflow-wrap: break-word;
+    line-height: 1.65;
+    margin-bottom: 5px;
+}
+
 #guruMaterialPage .gm-subchapter-content>ul,
 #guruMaterialPage .gm-subchapter-content>ol {
-    text-align: justify;
+    text-align: left;
     overflow-wrap: break-word;
-    line-height: 1.8;
-    margin-bottom: 16px;
+    line-height: 1.6;
+    margin-bottom: 8px;
 }
 
 #guruMaterialPage .gm-subchapter-content p:not(.gm-preview-media p),
@@ -1486,39 +1795,96 @@
 
 #guruMaterialPage .gm-subchapter-content>ol,
 #guruMaterialPage .gm-subchapter-content>ul {
-    padding-left: 16px;
+    padding-left: 2rem;
 }
+
+/* Judul/subjudul tetap di margin utama; hanya daftar yang menjorok. */
+#guruMaterialPage .gm-subchapter-content :is(ul, ol) {
+    display: block;
+    clear: none;
+    box-sizing: border-box;
+    width: auto;
+    max-width: 100%;
+    padding-left: 42px;
+    margin: 6px 0 10px;
+    list-style-position: outside;
+    text-align: left;
+}
+
+#guruMaterialPage .gm-subchapter-content :is(ul, ol)>li {
+    display: list-item;
+    padding-left: 4px;
+    text-indent: 0;
+    text-align: left;
+    overflow-wrap: break-word;
+}
+
 /* Card gambar/video ditempatkan di tengah area pratinjau. */
+/* Daftar bullet: setiap item menghindari float gambar sendiri-sendiri. */
+#guruMaterialPage .gm-subchapter-content ul {
+    display: block;
+    padding-left: 0;
+    list-style: none;
+}
+
+#guruMaterialPage .gm-subchapter-content ul>li {
+    display: flow-root;
+    margin: 0 0 4px 26px;
+    padding-left: 22px;
+    list-style: none;
+    text-indent: 0;
+}
+
+#guruMaterialPage .gm-subchapter-content ul>li::before {
+    content: "•";
+    float: left;
+    width: 14px;
+    margin-left: -22px;
+    font-weight: 600;
+}
+
 #guruMaterialPage .gm-subchapter-content .gm-preview-media {
     box-sizing: border-box;
     width: min(100%, 760px);
     max-width: 760px;
-    margin: 24px auto 32px;
-    padding: 24px;
+    margin: 12px auto 16px;
+    padding: 16px;
     text-align: center;
 }
+
 #guruMaterialPage .gm-subchapter-content .gm-preview-media.gm-preview-image-wrap-right,
 #guruMaterialPage .gm-subchapter-content .gm-preview-media.gm-preview-image-wrap-left {
     box-sizing: border-box;
-    width: min(42%, 360px);
-    max-width: 42%;
-    margin: 0 0 16px;
+    width: min(33%, 420px);
+    max-width: min(33%, 420px);
+    margin: 0 0 18px;
     padding: 12px;
+    overflow-wrap: anywhere;
 }
+
 #guruMaterialPage .gm-subchapter-content .gm-preview-media.gm-preview-image-wrap-right {
     float: right;
-    margin-left: 18px;
+    clear: left;
+    margin-left: 42px;
 }
+
 #guruMaterialPage .gm-subchapter-content .gm-preview-media.gm-preview-image-wrap-left {
     float: left;
+    clear: right;
     margin-right: 18px;
 }
+
 #guruMaterialPage .gm-subchapter-content .gm-preview-clear,
-#guruMaterialPage .gm-subchapter-content .gm-preview-clear-before,
 #guruMaterialPage .gm-subchapter-content .gm-summary-card,
 #guruMaterialPage .gm-subchapter-content .gm-learning-activity {
     clear: both;
 }
+
+#guruMaterialPage .gm-subchapter-content .gm-preview-media.gm-preview-image-wrap-right+p,
+#guruMaterialPage .gm-subchapter-content .gm-preview-media.gm-preview-image-wrap-left+p {
+    clear: none;
+}
+
 /* Media tetap responsif dan diposisikan di tengah card. */
 #guruMaterialPage .gm-subchapter-content .gm-preview-media>img,
 #guruMaterialPage .gm-subchapter-content .gm-preview-media>video,
@@ -1528,21 +1894,25 @@
     margin-right: auto;
     max-width: 100%;
 }
+
 /* Judul dan keterangan media tetap berada di tengah. */
 #guruMaterialPage .gm-subchapter-content .gm-preview-media figcaption {
     display: block;
     padding-top: 12px;
     text-align: center;
 }
+
 #guruMaterialPage .gm-subchapter-content .gm-preview-media figcaption strong {
     display: block;
-    margin-bottom: 20px;
+    margin-bottom: 8px;
     text-align: center;
 }
+
 #guruMaterialPage .gm-subchapter-content .gm-preview-image-wrap-right figcaption strong,
 #guruMaterialPage .gm-subchapter-content .gm-preview-image-wrap-left figcaption strong {
     margin-bottom: 8px;
 }
+
 #guruMaterialPage .gm-subchapter-content .gm-preview-media figcaption span,
 #guruMaterialPage .gm-subchapter-content .gm-preview-media figcaption p {
     display: block;
@@ -1553,6 +1923,7 @@
     font-size: 12px;
     line-height: 1.5;
 }
+
 #guruMaterialPage .gm-learning-activity {
     box-sizing: border-box;
     width: min(100%, 760px);
@@ -1564,6 +1935,7 @@
     color: #315e68;
     text-align: left;
 }
+
 #guruMaterialPage .gm-learning-activity-title {
     margin: 0 0 12px;
     color: #075477;
@@ -1572,29 +1944,43 @@
     line-height: 1.5 !important;
     text-align: left;
 }
+
 #guruMaterialPage .gm-learning-activity-body p {
-    margin: 0 0 12px;
+    margin: 0;
     font-size: inherit;
     line-height: 1.5 !important;
     text-align: justify;
 }
+
 #guruMaterialPage .gm-learning-activity-body :is(p, li) {
     line-height: 1.8 !important;
-    text-align: justify;
+    text-align: left;
 }
+
 #guruMaterialPage .gm-learning-activity-body> :last-child {
     margin-bottom: 0;
 }
+
 @media (max-width: 575.98px) {
     #guruMaterialPage .gm-subchapter-content .gm-preview-media {
         width: 100%;
         padding: 16px;
     }
+
     #guruMaterialPage .gm-learning-activity {
         padding: 16px;
     }
 }
+
 @media (max-width: 767.98px) {
+
+    #guruMaterialPage .gm-subchapter-content p,
+    #guruMaterialPage .gm-subchapter-content li,
+    #guruMaterialPage .gm-learning-activity-body p,
+    #guruMaterialPage .gm-learning-activity-body li {
+        text-align: left;
+    }
+
     #guruMaterialPage .gm-subchapter-content .gm-preview-media.gm-preview-image-wrap-right,
     #guruMaterialPage .gm-subchapter-content .gm-preview-media.gm-preview-image-wrap-left {
         float: none;
@@ -1604,6 +1990,7 @@
         padding: 16px;
     }
 }
+
 /* Card aktivitas Guru mengikuti area teks (bukan lebar card gambar). */
 #guruMaterialPage .gm-learning-activity {
     display: block;
@@ -1621,6 +2008,7 @@
     color: #5c482e !important;
     box-shadow: 0 3px 12px rgba(117, 87, 24, .05);
 }
+
 /* Judul dan isi Ayo berukuran sama seperti isi materi siswa. */
 #guruMaterialPage .gm-learning-activity-title {
     margin: 0 0 10px !important;
@@ -1630,36 +2018,52 @@
     line-height: 1.5 !important;
     text-align: left !important;
 }
+
 #guruMaterialPage .gm-learning-activity-body,
 #guruMaterialPage .gm-learning-activity-body p,
 #guruMaterialPage .gm-learning-activity-body li {
     color: #315e68;
     font-size: 15px !important;
-    line-height: 1.8 !important;
-    text-align: justify !important;
+    line-height: 1.6 !important;
+    text-align: left !important;
 }
+
+#guruMaterialPage .gm-learning-activity-body :is(p, h2, h3, ol, ul) {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+#guruMaterialPage .gm-learning-activity-body p:has(> br:only-child) {
+    min-height: 1.6em;
+}
+
 #guruMaterialPage .gm-learning-activity-body> :last-child,
 #guruMaterialPage .gm-learning-activity-body p:last-child {
     margin-bottom: 0 !important;
 }
+
 #guruMaterialPage .gm-learning-activity-body ol,
 #guruMaterialPage .gm-learning-activity-body ul {
-    padding-left: 22px;
-    margin: 0 0 18px;
-    line-height: 1.8;
+    padding-left: 24px;
+    margin: 0;
+    line-height: 1.6;
 }
+
 #guruMaterialPage .gm-learning-activity-body p:has(+ ol),
 #guruMaterialPage .gm-learning-activity-body p:has(+ ul) {
-    margin-bottom: 4px !important;
+    margin-bottom: 0 !important;
 }
+
 #guruMaterialPage .gm-learning-activity-body li {
-    margin-bottom: 7px;
+    margin-bottom: 0;
 }
+
 @media (max-width: 767.98px) {
     #guruMaterialPage .gm-learning-activity {
         padding: 17px 19px !important;
     }
 }
+
 #guruMaterialPage .gm-summary-card {
     width: 100%;
     max-width: none;
@@ -1671,6 +2075,7 @@
     background: #f8fdf9;
     box-shadow: 0 4px 14px rgba(20, 81, 64, .06);
 }
+
 #guruMaterialPage .gm-summary-header {
     display: flex;
     align-items: center;
@@ -1680,15 +2085,18 @@
     background: #e3f4ea;
     text-align: center;
 }
+
 #guruMaterialPage .gm-summary-header h4 {
     margin: 0;
     color: #175c47;
     font-size: 15px;
     font-weight: 700;
 }
+
 #guruMaterialPage .gm-summary-body {
     padding: 18px;
 }
+
 #guruMaterialPage .gm-summary-heading {
     margin: 16px 0 10px;
     color: #135b76;
@@ -1696,22 +2104,26 @@
     font-weight: 700;
     text-align: left;
 }
+
 #guruMaterialPage .gm-summary-heading:first-child {
     margin-top: 0;
 }
+
 #guruMaterialPage .gm-summary-paragraph {
-    margin: 0 0 12px;
+    margin: 0 0 6px;
     color: #315e68;
     font-size: 14px;
     line-height: 1.5;
     text-align: justify;
 }
+
 #guruMaterialPage .gm-summary-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
     margin: 12px 0 16px;
 }
+
 #guruMaterialPage .gm-summary-item {
     display: flex;
     align-items: flex-start;
@@ -1722,6 +2134,7 @@
     border-radius: 11px;
     background: #fff;
 }
+
 #guruMaterialPage .gm-summary-number {
     display: grid;
     flex: 0 0 28px;
@@ -1734,6 +2147,7 @@
     font-size: 14px;
     font-weight: 700;
 }
+
 #guruMaterialPage .gm-summary-item h5 {
     margin: 1px 0 5px;
     color: #135b76;
@@ -1741,6 +2155,7 @@
     font-weight: 700;
     line-height: 1.5;
 }
+
 #guruMaterialPage .gm-summary-item p {
     margin: 0;
     color: #456d77;
@@ -1748,14 +2163,17 @@
     line-height: 1.5;
     text-align: justify;
 }
+
 @media (max-width: 767.98px) {
     #guruMaterialPage .gm-summary-grid {
         grid-template-columns: 1fr;
     }
+
     #guruMaterialPage .gm-summary-body {
         padding: 16px;
     }
 }
+
 /* Match the student summary callout in the Guru material preview. */
 #guruMaterialPage .gm-subchapter-content .sd-content-block-callout.sd-summary-panel {
     max-width: 100%;
@@ -1767,6 +2185,7 @@
     background: #eef8f3;
     color: #315e68;
 }
+
 #guruMaterialPage .gm-subchapter-content .sd-summary-main-title {
     margin: 0 0 12px;
     color: #075477;
@@ -1774,12 +2193,14 @@
     font-weight: 700;
     text-align: center;
 }
+
 #guruMaterialPage .gm-subchapter-content .sd-summary-subtitle {
     margin: 18px 0 10px;
     color: #075477;
     font-size: 12px;
     font-weight: 700;
 }
+
 #guruMaterialPage .gm-subchapter-content .sd-summary-body .sd-summary-paragraph,
 #guruMaterialPage .gm-subchapter-content .sd-summary-item-content p,
 #guruMaterialPage .gm-subchapter-content .sd-summary-body li,
@@ -1790,21 +2211,25 @@
     line-height: 1.5;
     text-align: justify;
 }
+
 #guruMaterialPage .gm-chapter-list .gm-empty,
 #guruMaterialPage .gm-subchapter-list .gm-empty {
     font-size: 13px;
     line-height: 1.5;
 }
+
 #gdHomeMaterialList .gd-muted {
     font-size: 14px;
     line-height: 1.5;
 }
+
 #guruMaterialPage .gm-subchapter-content .sd-summary-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
     margin: 16px 0 20px;
 }
+
 #guruMaterialPage .gm-subchapter-content .sd-summary-item {
     display: flex;
     align-items: flex-start;
@@ -1815,6 +2240,7 @@
     border-radius: 12px;
     background: #ffffff;
 }
+
 #guruMaterialPage .gm-subchapter-content .sd-summary-number {
     display: grid;
     flex: 0 0 30px;
@@ -1827,9 +2253,11 @@
     font-size: 14px;
     font-weight: 700;
 }
+
 #guruMaterialPage .gm-subchapter-content .sd-summary-item-content {
     min-width: 0;
 }
+
 #guruMaterialPage .gm-subchapter-content .sd-summary-item-content strong {
     display: block;
     margin-bottom: 6px;
@@ -1837,49 +2265,60 @@
     font-size: 14px;
     line-height: 1.5;
 }
+
 #guruMaterialPage .gm-subchapter-content .sd-summary-item-content p {
     margin: 0;
 }
+
 @media (max-width: 767.98px) {
     #guruMaterialPage .gm-subchapter-content .sd-summary-grid {
         grid-template-columns: 1fr;
     }
+
     #guruMaterialPage .gm-subchapter-content .sd-content-block-callout.sd-summary-panel {
         padding: 16px;
     }
 }
+
 #gmChapterModal #gmChapterForm .gm-field {
     gap: 7px;
     margin-bottom: 15px;
 }
+
 #gmChapterModal #gmChapterForm .gm-field label {
     font-size: 13px !important;
     font-weight: 600;
     line-height: 1.5;
 }
+
 #gmChapterModal #gmChapterForm .gm-field :is(input:not([type="hidden"]), textarea, select) {
     font-size: 14px !important;
     line-height: 1.5;
 }
+
 #gmChapterModal #gmChapterForm .gm-field input::placeholder,
 #gmChapterModal #gmChapterForm .gm-field textarea::placeholder {
     font-size: 12px !important;
 }
+
 #gmChapterModal #gmChapterForm .gm-field :is(.gm-field-help, small) {
     margin: 0;
     font-size: 12px !important;
     line-height: 1.5;
 }
+
 #gmChapterModal #gmChapterIntroductionImage.gm-chapter-intro-file {
     min-height: 58px;
     padding: 8px 12px;
     font-size: 14px;
 }
+
 #gmChapterModal #gmChapterIntroductionImage.gm-chapter-intro-file::file-selector-button {
     min-height: 36px;
     padding: 6px 14px;
     font-size: 14px;
 }
+
 #gmChapterModal #gmChapterIntroductionPreview.gm-introduction-preview {
     display: block;
     width: 100%;
@@ -1890,19 +2329,23 @@
     object-fit: initial;
     background: transparent;
 }
+
 #gmChapterModal #gmChapterIntroductionPreview.gm-introduction-preview[hidden] {
     display: none;
 }
+
 /* SALUANG: ukuran tulisan label "Jenis blok" (bukan isi dropdown). */
 #gmSubchapterModal .gm-content-block-add {
     font-size: 13px !important;
 }
-#gmSubchapterModal .gm-content-block-add > :is(label, span, .gm-content-block-label) {
+
+#gmSubchapterModal .gm-content-block-add> :is(label, span, .gm-content-block-label) {
     font-size: 13px !important;
     line-height: 1.5;
 }
+
 /* Ukuran pilihan dan tombol tidak ikut dikecilkan. */
 #gmSubchapterModal .gm-content-block-add #gmContentBlockType,
-#gmSubchapterModal .gm-content-block-add > .gm-btn {
+#gmSubchapterModal .gm-content-block-add>.gm-btn {
     font-size: 13px !important;
 }

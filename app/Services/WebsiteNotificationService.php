@@ -591,16 +591,16 @@ class WebsiteNotificationService
             )->contains(fn (array $result): bool => $result['id'] === $resultId);
         }
 
-        $table = $type === 'quiz' ? 'student_assessment_results' : 'evaluation_attempts';
-        $completedColumn = $type === 'quiz' ? 'completed_at' : 'submitted_at';
+        if (!Schema::hasTable('student_assessment_results')) {
+            return false;
+        }
 
-        return Schema::hasTable($table)
-            && DB::table($table)
-                ->where('id', $resultId)
-                ->where('user_id', $studentId)
-                ->whereNotNull($completedColumn)
-                ->where('assessment_type', 'quiz')
-                ->exists();
+        return DB::table('student_assessment_results')
+            ->where('id', $resultId)
+            ->where('user_id', $studentId)
+            ->where('assessment_type', 'quiz')
+            ->whereNotNull('completed_at')
+            ->exists();
     }
 
     private function evaluationAccessibleToGuardian(int $attemptId, int $studentId): bool

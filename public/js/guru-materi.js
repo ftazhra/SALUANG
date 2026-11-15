@@ -129,6 +129,21 @@ document.addEventListener('DOMContentLoaded', () => {
       modal.hidden = false;
     }
   }
+  function showConfirmationDialog({ title, description, confirmText = 'Ya, Hapus', onConfirm = null }) {
+    const modal = deleteModal;
+    if (!modal) return;
+    $('gmDeleteTitle').textContent = title;
+    $('gmDeleteDescription').textContent = description;
+    const confirmButton = $('gmConfirmDelete');
+    if (confirmButton) {
+      confirmButton.textContent = confirmText;
+    }
+    pendingDelete = { type: 'custom', onConfirm };
+    // Jangan panggil openModal(): ia menutup modal editor induk.
+    modal.hidden = false;
+    const dialog = modal.querySelector('[role="dialog"]');
+    dialog?.focus();
+  }
   function dismissUnsavedChangesWarning() {
     if (!unsavedChangesModal || unsavedChangesModal.hidden) return;
     unsavedChangesModal.hidden = true;
@@ -266,6 +281,12 @@ document.addEventListener('DOMContentLoaded', () => {
         ? node.tagName.toLowerCase()
         : 'span';
       const safe = document.createElement(tag);
+      if (tag === 'ol') {
+        const start = Number(node.getAttribute('start'));
+        if (Number.isSafeInteger(start) && start > 1 && start <= 10000) {
+          safe.setAttribute('start', String(start));
+        }
+      }
       [...node.childNodes].forEach(child => {
         const converted = convert(child);
         if (converted) {
@@ -279,6 +300,21 @@ document.addEventListener('DOMContentLoaded', () => {
       if (safe) {
         out.appendChild(safe);
       }
+    });
+    // Abaikan paragraf kosong dari Enter berulang, dan ubah heading Markdown lama.
+    [...out.querySelectorAll('p, div')].forEach(element => {
+      if (!element.textContent.trim() && !element.querySelector('br,img,video,iframe')) {
+        element.remove();
+        return;
+      }
+      if (element.tagName !== 'P') return;
+      const children = [...element.childNodes];
+      if (children.some(child => child.nodeType === Node.ELEMENT_NODE && child.tagName === 'BR')) return;
+      const heading = element.textContent.trim().match(/^(#{2,3})\s*(\S.*)$/);
+      if (!heading) return;
+      const headingElement = document.createElement(heading[1].length === 2 ? 'h2' : 'h3');
+      headingElement.textContent = heading[2].trim();
+      element.replaceWith(headingElement);
     });
     return out.innerHTML;
   }
@@ -318,11 +354,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const pieces = raw
       .split(/\r?\n\s*\r?\n/)
       .filter(Boolean);
-    return pieces.map(p =>
-      '<p>' +
-      escapeHTML(p).replace(/\r?\n/g, '<br>') +
-      '</p>'
-    ).join('');
+    return pieces.map(piece => {
+      const heading = piece.trim().match(/^(#{2,3})\s*(\S[^\n]*)$/);
+      if (heading) {
+        const tag = heading[1].length === 2 ? 'h2' : 'h3';
+        return `<${tag}>${escapeHTML(heading[2].trim())}</${tag}>`;
+      }
+      return '<p>' + escapeHTML(piece).replace(/\r?\n/g, '<br>') + '</p>';
+    }).join('');
   }
   const learningActivityTitles = new Map([
     ['ayo berpikir', 'Ayo Berpikir!'],
@@ -491,27 +530,31 @@ document.addEventListener('DOMContentLoaded', () => {
       if (node.nodeType !== Node.ELEMENT_NODE) return '';
       const content = [...node.childNodes].map(block).join('');
       switch (node.tagName) {
-        case 'H2': return `## ${content.trim()}\n\n`;
-        case 'H3': return `### ${content.trim()}\n\n`;
+        case 'H2': return `## ${content.trim()}\n`;
+        case 'H3': return `### ${content.trim()}\n`;
         case 'P':
-        case 'DIV': return `${content.trim()}\n\n`;
+        case 'DIV':
+          // <p><br></p> disimpan sebagai satu baris kosong yang dapat diedit.
+          if (!node.textContent.trim() && node.querySelector('br')) return '\n';
+          return `${content.trim()}\n`;
         case 'UL':
           return [...node.children]
             .filter(child => child.tagName === 'LI')
             .map(child => `- ${inline(child).trim()}\n`)
-            .join('') + '\n';
-        case 'OL':
+            .join('');
+        case 'OL': {
+          const start = Number(node.getAttribute('start')) || 1;
           return [...node.children]
             .filter(child => child.tagName === 'LI')
-            .map((child, index) => `${index + 1}. ${inline(child).trim()}\n`)
-            .join('') + '\n';
+            .map((child, index) => `${start + index}. ${inline(child).trim()}\n`)
+            .join('');
+        }
         default: return inline(node);
       }
     }
     return [...parsed.body.childNodes]
       .map(block)
       .join('')
-      .replace(/\n{3,}/g, '\n\n')
       .trim();
   }
   function editorTextToHTML(value) {
@@ -526,10 +569,12 @@ document.addEventListener('DOMContentLoaded', () => {
     while (index < lines.length) {
       const line = lines[index].trim();
       if (!line) {
+        // Baris kosong dibuat hanya jika guru mengetik Enter sendiri.
+        output.push('<p><br></p>');
         index++;
         continue;
       }
-      const heading = line.match(/^(#{2,3})\s+(.+)$/);
+      const heading = line.match(/^(#{2,3})\s*(\S.*)$/);
       if (heading) {
         const tag = heading[1].length === 2 ? 'h2' : 'h3';
         output.push(`<${tag}>${inline(heading[2])}</${tag}>`);
@@ -539,22 +584,33 @@ document.addEventListener('DOMContentLoaded', () => {
       const listMatch = line.match(/^\s*([-\*]|\d+\.)\s+/);
       if (listMatch) {
         const ordered = /^\d/.test(listMatch[1]);
-        const tag = ordered ? 'ol' : 'ul';
+        const startMatch = line.match(/^\s*(\d+)\.\s+/);
+        const explicitStart = startMatch ? Math.max(1, Number(startMatch[1])) : 1;
+        // Ikuti nomor yang ditulis guru; daftar baru tidak otomatis melanjutkan daftar sebelumnya.
+        const startNumber = explicitStart;
         const items = [];
         while (index < lines.length) {
           const item = lines[index].match(/^\s*(?:[-\*]|\d+\.)\s+(.+)$/);
-          if (!item || /^\d/.test(item[0].trim()) !== ordered) break;
+          if (!item) break;
+          const itemPrefix = item[0].trim();
+          const itemOrdered = /^\d+\./.test(itemPrefix);
+          if (itemOrdered !== ordered) break;
           items.push(`<li>${inline(item[1])}</li>`);
           index++;
         }
-        output.push(`<${tag}>${items.join('')}</${tag}>`);
+        if (ordered) {
+          const attr = startNumber > 1 ? ` start="${startNumber}"` : '';
+          output.push(`<ol${attr}>${items.join('')}</ol>`);
+        } else {
+          output.push(`<ul>${items.join('')}</ul>`);
+        }
         continue;
       }
       const paragraph = [];
       while (
         index < lines.length
         && lines[index].trim()
-        && !/^(#{2,3})\s+/.test(lines[index].trim())
+        && !/^(#{2,3})\s*(?=\S)/.test(lines[index].trim())
         && !listType(lines[index])
       ) {
         paragraph.push(lines[index].trim());
@@ -574,10 +630,12 @@ document.addEventListener('DOMContentLoaded', () => {
       );
     }
   }
-  function loadEditor(value = '') {
+  function loadEditor(value = '', alreadyPlainText = false) {
     if (!contentField) return;
     if (editor) {
-      editor.value = htmlToEditorText(value);
+      // Isi aktivitas sudah berupa teks editor; jangan konversi HTML dua kali.
+      // Konversi kedua sebelumnya menghilangkan Enter kosong buatan Guru.
+      editor.value = alreadyPlainText ? String(value ?? '') : htmlToEditorText(value);
       syncEditor();
     } else {
       contentField.value = String(value ?? '');
@@ -601,9 +659,13 @@ document.addEventListener('DOMContentLoaded', () => {
   function saveActivityText(block) {
     if (!block || !block.isActivity) return;
     const title = $('gmActivityType')?.value || 'Ayo Mengamati!';
-    const body = $('gmActivityContent')?.value || '';
+    const bodyInput = editor?.value ?? '';
+    const body = String(bodyInput || '').replace(/\r\n?/g, '\n');
     block.activityTitle = title;
     block.activityBody = body;
+    if ($('gmActivityContent')) {
+      $('gmActivityContent').value = body;
+    }
     block.content = '<p><strong>' + escapeHTML(title) + '</strong></p>'
       + editorTextToHTML(body);
   }
@@ -623,8 +685,10 @@ document.addEventListener('DOMContentLoaded', () => {
       media: block?.media || null,
       caption: payload.caption || block?.media?.caption || '',
       layout: payload.layout || 'full',
-      source: block?.media_id || block?.media?.id ? 'existing' : 'upload',
-      youtubeUrl: '',
+      source: block?.media_id || block?.media?.id
+        ? 'existing'
+        : (payload.youtube_url ? 'youtube' : 'upload'),
+      youtubeUrl: payload.youtube_url || '',
       file: null
     };
   }
@@ -652,6 +716,9 @@ document.addEventListener('DOMContentLoaded', () => {
         block.layout = $('gmBlockImageLayout')?.value || block.layout || 'full';
       }
       block.youtubeUrl = $('gmBlockYoutubeUrl')?.value.trim() || '';
+      if (!block.file && block.mediaId && block.source === 'upload') {
+        block.source = 'existing';
+      }
       if (block.source === 'existing') {
         block.mediaId = block.type === 'video'
           ? (Number(block.mediaId) || null)
@@ -760,12 +827,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const activityEditor = $('gmActivityEditor');
     if (activityEditor) activityEditor.hidden = true;
     if (block?.type === 'text' && block.isActivity) {
-      if (textEditor) textEditor.hidden = true;
+      if (textEditor) textEditor.hidden = false;
       if (calloutEditor) calloutEditor.hidden = true;
       if (mediaEditor) mediaEditor.hidden = true;
+      // Aktivitas menggunakan editor kaya teks tunggal; panel aktivitas hanya berisi jenis.
       if (activityEditor) activityEditor.hidden = false;
       $('gmActivityType').value = block.activityTitle || 'Ayo Mengamati!';
-      $('gmActivityContent').value = block.activityBody || '';
+      const activityBody = block.activityBody || '';
+      loadEditor(activityBody, true);
+      if ($('gmActivityContent')) $('gmActivityContent').value = activityBody;
     } else if (block?.type === 'text') {
       loadEditor(block.content);
       if (textEditor) textEditor.hidden = false;
@@ -792,6 +862,85 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     renderContentBlocks();
   }
+
+  let blockPreviewObjectUrl = null;
+
+  function renderBlockMediaPreview(block) {
+    const field = $('gmBlockMediaPreviewField');
+    const container = $('gmBlockMediaPreview');
+    if (!field || !container) return;
+
+    if (blockPreviewObjectUrl) {
+      URL.revokeObjectURL(blockPreviewObjectUrl);
+      blockPreviewObjectUrl = null;
+    }
+
+    container.replaceChildren();
+    field.hidden = true;
+
+    if (!block || !['image', 'video'].includes(block.type)) return;
+
+    let url = '';
+    let youtube = '';
+
+    if (block.file) {
+      blockPreviewObjectUrl = URL.createObjectURL(block.file);
+      url = blockPreviewObjectUrl;
+    } else if (block.source === 'youtube' && block.youtubeUrl) {
+      youtube = youtubeEmbedUrl(block.youtubeUrl);
+    } else {
+      const media = block.media
+        || availableBlockMedia.find(
+          item => Number(item.id) === Number(block.mediaId)
+        )
+        || {};
+
+      const rawUrl = media.url
+        || media.file_url
+        || media.public_url
+        || media.media_url
+        || media.path
+        || media.file_path
+        || '';
+
+      url = safePreviewUrl(rawUrl);
+
+      if (block.type === 'video' && !url) {
+        youtube = youtubeEmbedUrl(
+          block.youtubeUrl || media.youtube_url || ''
+        );
+      }
+    }
+
+    let element;
+
+    if (block.type === 'image' && url) {
+      element = document.createElement('img');
+      element.src = url;
+      element.alt = block.title || 'Pratinjau gambar';
+    } else if (block.type === 'video' && youtube) {
+      element = document.createElement('iframe');
+      element.src = youtube;
+      element.title = block.title || 'Pratinjau video YouTube';
+      element.allowFullscreen = true;
+      element.loading = 'lazy';
+    } else if (block.type === 'video' && url) {
+      element = document.createElement('video');
+      element.src = url;
+      element.controls = true;
+      element.preload = 'metadata';
+      element.playsInline = true;
+    } else {
+      element = document.createElement('p');
+      element.textContent =
+        'Preview belum tersedia. Pilih berkas atau periksa media tersimpan.';
+    }
+
+    element.classList.add('gm-block-media-preview-content');
+    container.appendChild(element);
+    field.hidden = false;
+  }
+
   function updateBlockMediaEditor(block) {
     const type = block.type;
     const sourceSelect = $('gmBlockMediaSource');
@@ -827,7 +976,9 @@ document.addEventListener('DOMContentLoaded', () => {
       option.textContent = media.title || `${type === 'image' ? 'Gambar' : 'Video'} ${media.id}`;
       existingSelect.appendChild(option);
     });
-    const source = block.source || (block.mediaId ? 'existing' : 'upload');
+    const source = block.file
+      ? 'upload'
+      : (block.source || (block.mediaId ? 'existing' : 'upload'));
     block.source = source;
     sourceSelect.value = source;
     // Gambar memakai unggah baru, tetapi referensi gambar lama tetap tersimpan.
@@ -857,6 +1008,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ? '.jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp'
       : '.mp4,video/mp4';
     fileInput.value = '';
+    renderBlockMediaPreview(block);
   }
   $('gmContentBlockList')?.addEventListener('click', event => {
     const button = event.target.closest?.('[data-block-action]');
@@ -871,19 +1023,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     commitActiveContentBlock();
     if (action === 'delete') {
-      if (!window.confirm('Hapus blok ini dari susunan materi? Media lama tetap tersimpan.')) {
-        return;
-      }
-      contentBlocks.splice(index, 1);
-      subchapterFormDirty = true;
-      if (activeBlockKey === block.clientKey) {
-        activeBlockKey = null;
-        loadEditor('');
-        $('gmTextBlockEditor').hidden = true;
-        $('gmCalloutEditor').hidden = true;
-        if ($('gmActivityEditor')) $('gmActivityEditor').hidden = true;
-        $('gmBlockMediaEditor').hidden = true;
-      }
+      showConfirmationDialog({
+        title: 'Hapus Blok Materi?',
+        description: 'Apakah Anda yakin ingin menghapus blok ini dari susunan materi? Tindakan ini akan menghapus blok dari materi yang ditampilkan. File media yang sudah diunggah tetap tersimpan.',
+        confirmText: 'Ya, Hapus',
+        onConfirm: () => {
+          contentBlocks.splice(index, 1);
+          subchapterFormDirty = true;
+          if (activeBlockKey === block.clientKey) {
+            activeBlockKey = null;
+            loadEditor('');
+            $('gmTextBlockEditor').hidden = true;
+            $('gmCalloutEditor').hidden = true;
+            if ($('gmActivityEditor')) $('gmActivityEditor').hidden = true;
+            $('gmBlockMediaEditor').hidden = true;
+          }
+          renderContentBlocks();
+        }
+      });
+      return;
     } else {
       const nextIndex = action === 'up' ? index - 1 : index + 1;
       if (nextIndex < 0 || nextIndex >= contentBlocks.length) return;
@@ -970,11 +1128,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const block = activeContentBlock();
       if (!block || !['image', 'video'].includes(block.type)) return;
       block.source = event.currentTarget.value;
-      if (block.source === 'existing') {
-        block.mediaId = Number(block.mediaId) || null;
-      } else {
-        block.mediaId = null;
-      }
       if (block.source !== 'upload') {
         block.file = null;
       }
@@ -997,19 +1150,32 @@ document.addEventListener('DOMContentLoaded', () => {
     $('gmBlockMediaFile')?.addEventListener('change', event => {
       const block = activeContentBlock();
       if (!block) return;
+
       block.file = event.currentTarget.files?.[0] || null;
       block.source = 'upload';
-      // Pastikan commitActiveContentBlock tidak mengembalikan sumber ke 'existing'.
-      if ($('gmBlockMediaSource')) $('gmBlockMediaSource').value = 'upload';
+
+      if ($('gmBlockMediaSource')) {
+        $('gmBlockMediaSource').value = 'upload';
+      }
+
+      renderBlockMediaPreview(block);
+      subchapterFormDirty = true;
       renderContentBlocks();
     });
     ['gmBlockMediaTitle', 'gmBlockMediaCaption', 'gmBlockYoutubeUrl'].forEach(id => {
       $(id)?.addEventListener('input', () => {
         const block = activeContentBlock();
         if (!block) return;
+
         block.title = $('gmBlockMediaTitle').value.trim();
         block.caption = $('gmBlockMediaCaption').value.trim();
         block.youtubeUrl = $('gmBlockYoutubeUrl').value.trim();
+
+        if (id === 'gmBlockYoutubeUrl') {
+          renderBlockMediaPreview(block);
+        }
+
+        subchapterFormDirty = true;
         renderContentBlocks();
       });
     });
@@ -1020,7 +1186,7 @@ document.addEventListener('DOMContentLoaded', () => {
     toolbar.addEventListener('mousedown', e => {
       if (
         e.target.closest(
-          'button[data-gm-command],button[data-gm-block]'
+          'button[data-gm-command],button[data-gm-block],button[data-gm-spacing]'
         )
       ) {
         e.preventDefault();
@@ -1028,26 +1194,39 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     toolbar.addEventListener('click', e => {
       const button = e.target.closest(
-        'button[data-gm-command],button[data-gm-block]'
+        'button[data-gm-command],button[data-gm-block],button[data-gm-spacing]'
       );
       if (!button) return;
       e.preventDefault();
       const cmd = button.dataset.gmCommand;
       const block = button.dataset.gmBlock;
+      const spacing = button.dataset.gmSpacing;
       const value = editor.value;
       const selectionStart = editor.selectionStart;
       const selectionEnd = editor.selectionEnd;
-      if (block || cmd === 'insertOrderedList' || cmd === 'insertUnorderedList') {
+      if (spacing === 'add') {
+        // Tambahkan satu baris kosong setelah baris tempat kursor berada.
+        const lineEndAt = value.indexOf('\n', selectionEnd);
+        const lineEnd = lineEndAt === -1 ? value.length : lineEndAt;
+        editor.setRangeText('\n', lineEnd, lineEnd, 'end');
+      } else if (spacing === 'remove') {
+        // Kurangi hanya satu baris kosong terdekat, bukan semua jarak materi.
+        const before = value.lastIndexOf('\n\n', selectionStart);
+        const after = value.indexOf('\n\n', selectionEnd);
+        const pos = before >= 0 ? before : after;
+        if (pos >= 0) editor.setRangeText('', pos, pos + 1, 'end');
+      } else if (block || cmd === 'insertOrderedList' || cmd === 'insertUnorderedList') {
         const lineStart = value.lastIndexOf('\n', Math.max(0, selectionStart - 1)) + 1;
         const nextLineBreak = value.indexOf('\n', selectionEnd);
         const lineEnd = nextLineBreak === -1 ? value.length : nextLineBreak;
         const selectedLines = value.slice(lineStart, lineEnd).split('\n');
+        let nextToolNumber = 1;
         const formattedLines = selectedLines.map(line => {
           const content = line.replace(/^\s*(?:#{1,3}\s+|[-\*]\s+|\d+\.\s+)/, '');
           if (block === 'H2') return `## ${content}`;
           if (block === 'H3') return `### ${content}`;
           if (block === 'P') return content;
-          if (cmd === 'insertOrderedList') return `1. ${content}`;
+          if (cmd === 'insertOrderedList') return `${nextToolNumber++}. ${content}`;
           return `- ${content}`;
         });
         editor.setRangeText(
@@ -1755,6 +1934,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadEditor('');
     $('gmTextBlockEditor').hidden = true;
     $('gmCalloutEditor').hidden = true;
+    $('gmActivityEditor').hidden = true;
     $('gmBlockMediaEditor').hidden = true;
     subchapterFormDirty = false;
     renderContentBlocks();
@@ -1780,6 +1960,15 @@ document.addEventListener('DOMContentLoaded', () => {
         $('gmSubchapterTitle').value.trim()
       );
       commitActiveContentBlock();
+      const missingUploadIndex = contentBlocks.findIndex(block =>
+        (block.type === 'image' || block.type === 'video')
+        && block.source === 'upload'
+        && !block.file
+      );
+      if (missingUploadIndex !== -1) {
+        notify(`Blok ${missingUploadIndex + 1} memerlukan file gambar atau video. Pilih file atau hapus blok kosong sebelum menyimpan.`, true);
+        return;
+      }
       payload.set('content_blocks', JSON.stringify(
         contentBlocks.map((block, index) => {
           if (block.type === 'text') {
@@ -1864,9 +2053,20 @@ document.addEventListener('DOMContentLoaded', () => {
     async e => {
       if (!pendingDelete) return;
       const button = e.currentTarget;
+      const originalText = button.textContent;
       button.disabled = true;
-      const { type, id } = pendingDelete;
+      button.textContent = 'Menghapus...';
+      const { type, id, onConfirm } = pendingDelete;
       try {
+        if (type === 'custom') {
+          if (typeof onConfirm === 'function') {
+            await onConfirm();
+          }
+          pendingDelete = null;
+          deleteModal.hidden = true;
+          notify('Blok dikeluarkan dari susunan. Tekan Simpan Materi untuk menyimpan perubahan.');
+          return;
+        }
         const url = type === 'chapter'
           ? chapterUrl(id)
           : subchapterUrl(
@@ -1894,6 +2094,7 @@ document.addEventListener('DOMContentLoaded', () => {
         notify(err.message, true);
       } finally {
         button.disabled = false;
+        button.textContent = originalText;
       }
     }
   );
@@ -1994,11 +2195,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // ========================================================
   page.querySelectorAll('[data-gm-close]')
     .forEach(button => {
-      button.addEventListener('click', () => {
-        pendingModal = null;
-        if (closeModals()) {
+      button.addEventListener('click', event => {
+        event.preventDefault();
+        // Modal konfirmasi di atas editor: tutup lapisan teratas saja.
+        if (deleteModal && !deleteModal.hidden && deleteModal.contains(button)) {
+          deleteModal.hidden = true;
           pendingDelete = null;
+          return;
         }
+        pendingModal = null;
+        if (closeModals()) pendingDelete = null;
       });
     });
   document.addEventListener('keydown', e => {
@@ -2006,6 +2212,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (unsavedChangesModal && !unsavedChangesModal.hidden) {
       e.preventDefault();
       dismissUnsavedChangesWarning();
+      return;
+    }
+    if (deleteModal && !deleteModal.hidden) {
+      e.preventDefault();
+      deleteModal.hidden = true;
+      pendingDelete = null;
       return;
     }
     const hasOpenMaterialModal = [chapterModal, subchapterModal, deleteModal]

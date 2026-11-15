@@ -35,7 +35,7 @@
                 <div class="hero-copy">
                     <div class="eyebrow">
                         <span class="eyebrow-dot"></span>
-                        BELAJAR DARI ALAM SEKITAR KITA
+                        IPA KELAS VII SMP • BELAJAR DARI ALAM SEKITAR KITA
                     </div>
 
                     <h1>
@@ -62,7 +62,7 @@
 
                     <div class="hero-note">
                         <span>✓</span>
-                        Dirancang untuk mendukung pembelajaran IPA siswa SMP
+                        Dirancang untuk pembelajaran IPA Kelas VII SMP di berbagai sekolah
                     </div>
                 </div>
             </div>
@@ -92,7 +92,7 @@
 
                     <p>
                         SALUANG merupakan media pembelajaran interaktif
-                        berbasis web yang membantu siswa SMP mempelajari
+                        berbasis web yang membantu siswa kelas VII SMP mempelajari
                         IPA melalui konteks lingkungan lahan basah.
                     </p>
 
@@ -769,8 +769,18 @@
                 </nav>
             </div>
 
+            <div class="footer-description">
+                <div>
+                    <strong>Tentang SALUANG</strong>
+                    <p>Media pembelajaran IPA berbasis konteks lahan basah untuk siswa kelas VII SMP di berbagai sekolah.</p>
+                </div>
+                <div>
+                    <strong>Untuk Pengguna</strong>
+                    <p>Siswa belajar melalui materi dan kuis, Guru mengelola pembelajaran, dan Orang Tua memantau perkembangan anak.</p>
+                </div>
+            </div>
             <div class="footer-bottom">
-                <span>Media Pembelajaran IPA Berbasis Konteks Lahan Basah untuk Siswa SMP</span>
+                <span>Media Pembelajaran IPA Berbasis Konteks Lahan Basah • Kelas VII SMP</span>
                 <span>© {{ date('Y') }} SALUANG</span>
             </div>
         </div>

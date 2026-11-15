@@ -44,6 +44,8 @@
                 </div>
 
                 {{-- PESAN ERROR --}}
+                <p class="sl-class-note">Media pembelajaran IPA Kelas VII SMP untuk berbagai sekolah.</p>
+
                 @if ($errors->any())
                     <div class="sl-alert" role="alert">
                         <ul>
@@ -166,7 +168,7 @@
 
                     {{-- TOKEN: KHUSUS GURU --}}
                     <div class="sl-field" data-sl-only="guru" hidden>
-                        <label for="guru_token">Token Guru</label>
+                        <label for="guru_token">Kode Undangan Guru dari Pengelola Sekolah</label>
 
                         <div class="sl-input">
                             <span class="sl-input-icon" aria-hidden="true">
@@ -178,8 +180,8 @@
                                 </svg>
                             </span>
 
-                            <input type="text" id="guru_token" name="guru_token" maxlength="32" autocomplete="off"
-                                spellcheck="false" placeholder="Masukkan token guru">
+                            <input type="text" id="guru_token" name="guru_token" maxlength="64" autocomplete="off"
+                                spellcheck="false" placeholder="Masukkan kode undangan khusus Guru">
                         </div>
                     </div>
 
@@ -293,7 +295,7 @@
                             </span>
 
                             <input type="text" id="register_sekolah" name="sekolah" value="{{ old('sekolah') }}"
-                                maxlength="255" placeholder="Contoh: SMP Negeri 21 Banjarmasin">
+                                maxlength="255" placeholder="Contoh: SMP Negeri 1 Kota Anda">
                         </div>
                     </div>
 
@@ -304,13 +306,13 @@
                             <span class="sl-input-icon" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
                                     stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M5 3h4l2 5-3 2a15 15 0 0 0 6 6l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2Z" />
+                                    <path
+                                        d="M5 3h4l2 5-3 2a15 15 0 0 0 6 6l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2Z" />
                                 </svg>
                             </span>
 
                             <input type="tel" id="register_nomor_telepon" name="nomor_telepon"
-                                value="{{ old('nomor_telepon') }}" maxlength="20"
-                                placeholder="Masukkan nomor telepon">
+                                value="{{ old('nomor_telepon') }}" maxlength="20" placeholder="Masukkan nomor telepon">
                         </div>
                     </div>
 

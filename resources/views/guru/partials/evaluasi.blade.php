@@ -130,66 +130,46 @@
         <div class="ge-modal-backdrop" data-ge-close></div>
         <div class="ge-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="geQuestionModalTitle">
             <div class="ge-modal-header">
-                <div>
-                    <h2 id="geQuestionModalTitle">
-                        Tambah Soal Evaluasi
-                    </h2>
-                    <p>
-                        Isi pertanyaan, pilihan jawaban, dan kunci jawaban.
-                    </p>
-                </div>
+                <h2 id="geQuestionModalTitle">Tambah Soal</h2>
                 <button type="button" class="ge-modal-close" data-ge-close aria-label="Tutup">
                     <i class="bi bi-x-lg"></i>
                 </button>
             </div>
             <form id="geQuestionForm">
                 <input type="hidden" id="geQuestionId">
-                <div class="ge-field-grid">
-                    <div class="ge-field">
-                        <label for="geQuestionNumber">
-                            Nomor Soal
-                        </label>
-                        <select id="geQuestionNumber" required>
-                            <option value="">Pilih Nomor</option>
-                            @for ($nomor = 1; $nomor <= 15; $nomor++)
-                                <option value="{{ $nomor }}">
-                                    Soal {{ $nomor }}
-                                </option>
-                            @endfor
-                        </select>
-                    </div>
+                <div class="ge-field">
+                    <label for="geQuestionNumber">Nomor Soal</label>
+                    <select id="geQuestionNumber" required>
+                        <option value="">Pilih Nomor</option>
+                        @for ($nomor = 1; $nomor <= 15; $nomor++)
+                            <option value="{{ $nomor }}">Soal {{ $nomor }}</option>
+                        @endfor
+                    </select>
                 </div>
                 <input type="hidden" id="geQuestionType" value="pilihan_ganda">
+
                 <div class="ge-field">
-                    <label for="geQuestionText">
-                        Pertanyaan
-                    </label>
-                    <textarea id="geQuestionText" rows="4" placeholder="Tuliskan pertanyaan evaluasi..." required></textarea>
+                    <label for="geQuestionText">Pertanyaan</label>
+                    <textarea id="geQuestionText" rows="4" placeholder="Tulis pertanyaan atau instruksi kegiatan" required></textarea>
                 </div>
                 <p class="ge-field-help" id="geConversionNotice" role="status" hidden></p>
-                {{-- PILIHAN GANDA --}}
 
-                <div class="ge-type-fields" id="geMultipleChoiceFields" hidden>
-                    <h3>Opsi Pilihan Ganda</h3>
-                    @foreach (['A', 'B', 'C', 'D'] as $letter)
-                        <div class="ge-field">
-                            <label for="geOption{{ $letter }}">
-                                Pilihan {{ $letter }}
-                            </label>
-                            <input type="text" id="geOption{{ $letter }}"
-                                placeholder="Isi pilihan {{ $letter }}">
-                        </div>
-                    @endforeach
+                {{-- Pilihan ganda evaluasi, sesuai tata letak dua kolom Kelola Kuis --}}
+                <div id="geMultipleChoiceFields" hidden>
+                    <div class="ge-options-grid">
+                        @foreach (['A', 'B', 'C', 'D'] as $letter)
+                            <div class="ge-field">
+                                <label for="geOption{{ $letter }}">Pilihan {{ $letter }}</label>
+                                <textarea id="geOption{{ $letter }}" rows="2" placeholder="Jawaban {{ $letter }}"></textarea>
+                            </div>
+                        @endforeach
+                    </div>
                     <div class="ge-field">
-                        <label for="geCorrectChoice">
-                            Kunci Jawaban
-                        </label>
+                        <label for="geCorrectChoice">Kunci Jawaban</label>
                         <select id="geCorrectChoice">
-                            <option value="">Pilih Kunci</option>
+                            <option value="">Pilih kunci jawaban</option>
                             @foreach (['A', 'B', 'C', 'D'] as $letter)
-                                <option value="{{ $letter }}">
-                                    {{ $letter }}
-                                </option>
+                                <option value="{{ $letter }}">{{ $letter }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -257,7 +237,6 @@
                         Batal
                     </button>
                     <button type="submit" class="ge-btn ge-btn-primary" id="geSaveQuestion">
-                        <i class="bi bi-check-lg"></i>
                         Simpan Soal
                     </button>
                 </div>

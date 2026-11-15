@@ -41,8 +41,8 @@ class QuizController extends Controller
         $chapters = Chapter::query()
             ->where('nomor_bab', $chapterNumber)
             ->where('is_published', true)
-            ->whereHas('guru', fn ($query) => $query->where('role', 'guru'))
-            ->whereHas('subchapters', fn ($query) => $query
+            ->whereHas('guru', fn($query) => $query->where('role', 'guru'))
+            ->whereHas('subchapters', fn($query) => $query
                 ->where('nomor_subbab', $subchapterNumber)
                 ->where('is_published', true))
             ->orderBy('id')
@@ -104,9 +104,9 @@ class QuizController extends Controller
         $requestedAttemptId = $request->integer('attempt_id');
         $activeAttemptQuery = $attemptStorageAvailable
             ? StudentQuizAttempt::query()
-                ->where('user_id', $request->user()->id)
-                ->where('subchapter_id', $subchapter->id)
-                ->where('status', 'in_progress')
+            ->where('user_id', $request->user()->id)
+            ->where('subchapter_id', $subchapter->id)
+            ->where('status', 'in_progress')
             : null;
         $activeAttempt = $activeAttemptQuery
             ? ($requestedAttemptId > 0
@@ -115,6 +115,11 @@ class QuizController extends Controller
                 ->first()
                 : $activeAttemptQuery->latest('id')->first())
             : null;
+        // Bandingkan snapshot attempt aktif dengan versi soal Guru saat ini.
+        // Riwayat attempt yang sudah ada tidak dihapus atau ditimpa.
+        $activeAttemptOutdated = $activeAttempt
+            ? $this->isActiveAttemptOutdated($subchapter, $activeAttempt)
+            : false;
         $questions = $this->questionsForAttempt($subchapter, $activeAttempt);
         $latestAttempt = $attemptStorageAvailable ? StudentQuizAttempt::query()
             ->where('user_id', $request->user()->id)
@@ -183,7 +188,7 @@ class QuizController extends Controller
             ->latest('completed_at')
             ->latest('id')
             ->get()
-            ->map(fn (StudentQuizAttempt $attempt) => $this->attemptSummary($attempt))
+            ->map(fn(StudentQuizAttempt $attempt) => $this->attemptSummary($attempt))
             ->values() : collect();
 
         $latestResult = $latestAttempt
@@ -200,6 +205,7 @@ class QuizController extends Controller
             'subchapter_number' => $subchapter->nomor_subbab,
             'questions' => $items,
             'attempt_storage_available' => $attemptStorageAvailable,
+            'active_attempt_outdated' => $activeAttemptOutdated,
             'active_attempt' => $activeAttempt
                 ? $this->attemptSummary($activeAttempt)
                 : null,
@@ -271,7 +277,7 @@ class QuizController extends Controller
                 'answers' => [],
                 'review' => [
                     self::ATTEMPT_QUESTION_SNAPSHOTS => $questions
-                        ->map(fn (QuizQuestion $question) => $this->randomizeMatchingSnapshot(
+                        ->map(fn(QuizQuestion $question) => $this->randomizeMatchingSnapshot(
                             $question->getAttributes()
                         ))
                         ->all(),
@@ -381,8 +387,8 @@ class QuizController extends Controller
             foreach ($answers as $pair) {
                 abort_unless(
                     is_array($pair)
-                    && in_array($pair['left_id'] ?? null, $itemIds, true)
-                    && in_array($pair['right_id'] ?? null, $targetIds, true),
+                        && in_array($pair['left_id'] ?? null, $itemIds, true)
+                        && in_array($pair['right_id'] ?? null, $targetIds, true),
                     422,
                     'Relasi berisi objek atau pasangan yang tidak tersedia.'
                 );
@@ -394,7 +400,7 @@ class QuizController extends Controller
             foreach ($answers as $itemId => $targetId) {
                 abort_unless(
                     in_array((string) $itemId, $itemIds, true)
-                    && in_array($targetId, $targetIds, true),
+                        && in_array($targetId, $targetIds, true),
                     422,
                     'Jawaban berisi objek atau kategori yang tidak tersedia.'
                 );
@@ -503,11 +509,11 @@ class QuizController extends Controller
         $questionQuery = QuizQuestion::withTrashed()
             ->whereKey($questionId)
             ->where('subchapter_id', $attempt->subchapter_id)
-            ->whereHas('subchapter', fn ($query) => $query
+            ->whereHas('subchapter', fn($query) => $query
                 ->where('is_published', true)
-                ->whereHas('chapter', fn ($chapterQuery) => $chapterQuery
+                ->whereHas('chapter', fn($chapterQuery) => $chapterQuery
                     ->where('is_published', true)
-                    ->whereHas('guru', fn ($guruQuery) => $guruQuery->where('role', 'guru'))));
+                    ->whereHas('guru', fn($guruQuery) => $guruQuery->where('role', 'guru'))));
         if ($snapshots === null) {
             $questionQuery->where('is_published', true);
         }
@@ -528,6 +534,47 @@ class QuizController extends Controller
         return $question;
     }
 
+    /**
+     * Deteksi perubahan soal terbit setelah attempt dimulai tanpa mengubah
+     * snapshot atau jawaban yang telah tersimpan.
+     */
+    private function isActiveAttemptOutdated(
+        Subchapter $subchapter,
+        StudentQuizAttempt $attempt
+    ): bool {
+        $snapshots = $this->attemptQuestionSnapshots($attempt);
+        if ($snapshots === null) {
+            return false; // Format attempt lama tetap ditangani alur kompatibilitas.
+        }
+
+        $current = $subchapter->quizQuestions()
+            ->where('is_published', true)
+            ->orderBy('nomor_soal')
+            ->get(['id', 'updated_at']);
+        $snapshotById = collect($snapshots)
+            ->filter(fn($row) => is_array($row) && isset($row['id']))
+            ->keyBy(fn($row) => (int) $row['id']);
+
+        if ($snapshotById->count() !== $current->count()) {
+            return true;
+        }
+        foreach ($current as $question) {
+            $snapshot = $snapshotById->get((int) $question->id);
+            if ($snapshot === null) {
+                return true;
+            }
+            $oldTime = $snapshot['updated_at'] ?? null;
+            $newTime = $question->updated_at;
+            if (
+                $oldTime && $newTime
+                && strtotime((string) $oldTime) !== strtotime((string) $newTime)
+            ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private function questionsForAttempt(
         Subchapter $subchapter,
         ?StudentQuizAttempt $attempt
@@ -540,7 +587,7 @@ class QuizController extends Controller
                 ->where('is_published', true)
                 ->orderBy('nomor_soal')
                 ->get()
-                ->map(fn (QuizQuestion $question) => $this->randomizeMatchingSnapshot(
+                ->map(fn(QuizQuestion $question) => $this->randomizeMatchingSnapshot(
                     $question->getAttributes()
                 ))
                 ->all();
@@ -551,25 +598,25 @@ class QuizController extends Controller
         }
         if ($snapshots !== null) {
             $questionIds = collect($snapshots)
-                ->filter(fn ($snapshot) => is_array($snapshot) && isset($snapshot['id']))
+                ->filter(fn($snapshot) => is_array($snapshot) && isset($snapshot['id']))
                 ->pluck('id')
-                ->map(fn ($id) => (int) $id)
+                ->map(fn($id) => (int) $id)
                 ->unique()
                 ->values();
             $activeQuestionIds = QuizQuestion::query()
                 ->where('subchapter_id', $subchapter->id)
                 ->whereIn('id', $questionIds)
                 ->pluck('id')
-                ->map(fn ($id) => (int) $id)
+                ->map(fn($id) => (int) $id)
                 ->all();
 
             $snapshots = array_values(array_filter(
                 $snapshots,
-                fn ($snapshot) => is_array($snapshot)
+                fn($snapshot) => is_array($snapshot)
                     && in_array((int) ($snapshot['id'] ?? 0), $activeQuestionIds, true)
             ));
             $randomizedSnapshots = array_map(
-                fn (array $snapshot) => $this->randomizeMatchingSnapshot($snapshot),
+                fn(array $snapshot) => $this->randomizeMatchingSnapshot($snapshot),
                 $snapshots
             );
             if ($randomizedSnapshots !== $snapshots) {
@@ -601,7 +648,8 @@ class QuizController extends Controller
     private function attemptQuestionSnapshots(StudentQuizAttempt $attempt): ?array
     {
         $review = $attempt->review ?? [];
-        if (!is_array($review)
+        if (
+            !is_array($review)
             || !array_key_exists(self::ATTEMPT_QUESTION_SNAPSHOTS, $review)
             || !is_array($review[self::ATTEMPT_QUESTION_SNAPSHOTS])
         ) {
@@ -696,7 +744,7 @@ class QuizController extends Controller
         foreach ($leftItems as $index => $leftItem) {
             $leftId = (string) ($leftItem['id'] ?? '');
             $aligned = collect($pairs)->contains(
-                fn (array $pair) => (string) $pair['left_id'] === $leftId
+                fn(array $pair) => (string) $pair['left_id'] === $leftId
                     && ($rightPositions[(string) $pair['right_id']] ?? null) === $index
             );
             if (!$aligned) {
@@ -838,33 +886,33 @@ class QuizController extends Controller
 
         $left = collect($payload['left_items'] ?? [])->keyBy('id');
         $right = collect($payload['right_items'] ?? [])->keyBy('id');
-        $normalizePairs = static fn (array $pairs) => array_is_list($pairs)
+        $normalizePairs = static fn(array $pairs) => array_is_list($pairs)
             ? collect($pairs)
-                ->filter(fn ($pair) => is_array($pair)
-                    && isset($pair['left_id'], $pair['right_id']))
-                ->map(fn (array $pair) => [
-                    'left_id' => $pair['left_id'],
-                    'right_id' => $pair['right_id'],
-                ])
-                ->values()
+            ->filter(fn($pair) => is_array($pair)
+                && isset($pair['left_id'], $pair['right_id']))
+            ->map(fn(array $pair) => [
+                'left_id' => $pair['left_id'],
+                'right_id' => $pair['right_id'],
+            ])
+            ->values()
             : collect($pairs)->flatMap(function ($rightIds, $leftId) {
                 return collect(is_array($rightIds) ? $rightIds : [$rightIds])
-                    ->map(fn ($rightId) => [
+                    ->map(fn($rightId) => [
                         'left_id' => (string) $leftId,
                         'right_id' => (string) $rightId,
                     ]);
             })->values();
         $correctPairs = $normalizePairs($payload['pairs'] ?? []);
         $normalizedAnswers = $normalizePairs($answers);
-        $studentPairs = $normalizedAnswers->map(fn (array $pair) => [
+        $studentPairs = $normalizedAnswers->map(fn(array $pair) => [
             'left_id' => $pair['left_id'],
             'right_id' => $pair['right_id'],
-        ])->unique(fn (array $pair) => $pair['left_id'] . ':' . $pair['right_id'])->values();
-        $pairLabel = static fn (array $pair) => [
+        ])->unique(fn(array $pair) => $pair['left_id'] . ':' . $pair['right_id'])->values();
+        $pairLabel = static fn(array $pair) => [
             'left' => $left->get($pair['left_id'])['label'] ?? $pair['left_id'],
             'right' => $right->get($pair['right_id'])['label'] ?? $pair['right_id'],
             'is_correct' => $correctPairs->contains(
-                fn (array $correctPair) => $correctPair['left_id'] === $pair['left_id']
+                fn(array $correctPair) => $correctPair['left_id'] === $pair['left_id']
                     && $correctPair['right_id'] === $pair['right_id']
             ),
         ];
@@ -894,7 +942,8 @@ class QuizController extends Controller
             }
             foreach ($items as $item) {
                 $itemId = $item['id'] ?? null;
-                if (!is_string($itemId)
+                if (
+                    !is_string($itemId)
                     || !array_key_exists($itemId, $answers)
                     || !in_array($answers[$itemId], $categories, true)
                 ) {
@@ -911,7 +960,8 @@ class QuizController extends Controller
         }
         $connectedLeftIds = [];
         foreach ($answers as $pair) {
-            if (!is_array($pair)
+            if (
+                !is_array($pair)
                 || !in_array($pair['left_id'] ?? null, $leftIds, true)
                 || !in_array($pair['right_id'] ?? null, $rightIds, true)
             ) {
@@ -929,24 +979,24 @@ class QuizController extends Controller
     {
         if (array_is_list($pairs)) {
             return collect($pairs)
-                ->filter(fn ($pair) => is_array($pair)
+                ->filter(fn($pair) => is_array($pair)
                     && isset($pair['left_id'], $pair['right_id']))
-                ->map(fn (array $pair) => [
+                ->map(fn(array $pair) => [
                     'left_id' => (string) $pair['left_id'],
                     'right_id' => (string) $pair['right_id'],
                 ])
-                ->unique(fn (array $pair) => $pair['left_id'] . ':' . $pair['right_id'])
+                ->unique(fn(array $pair) => $pair['left_id'] . ':' . $pair['right_id'])
                 ->values()
                 ->all();
         }
 
         return collect($pairs)->flatMap(function ($rightIds, $leftId) {
             return collect(is_array($rightIds) ? $rightIds : [$rightIds])
-                ->map(fn ($rightId) => [
+                ->map(fn($rightId) => [
                     'left_id' => (string) $leftId,
                     'right_id' => (string) $rightId,
                 ]);
-        })->unique(fn (array $pair) => $pair['left_id'] . ':' . $pair['right_id'])
+        })->unique(fn(array $pair) => $pair['left_id'] . ':' . $pair['right_id'])
             ->values()
             ->all();
     }
@@ -1048,8 +1098,8 @@ class QuizController extends Controller
     private function publicActivity(QuizQuestion $activity): array
     {
         $payload = $activity->activity_payload ?? [];
-        $publicItems = static fn (array $items): array => array_map(
-            static fn (array $item): array => [
+        $publicItems = static fn(array $items): array => array_map(
+            static fn(array $item): array => [
                 'id' => $item['id'],
                 'label' => $item['label'],
                 'image_url' => $item['image_url'] ?? null,

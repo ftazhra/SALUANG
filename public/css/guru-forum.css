@@ -7,10 +7,12 @@
     color: #174a60;
     font-family: 'Poppins', sans-serif;
 }
+
 .gf-page[hidden],
 .gf-page [hidden] {
     display: none !important;
 }
+
 /* PANEL UTAMA */
 .gf-panel {
     margin: 20px 0;
@@ -20,6 +22,7 @@
     border-radius: 14px;
     box-shadow: 0 8px 20px rgba(7, 84, 119, .04);
 }
+
 .gf-heading {
     display: flex;
     align-items: flex-start;
@@ -27,18 +30,21 @@
     gap: 20px;
     margin-bottom: 25px;
 }
+
 .gf-heading h1 {
     margin: 0 0 8px;
     color: #075477;
     font-size: 24px;
     font-weight: 700;
 }
+
 .gf-heading p {
     margin: 0;
     color: #708b94;
     font-size: 14px;
     line-height: 1.8;
 }
+
 /* TOMBOL */
 .gf-btn {
     display: inline-flex;
@@ -55,56 +61,68 @@
     line-height: 1.4;
     cursor: pointer;
     transition: background-color .2s ease,
-                border-color .2s ease,
-                transform .2s ease;
+        border-color .2s ease,
+        transform .2s ease;
 }
+
 .gf-btn:hover:not(:disabled) {
     transform: translateY(-1px);
 }
+
 .gf-btn:disabled {
     opacity: .6;
     cursor: not-allowed;
 }
+
 .gf-btn-primary {
     background: #4e9d6d;
     color: #ffffff;
 }
+
 .gf-btn-primary:hover:not(:disabled) {
     background: #397f56;
 }
+
 .gf-btn-outline {
     background: #ffffff;
     color: #075477;
     border-color: #cbdeda;
 }
+
 .gf-btn-outline:hover:not(:disabled) {
     background: #f1f8f5;
 }
+
 .gf-btn-danger {
     background: #fff0ef;
     color: #b53838;
     border-color: #f0cdca;
 }
+
 .gf-btn-danger:hover:not(:disabled) {
     background: #ffe2df;
 }
+
 /* FILTER */
 .gf-filter-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
 }
+
 .gf-field {
     display: flex;
     flex-direction: column;
     gap: 8px;
     margin-bottom: 17px;
 }
+
 .gf-field label {
     color: #24576a;
     font-size: 13px;
     font-weight: 600;
 }
+
 .gf-field input,
 .gf-field textarea,
 .gf-field select {
@@ -120,17 +138,20 @@
     line-height: 1.6;
     outline: none;
     transition: border-color .2s ease,
-                box-shadow .2s ease;
+        box-shadow .2s ease;
 }
+
 .gf-field textarea {
     resize: vertical;
 }
+
 .gf-field input:focus,
 .gf-field textarea:focus,
 .gf-field select:focus {
     border-color: #4e9d6d;
     box-shadow: 0 0 0 3px rgba(78, 157, 109, .12);
 }
+
 /* PANAH DROPDOWN RAPI */
 .gf-field select {
     appearance: none;
@@ -142,6 +163,7 @@
     background-size: 16px;
     cursor: pointer;
 }
+
 /* FILTER STATUS */
 .gf-status-filters {
     display: flex;
@@ -149,6 +171,7 @@
     gap: 10px;
     margin: 5px 0 24px;
 }
+
 .gf-filter-btn {
     min-height: 39px;
     padding: 9px 16px;
@@ -161,14 +184,17 @@
     font-weight: 600;
     cursor: pointer;
 }
+
 .gf-filter-btn:hover {
     background: #f0f8f3;
 }
+
 .gf-filter-btn.is-active {
     background: #4e9d6d;
     border-color: #4e9d6d;
     color: #ffffff;
 }
+
 /* KARTU DISKUSI */
 .gf-discussion-list {
     display: flex;
@@ -190,6 +216,7 @@
     justify-content: space-between;
     gap: 15px;
 }
+
 .gf-card-header h3 {
     margin: 0 0 8px;
     color: #075477;
@@ -199,6 +226,7 @@
     text-align: left;
     overflow-wrap: anywhere;
 }
+
 .gf-card-meta {
     margin: 0;
     color: #526f79;
@@ -207,9 +235,11 @@
     line-height: 1.5;
     text-align: left;
 }
+
 .gf-card-reply-count {
     font-weight: 500;
 }
+
 .gf-card-excerpt {
     margin: 0;
     color: #426977;
@@ -218,10 +248,12 @@
     line-height: 1.7;
     text-align: left;
 }
+
 .gf-card-heading {
     flex: 1;
     min-width: 0;
 }
+
 .gf-card-author {
     display: flex;
     align-items: center;
@@ -229,11 +261,13 @@
     min-width: 0;
     margin-bottom: 9px;
 }
+
 .gf-card-author-info {
     display: grid;
     gap: 2px;
     min-width: 0;
 }
+
 .gf-card-author-info strong {
     color: #287c58;
     font-size: 16px;
@@ -242,6 +276,7 @@
     text-align: left;
     overflow-wrap: anywhere;
 }
+
 .gf-card-author-info span {
     color: #526b74;
     font-size: 14px;
@@ -249,15 +284,18 @@
     line-height: 1.5;
     text-align: left;
 }
+
 .gf-card-location {
     margin: 0 0 8px;
     color: #526b74;
     text-align: left;
 }
+
 .gf-card-excerpt {
     margin: 13px 0;
     overflow-wrap: anywhere;
 }
+
 .gf-badge {
     flex: 0 0 auto;
     padding: 7px 11px;
@@ -269,16 +307,19 @@
     line-height: 1.4;
     white-space: nowrap;
 }
+
 .gf-badge.is-answered {
     background: #e0f3e8;
     color: #267b4b;
 }
+
 .gf-card-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     margin-top: 15px;
 }
+
 /* KOSONG */
 .gf-empty {
     display: flex;
@@ -292,15 +333,18 @@
     color: #78939b;
     text-align: center;
 }
+
 .gf-empty i {
     color: #83b39a;
     font-size: 30px;
 }
+
 .gf-empty p {
     margin: 0;
     font-size: 14px;
     line-height: 1.8;
 }
+
 /* PAGINASI */
 .gf-pagination {
     display: flex;
@@ -309,10 +353,12 @@
     gap: 12px;
     margin-top: 24px;
 }
+
 .gf-pagination span {
     color: #708b94;
     font-size: 14px;
 }
+
 /* MODAL */
 .gf-modal {
     position: fixed;
@@ -323,11 +369,13 @@
     justify-content: center;
     padding: 20px;
 }
+
 .gf-modal-backdrop {
     position: absolute;
     inset: 0;
     background: rgba(8, 33, 43, .58);
 }
+
 .gf-modal-dialog {
     position: relative;
     z-index: 1;
@@ -339,13 +387,16 @@
     border-radius: 18px;
     box-shadow: 0 25px 80px rgba(4, 37, 46, .22);
 }
+
 .gf-modal-dialog-large {
     width: min(100%, 800px);
 }
+
 .gf-modal-dialog-small {
     width: min(100%, 450px);
     text-align: center;
 }
+
 .gf-modal-header {
     display: flex;
     align-items: flex-start;
@@ -353,6 +404,7 @@
     gap: 16px;
     margin-bottom: 22px;
 }
+
 .gf-modal-header h2 {
     flex: 1;
     min-width: 0;
@@ -362,6 +414,7 @@
     font-weight: 700;
     overflow-wrap: anywhere;
 }
+
 .gf-modal-close {
     display: grid;
     place-items: center;
@@ -374,6 +427,7 @@
     color: #446b77;
     cursor: pointer;
 }
+
 /* DETAIL DISKUSI */
 .gf-detail-text {
     margin: 0 0 18px;
@@ -384,6 +438,7 @@
     white-space: pre-wrap;
     overflow-wrap: anywhere;
 }
+
 .gf-detail-meta {
     color: #526b74;
     font-size: 14px;
@@ -408,30 +463,37 @@
     justify-content: space-between;
     gap: 14px;
 }
+
 .gf-question-author {
     display: flex;
     align-items: center;
     gap: 12px;
     min-width: 0;
 }
+
 .gf-question-top .gf-question-author {
     margin-bottom: 0;
 }
+
 .gf-question-author-info {
     min-width: 0;
 }
+
 .gf-question-author-info strong {
     color: #287c58;
     font-size: 16px;
     font-weight: 700;
     overflow-wrap: anywhere;
 }
+
 .gf-question-date {
     margin: 3px 0 0;
 }
+
 .gf-question-meta {
     margin: 14px 0 8px;
 }
+
 .gf-detail-title {
     margin: 0 0 10px;
     color: #075477;
@@ -440,6 +502,7 @@
     line-height: 1.6;
     overflow-wrap: anywhere;
 }
+
 .gf-question-reply-count {
     display: flex;
     align-items: center;
@@ -450,9 +513,11 @@
     font-weight: 500;
     line-height: 1.5;
 }
+
 .gf-question-reply-count i {
     font-size: 15px;
 }
+
 .gf-reply-heading {
     margin: 24px 0 14px;
     color: #075477;
@@ -477,6 +542,7 @@
     line-height: 1.5;
     margin-bottom: 6px;
 }
+
 .gf-reply-card p {
     margin: 0;
     color: #426977;
@@ -485,6 +551,7 @@
     text-align: left;
     white-space: pre-wrap;
 }
+
 .gf-form-actions {
     display: flex;
     justify-content: flex-end;
@@ -492,6 +559,7 @@
     gap: 10px;
     margin-top: 22px;
 }
+
 #gfReplyForm {
     margin-top: 20px;
     padding: 18px;
@@ -499,6 +567,7 @@
     border-radius: 12px;
     background: #ffffff;
 }
+
 .gf-delete-icon {
     display: grid;
     place-items: center;
@@ -510,6 +579,7 @@
     border-radius: 50%;
     font-size: 14px;
 }
+
 /* NOTIFIKASI */
 .gf-toast {
     position: fixed;
@@ -525,9 +595,11 @@
     line-height: 1.6;
     box-shadow: 0 12px 30px rgba(8, 50, 68, .2);
 }
+
 .gf-toast.is-error {
     background: #b53838;
 }
+
 /* RESPONSIVE */
 @media (max-width: 900px) {
     .gf-filter-grid {
@@ -535,32 +607,40 @@
         gap: 0;
     }
 }
+
 @media (max-width: 600px) {
     .gf-panel {
         padding: 18px;
     }
+
     .gf-heading,
     .gf-card-header {
         flex-direction: column;
         align-items: stretch;
     }
+
     .gf-heading h1 {
         font-size: 24px;
     }
+
     .gf-modal {
         padding: 12px;
     }
+
     .gf-modal-dialog {
         padding: 18px;
     }
+
     #gfReplyForm {
         padding: 14px;
     }
+
     .gf-pagination {
         flex-wrap: wrap;
         justify-content: center;
     }
 }
+
 /* 11. Avatar pengguna di sisi kiri setiap tanggapan Forum Guru */
 .gf-reply-card {
     display: flex;
@@ -568,6 +648,7 @@
     gap: 13px;
     text-align: left;
 }
+
 .gf-reply-avatar {
     display: grid;
     place-items: center;
@@ -581,24 +662,29 @@
     font-size: 13px;
     font-weight: 700;
 }
+
 .gf-reply-avatar img {
     display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
+
 .gf-reply-avatar .gf-reply-avatar-initial[hidden] {
     display: none !important;
 }
+
 .gf-reply-content {
     flex: 1;
     min-width: 0;
 }
-.gf-reply-content > strong {
+
+.gf-reply-content>strong {
     margin: 0 0 3px;
     text-align: left;
 }
-.gf-reply-content > .gf-reply-date {
+
+.gf-reply-content>.gf-reply-date {
     margin: 0 0 8px;
     padding: 0;
     color: #78939b;
@@ -606,7 +692,8 @@
     font-weight: 400;
     text-align: left !important;
 }
-.gf-reply-content > .gf-reply-message {
+
+.gf-reply-content>.gf-reply-message {
     margin: 0;
     padding: 0;
     text-align: left !important;
@@ -614,8 +701,12 @@
     white-space: pre-wrap;
     line-height: 1.7;
 }
+
 @media (max-width: 600px) {
-    .gf-reply-card { gap: 10px; }
+    .gf-reply-card {
+        gap: 10px;
+    }
+
     .gf-reply-avatar {
         flex-basis: 36px;
         width: 36px;
@@ -623,6 +714,7 @@
         font-size: 13px;
     }
 }
+
 /* FOTO PROFIL PENULIS PERTANYAAN UTAMA — FORUM GURU */
 .gf-question-author {
     display: flex;
@@ -631,14 +723,17 @@
     margin-bottom: 20px;
     min-width: 0;
 }
+
 .gf-question-author .gf-reply-avatar {
     flex-shrink: 0;
 }
+
 .gf-question-author-info {
     flex: 1;
     min-width: 0;
 }
-.gf-question-author-info > strong {
+
+.gf-question-author-info>strong {
     display: block;
     color: #287c58;
     font-size: 16px;
@@ -646,13 +741,141 @@
     margin-bottom: 4px;
     overflow-wrap: anywhere;
 }
+
 .gf-question-author-info .gf-question-date {
     margin: 0;
     text-align: left;
 }
+
 .gf-question-body {
     margin: 0 0 18px;
     text-align: left;
     line-height: 1.7;
     text-align: left;
+}
+
+/* Revisi forum: dialog komentar lebih tenang, balasan tersusun */
+.gf-reply-card {
+    background: #fff;
+    border: 1px solid #e1eae7;
+    border-radius: 12px;
+    box-shadow: none;
+    padding: 14px;
+    margin-bottom: 10px
+}
+
+.gf-reply-children {
+    margin: 12px 0 0 22px;
+    padding-left: 14px;
+    border-left: 2px solid #dce9e3
+}
+
+.gf-reply-children .gf-reply-card {
+    background: #f8fbfa;
+    margin-bottom: 8px
+}
+
+.gf-reply-button {
+    border: 0;
+    background: none;
+    color: #247253;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 0;
+    cursor: pointer
+}
+
+.gf-reply-button:hover {
+    text-decoration: underline
+}
+
+.gf-reply-context {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 14px;
+    border: 1px solid #d5e7df;
+    background: #f1f8f4;
+    border-radius: 10px;
+    color: #226344;
+    font-size: 14px;
+    margin-bottom: 12px
+}
+
+.gf-reply-context[hidden] {
+    display: none !important
+}
+
+.gf-reply-context button {
+    border: 0;
+    background: transparent;
+    color: #386f58;
+    font-weight: 600;
+    cursor: pointer
+}
+
+@media(max-width:600px) {
+    .gf-reply-children {
+        margin-left: 8px;
+        padding-left: 10px
+    }
+}
+
+/* Balasan berjenjang menempati baris penuh, bukan kolom samping avatar. */
+.gf-reply-card {
+    flex-wrap: wrap
+}
+
+.gf-reply-card>.gf-reply-children {
+    flex: 0 0 calc(100% - 22px);
+    width: calc(100% - 22px)
+}
+
+/* Forum Guru memakai palet yang sama dengan forum Siswa. */
+.gf-page .gf-discussion-card,
+.gf-page #gfDetailContent {
+    background: #f8fbf9;
+    border: 1px solid #dce9e3;
+    box-shadow: none;
+}
+
+.gf-page .gf-reply-card,
+.gf-page .gf-reply-children .gf-reply-card {
+    background: #fff;
+    border: 1px solid #dce9e3;
+    box-shadow: none;
+}
+
+.gf-page .gf-reply-children {
+    border-left-color: #dce9e3;
+}
+
+.gf-page .gf-reply-card[hidden] {
+    display: none !important;
+}
+
+.gf-page .gf-more-replies {
+    display: block;
+    flex: 0 0 100%;
+    width: max-content;
+    max-width: 100%;
+    border: 0;
+    background: none;
+    color: #267252;
+    font: 600 13px 'Poppins', sans-serif;
+    padding: 9px 4px;
+    cursor: pointer;
+    text-align: left;
+}
+
+.gf-page .gf-more-replies:hover {
+    text-decoration: underline;
+}
+
+.gf-page .gf-more-replies:focus-visible {
+    outline: 2px solid #267252;
+    outline-offset: 3px;
+    border-radius: 3px;
 }

@@ -16,6 +16,123 @@ document.addEventListener('DOMContentLoaded', () => {
         element.classList.toggle('is-error', isError);
     }
 
+    function showToast(message, isError = false) {
+        const existing = document.getElementById('parentToast');
+        if (existing) existing.remove();
+        const toast = document.createElement('div');
+        toast.id = 'parentToast';
+        toast.setAttribute('role', 'status');
+        toast.setAttribute('aria-live', 'polite');
+        toast.textContent = message;
+        toast.style.position = 'fixed';
+        toast.style.right = '20px';
+        toast.style.bottom = '20px';
+        toast.style.zIndex = '3200';
+        toast.style.maxWidth = '360px';
+        toast.style.padding = '12px 16px';
+        toast.style.borderRadius = '12px';
+        toast.style.background = isError ? '#fff0ef' : '#eaf7ef';
+        toast.style.border = isError ? '1px solid #f0c5c5' : '1px solid #c8e7d4';
+        toast.style.color = isError ? '#a52f2f' : '#17643e';
+        toast.style.boxShadow = '0 8px 24px rgba(7, 84, 119, 0.12)';
+        toast.style.fontSize = '14px';
+        toast.style.fontWeight = '600';
+        document.body.appendChild(toast);
+        clearTimeout(showToast.timer);
+        showToast.timer = setTimeout(() => toast.remove(), 3500);
+    }
+
+    function showConfirmDialog({ title, message: bodyMessage, confirmText = 'Ya, Hapus', cancelText = 'Batal', onConfirm }) {
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.inset = '0';
+        overlay.style.zIndex = '3300';
+        overlay.style.display = 'flex';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        overlay.style.background = 'rgba(7, 41, 55, 0.52)';
+
+        const dialog = document.createElement('div');
+        dialog.setAttribute('role', 'dialog');
+        dialog.setAttribute('aria-modal', 'true');
+        dialog.setAttribute('aria-labelledby', 'parentConfirmTitle');
+        dialog.style.width = 'min(92vw, 420px)';
+        dialog.style.background = '#fff';
+        dialog.style.borderRadius = '16px';
+        dialog.style.padding = '24px';
+        dialog.style.boxShadow = '0 16px 48px rgba(7, 41, 55, 0.18)';
+
+        const icon = document.createElement('div');
+        icon.innerHTML = '<i class="bi bi-exclamation-triangle" style="font-size: 28px; color: #d44949;"></i>';
+        icon.style.display = 'grid';
+        icon.style.placeItems = 'center';
+        icon.style.width = '58px';
+        icon.style.height = '58px';
+        icon.style.margin = '0 auto 16px';
+        icon.style.borderRadius = '50%';
+        icon.style.background = '#fff0e9';
+
+        const heading = document.createElement('h2');
+        heading.id = 'parentConfirmTitle';
+        heading.textContent = title;
+        heading.style.margin = '0 0 12px';
+        heading.style.textAlign = 'center';
+        heading.style.color = '#075477';
+        heading.style.fontSize = '20px';
+
+        const paragraph = document.createElement('p');
+        paragraph.textContent = bodyMessage;
+        paragraph.style.margin = '0';
+        paragraph.style.textAlign = 'center';
+        paragraph.style.color = '#638a96';
+        paragraph.style.fontSize = '14px';
+        paragraph.style.lineHeight = '1.7';
+
+        const actions = document.createElement('div');
+        actions.style.display = 'flex';
+        actions.style.justifyContent = 'flex-end';
+        actions.style.gap = '10px';
+        actions.style.marginTop = '22px';
+
+        const cancelButton = document.createElement('button');
+        cancelButton.type = 'button';
+        cancelButton.textContent = cancelText;
+        cancelButton.className = 'gm-btn gm-btn-outline';
+        cancelButton.addEventListener('click', () => overlay.remove());
+
+        const confirmButton = document.createElement('button');
+        confirmButton.type = 'button';
+        confirmButton.textContent = confirmText;
+        confirmButton.className = 'gm-btn gm-btn-danger';
+        confirmButton.addEventListener('click', async () => {
+            confirmButton.disabled = true;
+            confirmButton.textContent = 'Memproses...';
+            try {
+                if (typeof onConfirm === 'function') {
+                    await onConfirm();
+                }
+            } finally {
+                overlay.remove();
+            }
+        });
+
+        actions.append(cancelButton, confirmButton);
+        dialog.append(icon, heading, paragraph, actions);
+        overlay.appendChild(dialog);
+        document.body.appendChild(overlay);
+        cancelButton.focus();
+
+        overlay.addEventListener('click', event => {
+            if (event.target === overlay) overlay.remove();
+        });
+        document.addEventListener('keydown', function onKeydown(event) {
+            if (event.key === 'Escape' && document.body.contains(overlay)) {
+                overlay.remove();
+                document.removeEventListener('keydown', onKeydown);
+            }
+        }, { once: true });
+    }
+
     function request(url, method, data, file = false) {
         const headers = {
             Accept: 'application/json',
@@ -175,19 +292,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     byId('parentProfileDeletePhotoButton').addEventListener('click', async event => {
-        if (!window.confirm('Hapus foto profil Orang Tua?')) return;
         const button = event.currentTarget;
         const status = byId('parentProfilePhotoMessage');
-        button.disabled = true;
-        try {
-            const result = await request('/orang-tua/profile/photo', 'DELETE');
-            setInitial(byId('parentProfileDisplayName').textContent);
-            button.hidden = true;
-            status.textContent = result.message;
-        } catch (error) {
-            status.textContent = error.message;
-        } finally {
-            button.disabled = false;
-        }
+        showConfirmDialog({
+            title: 'Hapus Foto Profil?',
+            message: 'Apakah Anda yakin ingin menghapus foto profil ini?',
+            confirmText: 'Ya, Hapus',
+            onConfirm: async () => {
+                button.disabled = true;
+                try {
+                    const result = await request('/orang-tua/profile/photo', 'DELETE');
+                    setInitial(byId('parentProfileDisplayName').textContent);
+                    button.hidden = true;
+                    status.textContent = result.message;
+                } catch (error) {
+                    status.textContent = error.message;
+                    button.disabled = false;
+                    throw error;
+                }
+            }
+        });
     });
 });

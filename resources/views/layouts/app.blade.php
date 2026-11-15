@@ -13,7 +13,7 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    <link rel="stylesheet" href="{{ asset('css/saluang.css') }}?v=7">
+    <link rel="stylesheet" href="{{ asset('css/saluang.css') }}?v=20261115r3">
     <link rel="stylesheet" href="{{ asset('css/saluang-selects.css') }}?v=3">
 
     <script src="{{ asset('js/saluang.js') }}" defer></script>

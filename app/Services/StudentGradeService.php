@@ -171,12 +171,17 @@ class StudentGradeService
                 )
                 : null;
             $evaluation = $evaluationResults[$studentId] ?? null;
-            $allRequiredQuizzesComplete = count($requiredSubchapterIds) > 0
-                && count($completedQuizzes) === count($requiredSubchapterIds);
+            $requiredQuizzesCount = count($requiredSubchapterIds);
+            $allRequiredQuizzesComplete = $requiredQuizzesCount === 0
+                || count($completedQuizzes) === $requiredQuizzesCount;
             $complete = $allRequiredQuizzesComplete && $evaluation !== null;
-            $finalScore = $complete
-                ? round(($quizAverage + (float) $evaluation['score']) / 2, 2)
-                : null;
+            $finalScore = null;
+            if ($complete) {
+                $evaluationScore = (float) $evaluation['score'];
+                $finalScore = $quizAverage === null
+                    ? $evaluationScore
+                    : round(($quizAverage + $evaluationScore) / 2, 2);
+            }
 
             $summaries[$studentId] = [
                 'quiz_score' => $quizAverage,
@@ -188,7 +193,7 @@ class StudentGradeService
                     ? 'belum_dinilai'
                     : ($finalScore >= 70 ? 'tuntas' : 'belum_tuntas'),
                 'quiz_completed_count' => count($completedQuizzes),
-                'quiz_required_count' => count($requiredSubchapterIds),
+                'quiz_required_count' => $requiredQuizzesCount,
                 'evaluation_completed' => $evaluation !== null,
             ];
         }

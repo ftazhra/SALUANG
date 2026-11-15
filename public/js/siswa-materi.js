@@ -201,8 +201,20 @@
             const body = el('div', 'sd-learning-activity-body');
             if (inlineRemainder) body.appendChild(inlineRemainder);
             activityContent.forEach(content => body.appendChild(content));
+
+            body.querySelectorAll('p').forEach(paragraph => {
+                const isEmptyText = !paragraph.textContent.trim();
+                const containsOnlyBreaks = [...paragraph.children]
+                    .every(child => child.tagName === 'BR');
+                if (isEmptyText && containsOnlyBreaks) {
+                    paragraph.remove();
+                }
+            });
+
             if (body.childNodes.length) card.appendChild(body);
+
             output.appendChild(card);
+
             index = nextIndex - 1;
         }
         parent.replaceChildren(output);
@@ -297,6 +309,8 @@
                 frame.title = media.title || 'Video YouTube pembelajaran';
                 frame.loading = 'lazy';
                 frame.allowFullscreen = true;
+                // Blokir pop-up dan navigasi jendela utama dari iframe.
+                frame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation');
                 frame.referrerPolicy = 'strict-origin-when-cross-origin';
                 frame.allow =
                     'accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
@@ -363,7 +377,8 @@
         const card = el('section', 'sd-learning-activity sd-learning-activity-explicit');
         card.appendChild(el('h3', 'sd-learning-activity-title', payload.title));
         const body = el('div', 'sd-learning-activity-body');
-        renderMaterialContent(body, payload.content || '');
+        // Judul Ayo sudah ada pada kartu; isi cukup dirender sekali.
+        renderMaterialContent(body, payload.content || '', false);
         card.appendChild(body);
         section.appendChild(card);
     }
@@ -486,6 +501,111 @@
         card.appendChild(body);
         section.appendChild(card);
     }
+    // Normalisasi hasil tempel Google Docs/Word menjadi blok teks biasa.
+    // Pembungkus DIV yang berisi paragraf/daftar tidak perlu menjadi kolom
+    // tersendiri; anak-anaknya dikeluarkan agar tinggi daftar dihitung utuh.
+    function normalizeMaterialTextBlocks(parent) {
+        if (!parent) return;
+        for (const child of [...parent.children]) {
+            if (child.tagName !== 'DIV') continue;
+            normalizeMaterialTextBlocks(child);
+            const hasBlockChild = [...child.children].some(node =>
+                ['P', 'DIV', 'H2', 'H3', 'UL', 'OL'].includes(node.tagName)
+            );
+            if (!hasBlockChild) continue;
+            // Konten langsung DIV tetap dipertahankan sebagai paragraf.
+            const fragment = document.createDocumentFragment();
+            let inlineNodes = [];
+            const flush = () => {
+                if (!inlineNodes.length) return;
+                const paragraph = document.createElement('p');
+                inlineNodes.forEach(node => paragraph.appendChild(node));
+                fragment.appendChild(paragraph);
+                inlineNodes = [];
+            };
+            for (const node of [...child.childNodes]) {
+                if (node.nodeType === Node.ELEMENT_NODE &&
+                    ['P', 'DIV', 'H2', 'H3', 'UL', 'OL'].includes(node.tagName)) {
+                    flush();
+                    fragment.appendChild(node);
+                } else if (node.nodeType === Node.TEXT_NODE && !node.textContent.trim()) {
+                    // Indentasi HTML saja, bukan baris kosong yang disengaja.
+                    if (inlineNodes.length) inlineNodes.push(node);
+                } else {
+                    inlineNodes.push(node);
+                }
+            }
+            flush();
+            child.replaceWith(fragment);
+        }
+    }
+
+    // Perlindungan terakhir terhadap HTML lama yang membuat paragraf dan daftar
+    // memiliki kotak teks saling bersinggungan. Hanya menambah jarak bila
+    // tabrakan BENAR-BENAR terdeteksi; pada materi normal tidak ada perubahan.
+    // Penghitungan memakai kotak baris teks, bukan tinggi gambar yang di-float.
+    function protectMaterialTextFlow(container) {
+        if (!container) return;
+        const blocks = [...container.children].filter(node =>
+            node.matches('.sd-flow-text-node, .sd-content-block') &&
+            !node.matches('.sd-media-item, .sd-content-block-clear')
+        );
+        for (const block of blocks) block.style.removeProperty('padding-top');
+        let previousBottom = null;
+        const rectsOfText = block => {
+            const range = document.createRange();
+            try { range.selectNodeContents(block); } catch (_) { return []; }
+            return [...range.getClientRects()].filter(rect =>
+                rect.width > 1 && rect.height > 4
+            );
+        };
+        for (const block of blocks) {
+            // Daftar dihitung dari seluruh baris LI agar transisi setelah daftar aman.
+            const rects = rectsOfText(block);
+            if (!rects.length) continue;
+            let top = Math.min(...rects.map(rect => rect.top));
+            if (previousBottom !== null && top < previousBottom + 3) {
+                const delta = Math.ceil(previousBottom + 5 - top);
+                // Hindari memodifikasi posisi konten yang memang ditumpuk sengaja.
+                if (delta > 0 && delta < 240) {
+                    block.style.setProperty('padding-top', `${delta}px`, 'important');
+                    const shifted = rectsOfText(block);
+                    if (shifted.length) {
+                        previousBottom = Math.max(...shifted.map(rect => rect.bottom));
+                        continue;
+                    }
+                }
+            }
+            previousBottom = Math.max(...rects.map(rect => rect.bottom));
+        }
+    }
+
+    // Dijadwalkan setelah DOM terpasang dan setelah perubahan ukuran layar/sidebar.
+    // Satu listener global per halaman, bukan listener baru setiap ganti Subbab.
+    let materialFlowCleanup = null;
+    function scheduleMaterialFlowCheck(container) {
+        if (materialFlowCleanup) materialFlowCleanup();
+        let raf = 0;
+        const check = () => {
+            cancelAnimationFrame(raf);
+            raf = requestAnimationFrame(() => {
+                if (container.isConnected) protectMaterialTextFlow(container);
+            });
+        };
+        const observer = typeof ResizeObserver === 'function'
+            ? new ResizeObserver(check) : null;
+        if (observer) observer.observe(container.parentElement || container);
+        window.addEventListener('resize', check);
+        container.addEventListener('load', check, true);
+        materialFlowCleanup = () => {
+            cancelAnimationFrame(raf);
+            if (observer) observer.disconnect();
+            window.removeEventListener('resize', check);
+            container.removeEventListener('load', check, true);
+        };
+        check();
+    }
+
     function renderMaterialBlocks(container, blocks) {
         if (!container || !Array.isArray(blocks)) return false;
         container.replaceChildren();
@@ -507,7 +627,20 @@
                     section,
                     block.payload?.content || ''
                 );
-                container.appendChild(section);
+                normalizeMaterialTextBlocks(section);
+                // Paragraf langsung menjadi saudara gambar float, bukan berada
+                // dalam section terpisah yang dapat mengunci aliran teks.
+                // Dengan demikian, baris setelah gambar dapat melebar kembali.
+                if (wrapsImage) {
+                    [...section.childNodes].forEach(node => {
+                        if (node.nodeType === Node.ELEMENT_NODE) {
+                            node.classList.add('sd-flow-text-node');
+                        }
+                        container.appendChild(node);
+                    });
+                } else {
+                    container.appendChild(section);
+                }
                 previousWasWrappedImage = false;
                 return;
             }
@@ -556,6 +689,8 @@
             container.appendChild(section);
             previousWasWrappedImage = false;
         });
+        // Berlaku untuk semua Bab/Subbab yang dibangun renderer ini.
+        scheduleMaterialFlowCheck(container);
         return true;
     }
     window.SaluangStudentMaterial = {

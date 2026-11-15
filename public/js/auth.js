@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function toggleField(field, visible) {
         if (!field) return;
         field.hidden = !visible;
+        // Kolom tersembunyi dinonaktifkan agar tidak ikut validasi atau pengiriman formulir.
         field.querySelectorAll('input, select, textarea').forEach(
             function (input) {
                 input.disabled = !visible;

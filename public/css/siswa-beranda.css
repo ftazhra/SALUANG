@@ -9,14 +9,12 @@
     padding: 23px 27px;
     border-radius: 12px;
     background:
-        linear-gradient(
-            90deg,
+        linear-gradient(90deg,
             rgba(255, 253, 245, .68),
-            rgba(255, 253, 245, 0) 76%
-        ),
-        url('/images/student-dashboard-hero.png')
-        center / cover no-repeat;
+            rgba(255, 253, 245, 0) 76%),
+        url('/images/student-dashboard-hero.png') center / cover no-repeat;
 }
+
 #homePage .sd-hero h1 {
     margin: 0 0 8px;
     color: #0d4b6d;
@@ -25,9 +23,11 @@
     line-height: 1.35;
     text-shadow: 0 1px 0 rgba(255, 255, 255, .4);
 }
-#homePage .sd-hero > div:first-child {
+
+#homePage .sd-hero>div:first-child {
     min-width: 0;
 }
+
 #homePage .sd-hero p {
     max-width: 420px;
     margin: 0;
@@ -37,6 +37,7 @@
     text-align: left;
     overflow-wrap: anywhere;
 }
+
 #homePage .sd-quote {
     display: flex;
     flex-direction: column;
@@ -54,11 +55,13 @@
     line-height: 1.6;
     text-align: center;
 }
+
 #homePage .sd-quote i {
     margin-bottom: 4px;
     color: #2d785d;
     font-size: 18px;
 }
+
 /* 17. KARTU STATISTIK */
 .sd-stat {
     display: flex;
@@ -67,49 +70,58 @@
     height: 100%;
     min-height: 88px;
 }
+
 .sd-stat img {
     flex: 0 0 66px;
     width: 66px;
     height: 65px;
     object-fit: contain;
 }
+
 .sd-stat small {
     display: block;
     font-size: 12px;
 }
+
 .sd-stat strong {
     display: block;
     font-size: 22px;
 }
+
 .sd-stat p {
     margin: 0;
     color: var(--sd-muted);
     font-size: 14px;
 }
+
 /* 18. LANJUTKAN BELAJAR */
 .sd-home-lesson {
     display: flex;
     align-items: center;
     gap: 15px;
 }
-.sd-home-lesson > img {
+
+.sd-home-lesson>img {
     width: 36%;
     height: 115px;
     border-radius: 9px;
     object-fit: cover;
 }
+
 .sd-home-lesson h3 {
     margin: 7px 0 4px;
     font-size: 16px;
     font-weight: 500;
 }
+
 .sd-progress {
     height: 6px;
     margin: 10px 0;
     border-radius: 20px;
     background: #dce9ed;
 }
-.sd-progress > span {
+
+.sd-progress>span {
     display: block;
     width: 0;
     height: 100%;
@@ -117,6 +129,7 @@
     background: #16835a;
     transition: width .25s ease;
 }
+
 .sd-primary {
     padding: 9px 14px;
     border: 0;
@@ -126,12 +139,14 @@
     font-size: 14px;
     font-weight: 600;
 }
+
 .sd-primary:hover {
     background: #084762;
 }
+
 /* 19. AKTIVITAS DAN PENCAPAIAN */
 #homePage .sd-card .sd-heading,
-#homePage .sd-card > .sd-heading {
+#homePage .sd-card>.sd-heading {
     margin: 0 0 15px;
     color: #075477;
     font-size: 18px;
@@ -150,11 +165,13 @@
     font-weight: 600;
     text-align: center;
 }
+
 .sd-empty img {
     width: 65px;
     height: 55px;
     object-fit: contain;
 }
+
 .sd-achievement-heading {
     margin: 0 0 15px;
     color: #075477;
@@ -162,29 +179,35 @@
     font-weight: 700;
     line-height: 1.4;
 }
+
 .sd-achievement-title {
     font-size: 18px;
     font-weight: 600;
 }
+
 .sd-status {
     font-size: 12px;
 }
+
 .sd-final-grade-summary {
     margin-top: 16px;
     padding-top: 13px;
     border-top: 1px solid #dce9e5;
 }
+
 .sd-final-grade-summary h4 {
     margin: 0 0 4px;
     color: #075477;
     font-size: 14px;
     font-weight: 700;
 }
-.sd-final-grade-summary > p {
+
+.sd-final-grade-summary>p {
     margin: 0 0 8px;
     color: var(--sd-muted);
     font-size: 12px;
 }
+
 .sd-final-grade-summary ul {
     display: grid;
     gap: 7px;
@@ -192,6 +215,7 @@
     padding: 0;
     list-style: none;
 }
+
 .sd-final-grade-item {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
@@ -202,13 +226,16 @@
     color: #315e68;
     font-size: 12px;
 }
+
 .sd-final-grade-item strong {
     overflow-wrap: anywhere;
 }
+
 .sd-final-grade-item small {
     grid-column: 1 / -1;
     color: var(--sd-muted);
 }
+
 .sd-activity-list {
     display: grid;
     gap: 8px;
@@ -223,48 +250,59 @@
     scrollbar-width: thin;
     scrollbar-color: #9ab8aa transparent;
 }
+
 .sd-activity-list::-webkit-scrollbar {
     width: 6px;
 }
+
 .sd-activity-list::-webkit-scrollbar-thumb {
     border-radius: 999px;
     background: #9ab8aa;
 }
+
 .sd-activity-list::-webkit-scrollbar-track {
     background: transparent;
 }
+
 .sd-activity-list li {
     padding: 7px 9px;
     border-radius: 8px;
     background: #f4f8f5;
 }
+
 .sd-activity-list time {
     display: block;
     margin-top: 3px;
     color: var(--sd-muted);
     font-size: 14px;
 }
+
 /* Responsive Beranda rules moved from the shared stylesheet. */
 @media (max-width: 767.98px) {
     .sd-quote {
         display: none;
     }
+
     .sd-hero {
         min-height: 150px;
         padding: 18px;
     }
+
     .sd-hero h1 {
         font-size: 24px;
     }
+
     .sd-home-lesson {
         flex-direction: column;
         align-items: stretch;
     }
-    .sd-home-lesson > img {
+
+    .sd-home-lesson>img {
         width: 100%;
         height: 150px;
     }
 }
+
 .sd-navigation-home {
     justify-content: flex-end;
 }
@@ -275,11 +313,13 @@
     font-size: 14px;
     line-height: 1.7;
 }
+
 .sd-page .sd-quote {
     color: #245c3e;
     font-size: 14px;
     line-height: 1.65;
 }
+
 .sd-page .sd-stat small,
 .sd-page .sd-stat p,
 .sd-page .sd-activity-list time {
@@ -287,11 +327,13 @@
     font-size: 12px;
     line-height: 1.6;
 }
+
 .sd-page .sd-home-lesson h3 {
     font-size: 16px;
     line-height: 1.5;
     overflow-wrap: anywhere;
 }
+
 .sd-page .sd-achievement-title,
 .sd-page .sd-status,
 .sd-page .sd-activity-list,
@@ -301,7 +343,82 @@
     line-height: 1.6;
     overflow-wrap: anywhere;
 }
+
 .sd-page .sd-primary {
     font-size: 14px;
     line-height: 1.5;
+}
+
+/* Revisi: keterbacaan bagian Pencapaian Belajar */
+#homePage .sd-achievement-title {
+    font-size: 15px;
+    line-height: 1.55;
+}
+
+#homePage .sd-status {
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+#homePage .sd-card>.sd-muted,
+#homePage .sd-card .sd-final-grade-summary>p {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+#homePage .sd-final-grade-summary h4 {
+    font-size: 16px;
+}
+
+#homePage .sd-final-grade-item {
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+#homePage .sd-final-grade-item small {
+    font-size: 13px;
+}
+
+/* PATCH: tidak menampilkan thumbnail bab lama saat data terbaru masih dimuat. */
+.sd-home-lesson>.sd-home-lesson-visual {
+    flex: 0 0 36%;
+    width: 36%;
+    min-width: 0;
+    height: 115px;
+    overflow: hidden;
+    border-radius: 9px;
+    background: #e8f2ed;
+}
+
+.sd-home-lesson-visual>img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.sd-home-lesson-visual>img[hidden],
+.sd-home-lesson-visual>.sd-home-lesson-placeholder[hidden] {
+    display: none !important;
+}
+
+.sd-home-lesson-placeholder {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    padding: 14px;
+    color: #456f68;
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+@media(max-width: 767.98px) {
+    .sd-home-lesson>.sd-home-lesson-visual {
+        width: 100%;
+        flex: none;
+        height: 150px;
+    }
 }

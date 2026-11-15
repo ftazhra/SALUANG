@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let status = 'all';
     let currentPage = 1;
     let selectedDiscussionId = null;
+    let replyingTo = null;
     let editingDiscussionId = null;
     let deletingDiscussionId = null;
     let listRequestNumber = 0;
@@ -592,8 +593,20 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     );
     /* 05. MELIHAT DETAIL DISKUSI */
+    function setReplyTarget(reply) {
+        replyingTo = reply ? { id: Number(reply.id), name: String(reply.user?.name || 'Pengguna SALUANG') } : null;
+        const box = $('forumReplyContext');
+        if (box) box.hidden = !replyingTo;
+        if ($('forumReplyContextName')) $('forumReplyContextName').textContent = replyingTo ? 'Membalas ' + replyingTo.name : '';
+        if (replyingTo) {
+            $('forumReplyBody').focus();
+            $('forumReplyForm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+    $('forumReplyCancel')?.addEventListener('click', () => setReplyTarget(null));
     async function loadDetail(id) {
         selectedDiscussionId = id;
+        setReplyTarget(null);
         showScreen('detail');
         showMessage('forumReplyMessage', '');
         $('forumDetailContent').replaceChildren();
@@ -637,6 +650,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 replies.forEach(function (reply) {
                     appendReply(reply);
                 });
+                limitVisibleReplyBranches($('forumRepliesList'));
             }
         } catch (error) {
             $('forumDetailContent').appendChild(
@@ -660,8 +674,49 @@ document.addEventListener('DOMContentLoaded', function () {
         body.appendChild(makeElement('span', 'sd-forum-card-meta', formatDate(reply.created_at)));
         body.appendChild(makeElement('p', 'sd-forum-reply-body', reply.body));
         layout.appendChild(body);
+        const actions = makeElement('div', 'sd-forum-reply-actions');
+        const replyButton = makeElement('button', 'sd-forum-reply-button', 'Balas');
+        replyButton.type = 'button';
+        replyButton.addEventListener('click', () => setReplyTarget(reply));
+        actions.appendChild(replyButton);
+        body.appendChild(actions);
         card.appendChild(layout);
+        card.dataset.replyId = String(reply.id);
+        if (reply.parent_reply_id) {
+            const parent = Array.from($('forumRepliesList').querySelectorAll('[data-reply-id]'))
+                .find(element => element.dataset.replyId === String(reply.parent_reply_id));
+            if (parent) {
+                let children = Array.from(parent.children).find(element => element.classList.contains('sd-forum-reply-children'));
+                if (!children) {
+                    children = makeElement('div', 'sd-forum-reply-children');
+                    parent.appendChild(children);
+                }
+                children.appendChild(card);
+                return;
+            }
+        }
         $('forumRepliesList').appendChild(card);
+    }
+    // Maksimal dua balasan langsung terlihat pada setiap komentar.
+    // Semua data tetap tersimpan; pengguna dapat membuka sisanya kapan pun.
+    function limitVisibleReplyBranches(root) {
+        if (!root) return;
+        root.querySelectorAll('.sd-forum-reply-children').forEach(group => {
+            const cards = Array.from(group.children).filter(el => el.classList.contains('sd-forum-reply-card'));
+            if (cards.length <= 2) return;
+            const hiddenCount = cards.length - 2;
+            cards.slice(2).forEach(card => { card.hidden = true; });
+            const toggle = makeElement('button', 'sd-forum-more-replies', `Lihat ${hiddenCount} balasan lainnya`);
+            toggle.type = 'button';
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.addEventListener('click', () => {
+                const expanding = toggle.getAttribute('aria-expanded') !== 'true';
+                cards.slice(2).forEach(card => { card.hidden = !expanding; });
+                toggle.setAttribute('aria-expanded', String(expanding));
+                toggle.textContent = expanding ? 'Sembunyikan balasan' : `Lihat ${hiddenCount} balasan lainnya`;
+            });
+            group.appendChild(toggle);
+        });
     }
     /* 06. MENGIRIM TANGGAPAN */
     $('forumReplyForm').addEventListener(
@@ -686,6 +741,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         },
                         body: JSON.stringify({
                             body: $('forumReplyBody').value.trim(),
+                            parent_reply_id: replyingTo?.id || null,
                         }),
                     }
                 );

@@ -1,10 +1,13 @@
 <?php
+
 namespace App\Http\Controllers;
+
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+
 class PasswordRecoveryController extends Controller
 {
     /*
@@ -78,8 +81,8 @@ class PasswordRecoveryController extends Controller
         return back()->with(
             'status',
             'Jika alamat email terdaftar di SALUANG, ' .
-            'permintaan pemulihan akan dicatat. ' .
-            'Silakan hubungi pihak sekolah untuk verifikasi.'
+                'permintaan bantuan pemulihan akan dicatat. ' .
+                'Tidak ada email reset otomatis. Hubungi pengelola SALUANG atau pihak sekolah untuk verifikasi dan bantuan lebih lanjut.'
         );
     }
 }

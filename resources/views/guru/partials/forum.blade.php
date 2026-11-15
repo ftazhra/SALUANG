@@ -227,6 +227,10 @@
 
             <form id="gfReplyForm">
                 <input type="hidden" id="gfReplyDiscussionId">
+                <div id="gfReplyContext" class="gf-reply-context" hidden>
+                    <span id="gfReplyContextName"></span>
+                    <button type="button" id="gfReplyCancel" aria-label="Batal membalas komentar">Batal</button>
+                </div>
 
                 <div class="gf-field">
                     <label for="gfReplyBody">Tulis Tanggapan</label>

@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Controllers\Guru;
+
 use App\Http\Controllers\Controller;
 use App\Models\Chapter;
 use App\Models\Subchapter;
@@ -15,6 +17,7 @@ use Illuminate\Validation\ValidationException;
 use App\Services\WebsiteNotificationService;
 use RuntimeException;
 use Throwable;
+
 class MaterialController extends Controller
 {
     /*
@@ -77,7 +80,8 @@ class MaterialController extends Controller
             ])
             ->orderBy('nomor_bab')
             ->get();
-        $chapters->each(fn (Chapter $chapter) =>
+        $chapters->each(
+            fn(Chapter $chapter) =>
             $this->attachMaterialBlocks($chapter)
         );
         return response()->json([
@@ -94,8 +98,7 @@ class MaterialController extends Controller
     public function store(
         Request $request,
         WebsiteNotificationService $notifications
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $this->ensureGuru($request);
         $data = $request->validate([
             'nomor_bab' => [
@@ -344,7 +347,8 @@ class MaterialController extends Controller
         );
         $chapter->load('subchapters.media');
         $storagePaths = $chapter->subchapters
-            ->flatMap(fn (Subchapter $subchapter) =>
+            ->flatMap(
+                fn(Subchapter $subchapter) =>
                 $subchapter->media->pluck('storage_path')
             )
             ->push($chapter->gambar_pengenalan_path)
@@ -718,14 +722,14 @@ class MaterialController extends Controller
             ) {
                 throw ValidationException::withMessages([
                     "content_blocks.$position.content" =>
-                        'Isi teks blok wajib diisi.',
+                    'Isi teks blok wajib diisi.',
                 ]);
             }
             if (!in_array($type, ['image', 'video'], true)) {
                 if (array_key_exists('layout', $block)) {
                     throw ValidationException::withMessages([
                         "content_blocks.$position.layout" =>
-                            'Pengaturan posisi hanya berlaku untuk blok gambar.',
+                        'Pengaturan posisi hanya berlaku untuk blok gambar.',
                     ]);
                 }
                 continue;
@@ -733,21 +737,21 @@ class MaterialController extends Controller
             if ($type === 'video' && array_key_exists('layout', $block)) {
                 throw ValidationException::withMessages([
                     "content_blocks.$position.layout" =>
-                        'Pengaturan posisi hanya berlaku untuk blok gambar.',
+                    'Pengaturan posisi hanya berlaku untuk blok gambar.',
                 ]);
             }
             $mediaId = $block['media_id'] ?? null;
             $legacyMediaType = $block['legacy_media_type'] ?? null;
             $source = $block['source'] ?? (
                 $mediaId !== null
-                    ? 'existing'
-                    : ($legacyMediaType !== null ? 'legacy' : null)
+                ? 'existing'
+                : ($legacyMediaType !== null ? 'legacy' : null)
             );
             if ($source === 'existing') {
                 if ($mediaId === null || $legacyMediaType !== null) {
                     throw ValidationException::withMessages([
                         "content_blocks.$position.media_id" =>
-                            'Pilih media yang tersedia di Subbab ini.',
+                        'Pilih media yang tersedia di Subbab ini.',
                     ]);
                 }
                 $media = $subchapter?->media()
@@ -756,14 +760,14 @@ class MaterialController extends Controller
                 if (!$media || $media->media_type !== $type) {
                     throw ValidationException::withMessages([
                         "content_blocks.$position.media_id" =>
-                            'Media yang dipilih tidak tersedia di Subbab ini.',
+                        'Media yang dipilih tidak tersedia di Subbab ini.',
                     ]);
                 }
             } elseif ($source === 'legacy') {
                 if ($mediaId !== null || $legacyMediaType !== $type) {
                     throw ValidationException::withMessages([
                         "content_blocks.$position.media_id" =>
-                            'Pilih media yang sesuai untuk blok ini.',
+                        'Pilih media yang sesuai untuk blok ini.',
                     ]);
                 }
                 $mediaId = 'legacy:' . $legacyMediaType;
@@ -771,7 +775,7 @@ class MaterialController extends Controller
                 if ($mediaId !== null || $legacyMediaType !== null) {
                     throw ValidationException::withMessages([
                         "content_blocks.$position.media_id" =>
-                            'Unggahan baru tidak dapat memakai referensi media lama.',
+                        'Unggahan baru tidak dapat memakai referensi media lama.',
                     ]);
                 }
                 $file = $request->file("content_block_files.$position");
@@ -794,7 +798,16 @@ class MaterialController extends Controller
                     ];
                 Validator::make(
                     ['file' => $file],
-                    ['file' => $fileRules]
+                    ['file' => $fileRules],
+                    [
+                        'file.required' => 'Pilih file untuk blok media nomor ' . ($position + 1) . ' terlebih dahulu.',
+                        'file.file' => 'Berkas yang dipilih tidak valid.',
+                        'file.image' => 'File gambar harus berupa gambar yang valid.',
+                        'file.mimes' => 'Format file tidak didukung. Periksa format gambar atau video.',
+                        'file.mimetypes' => 'Format video harus MP4.',
+                        'file.extensions' => 'Ekstensi berkas tidak didukung.',
+                        'file.max' => 'Ukuran file terlalu besar untuk diunggah.',
+                    ]
                 )->validate();
                 $uploadIndexes[(string) $position] = true;
             } elseif ($source === 'youtube') {
@@ -806,27 +819,27 @@ class MaterialController extends Controller
                 ) {
                     throw ValidationException::withMessages([
                         "content_blocks.$position.youtube_url" =>
-                            'Tautan YouTube hanya berlaku untuk blok video.',
+                        'Tautan YouTube hanya berlaku untuk blok video.',
                     ]);
                 }
                 $youtubeId = $this->youtubeVideoId($block['youtube_url']);
                 if ($youtubeId === null) {
                     throw ValidationException::withMessages([
                         "content_blocks.$position.youtube_url" =>
-                            'Gunakan URL video YouTube yang valid dan dapat dikenali.',
+                        'Gunakan URL video YouTube yang valid dan dapat dikenali.',
                     ]);
                 }
                 if (isset($youtubeIds[$youtubeId])) {
                     throw ValidationException::withMessages([
                         'content_blocks' =>
-                            'Video yang sama tidak dapat ditampilkan lebih dari satu kali.',
+                        'Video yang sama tidak dapat ditampilkan lebih dari satu kali.',
                     ]);
                 }
                 $youtubeIds[$youtubeId] = true;
             } else {
                 throw ValidationException::withMessages([
                     "content_blocks.$position.media_id" =>
-                        'Pilih media yang sesuai untuk blok ini.',
+                    'Pilih media yang sesuai untuk blok ini.',
                 ]);
             }
             if (
@@ -836,7 +849,7 @@ class MaterialController extends Controller
             ) {
                 throw ValidationException::withMessages([
                     'content_blocks' =>
-                        'Media yang sama tidak dapat ditampilkan lebih dari satu kali.',
+                    'Media yang sama tidak dapat ditampilkan lebih dari satu kali.',
                 ]);
             }
             if ($source !== 'upload' && $source !== 'youtube') {
@@ -847,7 +860,7 @@ class MaterialController extends Controller
             if (!isset($uploadIndexes[(string) $position])) {
                 throw ValidationException::withMessages([
                     'content_block_files' =>
-                        'Berkas harus dipasangkan dengan blok gambar atau video.',
+                    'Berkas harus dipasangkan dengan blok gambar atau video.',
                 ]);
             }
         }
@@ -866,8 +879,8 @@ class MaterialController extends Controller
                 }
                 $source = $block['source'] ?? (
                     isset($block['media_id'])
-                        ? 'existing'
-                        : (isset($block['legacy_media_type']) ? 'legacy' : null)
+                    ? 'existing'
+                    : (isset($block['legacy_media_type']) ? 'legacy' : null)
                 );
                 if (!in_array($source, ['upload', 'youtube'], true)) {
                     continue;
@@ -895,7 +908,7 @@ class MaterialController extends Controller
                     if ($youtubeId === null) {
                         throw ValidationException::withMessages([
                             "content_blocks.$position.youtube_url" =>
-                                'Gunakan URL video YouTube yang valid dan dapat dikenali.',
+                            'Gunakan URL video YouTube yang valid dan dapat dikenali.',
                         ]);
                     }
                     $media['youtube_video_id'] = $youtubeId;
@@ -927,18 +940,18 @@ class MaterialController extends Controller
                 : (isset($block['media_id'])
                     ? $subchapter->media()->whereKey($block['media_id'])->first()
                     : $subchapter->media()
-                        ->where('media_type', $block['legacy_media_type'])
-                        ->first());
+                    ->where('media_type', $block['legacy_media_type'])
+                    ->first());
             if (!$media || $media->media_type !== $block['type']) {
                 throw ValidationException::withMessages([
                     'content_blocks' =>
-                        'Media untuk salah satu blok tidak tersedia. Periksa kembali pilihan media Subbab.',
+                    'Media untuk salah satu blok tidak tersedia. Periksa kembali pilihan media Subbab.',
                 ]);
             }
             if (in_array($media->id, $resolvedMedia, true)) {
                 throw ValidationException::withMessages([
                     'content_blocks' =>
-                        'Media yang sama tidak dapat ditampilkan lebih dari satu kali.',
+                    'Media yang sama tidak dapat ditampilkan lebih dari satu kali.',
                 ]);
             }
             $resolvedMedia[$position] = $media->id;
@@ -997,8 +1010,8 @@ class MaterialController extends Controller
         $newPaths = [];
         $mediaTypes = array_filter(
             ['image', 'video'],
-            fn (string $mediaType) =>
-                array_key_exists($mediaType . '_action', $data)
+            fn(string $mediaType) =>
+            array_key_exists($mediaType . '_action', $data)
         );
         if ($mediaTypes === []) {
             return [
@@ -1159,10 +1172,10 @@ class MaterialController extends Controller
             ->limit(100)
             ->get(['id', 'title', 'storage_path'])
             ->filter(
-                fn (SubchapterMedia $media) =>
-                    Storage::disk('public')->exists($media->storage_path)
+                fn(SubchapterMedia $media) =>
+                Storage::disk('public')->exists($media->storage_path)
             )
-            ->map(fn (SubchapterMedia $media) => [
+            ->map(fn(SubchapterMedia $media) => [
                 'id' => $media->id,
                 'title' => $media->title ?: 'Video tersimpan ' . $media->id,
             ])
@@ -1190,8 +1203,8 @@ class MaterialController extends Controller
         }
         return is_string($videoId)
             && preg_match('/^[A-Za-z0-9_-]{11}$/', $videoId) === 1
-                ? $videoId
-                : null;
+            ? $videoId
+            : null;
     }
     private function deleteOrphanedFiles(array $paths): void
     {
@@ -1199,11 +1212,11 @@ class MaterialController extends Controller
             if (
                 !$path
                 || SubchapterMedia::query()
-                    ->where('storage_path', $path)
-                    ->exists()
+                ->where('storage_path', $path)
+                ->exists()
                 || Chapter::query()
-                    ->where('gambar_pengenalan_path', $path)
-                    ->exists()
+                ->where('gambar_pengenalan_path', $path)
+                ->exists()
             ) {
                 continue;
             }

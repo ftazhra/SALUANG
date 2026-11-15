@@ -4,9 +4,13 @@
 
             const layout = document.getElementById('parentLayout');
             const toggle = document.getElementById('parentSidebarToggle');
+            const mobileToggle = document.getElementById('parentSidebarMobileToggle');
+            const mobileClose = document.getElementById('parentSidebarClose');
+            const backdrop = document.getElementById('parentSidebarBackdrop');
             const title = document.getElementById('parentPageTitle');
             const main = document.getElementById('parentMain');
             const content = document.querySelector('.parent-content');
+            const mobileMedia = window.matchMedia('(max-width: 900px)');
 
             const sections = Array.from(
                 document.querySelectorAll(
@@ -51,6 +55,55 @@
                 document.getElementById('parentProfileMenu');
 
             let currentPage = 'beranda';
+
+            function setParentMobileSidebarOpen(isOpen) {
+                if (!layout) return;
+                layout.classList.toggle('sidebar-open', isOpen);
+                backdrop?.classList.toggle('is-visible', isOpen);
+                mobileToggle?.setAttribute('aria-expanded', String(isOpen));
+                mobileToggle?.setAttribute('aria-label', isOpen ? 'Tutup menu' : 'Buka menu');
+                document.body.classList.toggle('parent-sidebar-open', isOpen && mobileMedia.matches);
+            }
+
+            function syncParentMobileSidebar() {
+                if (!layout) return;
+
+                if (mobileMedia.matches) {
+                    // Drawer mobile selalu menampilkan label dan tidak memakai state sidebar desktop yang dilipat.
+                    layout.classList.remove('sidebar-collapsed');
+                    toggle?.setAttribute('aria-expanded', 'true');
+                    toggle?.setAttribute('aria-label', 'Perkecil sidebar');
+                    document.body.classList.toggle(
+                        'parent-sidebar-open',
+                        layout.classList.contains('sidebar-open')
+                    );
+                    return;
+                }
+
+                setParentMobileSidebarOpen(false);
+                const collapsed = layout.classList.contains('sidebar-collapsed');
+                toggle?.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+                toggle?.setAttribute(
+                    'aria-label',
+                    collapsed ? 'Perbesar sidebar' : 'Perkecil sidebar'
+                );
+            }
+
+            if (mobileToggle) {
+                mobileToggle.addEventListener('click', function() {
+                    setParentMobileSidebarOpen(!layout.classList.contains('sidebar-open'));
+                });
+            }
+
+            mobileClose?.addEventListener('click', function() {
+                setParentMobileSidebarOpen(false);
+            });
+            backdrop?.addEventListener('click', function() {
+                setParentMobileSidebarOpen(false);
+            });
+
+            window.addEventListener('resize', syncParentMobileSidebar);
+            syncParentMobileSidebar();
 
             /* =====================================================
                01. DROPDOWN
@@ -430,6 +483,9 @@
                     event.preventDefault();
 
                     const changed = showPage(target);
+                    if (changed && mobileMedia.matches) {
+                        setParentMobileSidebarOpen(false);
+                    }
 
                     /*
                      * Dropdown Pengaturan langsung menuju
@@ -510,6 +566,9 @@
             document.addEventListener('keydown', function(event) {
 
                 if (event.key === 'Escape') {
+                    if (layout?.classList.contains('sidebar-open')) {
+                        setParentMobileSidebarOpen(false);
+                    }
                     closeParentDropdowns();
                 }
             });
@@ -521,6 +580,7 @@
             if (toggle && layout) {
 
                 toggle.addEventListener('click', function() {
+                    if (mobileMedia.matches) return;
 
                     const collapsed =
                         layout.classList.toggle(

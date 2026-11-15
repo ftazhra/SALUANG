@@ -20,9 +20,9 @@
 
     <link rel="stylesheet" href="{{ asset('css/guru-kuis.css') }}?v=20261111b">
     <script src="{{ asset('js/guru-matching-preview.js') }}?v=20261111b" defer></script>
-    <script src="{{ asset('js/guru-kuis.js') }}?v=20261111b" defer></script>
+    <script src="{{ asset('js/guru-kuis.js') }}?v=20261115r3" defer></script>
 
-    <link rel="stylesheet" href="{{ asset('css/guru-evaluasi.css') }}?v=20261110a">
+    <link rel="stylesheet" href="{{ asset('css/guru-evaluasi.css') }}?v=20261115r3">
     <script src="{{ asset('js/guru-evaluasi.js') }}?v=9" defer></script>
 
     <link rel="stylesheet" href="{{ asset('css/guru-forum.css') }}?v=7">
@@ -53,6 +53,9 @@
     <aside class="gd-sidebar" id="guruSidebar">
         <div class="gd-brand">
             <img src="{{ asset('images/saluang-logo-transparent.png') }}" alt="Logo SALUANG">
+            <button type="button" class="gd-mobile-close" id="guruSidebarClose" aria-label="Tutup menu">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
         </div>
         <nav class="gd-nav" aria-label="Navigasi Guru">
 
@@ -129,6 +132,8 @@
             @endauth
         </div>
     </aside>
+    <button type="button" class="gd-sidebar-backdrop" id="guruSidebarBackdrop"
+        aria-label="Tutup menu"></button>
 
     {{-- =====================================================
          02. KONTEN UTAMA
@@ -139,7 +144,13 @@
              03. TOPBAR
              ================================================= --}}
         <header class="gd-topbar">
-            <strong>Dashboard Guru</strong>
+            <div class="gd-topbar-left">
+                <button type="button" class="gd-mobile-toggle d-lg-none" id="guruSidebarToggle"
+                    aria-label="Buka menu" aria-expanded="false" aria-controls="guruSidebar">
+                    <i class="bi bi-list"></i>
+                </button>
+                <strong>Dashboard Guru</strong>
+            </div>
             <div class="gd-topbar-tools">
 
                 {{-- 03.1 NOTIFIKASI --}}

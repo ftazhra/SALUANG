@@ -36,7 +36,7 @@
 
         $childName = $child?->name ?? null;
         $className = $child?->kelas ?? ($child?->class ?? '-');
-        $schoolName = $child?->sekolah ?? ($child?->school ?? 'SMP Negeri 21 Banjarmasin');
+        $schoolName = $child?->sekolah ?? ($child?->school ?? 'Sekolah belum tercantum');
 
         $stats = $stats ?? [
             'materials' => 0,
@@ -71,6 +71,10 @@
 
             <div class="parent-brand">
                 <img src="{{ asset('images/saluang-logo-transparent.png') }}" alt="Logo SALUANG">
+                <button type="button" class="parent-mobile-close" id="parentSidebarClose"
+                    aria-label="Tutup menu">
+                    <i class="bi bi-x-lg" aria-hidden="true"></i>
+                </button>
             </div>
 
             <button type="button" class="parent-sidebar-toggle" id="parentSidebarToggle" aria-label="Perkecil sidebar"
@@ -102,6 +106,8 @@
             </div>
 
         </aside>
+        <button type="button" class="parent-sidebar-backdrop" id="parentSidebarBackdrop"
+            aria-label="Tutup menu"></button>
 
         {{-- =====================================================
              KONTEN UTAMA
@@ -111,8 +117,14 @@
 
             <header class="parent-topbar">
 
-                <div class="parent-topbar-title" id="parentPageTitle">
-                    Dashboard Orang Tua
+                <div class="parent-topbar-title-wrap">
+                    <button type="button" class="parent-mobile-toggle d-lg-none" id="parentSidebarMobileToggle"
+                        aria-label="Buka menu" aria-expanded="false" aria-controls="parentSidebar">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div class="parent-topbar-title" id="parentPageTitle">
+                        Dashboard Orang Tua
+                    </div>
                 </div>
 
                 <div class="parent-topbar-tools">
