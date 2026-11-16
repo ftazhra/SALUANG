@@ -11,6 +11,8 @@ use App\Models\StudentQuizAnswer;
 use App\Models\StudentQuizActivityAnswer;
 use App\Models\StudentSubchapterProgress;
 use App\Models\Subchapter;
+use App\Models\User;
+use App\Services\SchoolAccessService;
 use App\Services\WebsiteNotificationService;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\JsonResponse;
@@ -35,13 +37,18 @@ class QuizController extends Controller
     public function questions(
         Request $request,
         int $chapterNumber,
-        int $subchapterNumber
+        int $subchapterNumber,
+        SchoolAccessService $schoolAccess
     ): JsonResponse {
         $this->ensureSiswa($request);
+        $student = $request->user();
         $chapters = Chapter::query()
             ->where('nomor_bab', $chapterNumber)
             ->where('is_published', true)
-            ->whereHas('guru', fn($query) => $query->where('role', 'guru'))
+            ->whereHas('guru', function ($query) use ($student, $schoolAccess) {
+                $query->where('role', 'guru');
+                $schoolAccess->constrainUsersToSchool($query, $student);
+            })
             ->whereHas('subchapters', fn($query) => $query
                 ->where('nomor_subbab', $subchapterNumber)
                 ->where('is_published', true))
@@ -94,10 +101,11 @@ class QuizController extends Controller
 
     public function questionsForSubchapter(
         Request $request,
-        Subchapter $subchapter
+        Subchapter $subchapter,
+        SchoolAccessService $schoolAccess
     ): JsonResponse {
         $this->ensureSiswa($request);
-        $this->ensurePublishedSubchapter($subchapter);
+        $this->ensurePublishedSubchapter($subchapter, $request->user(), $schoolAccess);
 
         $attemptStorageAvailable = Schema::hasTable('student_quiz_attempts');
         // Resume the student's active attempt when the page has no attempt ID yet.
@@ -216,10 +224,11 @@ class QuizController extends Controller
 
     public function startAttempt(
         Request $request,
-        Subchapter $subchapter
+        Subchapter $subchapter,
+        SchoolAccessService $schoolAccess
     ): JsonResponse {
         $this->ensureSiswa($request);
-        $this->ensurePublishedSubchapter($subchapter);
+        $this->ensurePublishedSubchapter($subchapter, $request->user(), $schoolAccess);
         abort_unless(
             Schema::hasTable('student_quiz_attempts'),
             503,
@@ -231,12 +240,16 @@ class QuizController extends Controller
         ]);
         $restart = (bool) ($data['restart'] ?? false);
 
-        $attempt = DB::transaction(function () use ($request, $subchapter, $restart) {
+        $attempt = DB::transaction(function () use ($request, $subchapter, $restart, $schoolAccess) {
             $lockedSubchapter = Subchapter::query()
                 ->whereKey($subchapter->id)
                 ->lockForUpdate()
                 ->firstOrFail();
-            $this->ensurePublishedSubchapter($lockedSubchapter);
+            $this->ensurePublishedSubchapter(
+                $lockedSubchapter,
+                $request->user(),
+                $schoolAccess
+            );
 
             $progress = StudentSubchapterProgress::query()
                 ->where('user_id', $request->user()->id)
@@ -292,7 +305,8 @@ class QuizController extends Controller
 
     public function showAttempt(
         Request $request,
-        StudentQuizAttempt $attempt
+        StudentQuizAttempt $attempt,
+        SchoolAccessService $schoolAccess
     ): JsonResponse {
         $this->ensureSiswa($request);
         abort_unless(
@@ -302,6 +316,10 @@ class QuizController extends Controller
         );
         abort_unless((int) $attempt->user_id === (int) $request->user()->id, 404);
         abort_unless($attempt->status === 'completed', 409, 'Kuis ini belum selesai.');
+        $subchapter = Subchapter::query()
+            ->with('chapter.guru')
+            ->findOrFail($attempt->subchapter_id);
+        $this->ensurePublishedSubchapter($subchapter, $request->user(), $schoolAccess);
 
         return response()->json([
             'result' => [
@@ -314,7 +332,8 @@ class QuizController extends Controller
     public function checkAnswer(
         Request $request,
         int $question,
-        WebsiteNotificationService $notifications
+        WebsiteNotificationService $notifications,
+        SchoolAccessService $schoolAccess
     ): JsonResponse {
         $this->ensureSiswa($request);
         abort_unless(
@@ -330,7 +349,8 @@ class QuizController extends Controller
             $request,
             (int) $data['attempt_id'],
             $question,
-            ['multiple_choice']
+            ['multiple_choice'],
+            $schoolAccess
         );
 
         return $this->saveAttemptAnswer(
@@ -338,14 +358,16 @@ class QuizController extends Controller
             (int) $data['attempt_id'],
             $quizQuestion,
             ['type' => 'multiple_choice', 'answer' => $data['jawaban']],
-            $notifications
+            $notifications,
+            $schoolAccess
         );
     }
 
     public function saveActivityAnswer(
         Request $request,
         int $question,
-        WebsiteNotificationService $notifications
+        WebsiteNotificationService $notifications,
+        SchoolAccessService $schoolAccess
     ): JsonResponse {
         $this->ensureSiswa($request);
         abort_unless(
@@ -360,7 +382,8 @@ class QuizController extends Controller
             $request,
             (int) $data['attempt_id'],
             $question,
-            ['drag_drop', 'matching']
+            ['drag_drop', 'matching'],
+            $schoolAccess
         );
         $rules = [
             'attempt_id' => ['required', 'integer'],
@@ -412,7 +435,8 @@ class QuizController extends Controller
             (int) $data['attempt_id'],
             $activity,
             ['type' => $activity->activity_type, 'answers' => $answers],
-            $notifications
+            $notifications,
+            $schoolAccess
         );
         if ($this->hasCompleteActivityAnswer($activity, $answers)) {
             $result->setData([
@@ -429,19 +453,27 @@ class QuizController extends Controller
         int $attemptId,
         QuizQuestion $question,
         array $answer,
-        WebsiteNotificationService $notifications
+        WebsiteNotificationService $notifications,
+        SchoolAccessService $schoolAccess
     ): JsonResponse {
         $payload = DB::transaction(function () use (
             $request,
             $attemptId,
             $question,
             $answer,
-            $notifications
+            $notifications,
+            $schoolAccess
         ) {
-            Subchapter::query()
+            $subchapter = Subchapter::query()
+                ->with('chapter.guru')
                 ->whereKey($question->subchapter_id)
                 ->lockForUpdate()
                 ->firstOrFail();
+            $this->ensurePublishedSubchapter(
+                $subchapter,
+                $request->user(),
+                $schoolAccess
+            );
 
             $storedQuestion = QuizQuestion::withTrashed()
                 ->whereKey($question->id)
@@ -491,13 +523,18 @@ class QuizController extends Controller
         Request $request,
         int $attemptId,
         int $questionId,
-        array $allowedTypes
+        array $allowedTypes,
+        SchoolAccessService $schoolAccess
     ): QuizQuestion {
         $attempt = StudentQuizAttempt::query()
             ->whereKey($attemptId)
             ->where('user_id', $request->user()->id)
             ->firstOrFail();
         abort_unless($attempt->status === 'in_progress', 409, 'Pengerjaan ini sudah selesai.');
+        $subchapter = Subchapter::query()
+            ->with('chapter.guru')
+            ->findOrFail($attempt->subchapter_id);
+        $this->ensurePublishedSubchapter($subchapter, $request->user(), $schoolAccess);
         $snapshots = $this->attemptQuestionSnapshots($attempt);
         $snapshot = $snapshots === null
             ? null
@@ -1085,12 +1122,17 @@ class QuizController extends Controller
         })->all();
     }
 
-    private function ensurePublishedSubchapter(Subchapter $subchapter): void
+    private function ensurePublishedSubchapter(
+        Subchapter $subchapter,
+        User $student,
+        SchoolAccessService $schoolAccess
+    ): void
     {
         abort_unless(
             $subchapter->is_published
                 && $subchapter->chapter?->is_published
-                && $subchapter->chapter?->guru?->role === 'guru',
+                && $subchapter->chapter?->guru?->role === 'guru'
+                && $schoolAccess->sameSchool($student, $subchapter->chapter->guru),
             404
         );
     }

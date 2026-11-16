@@ -70,7 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
           teacherSelect = document.createElement('select');
           teacherSelect.className = 'pc-teacher-select';
           teacherSelect.setAttribute('aria-label', 'Pilih Guru dan Siswa');
-          teacherSelect.style.cssText = 'display:block;max-width:300px;margin:12px 0 0;padding:9px;border:1px solid #d3e6e2;border-radius:7px;background:#fff;color:#075477;font:inherit;font-size:11px';
           teacherSelect.addEventListener('change', () => {
             const thread = teacherThreads.find(item => `${item.student_id}:${item.id}` === teacherSelect.value);
             if (!thread) return;

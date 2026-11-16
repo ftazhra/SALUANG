@@ -13,18 +13,23 @@ class ParentTeacherChatIntegrationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_parent_and_authorized_teacher_exchange_persistent_idempotent_messages_in_child_threads(): void
+    public function test_parent_and_same_school_teachers_exchange_persistent_idempotent_messages_in_child_threads(): void
     {
         [$parent, $teacherA, $teacherB, $studentA, $studentB, $relationA, $relationB] = $this->createTwoChildThreads();
 
         $teacherThreads = $this->actingAs($parent)
             ->getJson('/orang-tua/chat/teachers')
             ->assertOk()
-            ->assertJsonCount(2, 'teachers');
-        $this->assertSame($studentA->id, $teacherThreads->json('teachers.0.student_id'));
-        $this->assertSame($teacherA->id, $teacherThreads->json('teachers.0.id'));
-        $this->assertSame($studentB->id, $teacherThreads->json('teachers.1.student_id'));
-        $this->assertSame($teacherB->id, $teacherThreads->json('teachers.1.id'));
+            ->assertJsonCount(4, 'teachers');
+        $actualThreads = collect($teacherThreads->json('teachers'))
+            ->map(fn($thread) => $thread['student_id'] . ':' . $thread['id'])
+            ->all();
+        $this->assertEqualsCanonicalizing([
+            $studentA->id . ':' . $teacherA->id,
+            $studentA->id . ':' . $teacherB->id,
+            $studentB->id . ':' . $teacherA->id,
+            $studentB->id . ':' . $teacherB->id,
+        ], $actualThreads);
         $this->assertStringNotContainsString('nomor_telepon', $teacherThreads->getContent());
 
         $clientMessageId = 'c0a80123-4567-4abc-8def-0123456789ab';
@@ -87,11 +92,13 @@ class ParentTeacherChatIntegrationTest extends TestCase
             ->assertJsonCount(0, 'messages');
     }
 
-    public function test_chat_rejects_wrong_roles_other_threads_invalid_messages_and_anonymous_users(): void
+    public function test_chat_rejects_wrong_roles_cross_school_pending_links_invalid_messages_and_anonymous_users(): void
     {
         [$parent, $teacherA, $teacherB, $studentA, $studentB, $relationA, $relationB] = $this->createTwoChildThreads();
         $otherParent = $this->createUser('orang_tua', 'chat-unrelated-parent');
-        $unassignedTeacher = $this->createUser('guru', 'chat-unassigned-teacher');
+        $otherSchoolTeacher = $this->createUser('guru', 'chat-other-school-teacher', [
+            'sekolah' => 'Sekolah Lain',
+        ]);
         $studentC = $this->createStudent('chat-student-c', 'VII C', '3333333333');
         $pendingParent = $this->createUser('orang_tua', 'chat-pending-parent');
         $pendingRelation = $this->link($studentC, $pendingParent, 'pending');
@@ -111,20 +118,24 @@ class ParentTeacherChatIntegrationTest extends TestCase
         $this->actingAs($parent)
             ->postJson('/orang-tua/chat/messages', [
                 'student_id' => $studentA->id,
-                'teacher_id' => $unassignedTeacher->id,
+                'teacher_id' => $otherSchoolTeacher->id,
                 'body' => 'Tidak berwenang',
                 'client_message_id' => 'e0a80123-4567-4abc-8def-0123456789ab',
             ])
             ->assertNotFound();
-        $this->actingAs($teacherB)
+        $this->actingAs($otherSchoolTeacher)
             ->getJson("/guru/parent-contacts/{$relationA->id}/messages")
             ->assertNotFound();
-        $this->actingAs($teacherB)
+        $this->actingAs($otherSchoolTeacher)
             ->postJson("/guru/parent-contacts/{$relationA->id}/messages", [
-                'body' => 'Tidak berwenang',
+                'body' => 'Tidak berwenang lintas sekolah',
                 'client_message_id' => 'f0a80123-4567-4abc-8def-0123456789ab',
             ])
             ->assertNotFound();
+        $this->actingAs($teacherB)
+            ->getJson("/guru/parent-contacts/{$relationA->id}/messages")
+            ->assertOk()
+            ->assertJsonCount(0, 'messages');
 
         $this->actingAs($pendingParent)
             ->getJson('/orang-tua/chat/teachers')
@@ -172,13 +183,13 @@ class ParentTeacherChatIntegrationTest extends TestCase
 
         $this->assertDatabaseCount('parent_teacher_messages', 0);
         $this->assertTrue(DB::table('teacher_class_assignments')
-            ->where('teacher_id', $unassignedTeacher->id)
+            ->where('teacher_id', $otherSchoolTeacher->id)
             ->doesntExist());
     }
 
     public function test_teacher_threads_expose_activity_based_online_presence(): void
     {
-        [$parent, $teacher, , $student, , $relationship] = $this->createTwoChildThreads();
+        [$parent, $teacher,, $student,, $relationship] = $this->createTwoChildThreads();
         $presenceCache = Cache::store('file');
         $presenceCache->forget('chat-presence:user:' . $teacher->id);
         $presenceCache->forget('chat-presence:throttle:' . $teacher->id);
@@ -192,7 +203,7 @@ class ParentTeacherChatIntegrationTest extends TestCase
             ->getJson('/orang-tua/chat/teachers')
             ->assertOk();
 
-        $teacherThread = collect($response->json('teachers'))->first(fn ($thread) => (int) $thread['id'] === (int) $teacher->id);
+        $teacherThread = collect($response->json('teachers'))->first(fn($thread) => (int) $thread['id'] === (int) $teacher->id);
         $this->assertNotNull($teacherThread);
         $this->assertTrue((bool) ($teacherThread['is_online'] ?? false));
         $this->assertNotNull($teacherThread['last_seen_at'] ?? null);
@@ -204,7 +215,7 @@ class ParentTeacherChatIntegrationTest extends TestCase
         );
 
         $staleResponse = $this->actingAs($parent)->getJson('/orang-tua/chat/teachers')->assertOk();
-        $staleThread = collect($staleResponse->json('teachers'))->first(fn ($thread) => (int) $thread['id'] === (int) $teacher->id);
+        $staleThread = collect($staleResponse->json('teachers'))->first(fn($thread) => (int) $thread['id'] === (int) $teacher->id);
         $this->assertFalse((bool) ($staleThread['is_online'] ?? true));
         $this->assertNotNull($staleThread['last_seen_at'] ?? null);
 
@@ -227,7 +238,7 @@ class ParentTeacherChatIntegrationTest extends TestCase
 
     public function test_chat_unread_counts_are_per_thread_and_opening_the_thread_marks_incoming_messages_read(): void
     {
-        [$parent, $teacher, , $student, , $relationship] = $this->createTwoChildThreads();
+        [$parent, $teacher,, $student,, $relationship] = $this->createTwoChildThreads();
         $message = DB::table('parent_teacher_messages')->insertGetId([
             'parent_id' => $parent->id,
             'student_id' => $student->id,
@@ -313,9 +324,9 @@ class ParentTeacherChatIntegrationTest extends TestCase
             ->value('read_at'));
     }
 
-    public function test_assignment_or_approval_revocation_immediately_blocks_existing_chat_history(): void
+    public function test_class_assignment_removal_keeps_same_school_chat_but_guardian_rejection_revokes_access(): void
     {
-        [$parent, $teacher, , $student, , $relation] = $this->createTwoChildThreads();
+        [$parent, $teacher,, $student,, $relation] = $this->createTwoChildThreads();
 
         $this->actingAs($parent)->postJson('/orang-tua/chat/messages', [
             'student_id' => $student->id,
@@ -330,17 +341,13 @@ class ParentTeacherChatIntegrationTest extends TestCase
             ->delete();
 
         $this->getJson("/orang-tua/chat/messages?student_id={$student->id}&teacher_id={$teacher->id}")
-            ->assertNotFound();
+            ->assertOk()
+            ->assertJsonCount(1, 'messages');
         $this->actingAs($teacher)
             ->getJson("/guru/parent-contacts/{$relation->id}/messages")
-            ->assertNotFound();
+            ->assertOk()
+            ->assertJsonCount(1, 'messages');
 
-        DB::table('teacher_class_assignments')->insert([
-            'teacher_id' => $teacher->id,
-            'class_name' => $student->kelas,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
         DB::table('student_guardians')->where('id', $relation->id)->update(['status' => 'rejected']);
 
         $this->actingAs($parent)
@@ -353,7 +360,7 @@ class ParentTeacherChatIntegrationTest extends TestCase
 
     public function test_teacher_assigned_to_multiple_classes_can_read_each_authorized_child_thread(): void
     {
-        [, $teacherA, , , $studentB, , $relationB] = $this->createTwoChildThreads();
+        [, $teacherA,,, $studentB,, $relationB] = $this->createTwoChildThreads();
         $this->assign($teacherA, 'VII B');
 
         $this->actingAs($teacherA)
@@ -365,7 +372,7 @@ class ParentTeacherChatIntegrationTest extends TestCase
 
     public function test_idempotency_migration_refuses_to_drop_keys_referenced_by_messages(): void
     {
-        [$parent, $teacher, , $student] = $this->createTwoChildThreads();
+        [$parent, $teacher,, $student] = $this->createTwoChildThreads();
         DB::table('parent_teacher_messages')->insert([
             'parent_id' => $parent->id,
             'student_id' => $student->id,
@@ -440,6 +447,9 @@ class ParentTeacherChatIntegrationTest extends TestCase
             'password' => 'secret123',
             'role' => $role,
             'email' => null,
+            'sekolah' => in_array($role, ['guru', 'siswa'], true)
+                ? 'Sekolah Uji'
+                : null,
         ], $attributes));
     }
 }

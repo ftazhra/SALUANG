@@ -14,7 +14,7 @@ class StudentLearningProgressTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_every_student_can_access_published_material_across_teachers_and_schools(): void
+    public function test_student_can_access_only_published_material_from_their_school(): void
     {
         $teacher = $this->createUser('guru', 'guru-material-scope');
         $teacher->update(['sekolah' => 'Sekolah A']);
@@ -29,6 +29,13 @@ class StudentLearningProgressTest extends TestCase
             'user_id' => $teacher->id,
             'nomor_bab' => 1,
             'judul' => 'Materi Guru A',
+            'is_published' => true,
+        ]);
+        $ownSubchapter = Subchapter::create([
+            'chapter_id' => $chapter->id,
+            'nomor_subbab' => 1,
+            'judul' => 'Subbab Sekolah A',
+            'konten' => 'Materi A',
             'is_published' => true,
         ]);
         $otherChapter = Chapter::create([
@@ -48,14 +55,20 @@ class StudentLearningProgressTest extends TestCase
         $this->actingAs($student)
             ->getJson('/siswa/materials')
             ->assertOk()
-            ->assertJsonCount(2, 'chapters')
+            ->assertJsonCount(1, 'chapters')
             ->assertJsonFragment(['id' => $chapter->id])
-            ->assertJsonFragment(['id' => $otherChapter->id]);
+            ->assertJsonMissing(['id' => $otherChapter->id]);
 
-        $this->postJson("/siswa/subchapters/{$subchapter->id}/open")
+        $this->postJson("/siswa/subchapters/{$ownSubchapter->id}/open")
             ->assertOk()
             ->assertJsonPath('status', 'in_progress');
+        $this->postJson("/siswa/subchapters/{$subchapter->id}/open")
+            ->assertNotFound();
         $this->assertDatabaseHas('student_subchapter_progress', [
+            'user_id' => $student->id,
+            'subchapter_id' => $ownSubchapter->id,
+        ]);
+        $this->assertDatabaseMissing('student_subchapter_progress', [
             'user_id' => $student->id,
             'subchapter_id' => $subchapter->id,
         ]);
@@ -161,6 +174,12 @@ class StudentLearningProgressTest extends TestCase
         $student = $this->createUser('siswa', 'siswa-progress');
         $otherStudent = $this->createUser('siswa', 'siswa-progress-lain');
         $student->update(['kelas' => 'VII A']);
+        DB::table('teacher_class_assignments')->insert([
+            'teacher_id' => $guru->id,
+            'class_name' => 'VII A',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
         $chapter = Chapter::create([
             'user_id' => $guru->id,
             'nomor_bab' => 6,
@@ -345,18 +364,21 @@ class StudentLearningProgressTest extends TestCase
 
         $evaluationSnapshot = [];
         foreach (range(1, 15) as $number) {
+            $prompt = "Evaluasi {$number}";
+            $content = [
+                'pilihan_a' => 'A',
+                'pilihan_b' => 'B',
+                'pilihan_c' => 'C',
+                'pilihan_d' => 'D',
+            ];
+            $answer = ['jawaban' => 'A'];
             $questionId = DB::table('evaluation_questions')->insertGetId([
                 'user_id' => $guru->id,
                 'nomor_soal' => $number,
                 'tipe_soal' => 'pilihan_ganda',
-                'pertanyaan' => "Evaluasi {$number}",
-                'konten_soal' => json_encode([
-                    'pilihan_a' => 'A',
-                    'pilihan_b' => 'B',
-                    'pilihan_c' => 'C',
-                    'pilihan_d' => 'D',
-                ]),
-                'kunci_jawaban' => json_encode(['jawaban' => 'A']),
+                'pertanyaan' => $prompt,
+                'konten_soal' => json_encode($content),
+                'kunci_jawaban' => json_encode($answer),
                 'pembahasan' => null,
                 'is_published' => true,
                 'created_at' => now(),
@@ -366,6 +388,9 @@ class StudentLearningProgressTest extends TestCase
                 'id' => $questionId,
                 'nomor_soal' => $number,
                 'user_id' => $guru->id,
+                'pertanyaan' => $prompt,
+                'konten_soal' => $content,
+                'kunci_jawaban' => $answer,
             ];
         }
         DB::table('evaluation_attempts')->insert([
@@ -473,6 +498,9 @@ class StudentLearningProgressTest extends TestCase
             'password' => 'secret123',
             'role' => $role,
             'email' => null,
+            'sekolah' => in_array($role, ['guru', 'siswa'], true)
+                ? 'Sekolah Uji'
+                : null,
         ]);
     }
 }

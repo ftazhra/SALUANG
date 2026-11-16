@@ -1,11 +1,13 @@
 <?php
 namespace App\Http\Controllers;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -101,7 +103,7 @@ class AuthController extends Controller
                 'required_if:role,guru',
                 'nullable',
                 'string',
-                'max:32',
+                'max:64',
             ],
             // Khusus Orang Tua
             'nomor_telepon' => [
@@ -123,13 +125,13 @@ class AuthController extends Controller
                 'confirmed',
             ],
         ]);
-        // Kode pendaftaran Guru tetap yang diminta untuk SALUANG.
-        // Dibatasi hanya pada registrasi, bukan login.
-        if (($data['role'] ?? null) === 'guru' &&
-            !hash_equals('SMPN21', (string) ($data['guru_token'] ?? ''))) {
-            throw ValidationException::withMessages([
-                'guru_token' => 'Kode pendaftaran Guru salah.',
-            ]);
+        if (($data['role'] ?? null) === 'guru') {
+            $data['guru_token'] = strtoupper(trim($data['guru_token']));
+            if (!Schema::hasTable('teacher_invitations')) {
+                throw ValidationException::withMessages([
+                    'guru_token' => 'Undangan Guru belum tersedia. Hubungi pengelola SALUANG.',
+                ]);
+            }
         }
         $role = $data['role'];
         /*
@@ -173,6 +175,25 @@ class AuthController extends Controller
             $role,
             $student
         ) {
+            $invitation = null;
+            if ($role === 'guru') {
+                $invitation = DB::table('teacher_invitations')
+                    ->where('code_hash', hash('sha256', $data['guru_token']))
+                    ->lockForUpdate()
+                    ->first();
+
+                if (
+                    !$invitation
+                    || $invitation->used_at !== null
+                    || !Carbon::parse($invitation->expires_at)->isFuture()
+                    || trim((string) $invitation->school_name) === ''
+                ) {
+                    throw ValidationException::withMessages([
+                        'guru_token' => 'Kode undangan Guru tidak valid, sudah digunakan, atau kedaluwarsa.',
+                    ]);
+                }
+            }
+
             $user = new User();
             $user->name = $data['name'];
             $user->username = $data['username'];
@@ -184,9 +205,11 @@ class AuthController extends Controller
             // Password disimpan sebagai hash.
             $user->password = Hash::make($data['password']);
             $user->role = $role;
-            $user->sekolah = $role === 'siswa'
-                ? $data['sekolah']
-                : 'SMP Negeri 21 Banjarmasin';
+            $user->sekolah = match ($role) {
+                'siswa' => $data['sekolah'],
+                'guru' => trim((string) $invitation->school_name),
+                default => 'SMP Negeri 21 Banjarmasin',
+            };
             // Akun belum diverifikasi identitasnya.
             $user->is_approved = false;
             /*
@@ -210,6 +233,24 @@ class AuthController extends Controller
                 $user->nomor_telepon = $data['nomor_telepon'];
             }
             $user->save();
+
+            if ($role === 'guru') {
+                $claimed = DB::table('teacher_invitations')
+                    ->where('id', $invitation->id)
+                    ->whereNull('used_at')
+                    ->where('expires_at', '>', now())
+                    ->update([
+                        'used_at' => now(),
+                        'used_by' => $user->id,
+                        'updated_at' => now(),
+                    ]);
+
+                if ($claimed !== 1) {
+                    throw ValidationException::withMessages([
+                        'guru_token' => 'Kode undangan Guru tidak valid, sudah digunakan, atau kedaluwarsa.',
+                    ]);
+                }
+            }
 
             /*
             |--------------------------------------------------------------------------

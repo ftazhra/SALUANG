@@ -48,17 +48,16 @@ class StudentFeedbackController extends Controller
         ]);
 
         $audience = $data['audience'] ?? 'orang_tua';
+        abort_unless(
+            $grades->studentIsAssignedToTeacher((int) $request->user()->id, $student),
+            404,
+            'Siswa tidak ditemukan pada kelas yang ditugaskan kepada Guru ini.'
+        );
         $assessment = $this->resolveAssessment(
             $request,
             $student,
             $evaluationResults,
             $data
-        );
-        abort_unless(
-            $assessment !== null
-                || $grades->studentIsAssignedToTeacher((int) $request->user()->id, $student),
-            404,
-            'Siswa tidak ditemukan pada kelas yang ditugaskan kepada Guru ini.'
         );
 
         $query = DB::table('student_teacher_notes')
@@ -107,17 +106,16 @@ class StudentFeedbackController extends Controller
         $action = $data['action'] ?? 'draft';
         $note = trim($data['note']);
         $now = now();
+        abort_unless(
+            $grades->studentIsAssignedToTeacher((int) $request->user()->id, $student),
+            404,
+            'Siswa tidak ditemukan pada kelas yang ditugaskan kepada Guru ini.'
+        );
         $assessment = $this->resolveAssessment(
             $request,
             $student,
             $evaluationResults,
             $data
-        );
-        abort_unless(
-            $assessment !== null
-                || $grades->studentIsAssignedToTeacher((int) $request->user()->id, $student),
-            404,
-            'Siswa tidak ditemukan pada kelas yang ditugaskan kepada Guru ini.'
         );
         $assessmentType = $assessment['assessment_type'] ?? null;
         $assessmentResultId = $assessment['id'] ?? null;

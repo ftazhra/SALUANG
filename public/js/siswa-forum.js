@@ -18,8 +18,17 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!screens.list || !screens.create || !screens.detail) {
         return;
     }
-    $('forumChapterFilter').value = '';
-    $('forumSubchapterFilter').value = '';
+    // Hapus opsi Bab/Subbab lama dari Blade sebelum data dinamis dimuat.
+    // Jadi saat permintaan API gagal, pilihan usang tidak tetap tampil.
+    [
+        ['forumChapterFilter', 'Semua Bab'],
+        ['forumSubchapterFilter', 'Semua Subbab'],
+        ['forumCreateChapter', 'Pilih Bab'],
+        ['forumCreateSubchapter', 'Pilih Subbab'],
+    ].forEach(([id, placeholder]) => {
+        const select = $(id);
+        if (select) select.replaceChildren(new Option(placeholder, ''));
+    });
     let status = 'all';
     let currentPage = 1;
     let selectedDiscussionId = null;
@@ -36,7 +45,8 @@ document.addEventListener('DOMContentLoaded', function () {
         return 'bab-' + String(chapter.nomor_bab);
     }
     function subchapterCode(chapter, subchapter) {
-        return String(chapter.nomor_bab) + '.' + String(subchapter.nomor_subbab);
+        const number = String(subchapter.nomor_subbab ?? '').trim();
+        return number.includes('.') ? number : `${chapter.nomor_bab}.${number}`;
     }
     function chapterLabel(code) {
         return chapterLabels.get(String(code)) || String(code || 'Bab');
@@ -662,6 +672,108 @@ document.addEventListener('DOMContentLoaded', function () {
             );
         }
     }
+    // Pastikan modal hapus tanggapan tersedia. Pada beberapa versi Blade
+    // Siswa, modal ini belum disisipkan sehingga seluruh forum berhenti
+    // pada addEventListener(null). Buat dari komponen desain yang sama.
+    function ensureReplyDeleteModal() {
+        const existing = $('forumReplyDeleteModal');
+        if (existing) return existing;
+        const modal = document.createElement('div');
+        modal.className = 'sd-forum-confirm';
+        modal.id = 'forumReplyDeleteModal';
+        modal.hidden = true;
+        modal.innerHTML = `
+            <div class="sd-forum-confirm-backdrop" id="forumReplyDeleteBackdrop"></div>
+            <div class="sd-forum-confirm-dialog" role="dialog" aria-modal="true"
+                aria-labelledby="forumReplyDeleteTitle" aria-describedby="forumReplyDeleteDescription" tabindex="-1">
+                <button type="button" class="sd-forum-confirm-close" id="forumReplyDeleteClose"
+                    aria-label="Tutup konfirmasi"><i class="bi bi-x-lg"></i></button>
+                <div class="sd-forum-confirm-icon" aria-hidden="true"><i class="bi bi-trash3"></i></div>
+                <h2 class="sd-forum-confirm-title" id="forumReplyDeleteTitle">Hapus Tanggapan?</h2>
+                <p class="sd-forum-confirm-description" id="forumReplyDeleteDescription">
+                    Tanggapan ini akan dihapus dari Forum Diskusi.
+                </p>
+                <p class="sd-forum-confirm-warning">Tindakan ini tidak dapat dibatalkan.</p>
+                <p class="sd-forum-confirm-error" id="forumReplyDeleteError" role="alert" hidden></p>
+                <div class="sd-forum-confirm-actions">
+                    <button type="button" class="sd-forum-confirm-cancel" id="forumReplyDeleteCancel">Batal</button>
+                    <button type="button" class="sd-forum-confirm-danger" id="forumReplyDeleteAccept">Ya, Hapus</button>
+                </div>
+            </div>`;
+        screens.detail.parentElement.appendChild(modal);
+        return modal;
+    }
+
+    // Konfirmasi hapus tanggapan menggunakan modal SALUANG, bukan confirm browser.
+    const replyDeleteModal = ensureReplyDeleteModal();
+    const replyDeleteAccept = $('forumReplyDeleteAccept');
+    const replyDeleteCancel = $('forumReplyDeleteCancel');
+    const replyDeleteError = $('forumReplyDeleteError');
+    let pendingReplyDelete = null;
+    let deletingReply = false;
+    let replyDeletePreviousFocus = null;
+
+    function closeReplyDeleteModal() {
+        if (deletingReply) return;
+        if (replyDeleteModal) replyDeleteModal.hidden = true;
+        pendingReplyDelete = null;
+        if (replyDeletePreviousFocus?.isConnected) replyDeletePreviousFocus.focus();
+    }
+
+    function deleteReply(reply) {
+        if (!selectedDiscussionId || reply.is_owner !== true || deletingReply) return;
+        pendingReplyDelete = { discussionId: selectedDiscussionId, replyId: reply.id };
+        replyDeletePreviousFocus = document.activeElement;
+        replyDeleteError.hidden = true;
+        replyDeleteError.textContent = '';
+        replyDeleteModal.hidden = false;
+        replyDeleteCancel.focus();
+    }
+
+    ['forumReplyDeleteCancel', 'forumReplyDeleteClose', 'forumReplyDeleteBackdrop'].forEach(id => {
+        $(id)?.addEventListener('click', closeReplyDeleteModal);
+    });
+    replyDeleteModal.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            closeReplyDeleteModal();
+        }
+        if (event.key === 'Tab') {
+            const controls = [$('forumReplyDeleteClose'), replyDeleteCancel, replyDeleteAccept]
+                .filter(button => !button.disabled);
+            if (event.shiftKey && document.activeElement === controls[0]) {
+                event.preventDefault(); controls[controls.length - 1].focus();
+            } else if (!event.shiftKey && document.activeElement === controls[controls.length - 1]) {
+                event.preventDefault(); controls[0].focus();
+            }
+        }
+    });
+    replyDeleteAccept.addEventListener('click', async () => {
+        if (!pendingReplyDelete || deletingReply) return;
+        const { discussionId, replyId } = pendingReplyDelete;
+        deletingReply = true;
+        replyDeleteAccept.disabled = true;
+        replyDeleteCancel.disabled = true;
+        $('forumReplyDeleteClose').disabled = true;
+        replyDeleteAccept.textContent = 'Menghapus...';
+        replyDeleteError.hidden = true;
+        try {
+            await request(`${API}/${discussionId}/replies/${replyId}`, { method: 'DELETE' });
+            replyDeleteModal.hidden = true;
+            pendingReplyDelete = null;
+            if (selectedDiscussionId === discussionId) await loadDetail(discussionId);
+        } catch (error) {
+            replyDeleteError.textContent = error.message;
+            replyDeleteError.hidden = false;
+        } finally {
+            deletingReply = false;
+            replyDeleteAccept.disabled = false;
+            replyDeleteCancel.disabled = false;
+            $('forumReplyDeleteClose').disabled = false;
+            replyDeleteAccept.textContent = 'Ya, Hapus';
+        }
+    });
+
     function appendReply(reply) {
         const card = makeElement(
             'article',
@@ -679,6 +791,16 @@ document.addEventListener('DOMContentLoaded', function () {
         replyButton.type = 'button';
         replyButton.addEventListener('click', () => setReplyTarget(reply));
         actions.appendChild(replyButton);
+        if (reply.is_owner === true) {
+            const deleteButton = makeElement(
+                'button',
+                'sd-forum-reply-button sd-forum-reply-delete',
+                'Hapus'
+            );
+            deleteButton.type = 'button';
+            deleteButton.addEventListener('click', () => deleteReply(reply));
+            actions.appendChild(deleteButton);
+        }
         body.appendChild(actions);
         card.appendChild(layout);
         card.dataset.replyId = String(reply.id);

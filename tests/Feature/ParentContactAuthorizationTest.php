@@ -14,7 +14,7 @@ class ParentContactAuthorizationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_teacher_contacts_require_learning_access_and_only_approved_links(): void
+    public function test_teacher_contacts_allow_same_school_classes_and_only_approved_links(): void
     {
         $this->getJson('/guru/parent-contacts?class=VII%20A')->assertUnauthorized();
 
@@ -61,9 +61,9 @@ class ParentContactAuthorizationTest extends TestCase
 
         $this->getJson('/guru/parent-contacts?class=VII%20B')
             ->assertOk()
-            ->assertJsonPath('total', 0);
-        $this->getJson("/guru/parent-contacts/{$relationB->id}")->assertNotFound();
-        $this->getJson("/guru/parent-contacts/{$multiRelationB->id}")->assertNotFound();
+            ->assertJsonPath('total', 2);
+        $this->getJson("/guru/parent-contacts/{$relationB->id}")->assertOk();
+        $this->getJson("/guru/parent-contacts/{$multiRelationB->id}")->assertOk();
         $this->getJson("/guru/parent-contacts/{$pendingRelation->id}")->assertNotFound();
         $this->getJson("/guru/parent-contacts/{$rejectedRelation->id}")->assertNotFound();
 
@@ -91,7 +91,7 @@ class ParentContactAuthorizationTest extends TestCase
         $this->actingAs($unassignedTeacher)
             ->getJson('/guru/parent-contacts?class=VII%20A')
             ->assertOk()
-            ->assertJsonPath('total', 0);
+            ->assertJsonPath('total', 2);
         $this->actingAs($studentA)
             ->getJson('/guru/parent-contacts?class=VII%20A')
             ->assertForbidden();
@@ -113,7 +113,7 @@ class ParentContactAuthorizationTest extends TestCase
             ->count());
     }
 
-    public function test_teacher_can_contact_approved_guardian_for_student_with_owned_quiz_result_without_class_assignment(): void
+    public function test_same_school_teachers_can_contact_approved_guardian_regardless_of_quiz_ownership(): void
     {
         $teacher = $this->createUser('guru', 'guru-contact-quiz-owner');
         $otherTeacher = $this->createUser('guru', 'guru-contact-other-owner');
@@ -152,16 +152,45 @@ class ParentContactAuthorizationTest extends TestCase
             ->assertOk();
         $this->actingAs($otherTeacher)
             ->getJson("/guru/parent-contacts/{$relation->id}/messages")
-            ->assertNotFound();
+            ->assertOk()
+            ->assertJsonCount(0, 'messages');
 
         $parentThreads = $this->actingAs($parent)
             ->getJson('/orang-tua/chat/teachers');
         $this->assertSame(200, $parentThreads->status(), $parentThreads->getContent());
-        $parentThreads->assertJsonCount(1, 'teachers')
-            ->assertJsonPath('teachers.0.id', $teacher->id);
+        $parentThreads->assertJsonCount(2, 'teachers');
+        $this->assertEqualsCanonicalizing(
+            [$teacher->id, $otherTeacher->id],
+            collect($parentThreads->json('teachers'))->pluck('id')->all()
+        );
         $this->postJson('/chat/presence/activity')
             ->assertOk()
             ->assertJsonPath('recorded', true);
+    }
+
+    public function test_teacher_from_another_school_cannot_access_guardian_contacts_or_messages(): void
+    {
+        $student = $this->createStudent('contact-cross-school-student', 'VII A');
+        $parent = $this->createUser('orang_tua', 'contact-cross-school-parent', [
+            'nomor_telepon' => '081234567890',
+        ]);
+        $relation = $this->link($student, $parent, 'approved');
+        $otherSchoolTeacher = $this->createUser('guru', 'contact-other-school-teacher', [
+            'sekolah' => 'Sekolah Lain',
+        ]);
+
+        $this->actingAs($otherSchoolTeacher)
+            ->getJson('/guru/parent-contacts?class=VII%20A')
+            ->assertOk()
+            ->assertJsonPath('total', 0)
+            ->assertDontSee('081234567890');
+        $this->getJson("/guru/parent-contacts/{$relation->id}")->assertNotFound();
+        $this->getJson("/guru/parent-contacts/{$relation->id}/messages")->assertNotFound();
+        $this->postJson("/guru/parent-contacts/{$relation->id}/messages", [
+            'body' => 'Pesan tidak berwenang',
+            'client_message_id' => 'a3a80123-4567-4abc-8def-0123456789ab',
+        ])->assertNotFound();
+        $this->assertDatabaseCount('parent_teacher_messages', 0);
     }
 
     public function test_parent_registration_persists_phone_and_creates_only_pending_child_link(): void
@@ -228,13 +257,13 @@ class ParentContactAuthorizationTest extends TestCase
         $this->assertSame([], DB::table('teacher_class_assignments')->get()->all());
         $foreignKeys = collect(Schema::getForeignKeys('teacher_class_assignments'));
         $this->assertTrue($foreignKeys->contains(
-            fn (array $key) => $key['columns'] === ['teacher_id']
+            fn(array $key) => $key['columns'] === ['teacher_id']
                 && $key['foreign_table'] === 'users'
                 && $key['on_delete'] === 'cascade'
         ));
         $indexes = collect(Schema::getIndexes('teacher_class_assignments'));
         $this->assertTrue($indexes->contains(
-            fn (array $index) => $index['unique']
+            fn(array $index) => $index['unique']
                 && $index['columns'] === ['teacher_id', 'class_name']
         ));
     }
@@ -293,6 +322,9 @@ class ParentContactAuthorizationTest extends TestCase
             'password' => 'secret123',
             'role' => $role,
             'email' => null,
+            'sekolah' => in_array($role, ['guru', 'siswa'], true)
+                ? 'Sekolah Uji'
+                : null,
         ], $attributes));
     }
 }

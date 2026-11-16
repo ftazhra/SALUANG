@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
+use Illuminate\Validation\ValidationException;
 class ProfileController extends Controller
 {
     public function updateInformation(Request $request): JsonResponse
@@ -36,6 +37,18 @@ class ProfileController extends Controller
             'nomor_telepon' => ['nullable', 'string', 'max:20'],
         ]);
 
+        foreach (['kelas', 'sekolah'] as $field) {
+            if (
+                array_key_exists($field, $data)
+                && $data[$field] !== $user->{$field}
+            ) {
+                throw ValidationException::withMessages([
+                    $field => 'Perubahan kelas atau sekolah harus diverifikasi melalui pengelola SALUANG.',
+                ]);
+            }
+        }
+
+        unset($data['kelas'], $data['sekolah']);
         $user->fill($data)->save();
 
         return response()->json([

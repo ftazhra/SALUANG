@@ -24,6 +24,7 @@ class TeacherNotesAuthorizationTest extends TestCase
         $parent = $this->createUser('orang_tua', 'parent-notes');
         $otherStudent = $this->createUser('siswa', 'siswa-notes-other');
         $otherParent = $this->createUser('orang_tua', 'parent-notes-other');
+        $this->assignTeacher($teacher, $student);
 
         $this->link($student, $parent, 'approved');
         $this->link($otherStudent, $otherParent, 'approved');
@@ -145,6 +146,7 @@ class TeacherNotesAuthorizationTest extends TestCase
         $otherTeacher = $this->createUser('guru', 'guru-notes-other');
         $student = $this->createUser('siswa', 'siswa-notes-access');
         $parent = $this->createUser('orang_tua', 'parent-notes-access');
+        $this->assignTeacher($teacher, $student);
 
         $this->actingAs($teacher)
             ->putJson("/guru/student-grades/{$student->id}/feedback", [
@@ -165,7 +167,13 @@ class TeacherNotesAuthorizationTest extends TestCase
         $this->actingAs($otherTeacher)
             ->getJson("/guru/student-grades/{$student->id}/feedback")
             ->assertOk()
-            ->assertJsonPath('note', '');
+            ->assertDontSee('Catatan privat');
+
+        $otherTeacher->update(['sekolah' => 'Sekolah Lain']);
+
+        $this->actingAs($otherTeacher)
+            ->getJson("/guru/student-grades/{$student->id}/feedback")
+            ->assertNotFound();
 
         $this->assertDatabaseCount('student_teacher_notes', 1);
         $this->assertSame(0, DB::table('student_teacher_notes')
@@ -178,6 +186,7 @@ class TeacherNotesAuthorizationTest extends TestCase
         $teacher = $this->createUser('guru', 'guru-notes-legacy');
         $student = $this->createUser('siswa', 'siswa-notes-legacy');
         $parent = $this->createUser('orang_tua', 'parent-notes-legacy');
+        $this->assignTeacher($teacher, $student);
         $this->link($student, $parent, 'approved');
 
         $this->actingAs($teacher)
@@ -264,6 +273,20 @@ class TeacherNotesAuthorizationTest extends TestCase
             'password' => 'secret123',
             'role' => $role,
             'email' => null,
+            'kelas' => $role === 'siswa' ? 'VII A' : null,
+            'sekolah' => in_array($role, ['guru', 'siswa'], true)
+                ? 'Sekolah Uji'
+                : null,
+        ]);
+    }
+
+    private function assignTeacher(User $teacher, User $student): void
+    {
+        DB::table('teacher_class_assignments')->insert([
+            'teacher_id' => $teacher->id,
+            'class_name' => $student->kelas,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 }

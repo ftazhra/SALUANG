@@ -495,6 +495,80 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     $('gfReplyCancel')?.addEventListener('click', () => setReplyTarget(null));
+    // Modal konfirmasi khusus tanggapan; detail tetap terlihat di belakangnya.
+    const replyDeleteModal = $('gfReplyDeleteModal');
+    const replyDeleteAccept = $('gfReplyDeleteAccept');
+    const replyDeleteCancel = $('gfReplyDeleteCancel');
+    const replyDeleteError = $('gfReplyDeleteError');
+    let pendingReplyDelete = null;
+    let deletingReply = false;
+    let replyDeletePreviousFocus = null;
+
+    function closeReplyDeleteModal() {
+        if (deletingReply) return;
+        replyDeleteModal.hidden = true;
+        pendingReplyDelete = null;
+        if (replyDeletePreviousFocus?.isConnected) replyDeletePreviousFocus.focus();
+    }
+
+    function deleteReply(reply) {
+        if (!selectedDiscussion || reply.is_owner !== true || deletingReply) return;
+        pendingReplyDelete = { discussionId: selectedDiscussion.id, replyId: reply.id };
+        replyDeletePreviousFocus = document.activeElement;
+        replyDeleteError.hidden = true;
+        replyDeleteError.textContent = '';
+        replyDeleteModal.hidden = false;
+        replyDeleteCancel.focus();
+    }
+
+    replyDeleteModal.querySelectorAll('[data-gf-reply-delete-close]').forEach(button => {
+        button.addEventListener('click', closeReplyDeleteModal);
+    });
+    replyDeleteModal.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            event.stopPropagation();
+            closeReplyDeleteModal();
+        }
+        if (event.key === 'Tab') {
+            const first = replyDeleteCancel;
+            const last = replyDeleteAccept;
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault(); last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault(); first.focus();
+            }
+        }
+    });
+    replyDeleteAccept.addEventListener('click', async () => {
+        if (!pendingReplyDelete || deletingReply) return;
+        const { discussionId, replyId } = pendingReplyDelete;
+        deletingReply = true;
+        replyDeleteAccept.disabled = true;
+        replyDeleteCancel.disabled = true;
+        replyDeleteAccept.textContent = 'Menghapus...';
+        replyDeleteError.hidden = true;
+        try {
+            const result = await requestApi(
+                `${discussionUrl(discussionId)}/replies/${encodeURIComponent(replyId)}`,
+                'DELETE'
+            );
+            replyDeleteModal.hidden = true;
+            pendingReplyDelete = null;
+            showToast(result.message || 'Tanggapan berhasil dihapus.');
+            await openDiscussionDetail(discussionId);
+            await loadDiscussions(currentPage);
+        } catch (error) {
+            replyDeleteError.textContent = error.message;
+            replyDeleteError.hidden = false;
+        } finally {
+            deletingReply = false;
+            replyDeleteAccept.disabled = false;
+            replyDeleteCancel.disabled = false;
+            replyDeleteAccept.textContent = 'Ya, Hapus';
+        }
+    });
+
     function renderReplies(replies) {
         const container = $('gfRepliesList');
         if (!replies.length) {
@@ -511,9 +585,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     <strong>${escapeHtml(reply.user?.name || 'Pengguna SALUANG')}</strong>
                     <p class="gf-detail-meta gf-reply-date">${formatDate(reply.created_at)}</p>
                     <p class="gf-reply-message">${escapeHtml(reply.body)}</p>
-                    <button type="button" class="gf-reply-button">Balas</button>
+                    <div class="gf-reply-actions">
+                        <button type="button" class="gf-reply-button">Balas</button>
+                        ${reply.is_owner === true ? `
+                            <button type="button" class="gf-reply-button gf-reply-delete">Hapus</button>
+                        ` : ''}
+                    </div>
                 </div>`;
             card.querySelector('.gf-reply-button').addEventListener('click', () => setReplyTarget(reply));
+            card.querySelector('.gf-reply-delete')?.addEventListener('click', () => deleteReply(reply));
             cards.set(String(reply.id), card);
         });
         container.replaceChildren();
@@ -645,6 +725,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && !replyDeleteModal.hidden) {
+            closeReplyDeleteModal();
+            return;
+        }
         if (event.key === 'Escape') {
             closeModals();
             pendingDeleteId = null;

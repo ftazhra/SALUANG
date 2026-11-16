@@ -17,11 +17,13 @@ class TeacherStudentManagementTest extends TestCase
 
     public function test_teacher_edit_form_uses_six_profile_fields_and_keeps_phone_and_password_unchanged(): void
     {
-        $teacher = $this->user('guru', 'teacher-six-fields');
+        $teacher = $this->user('guru', 'teacher-six-fields', ['sekolah' => 'Sekolah Uji']);
         $student = $this->user('siswa', 'student-six-fields', [
+            'sekolah' => 'Sekolah Uji',
             'nomor_telepon' => '081234567890',
             'password' => Hash::make('secret123'),
         ]);
+        $this->assignClass($teacher, 'VII A');
         $passwordHash = $student->password;
 
         $this->actingAs($teacher)
@@ -44,101 +46,112 @@ class TeacherStudentManagementTest extends TestCase
                 'nisn' => $student->nisn,
                 'email' => $student->email,
                 'kelas' => $student->kelas,
-                'sekolah' => 'Sekolah Baru',
+                'sekolah' => 'Sekolah Uji',
             ])
             ->assertOk()
             ->assertJsonPath('student.name', 'Siswa Enam Field')
-            ->assertJsonPath('student.sekolah', 'Sekolah Baru');
+            ->assertJsonPath('student.sekolah', 'Sekolah Uji');
 
         $student->refresh();
         $this->assertSame('081234567890', $student->nomor_telepon);
         $this->assertSame($passwordHash, $student->password);
     }
 
-    public function test_teacher_cannot_create_students_but_can_manage_any_registered_student(): void
+    public function test_teacher_can_manage_students_across_classes_but_not_across_schools(): void
     {
-        $teacher = $this->user('guru', 'teacher-student-list');
-        $this->assignClass($teacher, 'VII A');
-        $student = $this->user('siswa', 'student-in-scope', ['kelas' => 'VII A']);
-        $outOfScopeStudent = $this->user('siswa', 'student-out-of-scope', ['kelas' => 'VII B']);
+        $teacher = $this->user('guru', 'teacher-student-list', ['sekolah' => 'Sekolah Uji']);
+        $studentA = $this->user('siswa', 'student-in-scope', [
+            'kelas' => 'VII A',
+            'sekolah' => 'Sekolah Uji',
+        ]);
+        $studentB = $this->user('siswa', 'student-other-class', [
+            'kelas' => 'VII B',
+            'sekolah' => 'Sekolah Uji',
+        ]);
+        $otherSchoolStudent = $this->user('siswa', 'student-other-school', [
+            'kelas' => 'VII A',
+            'sekolah' => 'Sekolah B',
+        ]);
 
-        $this->actingAs($teacher)
+        $response = $this->actingAs($teacher)
             ->getJson('/guru/students')
             ->assertOk()
             ->assertJsonPath('pagination.total', 2)
-            ->assertJsonPath('registered_total', 2)
-            ->assertJsonPath('classes.0', 'VII A');
+            ->assertJsonPath('registered_total', 2);
 
-        $this->actingAs($teacher)
-            ->getJson('/guru/students/' . $outOfScopeStudent->id)
+        $this->assertEqualsCanonicalizing(
+            [$studentA->id, $studentB->id],
+            collect($response->json('students'))->pluck('id')->all()
+        );
+        $this->assertEqualsCanonicalizing(['VII A', 'VII B'], $response->json('classes'));
+
+        $this->getJson('/guru/students/' . $studentB->id)
             ->assertOk()
-            ->assertJsonPath('student.name', $outOfScopeStudent->name)
-            ->assertJsonPath('student.nisn', $outOfScopeStudent->nisn)
-            ->assertJsonPath('student.email', $outOfScopeStudent->email)
-            ->assertJsonPath('student.username', $outOfScopeStudent->username)
-            ->assertJsonPath('student.sekolah', $outOfScopeStudent->sekolah)
-            ->assertJsonPath('student.nomor_telepon', $outOfScopeStudent->nomor_telepon);
+            ->assertJsonPath('student.kelas', 'VII B');
 
-        $this->actingAs($teacher)
-            ->putJson('/guru/students/' . $outOfScopeStudent->id, [
-                'name' => 'Siswa Lintas Kelas',
-                'username' => 'student-out-of-scope',
-                'nisn' => $outOfScopeStudent->nisn,
-                'email' => $outOfScopeStudent->email,
-                'kelas' => 'VII B',
-                'sekolah' => 'Sekolah B',
-                'nomor_telepon' => '081234567890',
-            ])
+        $this->putJson('/guru/students/' . $studentB->id, [
+            'name' => 'Siswa Lintas Kelas',
+            'username' => $studentB->username,
+            'nisn' => $studentB->nisn,
+            'email' => $studentB->email,
+            'kelas' => 'VII B',
+            'sekolah' => 'Sekolah Uji',
+        ])
             ->assertOk()
-            ->assertJsonPath('student.name', 'Siswa Lintas Kelas')
-            ->assertJsonPath('student.username', $outOfScopeStudent->username)
-            ->assertJsonPath('student.sekolah', 'Sekolah B')
-            ->assertJsonPath('student.nomor_telepon', '081234567890');
+            ->assertJsonPath('student.name', 'Siswa Lintas Kelas');
 
-        $parent = $this->user('orang_tua', 'parent-out-of-scope-student');
+        // Perubahan sekolah melalui Guru tetap ditolak.
+        $this->putJson('/guru/students/' . $studentB->id, [
+            'name' => 'Dipindah ke Sekolah B',
+            'username' => $studentB->username,
+            'nisn' => $studentB->nisn,
+            'email' => $studentB->email,
+            'kelas' => 'VII B',
+            'sekolah' => 'Sekolah B',
+        ])->assertUnprocessable();
+        $this->assertSame('Sekolah Uji', $studentB->fresh()->sekolah);
+
+        $this->getJson('/guru/students/' . $otherSchoolStudent->id)
+            ->assertNotFound();
+        $this->putJson('/guru/students/' . $otherSchoolStudent->id, [
+            'name' => 'Tidak Boleh Dikelola',
+            'username' => $otherSchoolStudent->username,
+            'nisn' => $otherSchoolStudent->nisn,
+            'email' => $otherSchoolStudent->email,
+            'kelas' => 'VII A',
+            'sekolah' => 'Sekolah B',
+        ])->assertNotFound();
+
+        $parent = $this->user('orang_tua', 'parent-other-school');
         DB::table('student_guardians')->insert([
-            'student_id' => $outOfScopeStudent->id,
+            'student_id' => $otherSchoolStudent->id,
             'guardian_id' => $parent->id,
             'relationship' => 'orang_tua',
             'status' => 'approved',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-        $this->actingAs($teacher)
-            ->deleteJson('/guru/students/' . $outOfScopeStudent->id)
-            ->assertOk();
-        $this->assertSoftDeleted('users', ['id' => $outOfScopeStudent->id]);
+        $this->deleteJson('/guru/students/' . $otherSchoolStudent->id)
+            ->assertNotFound();
+        $this->assertNotSoftDeleted('users', ['id' => $otherSchoolStudent->id]);
         $this->assertDatabaseHas('student_guardians', [
-            'student_id' => $outOfScopeStudent->id,
+            'student_id' => $otherSchoolStudent->id,
         ]);
 
-        $this->actingAs($teacher)
-            ->postJson('/guru/students', [
-                'name' => 'Siswa Uji',
-                'username' => 'student-created-by-teacher',
-                'nisn' => '0000000123',
-                'email' => 'student-created@example.test',
-                'kelas' => 'VII A',
-                'password' => 'secret123',
-            ])->assertForbidden();
-
+        $this->postJson('/guru/students', [
+            'name' => 'Siswa Uji',
+            'username' => 'student-created-by-teacher',
+            'nisn' => '0000000123',
+            'email' => 'student-created@example.test',
+            'kelas' => 'VII A',
+            'password' => 'secret123',
+        ])->assertForbidden();
         $this->assertDatabaseMissing('users', [
             'username' => 'student-created-by-teacher',
         ]);
-
-        $this->actingAs($teacher)
-            ->putJson('/guru/students/' . $student->id, [
-                'name' => 'Siswa Diperbarui',
-                'username' => 'student-in-scope',
-                'nisn' => '1234567890',
-                'email' => 'student-in-scope@example.test',
-                'kelas' => 'VII A',
-            ])
-            ->assertOk()
-            ->assertJsonPath('student.name', 'Siswa Diperbarui');
     }
 
-    public function test_registered_students_in_another_school_are_manageable_by_multiple_teachers(): void
+    public function test_matching_class_name_does_not_grant_cross_school_student_access(): void
     {
         $teacher = $this->user('guru', 'teacher-school-scope', [
             'sekolah' => 'Sekolah A',
@@ -160,22 +173,18 @@ class TeacherStudentManagementTest extends TestCase
         $response = $this->actingAs($teacher)
             ->getJson('/guru/students')
             ->assertOk()
-            ->assertJsonPath('registered_total', 2)
-            ->assertJsonPath('pagination.total', 2);
+            ->assertJsonPath('registered_total', 1)
+            ->assertJsonPath('pagination.total', 1);
 
         $rows = collect($response->json('students'))->keyBy('id');
         $this->assertEqualsCanonicalizing(
-            [$assignedStudent->id, $otherSchoolStudent->id],
+            [$assignedStudent->id],
             $rows->keys()->all()
         );
         $this->assertTrue($rows[$assignedStudent->id]['can_manage']);
-        $this->assertTrue($rows[$otherSchoolStudent->id]['can_manage']);
-        $this->assertSame($otherSchoolStudent->email, $rows[$otherSchoolStudent->id]['email']);
         $this->actingAs($teacher)
             ->getJson('/guru/students/' . $otherSchoolStudent->id)
-            ->assertOk()
-            ->assertJsonPath('student.email', $otherSchoolStudent->email)
-            ->assertJsonPath('student.sekolah', 'Sekolah B');
+            ->assertNotFound();
         $this->actingAs($teacher)
             ->putJson('/guru/students/' . $otherSchoolStudent->id, [
                 'name' => 'Siswa Lintas Sekolah',
@@ -185,8 +194,7 @@ class TeacherStudentManagementTest extends TestCase
                 'kelas' => 'VII A',
                 'sekolah' => 'Sekolah B',
             ])
-            ->assertOk()
-            ->assertJsonPath('student.name', 'Siswa Lintas Sekolah');
+            ->assertNotFound();
 
         $firstParent = $this->user('orang_tua', 'parent-school-scope-a');
         $secondParent = $this->user('orang_tua', 'parent-school-scope-b');
@@ -202,7 +210,11 @@ class TeacherStudentManagementTest extends TestCase
         }
         $this->actingAs($teacher)
             ->deleteJson('/guru/students/' . $otherSchoolStudent->id)
-            ->assertOk();
+            ->assertNotFound();
+        $this->actingAs($otherTeacher)
+            ->getJson('/guru/students/' . $otherSchoolStudent->id)
+            ->assertOk()
+            ->assertJsonPath('student.sekolah', 'Sekolah B');
         $this->actingAs($otherTeacher)
             ->putJson('/guru/students/' . $assignedStudent->id, [
                 'name' => 'Siswa Dikelola Guru B',
@@ -212,13 +224,12 @@ class TeacherStudentManagementTest extends TestCase
                 'kelas' => 'VII A',
                 'sekolah' => 'Sekolah A',
             ])
-            ->assertOk()
-            ->assertJsonPath('student.name', 'Siswa Dikelola Guru B');
+            ->assertNotFound();
         $this->actingAs($otherTeacher)
             ->deleteJson('/guru/students/' . $assignedStudent->id)
-            ->assertOk();
-        $this->assertSoftDeleted('users', ['id' => $assignedStudent->id]);
-        $this->assertSoftDeleted('users', ['id' => $otherSchoolStudent->id]);
+            ->assertNotFound();
+        $this->assertNotSoftDeleted('users', ['id' => $assignedStudent->id]);
+        $this->assertNotSoftDeleted('users', ['id' => $otherSchoolStudent->id]);
         $this->assertDatabaseHas('student_guardians', [
             'student_id' => $assignedStudent->id,
         ]);
@@ -227,10 +238,12 @@ class TeacherStudentManagementTest extends TestCase
         ]);
     }
 
-    public function test_global_student_list_and_total_do_not_require_teacher_assignment(): void
+    public function test_teacher_without_class_assignments_still_sees_own_school_students(): void
     {
         $teacher = $this->user('guru', 'teacher-global-student-count');
-        $otherTeacher = $this->user('guru', 'teacher-global-student-count-two');
+        $otherTeacher = $this->user('guru', 'teacher-global-student-count-two', [
+            'sekolah' => 'Sekolah B',
+        ]);
         $firstStudent = $this->user('siswa', 'global-student-one');
         $secondStudent = $this->user('siswa', 'global-student-two', [
             'kelas' => 'IX C',
@@ -246,63 +259,41 @@ class TeacherStudentManagementTest extends TestCase
         $response = $this->actingAs($teacher)
             ->getJson('/guru/students')
             ->assertOk()
-            ->assertJsonPath('registered_total', 3)
-            ->assertJsonPath('pagination.total', 3);
-        $rows = collect($response->json('students'))->keyBy('id');
-        $this->assertEqualsCanonicalizing(
-            [$firstStudent->id, $secondStudent->id, $thirdStudent->id],
-            $rows->keys()->all()
-        );
-        $this->assertTrue($rows[$firstStudent->id]['can_manage']);
-        $this->assertTrue($rows[$secondStudent->id]['can_manage']);
-        $this->assertTrue($rows[$thirdStudent->id]['can_manage']);
-        $this->assertSame($firstStudent->nisn, $rows[$firstStudent->id]['nisn']);
-        $this->assertSame($firstStudent->email, $rows[$firstStudent->id]['email']);
-        $this->assertSame($secondStudent->nisn, $rows[$secondStudent->id]['nisn']);
-        $this->assertSame($secondStudent->email, $rows[$secondStudent->id]['email']);
-        $this->assertNull($rows[$thirdStudent->id]['nisn']);
-        $this->assertNull($rows[$thirdStudent->id]['email']);
+            ->assertJsonPath('registered_total', 1)
+            ->assertJsonPath('pagination.total', 1);
+        $this->assertSame([$firstStudent->id], collect($response->json('students'))->pluck('id')->all());
 
         $this->actingAs($otherTeacher)
             ->getJson('/guru/students')
             ->assertOk()
-            ->assertJsonPath('registered_total', 3)
-            ->assertJsonPath('pagination.total', 3);
+            ->assertJsonPath('registered_total', 1)
+            ->assertJsonPath('pagination.total', 1);
 
         $this->actingAs($teacher)
             ->getJson('/guru/students/' . $firstStudent->id)
+            ->assertOk();
+        $this->getJson('/guru/students/' . $secondStudent->id)
+            ->assertNotFound();
+        $this->getJson('/guru/students/' . $thirdStudent->id)
+            ->assertNotFound();
+        $this->getJson('/guru/student-grades')
             ->assertOk()
-            ->assertJsonPath('student.id', $firstStudent->id)
-            ->assertJsonPath('student.name', $firstStudent->name)
-            ->assertJsonPath('student.username', $firstStudent->username)
-            ->assertJsonPath('student.nisn', $firstStudent->nisn)
-            ->assertJsonPath('student.kelas', $firstStudent->kelas)
-            ->assertJsonPath('student.email', $firstStudent->email)
-            ->assertJsonPath('student.sekolah', $firstStudent->sekolah)
-            ->assertJsonPath('student.nomor_telepon', $firstStudent->nomor_telepon);
-        $this->actingAs($teacher)
-            ->getJson('/guru/student-grades')
+            ->assertJsonPath('total', 1);
+        $this->get('/dashboard')
             ->assertOk()
-            ->assertJsonPath('total', 3)
-            ->assertJsonCount(3, 'data')
-            ->assertJsonPath('data.0.completion_status', 'belum_dinilai')
-            ->assertJsonPath('data.1.completion_status', 'belum_dinilai')
-            ->assertJsonPath('data.2.completion_status', 'belum_dinilai');
-        $this->actingAs($teacher)
-            ->get('/dashboard')
-            ->assertOk()
-            ->assertSee('id="gdTotalStudents">3</strong>', false)
-            ->assertDontSee('Daftar ini memuat semua akun Siswa terdaftar');
+            ->assertSee('id="gdTotalStudents"', false);
 
         $this->actingAs($otherTeacher)
             ->get('/dashboard')
             ->assertOk()
-            ->assertSee('id="gdTotalStudents">3</strong>', false);
+            ->assertSee('id="gdTotalStudents"', false);
     }
 
-    public function test_global_student_list_keeps_search_class_filter_and_pagination(): void
+    public function test_assigned_student_list_keeps_search_class_filter_and_pagination(): void
     {
         $teacher = $this->user('guru', 'teacher-global-student-filters');
+        $this->assignClass($teacher, 'VII A');
+        $this->assignClass($teacher, 'VII B');
 
         foreach (range(1, 17) as $number) {
             $this->user('siswa', "global-filter-student-{$number}", [
@@ -394,51 +385,51 @@ class TeacherStudentManagementTest extends TestCase
                 'name' => 'Siswa Baru Diperbarui',
                 'username' => 'new-student-updated',
                 'email' => 'new-student-updated@example.test',
-                'kelas' => 'VII C',
-                'sekolah' => 'Sekolah C',
                 'nomor_telepon' => '081298765432',
             ])
             ->assertOk()
             ->assertJsonPath('student.username', 'new-student-updated')
-            ->assertJsonPath('student.sekolah', 'Sekolah C')
+            ->assertJsonPath('student.sekolah', 'Sekolah A')
             ->assertJsonPath('student.nomor_telepon', '081298765432');
         $newStudent->refresh();
+        $this->assertSame('vii a', $newStudent->kelas);
+        $this->assertSame('Sekolah A', $newStudent->sekolah);
         $this->assertSame($originalPassword, $newStudent->password);
         $this->assertSame('Siswa Baru Diperbarui', $newStudent->name);
         $this->actingAs($teacher)
             ->getJson('/guru/students/' . $newStudent->id)
             ->assertOk()
             ->assertJsonPath('student.username', 'new-student-updated')
-            ->assertJsonPath('student.sekolah', 'Sekolah C')
+            ->assertJsonPath('student.sekolah', 'Sekolah A')
             ->assertJsonPath('student.nomor_telepon', '081298765432');
 
         $studentsResponse = $this->actingAs($teacher)
             ->getJson('/guru/students')
             ->assertOk()
-            ->assertJsonPath('registered_total', 4)
-            ->assertJsonPath('pagination.total', 4);
+            ->assertJsonPath('registered_total', 3)
+            ->assertJsonPath('pagination.total', 3);
         $this->assertEqualsCanonicalizing(
-            [$existingStudent->id, $newStudent->id, $otherSchoolStudent->id, $otherClassStudent->id],
+            [$existingStudent->id, $otherClassStudent->id, $newStudent->id],
             collect($studentsResponse->json('students'))->pluck('id')->all()
         );
         $this->actingAs($otherTeacher)
             ->getJson('/guru/students')
             ->assertOk()
-            ->assertJsonPath('registered_total', 4)
-            ->assertJsonPath('pagination.total', 4);
+            ->assertJsonPath('registered_total', 0)
+            ->assertJsonPath('pagination.total', 0);
 
         $gradeResponse = $this->actingAs($teacher)
             ->getJson('/guru/student-grades')
             ->assertOk()
-            ->assertJsonPath('total', 4);
+            ->assertJsonPath('total', 3);
         $this->assertEqualsCanonicalizing(
-            [$existingStudent->id, $newStudent->id, $otherSchoolStudent->id, $otherClassStudent->id],
+            [$existingStudent->id, $otherClassStudent->id, $newStudent->id],
             collect($gradeResponse->json('data'))->pluck('id')->all()
         );
         $this->actingAs($teacher)
             ->get('/dashboard')
             ->assertOk()
-            ->assertSee('id="gdTotalStudents">4</strong>', false);
+            ->assertSee('id="gdTotalStudents"', false);
 
         $this->actingAs($newStudent)
             ->getJson('/siswa/evaluations/teachers')
@@ -489,6 +480,7 @@ class TeacherStudentManagementTest extends TestCase
     {
         $teacher = $this->user('guru', 'teacher-delete-student');
         $student = $this->user('siswa', 'student-with-parent', ['kelas' => 'VII A']);
+        $this->assignClass($teacher, 'VII A');
 
         $this->actingAs($teacher)
             ->deleteJson('/guru/students/' . $student->id)
@@ -521,6 +513,7 @@ class TeacherStudentManagementTest extends TestCase
     {
         $teacher = $this->user('guru', 'teacher-safe-delete');
         $student = $this->user('siswa', 'student-safe-delete', ['kelas' => 'VII C']);
+        $this->assignClass($teacher, 'VII C');
         $parent = $this->user('orang_tua', 'parent-safe-delete');
         DB::table('student_guardians')->insert([
             'student_id' => $student->id,
@@ -614,6 +607,9 @@ class TeacherStudentManagementTest extends TestCase
                 ? str_pad((string) (abs(crc32($username)) % 10000000000), 10, '0', STR_PAD_LEFT)
                 : null,
             'kelas' => $role === 'siswa' ? 'VII A' : null,
+            'sekolah' => in_array($role, ['guru', 'siswa'], true)
+                ? 'Sekolah Uji'
+                : null,
         ], $attributes));
     }
 

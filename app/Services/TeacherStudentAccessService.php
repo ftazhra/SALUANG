@@ -9,78 +9,91 @@ use Illuminate\Support\Facades\Schema;
 
 class TeacherStudentAccessService
 {
+    public function __construct(
+        private SchoolAccessService $schoolAccess
+    ) {}
+
+    // Mengambil daftar kelas yang tercatat.
+    public function classNamesForTeacher(User $teacher): array
+    {
+        abort_unless($teacher->role === 'guru', 403);
+
+        if (!Schema::hasTable('teacher_class_assignments')) {
+            return [];
+        }
+
+        return DB::table('teacher_class_assignments')
+            ->where('teacher_id', $teacher->id)
+            ->orderBy('class_name')
+            ->pluck('class_name')
+            ->filter(fn($name) => trim((string) $name) !== '')
+            ->map(fn($name) => (string) $name)
+            ->all();
+    }
+
+    // Mengambil seluruh siswa dari sekolah Guru.
     public function studentsForTeacher(User $teacher): Builder
     {
         abort_unless($teacher->role === 'guru', 403);
 
-        $classes = Schema::hasTable('teacher_class_assignments')
-            ? DB::table('teacher_class_assignments')
-                ->where('teacher_id', $teacher->id)
-                ->pluck('class_name')
-            : collect();
+        $query = User::query()->where('role', 'siswa');
 
-        $query = User::query()
-            ->where('role', 'siswa');
-        if ($classes->isEmpty()) {
-            return $query->whereRaw('1 = 0');
-        }
-
-        $query->where(function (Builder $builder) use ($classes) {
-            foreach ($classes as $className) {
-                $builder->orWhereRaw('LOWER(TRIM(kelas)) = ?', [
-                    mb_strtolower(trim((string) $className)),
-                ]);
-            }
-        });
-
-        if ($teacher->sekolah === null) {
-            return $query->whereNull('sekolah');
-        }
-
-        return $query->whereRaw('LOWER(TRIM(sekolah)) = ?', [
-            mb_strtolower(trim((string) $teacher->sekolah)),
-        ]);
+        return $this->schoolAccess->constrainUsersToSchool(
+            $query,
+            $teacher
+        );
     }
 
+    // Mengambil seluruh Guru dari sekolah siswa.
     public function teacherIdsForStudent(User $student): array
     {
         if (
             $student->role !== 'siswa'
-            || !$student->kelas
-            || !Schema::hasTable('teacher_class_assignments')
+            || trim((string) $student->sekolah) === ''
         ) {
             return [];
         }
 
-        $query = DB::table('teacher_class_assignments as assignment')
-            ->join('users as teacher', 'teacher.id', '=', 'assignment.teacher_id')
-            ->whereRaw('LOWER(TRIM(assignment.class_name)) = ?', [
-                mb_strtolower(trim((string) $student->kelas)),
+        return User::query()
+            ->where('role', 'guru')
+            ->whereNotNull('sekolah')
+            ->whereRaw('LOWER(TRIM(sekolah)) = ?', [
+                mb_strtolower(trim((string) $student->sekolah))
             ])
-            ->where('teacher.role', 'guru');
-
-        if ($student->sekolah === null) {
-            $query->whereNull('teacher.sekolah');
-        } else {
-            $query->whereRaw('LOWER(TRIM(teacher.sekolah)) = ?', [
-                mb_strtolower(trim((string) $student->sekolah)),
-            ]);
-        }
-
-        return $query->orderBy('teacher.id')
-            ->pluck('teacher.id')
-            ->map(fn ($id) => (int) $id)
+            ->orderBy('id')
+            ->pluck('id')
+            ->map(fn($id) => (int) $id)
             ->all();
     }
 
-    public function isAssignedToTeacher(User $student, User $teacher): bool
-    {
-        if ($teacher->role !== 'guru' || $student->role !== 'siswa') {
+    // Memeriksa hak akses Guru terhadap siswa.
+    public function isAssignedToTeacher(
+        User $student,
+        User $teacher
+    ): bool {
+        if (
+            $teacher->role !== 'guru'
+            || $student->role !== 'siswa'
+        ) {
+            return false;
+        }
+
+        if (!$this->schoolAccess->sameSchool($student, $teacher)) {
             return false;
         }
 
         return $this->studentsForTeacher($teacher)
             ->whereKey($student->id)
             ->exists();
+    }
+
+    // Memvalidasi kelas yang dikelola Guru.
+    public function hasClassAssignment(
+        User $teacher,
+        string $className
+    ): bool {
+        return $teacher->role === 'guru'
+            && trim((string) $teacher->sekolah) !== ''
+            && trim($className) !== '';
     }
 }

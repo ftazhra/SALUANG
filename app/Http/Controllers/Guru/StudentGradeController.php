@@ -86,6 +86,11 @@ class StudentGradeController extends Controller
         );
         $columns = $this->studentColumns();
         $teacherId = (int) $request->user()->id;
+        abort_unless(
+            $grades->studentIsAssignedToTeacher($teacherId, $student),
+            404,
+            'Siswa tidak ditemukan pada kelas yang ditugaskan kepada Guru ini.'
+        );
         $quizResults = collect($evaluationResults->quizResultsForTeacher($teacherId, [(int) $student->id]))
             ->map(fn(array $result) => [
                 'id' => $result['id'],

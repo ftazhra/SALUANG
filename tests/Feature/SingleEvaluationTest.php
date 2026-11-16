@@ -475,9 +475,13 @@ class SingleEvaluationTest extends TestCase
         $this->assertSame([], $results->completedForTeacher((int) $secondTeacher->id, [$student->id]));
         $parentDashboard = app(ParentDashboardService::class)->dashboard($parent);
         $this->assertEqualsCanonicalizing(
-            [$firstTeacher->id, $secondTeacher->id],
+            [$firstTeacher->id, $secondTeacher->id, $unassignedTeacher->id],
             array_column($parentDashboard['finalGrades'], 'teacher_id')
         );
+        $unassignedSummary = collect($parentDashboard['finalGrades'])
+            ->firstWhere('teacher_id', $unassignedTeacher->id);
+        $this->assertNull($unassignedSummary['evaluation_score']);
+        $this->assertNull($unassignedSummary['final_score']);
         $this->assertEqualsCanonicalizing(
             [$firstTeacher->id],
             array_column($parentDashboard['learningResults'], 'teacher_id')
@@ -677,6 +681,9 @@ class SingleEvaluationTest extends TestCase
             'password' => 'secret123',
             'role' => $role,
             'email' => null,
+            'sekolah' => in_array($role, ['guru', 'siswa'], true)
+                ? 'Sekolah Uji'
+                : null,
         ]);
     }
 

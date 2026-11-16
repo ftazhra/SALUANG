@@ -8,6 +8,7 @@ use App\Models\StudentSubchapterProgress;
 use App\Models\Subchapter;
 use App\Models\User;
 use App\Services\EvaluationResultService;
+use App\Services\SchoolAccessService;
 use App\Services\StudentGradeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,7 +17,8 @@ class ProgressController extends Controller
     public function index(
         Request $request,
         StudentGradeService $grades,
-        EvaluationResultService $evaluationResults
+        EvaluationResultService $evaluationResults,
+        SchoolAccessService $schoolAccess
     ): JsonResponse
     {
         $this->ensureSiswa($request);
@@ -26,7 +28,10 @@ class ProgressController extends Controller
                 User::query()->where('role', 'guru')->select('id')
             )
             ->where('is_published', true)
-            ->whereHas('guru', fn ($query) => $query->where('role', 'guru'))
+            ->whereHas('guru', function ($query) use ($request, $schoolAccess) {
+                $query->where('role', 'guru');
+                $schoolAccess->constrainUsersToSchool($query, $request->user());
+            })
             ->whereHas('subchapters', fn ($query) => $query->where('is_published', true))
             ->with(['subchapters' => fn ($query) => $query
                 ->where('is_published', true)
@@ -66,14 +71,49 @@ class ProgressController extends Controller
             ->where('total_questions', '>', 0)
             ->where('correct_answers', '>=', 0)
             ->whereColumn('correct_answers', '<=', 'total_questions')
+            ->where(function ($query) use ($request, $schoolAccess) {
+                $query->where(function ($subchapterResults) use ($request, $schoolAccess) {
+                    $subchapterResults->whereNotNull('subchapter_id')
+                        ->whereHas('subchapter.chapter.guru', function ($guru) use ($request, $schoolAccess) {
+                            $guru->where('role', 'guru');
+                            $schoolAccess->constrainUsersToSchool($guru, $request->user());
+                        });
+                })->orWhere(function ($chapterResults) use ($request, $schoolAccess) {
+                    $chapterResults->whereNull('subchapter_id')
+                        ->whereHas('chapter.guru', function ($guru) use ($request, $schoolAccess) {
+                            $guru->where('role', 'guru');
+                            $schoolAccess->constrainUsersToSchool($guru, $request->user());
+                        });
+                });
+            })
             ->with(['subchapter', 'chapter'])
             ->orderByDesc('completed_at')
             ->get();
         $evaluationAttempts = collect(
             $evaluationResults->validCompletedForStudent((int) $request->user()->id)
         );
+        $evaluationTeacherIds = $evaluationAttempts
+            ->pluck('teacher_id')
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+        $allowedEvaluationTeacherIds = User::query()
+            ->where('role', 'guru')
+            ->whereIn('id', $evaluationTeacherIds);
+        $schoolAccess->constrainUsersToSchool($allowedEvaluationTeacherIds, $request->user());
+        $allowedEvaluationTeacherIds = $allowedEvaluationTeacherIds->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+        $evaluationAttempts = $evaluationAttempts
+            ->whereIn('teacher_id', $allowedEvaluationTeacherIds)
+            ->values();
         $activityProgress = StudentSubchapterProgress::query()
             ->where('user_id', $request->user()->id)
+            ->whereHas('subchapter.chapter.guru', function ($guru) use ($request, $schoolAccess) {
+                $guru->where('role', 'guru');
+                $schoolAccess->constrainUsersToSchool($guru, $request->user());
+            })
             ->with('subchapter')
             ->get();
         $activities = $activityProgress->map(function (StudentSubchapterProgress $item) {
@@ -140,12 +180,15 @@ class ProgressController extends Controller
     }
     public function openMaterial(
         Request $request,
-        Subchapter $subchapter
+        Subchapter $subchapter,
+        SchoolAccessService $schoolAccess
     ): JsonResponse
     {
         $this->ensureSiswa($request);
         $this->ensurePublishedSubchapter(
-            $subchapter
+            $subchapter,
+            $request->user(),
+            $schoolAccess
         );
         $progress = StudentSubchapterProgress::query()->firstOrCreate(
             [
@@ -165,12 +208,15 @@ class ProgressController extends Controller
     }
     public function completeMaterial(
         Request $request,
-        Subchapter $subchapter
+        Subchapter $subchapter,
+        SchoolAccessService $schoolAccess
     ): JsonResponse
     {
         $this->ensureSiswa($request);
         $this->ensurePublishedSubchapter(
-            $subchapter
+            $subchapter,
+            $request->user(),
+            $schoolAccess
         );
         abort_if(
             $subchapter->quizQuestions()
@@ -200,13 +246,16 @@ class ProgressController extends Controller
         abort_unless($request->user()?->role === 'siswa', 403);
     }
     private function ensurePublishedSubchapter(
-        Subchapter $subchapter
+        Subchapter $subchapter,
+        User $student,
+        SchoolAccessService $schoolAccess
     ): void
     {
         abort_unless(
             $subchapter->is_published
                 && $subchapter->chapter?->is_published
-                && $subchapter->chapter?->guru?->role === 'guru',
+                && $subchapter->chapter?->guru?->role === 'guru'
+                && $schoolAccess->sameSchool($student, $subchapter->chapter->guru),
             404
         );
     }

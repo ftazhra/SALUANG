@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Guru;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\SchoolAccessService;
+use App\Services\TeacherStudentAccessService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,40 +14,44 @@ use Illuminate\Validation\Rule;
 
 class StudentManagementController extends Controller
 {
-    private function students(): Builder
-    {
-        return User::query()
-            ->where('role', 'siswa')
-            ->select([
-                'id',
-                'name',
-                'nisn',
-                'kelas',
-                'email',
-            ]);
+    // Mengambil siswa yang dapat dikelola Guru.
+    private function students(
+        User $teacher,
+        TeacherStudentAccessService $studentAccess
+    ): Builder {
+        return $studentAccess->studentsForTeacher($teacher)
+            ->select(['id', 'name', 'nisn', 'kelas', 'email']);
     }
 
     private function studentForManagement(
         Request $request,
-        int $studentId
+        int $studentId,
+        TeacherStudentAccessService $studentAccess
     ): User {
-        abort_unless($request->user()?->role === 'guru', 403);
+        $teacher = $request->user();
+        abort_unless($teacher?->role === 'guru', 403);
 
-        return User::query()
-            ->where('role', 'siswa')
+        return $studentAccess->studentsForTeacher($teacher)
             ->findOrFail($studentId);
     }
 
-    public function index(Request $request): JsonResponse
-    {
+    // Menampilkan daftar siswa.
+    public function index(
+        Request $request,
+        TeacherStudentAccessService $studentAccess
+    ): JsonResponse {
+        $teacher = $request->user();
+        abort_unless($teacher?->role === 'guru', 403);
+
         $filters = $request->validate([
             'search' => ['nullable', 'string', 'max:200'],
             'class' => ['nullable', 'string', 'max:20'],
             'page' => ['nullable', 'integer', 'min:1'],
         ]);
 
-        $query = $this->students();
+        $query = $this->students($teacher, $studentAccess);
         $registeredTotal = (clone $query)->count();
+
         $registeredClasses = (clone $query)
             ->whereNotNull('kelas')
             ->where('kelas', '!=', '')
@@ -65,8 +71,9 @@ class StudentManagementController extends Controller
         }
 
         if (!empty($filters['class'])) {
-            $normalizedClass = mb_strtolower(trim($filters['class']));
-            $query->whereRaw('LOWER(TRIM(kelas)) = ?', [$normalizedClass]);
+            $query->whereRaw('LOWER(TRIM(kelas)) = ?', [
+                mb_strtolower(trim($filters['class']))
+            ]);
         }
 
         $students = $query
@@ -74,6 +81,7 @@ class StudentManagementController extends Controller
             ->orderBy('id', 'asc')
             ->paginate(15)
             ->withQueryString();
+
         $students->getCollection()->transform(function (User $student) {
             $student->setAttribute('can_manage', true);
             return $student;
@@ -92,15 +100,17 @@ class StudentManagementController extends Controller
         ]);
     }
 
+    // Menampilkan detail siswa.
     public function show(
         Request $request,
-        int $student
+        int $student,
+        TeacherStudentAccessService $studentAccess
     ): JsonResponse {
-        abort_unless($request->user()?->role === 'guru', 403);
+        $teacher = $request->user();
+        abort_unless($teacher?->role === 'guru', 403);
 
         return response()->json([
-            'student' => User::query()
-                ->where('role', 'siswa')
+            'student' => $studentAccess->studentsForTeacher($teacher)
                 ->findOrFail($student)
                 ->only([
                     'id',
@@ -120,11 +130,20 @@ class StudentManagementController extends Controller
         abort(403, 'Guru tidak dapat menambahkan akun siswa melalui dashboard.');
     }
 
+    // Memperbarui data siswa di sekolah yang sama.
     public function update(
         Request $request,
-        int $student
+        int $student,
+        TeacherStudentAccessService $studentAccess,
+        SchoolAccessService $schoolAccess
     ): JsonResponse {
-        $student = $this->studentForManagement($request, $student);
+        $teacher = $request->user();
+
+        $student = $this->studentForManagement(
+            $request,
+            $student,
+            $studentAccess
+        );
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -132,31 +151,44 @@ class StudentManagementController extends Controller
                 'required',
                 'alpha_dash:ascii',
                 'max:50',
-                Rule::unique('users', 'username')->ignore($student->id)
+                Rule::unique('users', 'username')->ignore($student->id),
             ],
             'nisn' => [
                 'required',
                 'digits:10',
-                Rule::unique('users', 'nisn')->ignore($student->id)
+                Rule::unique('users', 'nisn')->ignore($student->id),
             ],
             'email' => [
                 'required',
                 'email',
                 'max:255',
-                Rule::unique('users', 'email')->ignore($student->id)
+                Rule::unique('users', 'email')->ignore($student->id),
             ],
-            'kelas' => [
-                'required',
-                'string',
-                'max:20',
-            ],
+            'kelas' => ['required', 'string', 'max:20'],
             'sekolah' => ['nullable', 'string', 'max:255'],
             'nomor_telepon' => ['nullable', 'string', 'max:20'],
             'password' => ['nullable', 'string', 'min:8'],
         ]);
 
+        abort_unless(
+            $studentAccess->hasClassAssignment($teacher, $data['kelas']),
+            422,
+            'Kelas siswa tidak valid.'
+        );
+
+        if (array_key_exists('sekolah', $data)) {
+            abort_unless(
+                $schoolAccess->sameSchoolNames(
+                    $teacher->sekolah,
+                    $data['sekolah']
+                ) && $schoolAccess->sameSchool($teacher, $student),
+                422,
+                'Guru tidak dapat memindahkan Siswa ke sekolah lain.'
+            );
+        }
+
         $student->fill(
-            collect($data)->except('password')->all()
+            collect($data)->except(['password', 'sekolah'])->all()
         );
 
         if (!empty($data['password'])) {
@@ -175,21 +207,22 @@ class StudentManagementController extends Controller
                 'kelas',
                 'email',
                 'sekolah',
-                'nomor_telepon'
+                'nomor_telepon',
             ]),
         ]);
     }
 
+    // Menonaktifkan akun siswa tanpa menghapus riwayat.
     public function destroy(
         Request $request,
-        int $student
+        int $student,
+        TeacherStudentAccessService $studentAccess
     ): JsonResponse {
-        abort_unless($request->user()?->role === 'guru', 403);
-
-        $studentRecord = User::query()
-            ->where('role', 'siswa')
-            ->whereKey($student)
-            ->firstOrFail();
+        $studentRecord = $this->studentForManagement(
+            $request,
+            $student,
+            $studentAccess
+        );
 
         $studentRecord->delete();
 

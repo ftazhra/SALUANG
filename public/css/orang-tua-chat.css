@@ -39,6 +39,7 @@
     line-height: 1.65
 }
 
+
 .pc-chat-teacher {
     background: #eef8f4;
     border-radius: 11px;
@@ -46,7 +47,43 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px
+    gap: 24px;
+}
+
+.pc-chat-teacher>div {
+    flex: 1;
+    min-width: 0;
+}
+
+.pc-teacher-select {
+    display: block;
+    width: 100%;
+    max-width: 480px;
+    min-height: 48px;
+    margin-top: 16px;
+    padding: 12px 42px 12px 16px;
+    border: 1px solid #cfe4dc;
+    border-radius: 11px;
+    background: #fff;
+    color: #075477;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23075477' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+}
+
+.pc-teacher-select:hover {
+    border-color: #84bc9f;
+}
+
+.pc-teacher-select:focus-visible {
+    outline: none;
+    border-color: #4c9c66;
+    box-shadow: 0 0 0 3px rgba(76, 156, 102, .13);
 }
 
 .pc-chat-teacher h2 {
@@ -285,7 +322,12 @@
     }
 
     .pc-chat-open {
-        align-self: flex-start
+        align-self: stretch;
+        width: 100%;
+    }
+
+    .pc-teacher-select {
+        max-width: 100%;
     }
 
     .pc-compose {

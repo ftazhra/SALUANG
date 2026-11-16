@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
 use App\Models\Discussion;
-use App\Models\Chapter;
+use App\Models\DiscussionReply;
 use App\Models\User;
+use App\Services\DiscussionAccessService;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,12 +14,6 @@ use Illuminate\Validation\Rule;
 
 class DiscussionController extends Controller
 {
-    /**
-     * Menggunakan materi Guru yang dipublikasikan sebagai sumber validasi.
-     * Format disimpan tetap "bab-N" dan "N.M" agar data Forum lama kompatibel.
-     *
-     * @return array<string, list<string>>
-     */
     /** Tambahkan foto avatar yang aman untuk dikirim ke frontend. */
     private function attachForumAvatar(?User $author): void
     {
@@ -37,25 +32,6 @@ class DiscussionController extends Controller
                     : asset('storage/' . ltrim(preg_replace('~^/?storage/~', '', $path), '/')))
                 : null
         );
-    }
-    private function publishedForumOptions(): array
-    {
-        $chapters = Chapter::query()
-            ->where('is_published', true)
-            ->with(['subchapters' => function ($query) {
-                $query->where('is_published', true);
-            }])
-            ->get();
-        $options = [];
-        foreach ($chapters as $chapter) {
-            $chapterNumber = (string) $chapter->nomor_bab;
-            $chapterCode = 'bab-' . $chapterNumber;
-            $options[$chapterCode] = [];
-            foreach ($chapter->subchapters as $subchapter) {
-                $options[$chapterCode][] = $chapterNumber . '.' . (string) $subchapter->nomor_subbab;
-            }
-        }
-        return $options;
     }
     /** @param array<string, mixed> $data
      *  @param array<string, list<string>> $options
@@ -95,10 +71,12 @@ class DiscussionController extends Controller
     | dan status sudah/belum terjawab.
     |
     */
-    public function index(Request $request): JsonResponse
-    {
+    public function index(
+        Request $request,
+        DiscussionAccessService $discussionAccess
+    ): JsonResponse {
         $this->ensureStudent($request);
-        $forumOptions = $this->publishedForumOptions();
+        $forumOptions = $discussionAccess->publishedForumOptions($request->user());
         $filters = $request->validate([
             'chapter' => [
                 'nullable',
@@ -123,9 +101,12 @@ class DiscussionController extends Controller
             ],
         ]);
         $this->validateChapterPair($filters, $forumOptions);
-        $query = Discussion::query()
+        $query = $discussionAccess->discussionsFor($request->user())
             ->with('user:id,name,profile_photo_path,foto_profil')
-            ->withCount('replies');
+            ->withCount([
+                'replies' => fn($replies) => $discussionAccess
+                    ->constrainReplyAuthors($replies, $request->user()),
+            ]);
         // 03.1. Filter Bab
         if (!empty($filters['chapter'])) {
             $query->where(
@@ -160,10 +141,22 @@ class DiscussionController extends Controller
         // 03.4. Filter status tanggapan
         $status = $filters['status'] ?? 'all';
         if ($status === 'answered') {
-            $query->has('replies');
+            $query->whereHas(
+                'replies',
+                fn($replies) => $discussionAccess->constrainReplyAuthors(
+                    $replies,
+                    $request->user()
+                )
+            );
         }
         if ($status === 'unanswered') {
-            $query->doesntHave('replies');
+            $query->whereDoesntHave(
+                'replies',
+                fn($replies) => $discussionAccess->constrainReplyAuthors(
+                    $replies,
+                    $request->user()
+                )
+            );
         }
         // 03.5. Diskusi terbaru terlebih dahulu
         $discussions = $query
@@ -188,11 +181,13 @@ class DiscussionController extends Controller
     | siswa yang sedang login.
     |
     */
-    public function store(Request $request): JsonResponse
-    {
+    public function store(
+        Request $request,
+        DiscussionAccessService $discussionAccess
+    ): JsonResponse {
         $this->ensureStudent($request);
         // 04.1. Validasi data pertanyaan
-        $forumOptions = $this->publishedForumOptions();
+        $forumOptions = $discussionAccess->publishedForumOptions($request->user());
         $data = $request->validate([
             'chapter' => [
                 'required',
@@ -241,20 +236,18 @@ class DiscussionController extends Controller
     */
     public function show(
         Request $request,
-        Discussion $discussion
+        Discussion $discussion,
+        DiscussionAccessService $discussionAccess
     ): JsonResponse {
         $this->ensureStudent($request);
-        // 05.1. Ambil pembuat dan seluruh tanggapan
-        $discussion->load([
-            'user:id,name,profile_photo_path,foto_profil',
-            'replies' => function ($query) {
-                $query
-                    ->with('user:id,name,profile_photo_path,foto_profil')
-                    ->oldest();
-            },
-        ]);
-        // 05.2. Hitung jumlah tanggapan
-        $discussion->loadCount('replies');
+        $discussionAccess->ensureDiscussionAccessible($request->user(), $discussion);
+        $discussion->load('user:id,name,profile_photo_path,foto_profil');
+        $replies = $discussionAccess->repliesFor($request->user(), $discussion)
+            ->with('user:id,name,profile_photo_path,foto_profil')
+            ->oldest()
+            ->get();
+        $discussion->setRelation('replies', $replies);
+        $discussion->setAttribute('replies_count', $replies->count());
         $discussion->setAttribute(
             'is_owner',
             (int) $discussion->user_id === (int) $request->user()->id
@@ -262,6 +255,10 @@ class DiscussionController extends Controller
         $this->attachForumAvatar($discussion->user);
         foreach ($discussion->replies as $reply) {
             $this->attachForumAvatar($reply->user);
+            $reply->setAttribute(
+                'is_owner',
+                (int) $reply->user_id === (int) $request->user()->id
+            );
         }
         return response()->json([
             'discussion' => $discussion,
@@ -278,9 +275,11 @@ class DiscussionController extends Controller
     */
     public function reply(
         Request $request,
-        Discussion $discussion
+        Discussion $discussion,
+        DiscussionAccessService $discussionAccess
     ): JsonResponse {
         $this->ensureStudent($request);
+        $discussionAccess->ensureDiscussionAccessible($request->user(), $discussion);
         // 06.1. Validasi isi tanggapan
         $data = $request->validate([
             'body' => [
@@ -295,6 +294,13 @@ class DiscussionController extends Controller
                 Rule::exists('discussion_replies', 'id')->where('discussion_id', $discussion->id),
             ],
         ]);
+        if (isset($data['parent_reply_id'])) {
+            $discussionAccess->ensureReplyAccessible(
+                $request->user(),
+                $discussion,
+                (int) $data['parent_reply_id']
+            );
+        }
         // 06.2. Simpan tanggapan ke database
         $reply = $discussion
             ->replies()
@@ -318,9 +324,11 @@ class DiscussionController extends Controller
     */
     public function update(
         Request $request,
-        Discussion $discussion
+        Discussion $discussion,
+        DiscussionAccessService $discussionAccess
     ): JsonResponse {
         $this->ensureStudent($request);
+        $discussionAccess->ensureDiscussionAccessible($request->user(), $discussion);
         // Hanya pemilik diskusi yang boleh mengedit.
         abort_unless(
             (int) $discussion->user_id === (int) $request->user()->id,
@@ -328,7 +336,7 @@ class DiscussionController extends Controller
             'Kamu hanya boleh mengedit diskusi milik sendiri.'
         );
         // Validasi isi diskusi yang diperbarui.
-        $forumOptions = $this->publishedForumOptions();
+        $forumOptions = $discussionAccess->publishedForumOptions($request->user());
         $data = $request->validate([
             'chapter' => [
                 'required',
@@ -356,7 +364,10 @@ class DiscussionController extends Controller
         $discussion->update($data);
         $discussion->load('user:id,name,profile_photo_path,foto_profil');
         $this->attachForumAvatar($discussion->user);
-        $discussion->loadCount('replies');
+        $discussion->setAttribute(
+            'replies_count',
+            $discussionAccess->repliesFor($request->user(), $discussion)->count()
+        );
         return response()->json([
             'message' => 'Diskusi berhasil diperbarui.',
             'discussion' => $discussion,
@@ -369,9 +380,11 @@ class DiscussionController extends Controller
     */
     public function destroy(
         Request $request,
-        Discussion $discussion
+        Discussion $discussion,
+        DiscussionAccessService $discussionAccess
     ): JsonResponse {
         $this->ensureStudent($request);
+        $discussionAccess->ensureDiscussionAccessible($request->user(), $discussion);
         // Hanya pemilik diskusi yang boleh menghapus.
         abort_unless(
             (int) $discussion->user_id === (int) $request->user()->id,
@@ -384,5 +397,34 @@ class DiscussionController extends Controller
         return response()->json([
             'message' => 'Diskusi berhasil dihapus.',
         ]);
+    }
+
+    /** Hapus tanggapan sendiri tanpa menghapus balasan pengguna lain. */
+    public function destroyReply(
+        Request $request,
+        Discussion $discussion,
+        DiscussionReply $reply,
+        DiscussionAccessService $discussionAccess
+    ): JsonResponse {
+        $this->ensureStudent($request);
+        $discussionAccess->ensureDiscussionAccessible($request->user(), $discussion);
+
+        // Pastikan reply ini benar-benar milik discussion di URL.
+        abort_unless((int) $reply->discussion_id === (int) $discussion->id, 404);
+        abort_unless(
+            (int) $reply->user_id === (int) $request->user()->id,
+            403,
+            'Kamu hanya boleh menghapus tanggapanmu sendiri.'
+        );
+
+        // Jangan menyebabkan balasan milik pengguna lain ikut terhapus.
+        if (DiscussionReply::where('parent_reply_id', $reply->id)->exists()) {
+            return response()->json([
+                'message' => 'Komentar ini memiliki balasan. Balasan harus dihapus terlebih dahulu.'
+            ], 422);
+        }
+
+        $reply->delete();
+        return response()->json(['message' => 'Tanggapan berhasil dihapus.']);
     }
 }

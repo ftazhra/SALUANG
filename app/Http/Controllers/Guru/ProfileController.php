@@ -66,12 +66,20 @@ class ProfileController extends Controller
                 'max:30',
             ],
         ]);
+        if (
+            array_key_exists('sekolah', $data)
+            && $data['sekolah'] !== $user->sekolah
+        ) {
+            throw ValidationException::withMessages([
+                'sekolah' => 'Perubahan sekolah harus diverifikasi melalui pengelola SALUANG.',
+            ]);
+        }
+
         // NIP/NIPK tidak dapat diubah melalui form ini.
         $user->name = $data['name'];
         $user->username = $data['username'];
         $user->email = $data['email'] ?? null;
         $user->mata_pelajaran = $data['mata_pelajaran'] ?? null;
-        $user->sekolah = $data['sekolah'] ?? null;
         $user->nomor_telepon = $data['nomor_telepon'] ?? null;
         $user->save();
         return response()->json([

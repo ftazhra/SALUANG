@@ -264,14 +264,36 @@ class StudentAssessmentTeacherNotesTest extends TestCase
 
     private function createEvaluationResult(User $student, User $teacher): int
     {
-        $snapshot = array_map(
-            fn (int $number) => [
-                'id' => $number,
+        $snapshot = [];
+        foreach (range(1, 15) as $number) {
+            $prompt = "Evaluasi {$number}";
+            $content = [
+                'pilihan_a' => 'A',
+                'pilihan_b' => 'B',
+                'pilihan_c' => 'C',
+                'pilihan_d' => 'D',
+            ];
+            $answer = ['jawaban' => 'A'];
+            $questionId = DB::table('evaluation_questions')->insertGetId([
                 'user_id' => $teacher->id,
                 'nomor_soal' => $number,
-            ],
-            range(1, 15)
-        );
+                'tipe_soal' => 'pilihan_ganda',
+                'pertanyaan' => $prompt,
+                'konten_soal' => json_encode($content),
+                'kunci_jawaban' => json_encode($answer),
+                'is_published' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $snapshot[] = [
+                'id' => $questionId,
+                'user_id' => $teacher->id,
+                'nomor_soal' => $number,
+                'pertanyaan' => $prompt,
+                'konten_soal' => $content,
+                'kunci_jawaban' => $answer,
+            ];
+        }
 
         return DB::table('evaluation_attempts')->insertGetId([
             'user_id' => $student->id,
@@ -307,6 +329,9 @@ class StudentAssessmentTeacherNotesTest extends TestCase
             'password' => 'secret123',
             'role' => $role,
             'email' => null,
+            'sekolah' => in_array($role, ['guru', 'siswa'], true)
+                ? 'Sekolah Uji'
+                : null,
         ]);
     }
 }

@@ -2,23 +2,27 @@
 namespace App\Http\Controllers\Siswa;
 use App\Http\Controllers\Controller;
 use App\Models\Chapter;
+use App\Services\SchoolAccessService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 class MaterialController extends Controller
 {
     public function index(
-        Request $request
+        Request $request,
+        SchoolAccessService $schoolAccess
     ): JsonResponse
     {
+        $student = $request->user();
         abort_unless(
-            $request->user()?->role === 'siswa',
+            $student?->role === 'siswa',
             403,
             'Hanya Siswa yang dapat mengakses materi.'
         );
         $chapters = Chapter::query()
             ->where('is_published', true)
-            ->whereHas('guru', function ($query) {
+            ->whereHas('guru', function ($query) use ($student, $schoolAccess) {
                 $query->where('role', 'guru');
+                $schoolAccess->constrainUsersToSchool($query, $student);
             })
             ->with([
                 'guru:id,name',

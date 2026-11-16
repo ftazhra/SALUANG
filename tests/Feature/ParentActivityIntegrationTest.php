@@ -101,11 +101,21 @@ class ParentActivityIntegrationTest extends TestCase
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+            $content = [
+                'pilihan_a' => 'A',
+                'pilihan_b' => 'B',
+                'pilihan_c' => 'C',
+                'pilihan_d' => 'D',
+            ];
+            $answer = ['jawaban' => 'A'];
             $snapshot[] = [
                 'id' => $questionId,
                 'user_id' => $teacher->id,
                 'nomor_soal' => $number,
                 'tipe_soal' => 'pilihan_ganda',
+                'pertanyaan' => "Evaluasi {$number}",
+                'konten_soal' => $content,
+                'kunci_jawaban' => $answer,
             ];
         }
         foreach ([
@@ -288,6 +298,9 @@ class ParentActivityIntegrationTest extends TestCase
             'password' => 'secret123',
             'role' => $role,
             'email' => null,
+            'sekolah' => in_array($role, ['guru', 'siswa'], true)
+                ? 'Sekolah Uji'
+                : null,
         ]);
     }
 }

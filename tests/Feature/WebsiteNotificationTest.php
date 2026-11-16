@@ -86,6 +86,14 @@ class WebsiteNotificationTest extends TestCase
                 'id' => $questionId,
                 'user_id' => $teacher->id,
                 'nomor_soal' => $number,
+                'pertanyaan' => "Evaluasi {$number}",
+                'konten_soal' => [
+                    'pilihan_a' => 'A',
+                    'pilihan_b' => 'B',
+                    'pilihan_c' => 'C',
+                    'pilihan_d' => 'D',
+                ],
+                'kunci_jawaban' => ['jawaban' => 'A'],
             ];
         }
         $evaluationId = DB::table('evaluation_attempts')->insertGetId([
@@ -574,6 +582,9 @@ class WebsiteNotificationTest extends TestCase
             'role' => $role,
             'kelas' => $className,
             'email' => null,
+            'sekolah' => in_array($role, ['guru', 'siswa'], true)
+                ? 'Sekolah Uji'
+                : null,
         ]);
     }
 }

@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\SchoolAccessService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +14,11 @@ use App\Services\WebsiteNotificationService;
 
 class EvaluationController extends Controller
 {
+    public function __construct(
+        private SchoolAccessService $schoolAccess
+    ) {
+    }
+
     private function ensureSiswa(Request $request): int
     {
         abort_unless($request->user() && $request->user()->role === 'siswa', 403);
@@ -34,6 +40,7 @@ class EvaluationController extends Controller
     ): User {
         $student = User::query()->where('role', 'siswa')->findOrFail($studentId);
         $teacher = User::query()->where('role', 'guru')->findOrFail($teacherId);
+        abort_unless($this->schoolAccess->sameSchool($student, $teacher), 404);
         $hasExistingAttempt = DB::table('evaluation_attempts')
             ->where('user_id', $studentId)
             ->where('teacher_id', $teacherId)
@@ -264,7 +271,17 @@ class EvaluationController extends Controller
     {
         $studentId = $this->ensureSiswa($request);
         $this->requireAttemptSchema();
+        $student = User::query()->where('role', 'siswa')->findOrFail($studentId);
         [$teacherId, $message] = $this->defaultEvaluationTeacher();
+        if ($teacherId !== null) {
+            $teacher = User::query()->where('role', 'guru')->find($teacherId);
+            if (!$teacher || !$this->schoolAccess->sameSchool($student, $teacher)) {
+                $teacherId = null;
+                $message = 'Evaluasi Akhir belum tersedia untuk sekolah ini.';
+            }
+        } elseif (trim((string) $student->sekolah) === '') {
+            $message = 'Sekolah Siswa belum terverifikasi untuk Evaluasi Akhir.';
+        }
         $attempt = $teacherId ? $this->current($studentId, $teacherId) : null;
         $questions = $teacherId ? $this->questions($teacherId) : collect();
 

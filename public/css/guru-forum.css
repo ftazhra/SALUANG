@@ -580,6 +580,64 @@
     font-size: 14px;
 }
 
+/* Konfirmasi hapus tanggapan: modal di atas detail diskusi. */
+.gf-reply-delete-modal {
+    z-index: 1750;
+}
+
+.gf-reply-confirm {
+    border: 1px solid #e2eae6;
+    background: #fffdf8;
+    text-align: center;
+}
+
+.gf-reply-confirm-icon {
+    display: grid;
+    place-items: center;
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: #fff0ee;
+    color: #c0392b;
+    font-size: 28px;
+}
+
+.gf-reply-confirm h2 {
+    margin: 0 0 12px;
+    color: #075477;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.gf-reply-confirm>p {
+    margin: 0;
+    color: #637d84;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.gf-reply-confirm .gf-reply-confirm-error {
+    margin-top: 12px;
+    color: #c0392b;
+}
+
+.gf-reply-confirm-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin-top: 22px;
+}
+
+.gf-reply-confirm-submit {
+    background: #bc414b;
+    border-color: #bc414b;
+    color: #fff;
+}
+
+.gf-reply-confirm-submit:hover:not(:disabled) {
+    background: #a5313c;
+}
+
 /* NOTIFIKASI */
 .gf-toast {
     position: fixed;
@@ -789,6 +847,34 @@
 .gf-reply-button:hover {
     text-decoration: underline
 }
+
+/* Aksi tanggapan: tetap berupa teks seperti Balas, tetapi Hapus merah. */
+.gf-reply-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.gf-reply-actions .gf-reply-delete {
+    color: #c0392b;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    padding: 7px 0;
+}
+
+.gf-reply-actions .gf-reply-delete:hover {
+    color: #a52d23;
+    text-decoration: underline;
+}
+
+.gf-reply-actions .gf-reply-delete:focus-visible {
+    outline: 2px solid #c0392b;
+    outline-offset: 2px;
+    border-radius: 3px;
+}
+
 
 .gf-reply-context {
     display: flex;

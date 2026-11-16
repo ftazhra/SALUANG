@@ -104,6 +104,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Kolom dan validasi sesuai masing-masing peran.
         const nisn = findElement('#nisn');
         const nipk = findElement('#nip_nipk');
+        const teacherInvitation = findElement('#guru_token');
         const phone = findElement('#nomor_telepon');
         const childNisn = findElement(
             '#register_nisn_anak',
@@ -114,6 +115,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         if (nipk) {
             nipk.required = role === 'guru';
+        }
+        if (teacherInvitation) {
+            teacherInvitation.required = role === 'guru';
         }
         if (phone) {
             phone.required = role === 'orang_tua';

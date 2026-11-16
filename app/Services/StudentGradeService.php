@@ -17,8 +17,8 @@ class StudentGradeService
 
     public function overview(int $teacherId, array $filters = []): array
     {
-        User::query()->where('role', 'guru')->findOrFail($teacherId);
-        $query = User::query()->where('role', 'siswa');
+        $teacher = User::query()->where('role', 'guru')->findOrFail($teacherId);
+        $query = $this->teacherStudentAccess->studentsForTeacher($teacher);
         $classes = (clone $query)
             ->whereNotNull('kelas')
             ->where('kelas', '!=', '')
@@ -61,6 +61,14 @@ class StudentGradeService
 
     public function summaryForStudent(int $teacherId, int $studentId): array
     {
+        $teacher = User::query()->where('role', 'guru')->findOrFail($teacherId);
+        $student = User::query()->where('role', 'siswa')->findOrFail($studentId);
+        abort_unless(
+            $this->teacherStudentAccess->isAssignedToTeacher($student, $teacher),
+            404,
+            'Siswa tidak ditemukan pada kelas yang ditugaskan kepada Guru ini.'
+        );
+
         return $this->summariesForStudents($teacherId, [$studentId])[$studentId]
             ?? $this->emptySummary();
     }
@@ -72,17 +80,6 @@ class StudentGradeService
         }
 
         $teacherIds = $this->teacherStudentAccess->teacherIdsForStudent($student);
-        foreach ($this->evaluationResults->quizResultsForStudent((int) $student->id) as $result) {
-            if ($result['teacher_id'] !== null) {
-                $teacherIds[] = $result['teacher_id'];
-            }
-        }
-        foreach ($this->evaluationResults->validCompletedForStudent((int) $student->id) as $result) {
-            if ($result['teacher_id'] !== null) {
-                $teacherIds[] = $result['teacher_id'];
-            }
-        }
-        $teacherIds = array_values(array_unique($teacherIds));
 
         return User::query()
             ->where('role', 'guru')

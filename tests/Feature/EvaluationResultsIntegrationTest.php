@@ -29,7 +29,7 @@ class EvaluationResultsIntegrationTest extends TestCase
             'judul' => 'Bab VI Nilai',
             'is_published' => true,
         ]);
-        $subchapters = collect([1, 2])->map(fn (int $number) => Subchapter::create([
+        $subchapters = collect([1, 2])->map(fn(int $number) => Subchapter::create([
             'chapter_id' => $chapter->id,
             'nomor_subbab' => $number,
             'judul' => "Subbab {$number}",
@@ -89,7 +89,7 @@ class EvaluationResultsIntegrationTest extends TestCase
             ->where('user_id', $teacher->id)
             ->where('nomor_soal', 1)
             ->update([
-                'pertanyaan' => 'Soal evaluasi diperbarui tanpa mengganti bank',
+                'pertanyaan' => 'Pertanyaan aktif 1',
                 'updated_at' => now(),
             ]);
         DB::table('evaluation_attempts')->where('id', $evaluationId)->update([
@@ -265,7 +265,7 @@ class EvaluationResultsIntegrationTest extends TestCase
             ->assertJsonPath('final_grades.0.final_score', null)
             ->assertJsonPath('final_grades.0.completion_status', 'belum_dinilai');
         $this->assertFalse(collect($studentProgress->json('activities'))
-            ->contains(fn (array $activity) => $activity['type'] === 'evaluation'));
+            ->contains(fn(array $activity) => $activity['type'] === 'evaluation'));
         $parentDashboard = app(ParentDashboardService::class)->dashboard($parent);
         $this->assertSame($student->id, $parentDashboard['child']->id);
         $this->assertSame(80.0, (float) $parentDashboard['learningResults'][0]['score']);
@@ -459,15 +459,22 @@ class EvaluationResultsIntegrationTest extends TestCase
             collect($teacherDetail->json('results'))
                 ->where('assessment_type', 'evaluation')
                 ->pluck('score')
-                ->map(fn ($score) => (float) $score)
+                ->map(fn($score) => (float) $score)
                 ->values()
                 ->all()
         );
+        // Guru dari sekolah yang sama boleh melihat siswa, tetapi tidak
+        // memiliki hasil evaluasi milik guru lain sebagai hasilnya sendiri.
+        $sameSchoolDetail = $this->actingAs($otherTeacher)
+            ->getJson("/guru/student-grades/{$student->id}")
+            ->assertOk();
+        $this->assertSame([], collect($sameSchoolDetail->json('results'))
+            ->where('assessment_type', 'evaluation')->values()->all());
+
+        $otherTeacher->update(['sekolah' => 'Sekolah Berbeda']);
         $this->actingAs($otherTeacher)
             ->getJson("/guru/student-grades/{$student->id}")
-            ->assertOk()
-            ->assertJsonCount(0, 'results')
-            ->assertJsonPath('student.grading.evaluation_score', null);
+            ->assertNotFound();
 
         $studentProgress = $this->actingAs($student)
             ->getJson('/siswa/progress')
@@ -515,7 +522,7 @@ class EvaluationResultsIntegrationTest extends TestCase
             ->count());
     }
 
-    public function test_global_grade_list_includes_unassigned_students_and_quiz_results_follow_the_content_owner(): void
+    public function test_grade_list_and_details_require_current_school_not_class_assignment(): void
     {
         $teacher = $this->createUser('guru', 'guru-global-grade-owner');
         $otherTeacher = $this->createUser('guru', 'guru-global-grade-other');
@@ -528,6 +535,12 @@ class EvaluationResultsIntegrationTest extends TestCase
         $firstStudent->update(['kelas' => 'VII A']);
         $secondStudent->update(['kelas' => 'IX C', 'sekolah' => 'Sekolah Berbeda']);
         $thirdStudent->update(['kelas' => 'VI B']);
+        DB::table('teacher_class_assignments')->insert([
+            'teacher_id' => $teacher->id,
+            'class_name' => 'VII A',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
         $chapter = Chapter::create([
             'user_id' => $teacher->id,
@@ -574,26 +587,23 @@ class EvaluationResultsIntegrationTest extends TestCase
         $teacherGrades = $this->actingAs($teacher)
             ->getJson('/guru/student-grades')
             ->assertOk()
-            ->assertJsonPath('total', 3);
+            ->assertJsonPath('total', 2);
         $gradeRows = collect($teacherGrades->json('data'))->keyBy('id');
-        $this->assertSame(100.0, (float) $gradeRows[$secondStudent->id]['quiz_score']);
-        $this->assertSame('belum_dinilai', $gradeRows[$secondStudent->id]['completion_status']);
+        $this->assertEqualsCanonicalizing(
+            [$firstStudent->id, $thirdStudent->id],
+            $gradeRows->keys()->all()
+        );
         $this->assertSame('belum_dinilai', $gradeRows[$firstStudent->id]['completion_status']);
-        $this->assertSame('belum_dinilai', $gradeRows[$thirdStudent->id]['completion_status']);
 
         $this->getJson("/guru/student-grades/{$secondStudent->id}")
-            ->assertOk()
-            ->assertJsonPath('results.0.score', 100)
-            ->assertJsonPath('results.0.assessment_type', 'quiz');
+            ->assertNotFound();
         $this->actingAs($otherTeacher)
             ->getJson("/guru/student-grades/{$secondStudent->id}")
-            ->assertOk()
-            ->assertJsonCount(0, 'results')
-            ->assertJsonPath('student.grading.quiz_score', null);
+            ->assertNotFound();
 
         $parentDashboard = app(ParentDashboardService::class)->dashboard($parent);
         $this->assertSame($secondStudent->id, $parentDashboard['child']->id);
-        $this->assertSame($teacher->id, $parentDashboard['finalGrades'][0]['teacher_id']);
+        $this->assertSame([], $parentDashboard['finalGrades']);
         $this->assertSame(100.0, (float) $parentDashboard['learningResults'][0]['score']);
         $this->assertSame($teacher->id, $parentDashboard['learningResults'][0]['teacher_id']);
         $this->assertNull(app(ParentDashboardService::class)->dashboard($unrelatedParent)['child']);
@@ -685,7 +695,7 @@ class EvaluationResultsIntegrationTest extends TestCase
         $teacherScores = collect($teacherDetail->json('results'))
             ->where('assessment_type', 'evaluation')
             ->pluck('score')
-            ->map(fn ($score) => (float) $score)
+            ->map(fn($score) => (float) $score)
             ->values()
             ->all();
         $this->assertSame([0.0], $teacherScores);
@@ -702,24 +712,34 @@ class EvaluationResultsIntegrationTest extends TestCase
         $pdf->assertOk();
         $this->assertStringStartsWith('%PDF-', $pdf->getContent());
 
-        $this->actingAs($otherTeacher)
+        $otherDetail = $this->actingAs($otherTeacher)
             ->getJson("/guru/student-grades/{$student->id}")
-            ->assertOk()
-            ->assertJsonCount(0, 'results')
-            ->assertJsonPath('student.grading.evaluation_score', null);
+            ->assertOk();
+        $this->assertSame([], collect($otherDetail->json('results'))
+            ->where('assessment_type', 'evaluation')->values()->all());
         $this->actingAs($otherTeacher)
             ->getJson('/guru/student-grades')
             ->assertOk()
             ->assertJsonPath('total', 1)
-            ->assertJsonPath('data.0.evaluation_score', null);
+            ->assertJsonPath('data.0.id', $student->id);
+
+        $otherTeacher->update(['sekolah' => 'Sekolah Berbeda']);
+        $this->actingAs($otherTeacher)
+            ->getJson("/guru/student-grades/{$student->id}")
+            ->assertNotFound();
+        $this->actingAs($otherTeacher)
+            ->getJson('/guru/student-grades')
+            ->assertOk()
+            ->assertJsonPath('total', 0)
+            ->assertJsonCount(0, 'data');
 
         $parentDashboard = app(ParentDashboardService::class)->dashboard($parent);
         $this->assertSame($student->id, $parentDashboard['child']->id);
         $this->assertCount(1, $parentDashboard['learningResults']);
-        $this->assertNull($parentDashboard['stats']['average']);
+        $this->assertSame(0.0, (float) $parentDashboard['stats']['average']);
         $parentScores = collect($parentDashboard['learningResults'])
             ->pluck('score')
-            ->map(fn ($score) => (float) $score)
+            ->map(fn($score) => (float) $score)
             ->sort()
             ->values()
             ->all();
@@ -743,8 +763,7 @@ class EvaluationResultsIntegrationTest extends TestCase
         bool $correct,
         ?int $chapterId = null,
         ?int $bankId = null
-    ): int
-    {
+    ): int {
         $activeQuestionIds = [];
         foreach (range(1, 15) as $number) {
             $question = DB::table('evaluation_questions')
@@ -775,6 +794,29 @@ class EvaluationResultsIntegrationTest extends TestCase
             ]);
         }
 
+        // Attempt berbasis bank wajib memakai ID dan isi soal dari bank itu,
+        // bukan ID soal legacy evaluation_questions.
+        if ($bankId !== null) {
+            $activeQuestionIds = [];
+            foreach (range(1, 15) as $number) {
+                $activeQuestionIds[] = DB::table('evaluation_bank_questions')->insertGetId([
+                    'evaluation_bank_id' => $bankId,
+                    'nomor_soal' => $number,
+                    'pertanyaan' => "Pertanyaan aktif {$number}",
+                    'konten_soal' => json_encode([
+                        'pilihan_a' => 'A',
+                        'pilihan_b' => 'B',
+                        'pilihan_c' => 'C',
+                        'pilihan_d' => 'D',
+                    ]),
+                    'kunci_jawaban' => json_encode(['jawaban' => 'A']),
+                    'pembahasan' => null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
         $snapshot = [];
         foreach (range(1, 15) as $number) {
             $snapshot[] = [
@@ -782,7 +824,7 @@ class EvaluationResultsIntegrationTest extends TestCase
                 'user_id' => $teacher->id,
                 'nomor_soal' => $number,
                 'tipe_soal' => 'pilihan_ganda',
-                'pertanyaan' => "Pertanyaan {$number}",
+                'pertanyaan' => "Pertanyaan aktif {$number}",
                 'konten_soal' => [
                     'pilihan_a' => 'A',
                     'pilihan_b' => 'B',
@@ -841,6 +883,9 @@ class EvaluationResultsIntegrationTest extends TestCase
             'password' => 'secret123',
             'role' => $role,
             'email' => null,
+            'sekolah' => in_array($role, ['guru', 'siswa'], true)
+                ? 'Sekolah Uji'
+                : null,
         ]);
     }
 }

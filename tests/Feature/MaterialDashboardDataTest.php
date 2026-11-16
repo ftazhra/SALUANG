@@ -134,7 +134,7 @@ class MaterialDashboardDataTest extends TestCase
             ->assertJsonPath('chapters.0.subchapters', []);
     }
 
-    public function test_old_and_new_students_see_each_teachers_published_content_without_assignments(): void
+    public function test_old_and_new_students_see_published_content_from_their_school_without_assignments(): void
     {
         $firstTeacher = $this->createUser('guru', 'guru-global-material-a');
         $firstTeacher->update(['name' => 'Guru Global A', 'sekolah' => 'Sekolah A']);
@@ -202,7 +202,7 @@ class MaterialDashboardDataTest extends TestCase
             'nisn' => '9876543210',
             'email' => 'new-global-material@example.test',
             'kelas' => 'IX C',
-            'sekolah' => 'Sekolah C',
+            'sekolah' => 'Sekolah A',
             'password' => 'secret123',
             'password_confirmation' => 'secret123',
         ])->assertRedirect(route('login'));
@@ -214,19 +214,15 @@ class MaterialDashboardDataTest extends TestCase
             $response = $this->actingAs($student)
                 ->getJson('/siswa/materials')
                 ->assertOk()
-                ->assertJsonCount(2, 'chapters')
+                ->assertJsonCount(1, 'chapters')
+                ->assertJsonMissing(['id' => $secondChapter->id])
                 ->assertJsonMissing(['judul' => 'Materi Draf']);
             $chapters = collect($response->json('chapters'))->keyBy('id');
             $this->assertSame('Guru Global A', $chapters[$firstChapter->id]['guru']['name']);
-            $this->assertSame('Guru Global B', $chapters[$secondChapter->id]['guru']['name']);
             $this->assertSame(
                 '<p>Teks Guru A</p>',
                 $chapters[$firstChapter->id]['subchapters'][0]['content_blocks'][0]['payload']['content']
             );
-            $secondBlocks = $chapters[$secondChapter->id]['subchapters'][0]['content_blocks'];
-            $this->assertSame('Konten blok Guru B', strip_tags($secondBlocks[0]['payload']['content']));
-            $this->assertSame('Ilustrasi Guru B', $secondBlocks[1]['media']['title']);
-            $this->assertSame('Keterangan ilustrasi', $secondBlocks[1]['media']['caption']);
         }
 
         $this->assertDatabaseMissing('teacher_class_assignments', [
@@ -238,6 +234,7 @@ class MaterialDashboardDataTest extends TestCase
             'class_name' => 'IX C',
         ]);
         $this->assertDatabaseHas('subchapters', ['id' => $firstSubchapter->id]);
+        $this->assertDatabaseHas('subchapters', ['id' => $secondSubchapter->id]);
         $this->assertDatabaseHas('chapters', ['id' => $draftChapter->id, 'is_published' => false]);
     }
 
@@ -249,6 +246,9 @@ class MaterialDashboardDataTest extends TestCase
             'password' => 'secret123',
             'role' => $role,
             'email' => null,
+            'sekolah' => in_array($role, ['guru', 'siswa'], true)
+                ? 'Sekolah Uji'
+                : null,
         ]);
     }
 }

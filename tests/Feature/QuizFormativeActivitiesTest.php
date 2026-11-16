@@ -1332,6 +1332,9 @@ class QuizFormativeActivitiesTest extends TestCase
             'role' => $role,
             'email' => null,
             'kelas' => $role === 'siswa' ? 'VII A' : null,
+            'sekolah' => in_array($role, ['guru', 'siswa'], true)
+                ? 'Sekolah Uji'
+                : null,
         ]);
     }
 }

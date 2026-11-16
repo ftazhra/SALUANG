@@ -190,6 +190,11 @@ Route::middleware('auth')
 
         Route::post('/discussions/{discussion}/replies', [DiscussionController::class, 'reply'])->name('discussions.replies.store');
 
+        // Hapus tanggapan milik sendiri (tidak menghapus diskusi utama).
+        Route::delete('/discussions/{discussion}/replies/{reply}', [DiscussionController::class, 'destroyReply'])
+            ->whereNumber('discussion')->whereNumber('reply')
+            ->name('discussions.replies.destroy');
+
         /*
 |--------------------------------------------------------------------------
 | 06.5. MENGEDIT DISKUSI
@@ -471,6 +476,11 @@ Route::middleware(['auth', EnsureUserIsGuru::class])
             ->whereNumber('discussion')
             ->name('discussions.replies.store');
 
+        // Hapus tanggapan Guru milik sendiri.
+        Route::delete('/discussions/{discussion}/replies/{reply}', [GuruDiscussionController::class, 'destroyReply'])
+            ->whereNumber('discussion')->whereNumber('reply')
+            ->name('discussions.replies.destroy');
+
         // Mengedit diskusi milik Guru sendiri.
         Route::put('/discussions/{discussion}', [GuruDiscussionController::class, 'update'])
             ->whereNumber('discussion')
@@ -646,5 +656,4 @@ Route::middleware(['auth'])
             '/orang-tua/verifikasi-anak',
             [\App\Http\Controllers\ParentLinkController::class, 'verify']
         )->name('orang-tua.parent-link.verify');
-
     });

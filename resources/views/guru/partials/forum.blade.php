@@ -288,6 +288,27 @@
         </div>
     </div>
 
+    {{-- Konfirmasi khusus menghapus tanggapan, tidak mengganggu modal hapus diskusi. --}}
+    <div class="gf-modal gf-reply-delete-modal" id="gfReplyDeleteModal" hidden>
+        <div class="gf-modal-backdrop" data-gf-reply-delete-close></div>
+        <div class="gf-modal-dialog gf-modal-dialog-small gf-reply-confirm" role="dialog" aria-modal="true"
+            aria-labelledby="gfReplyDeleteTitle" aria-describedby="gfReplyDeleteDescription" tabindex="-1">
+            <div class="gf-reply-confirm-icon" aria-hidden="true">
+                <i class="bi bi-trash3"></i>
+            </div>
+            <h2 id="gfReplyDeleteTitle">Hapus Tanggapan?</h2>
+            <p id="gfReplyDeleteDescription">Tanggapan ini akan dihapus dari Forum Diskusi. Tindakan ini tidak dapat
+                dibatalkan.</p>
+            <p class="gf-reply-confirm-error" id="gfReplyDeleteError" role="alert" hidden></p>
+            <div class="gf-form-actions gf-reply-confirm-actions">
+                <button type="button" class="gf-btn gf-btn-outline" id="gfReplyDeleteCancel"
+                    data-gf-reply-delete-close>Batal</button>
+                <button type="button" class="gf-btn gf-btn-danger gf-reply-confirm-submit"
+                    id="gfReplyDeleteAccept">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
     {{-- NOTIFIKASI --}}
     <div class="gf-toast" id="gfToast" role="status" aria-live="polite" hidden></div>
 
