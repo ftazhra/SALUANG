@@ -6,6 +6,7 @@ use App\Models\Chapter;
 use App\Models\Subchapter;
 use App\Models\SubchapterMedia;
 use App\Models\User;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Schema;
@@ -393,7 +394,7 @@ class SubchapterContentBlocksTest extends TestCase
             'content_blocks_enabled' => true,
         ]);
         $path = 'subchapter-media/gambar-tersimpan.jpg';
-        Storage::disk('public')->put($path, 'saved image bytes');
+        $this->publicDisk()->put($path, 'saved image bytes');
         $media = $subchapter->media()->create([
             'media_type' => 'image',
             'source' => 'upload',
@@ -434,10 +435,10 @@ class SubchapterContentBlocksTest extends TestCase
             )
             ->assertJsonPath(
                 'subchapter.content_blocks.1.media.url',
-                Storage::disk('public')->url($path)
+                $this->publicDisk()->url($path)
             );
 
-        Storage::disk('public')->assertExists($path);
+        $this->publicDisk()->assertExists($path);
         $this->assertDatabaseHas('subchapter_content_blocks', [
             'subchapter_id' => $subchapter->id,
             'position' => 2,
@@ -450,7 +451,7 @@ class SubchapterContentBlocksTest extends TestCase
 
         $studentResponse->assertJsonPath(
             'chapters.0.subchapters.0.content_blocks.1.media.url',
-            Storage::disk('public')->url($path)
+            $this->publicDisk()->url($path)
         );
         $this->assertFalse(
             str_starts_with(
@@ -476,7 +477,7 @@ class SubchapterContentBlocksTest extends TestCase
             'content_blocks_enabled' => true,
         ]);
         $path = 'subchapter-media/media-lama.png';
-        Storage::disk('public')->put($path, 'existing image');
+        $this->publicDisk()->put($path, 'existing image');
         $media = $subchapter->media()->create([
             'media_type' => 'image',
             'source' => 'upload',
@@ -501,9 +502,9 @@ class SubchapterContentBlocksTest extends TestCase
             ->assertJsonPath('subchapter.content_blocks.1.media_id', $media->id)
             ->assertJsonPath(
                 'subchapter.content_blocks.1.media.url',
-                Storage::disk('public')->url($path)
+                $this->publicDisk()->url($path)
             );
-        Storage::disk('public')->assertExists($path);
+        $this->publicDisk()->assertExists($path);
         $this->assertDatabaseHas('subchapter_media', [
             'id' => $media->id,
             'storage_path' => $path,
@@ -514,7 +515,7 @@ class SubchapterContentBlocksTest extends TestCase
             ->assertOk()
             ->assertJsonPath(
                 'chapters.0.subchapters.0.content_blocks.1.media.url',
-                Storage::disk('public')->url($path)
+                $this->publicDisk()->url($path)
             );
     }
 
@@ -576,7 +577,7 @@ class SubchapterContentBlocksTest extends TestCase
             ->pluck('storage_path')
             ->all();
         foreach ($storedPaths as $path) {
-            Storage::disk('public')->assertExists($path);
+            $this->publicDisk()->assertExists($path);
         }
 
         $this->post(
@@ -587,7 +588,7 @@ class SubchapterContentBlocksTest extends TestCase
         $this->assertDatabaseCount('subchapter_content_blocks', 0);
         $this->assertDatabaseCount('subchapter_media', 3);
         foreach ($storedPaths as $path) {
-            Storage::disk('public')->assertExists($path);
+            $this->publicDisk()->assertExists($path);
         }
     }
 
@@ -706,6 +707,14 @@ class SubchapterContentBlocksTest extends TestCase
             ->assertNotFound();
 
         $this->assertDatabaseCount('subchapter_content_blocks', 0);
+    }
+
+    private function publicDisk(): FilesystemAdapter
+    {
+        /** @var FilesystemAdapter $disk */
+        $disk = Storage::disk('public');
+
+        return $disk;
     }
 
     private function createUser(string $role): User

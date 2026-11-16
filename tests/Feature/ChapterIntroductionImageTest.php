@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Chapter;
 use App\Models\User;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -36,8 +37,8 @@ class ChapterIntroductionImageTest extends TestCase
         $created->assertCreated();
         $chapterId = $created->json('chapter.id');
         $firstPath = Chapter::findOrFail($chapterId)->gambar_pengenalan_path;
-        Storage::disk('public')->assertExists($firstPath);
-        $firstUrl = Storage::disk('public')->url($firstPath);
+        $this->publicDisk()->assertExists($firstPath);
+        $firstUrl = $this->publicDisk()->url($firstPath);
         $created->assertJsonPath('chapter.gambar_pengenalan_url', $firstUrl);
         $created->assertJsonPath(
             'chapter.gambar_pengenalan_judul',
@@ -105,7 +106,7 @@ class ChapterIntroductionImageTest extends TestCase
                 'chapter.gambar_pengenalan_keterangan',
                 'Keterangan hasil edit.'
             );
-        Storage::disk('public')->assertExists($firstPath);
+        $this->publicDisk()->assertExists($firstPath);
         $this->assertDatabaseHas('chapters', [
             'id' => $chapterId,
             'gambar_pengenalan_judul' => 'Judul hasil edit',
@@ -141,14 +142,14 @@ class ChapterIntroductionImageTest extends TestCase
         );
         $updated->assertOk();
         $secondPath = Chapter::findOrFail($chapterId)->gambar_pengenalan_path;
-        Storage::disk('public')->assertExists($secondPath);
-        Storage::disk('public')->assertMissing($firstPath);
+        $this->publicDisk()->assertExists($secondPath);
+        $this->publicDisk()->assertMissing($firstPath);
         $this->assertDatabaseHas('chapters', [
             'id' => $chapterId,
             'gambar_pengenalan_judul' => 'Judul hasil edit',
             'gambar_pengenalan_keterangan' => 'Keterangan hasil edit.',
         ]);
-        $secondUrl = Storage::disk('public')->url($secondPath);
+        $secondUrl = $this->publicDisk()->url($secondPath);
 
         $this->actingAs($siswa)->getJson('/siswa/materials')
             ->assertOk()
@@ -242,7 +243,7 @@ class ChapterIntroductionImageTest extends TestCase
             ]
         )->assertOk()
             ->assertJsonPath('chapter.gambar_pengenalan_url', null);
-        Storage::disk('public')->assertExists(
+        $this->publicDisk()->assertExists(
             $secondChapter->gambar_pengenalan_path
         );
 
@@ -256,9 +257,17 @@ class ChapterIntroductionImageTest extends TestCase
                 'remove_introduction_image' => '1',
             ]
         )->assertOk();
-        Storage::disk('public')->assertMissing(
+        $this->publicDisk()->assertMissing(
             $secondChapter->gambar_pengenalan_path
         );
+    }
+
+    private function publicDisk(): FilesystemAdapter
+    {
+        /** @var FilesystemAdapter $disk */
+        $disk = Storage::disk('public');
+
+        return $disk;
     }
 
     private function createUser(string $role, string $username): User
