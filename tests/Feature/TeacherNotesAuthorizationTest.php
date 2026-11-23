@@ -102,7 +102,13 @@ class TeacherNotesAuthorizationTest extends TestCase
             ->getJson('/siswa/teacher-notes')
             ->assertOk()
             ->assertJsonCount(1, 'notes')
-            ->assertJsonPath('notes.0.note', 'Catatan untuk Siswa');
+            ->assertJsonPath('notes.0.note', 'Catatan untuk Siswa')
+            ->assertJsonPath('notes.0.teacher_name', $teacher->name)
+            ->assertJsonPath('notes.0.assessment_label', 'Catatan umum');
+        $this->actingAs($student)
+            ->get('/dashboard')
+            ->assertOk()
+            ->assertSee('siswa-catatan-guru.js');
 
         $this->actingAs($student)
             ->get("/notifications/{$studentNotification->id}/open")
@@ -128,6 +134,16 @@ class TeacherNotesAuthorizationTest extends TestCase
             'Catatan untuk Orang Tua',
             $parentDashboard['teacherNotes']['general'][0]['body']
         );
+        $this->assertSame(
+            $teacher->name,
+            $parentDashboard['teacherNotes']['general'][0]['teacher_name']
+        );
+        $this->actingAs($parent)
+            ->get("/dashboard?page=hasil&child_id={$student->id}")
+            ->assertOk()
+            ->assertSee('Catatan Guru')
+            ->assertSee('Catatan untuk Orang Tua')
+            ->assertSee($teacher->name);
 
         $otherParentDashboard = app(ParentDashboardService::class)->dashboard($otherParent);
         $this->assertSame($otherStudent->id, $otherParentDashboard['child']->id);

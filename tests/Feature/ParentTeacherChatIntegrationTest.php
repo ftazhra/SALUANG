@@ -20,7 +20,9 @@ class ParentTeacherChatIntegrationTest extends TestCase
         $teacherThreads = $this->actingAs($parent)
             ->getJson('/orang-tua/chat/teachers')
             ->assertOk()
-            ->assertJsonCount(4, 'teachers');
+            ->assertJsonCount(4, 'teachers')
+            ->assertJsonPath('teachers.0.school_name', 'Sekolah Uji')
+            ->assertJsonPath('teachers.0.class_name', 'VII A');
         $actualThreads = collect($teacherThreads->json('teachers'))
             ->map(fn($thread) => $thread['student_id'] . ':' . $thread['id'])
             ->all();
@@ -99,6 +101,25 @@ class ParentTeacherChatIntegrationTest extends TestCase
         $otherSchoolTeacher = $this->createUser('guru', 'chat-other-school-teacher', [
             'sekolah' => 'Sekolah Lain',
         ]);
+        $foreignChapterId = DB::table('chapters')->insertGetId([
+            'user_id' => $otherSchoolTeacher->id,
+            'nomor_bab' => 6,
+            'judul' => 'Bab Guru Sekolah Lain',
+            'is_published' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        DB::table('student_assessment_results')->insert([
+            'user_id' => $studentA->id,
+            'assessment_type' => 'quiz',
+            'chapter_id' => $foreignChapterId,
+            'total_questions' => 5,
+            'correct_answers' => 4,
+            'score' => 80,
+            'completed_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
         $studentC = $this->createStudent('chat-student-c', 'VII C', '3333333333');
         $pendingParent = $this->createUser('orang_tua', 'chat-pending-parent');
         $pendingRelation = $this->link($studentC, $pendingParent, 'pending');
@@ -114,6 +135,18 @@ class ParentTeacherChatIntegrationTest extends TestCase
             ->assertOk();
         $this->actingAs($otherParent)
             ->getJson("/orang-tua/chat/messages?student_id={$studentA->id}&teacher_id={$teacherA->id}")
+            ->assertNotFound();
+        $parentTeachers = $this->actingAs($parent)
+            ->getJson('/orang-tua/chat/teachers')
+            ->assertOk();
+        $this->assertNotContains(
+            (int) $otherSchoolTeacher->id,
+            collect($parentTeachers->json('teachers'))
+                ->pluck('id')
+                ->map(fn ($id) => (int) $id)
+                ->all()
+        );
+        $this->getJson("/orang-tua/chat/messages?student_id={$studentA->id}&teacher_id={$otherSchoolTeacher->id}")
             ->assertNotFound();
         $this->actingAs($parent)
             ->postJson('/orang-tua/chat/messages', [

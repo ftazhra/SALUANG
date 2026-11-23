@@ -57,6 +57,7 @@ class TeacherStudentAccessService
         return User::query()
             ->where('role', 'guru')
             ->whereNotNull('sekolah')
+            ->whereNull('deleted_at')
             ->whereRaw('LOWER(TRIM(sekolah)) = ?', [
                 mb_strtolower(trim((string) $student->sekolah))
             ])
@@ -78,13 +79,20 @@ class TeacherStudentAccessService
             return false;
         }
 
-        if (!$this->schoolAccess->sameSchool($student, $teacher)) {
+        if (!$this->isSameSchool($student, $teacher)) {
             return false;
         }
 
         return $this->studentsForTeacher($teacher)
             ->whereKey($student->id)
             ->exists();
+    }
+
+    public function isSameSchool(User $student, User $teacher): bool
+    {
+        return $student->role === 'siswa'
+            && $teacher->role === 'guru'
+            && $this->schoolAccess->sameSchool($student, $teacher);
     }
 
     // Memvalidasi kelas yang dikelola Guru.

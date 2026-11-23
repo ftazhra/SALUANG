@@ -1,10 +1,10 @@
 <?php
 namespace App\Http\Controllers\Guru;
 use App\Http\Controllers\Controller;
+use App\Services\ProfilePhotoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\ValidationException;
@@ -100,36 +100,31 @@ class ProfileController extends Controller
     | 03. MENGUBAH FOTO PROFIL
     |--------------------------------------------------------------------------
     */
-    public function updatePhoto(Request $request): JsonResponse
+    public function updatePhoto(
+        Request $request,
+        ProfilePhotoService $photos
+    ): JsonResponse
     {
         $this->ensureGuru($request);
         $request->validate([
             'photo' => [
                 'required',
                 File::image()
-                    ->max('2mb')
+                    ->max(2048)
                     ->types(['jpg', 'jpeg', 'png', 'webp']),
             ],
+        ], [
+            'photo.required' => 'Pilih foto profil terlebih dahulu.',
+            'photo.image' => 'File yang dipilih harus berupa gambar.',
+            'photo.max' => 'Ukuran foto maksimal 2 MB.',
+            'photo.mimes' => 'Format foto harus JPG, PNG, atau WebP.',
+            'photo.extensions' => 'Format foto harus JPG, PNG, atau WebP.',
         ]);
-        $user = $request->user();
-        $oldPath = $user->profile_photo_path;
-        $newPath = $request->file('photo')->store(
-            'profile-photos',
-            'public'
-        );
-        try {
-            $user->profile_photo_path = $newPath;
-            $user->save();
-        } catch (\Throwable $error) {
-            Storage::disk('public')->delete($newPath);
-            throw $error;
-        }
-        if ($oldPath && $oldPath !== $newPath) {
-            Storage::disk('public')->delete($oldPath);
-        }
+        $photoUrl = $photos->replace($request->user(), $request->file('photo'));
+
         return response()->json([
             'message' => 'Foto profil Guru berhasil diperbarui.',
-            'photo_url' => asset('storage/' . $newPath),
+            'photo_url' => $photoUrl,
         ]);
     }
     /*
@@ -137,18 +132,16 @@ class ProfileController extends Controller
     | 04. MENGHAPUS FOTO PROFIL
     |--------------------------------------------------------------------------
     */
-    public function destroyPhoto(Request $request): JsonResponse
+    public function destroyPhoto(
+        Request $request,
+        ProfilePhotoService $photos
+    ): JsonResponse
     {
         $this->ensureGuru($request);
-        $user = $request->user();
-        $oldPath = $user->profile_photo_path;
-        $user->profile_photo_path = null;
-        $user->save();
-        if ($oldPath) {
-            Storage::disk('public')->delete($oldPath);
-        }
+        $photos->remove($request->user());
+
         return response()->json([
-            'message' => 'Foto profil Guru berhasil dihapus.',
+            'message' => 'Foto profil dihapus dari akun. File lama tetap disimpan.',
         ]);
     }
     /*

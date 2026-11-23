@@ -4,6 +4,41 @@
 document.addEventListener('DOMContentLoaded', function () {
     'use strict';
     const $ = (id) => document.getElementById(id);
+    async function readJsonResponse(response, fallback) {
+        const contentType = response.headers.get('content-type') || '';
+        let result = null;
+        if (contentType.includes('application/json')) {
+            try {
+                result = await response.json();
+            } catch {
+                result = null;
+            }
+        }
+        if (!response.ok) {
+            const firstError = result?.errors
+                ? Object.values(result.errors).flat()[0]
+                : null;
+            throw new Error(
+                firstError
+                || result?.message
+                || (response.redirected
+                    ? 'Sesi berakhir atau halaman dialihkan. Muat ulang halaman lalu login kembali.'
+                    : response.status === 419
+                        ? 'Sesi berakhir. Muat ulang halaman lalu coba kembali.'
+                        : response.status === 413
+                            ? 'Server menolak foto. Gunakan ukuran maksimal 2 MB; batas hosting mungkin lebih rendah.'
+                            : `${fallback} (HTTP ${response.status}).`)
+            );
+        }
+        if (!result || typeof result !== 'object') {
+            throw new Error(
+                response.redirected
+                    ? 'Sesi berakhir atau halaman dialihkan. Muat ulang halaman lalu login kembali.'
+                    : `Server tidak mengembalikan respons JSON yang valid (HTTP ${response.status}).`
+            );
+        }
+        return result;
+    }
     const profilePage = $('profilePage');
     if (!profilePage) {
         return;
@@ -130,18 +165,87 @@ document.addEventListener('DOMContentLoaded', function () {
             'akan diaktifkan pada tahap berikutnya.';
     });
     /* =====================================================
-       03. UPLOAD FOTO PROFIL KE DATABASE
+       03. PRATINJAU DAN SIMPAN FOTO PROFIL
        ===================================================== */
     const photoButton = $('profilePhotoButton');
     const photoInput = $('profilePhotoInput');
+    const savePhotoButton = $('profileSavePhotoButton');
+    const cancelPhotoButton = $('profileCancelPhotoButton');
     const filename = $('profilePhotoFilename');
-    let uploadingPhoto = false;
+    const deletePhotoButton = $('profileDeletePhotoButton');
+    const avatar = $('profileAvatar');
+    const topbarAvatar = $('sdTopbarAvatar');
+    let savingPhoto = false;
+    let savedPhotoUrl = avatar.querySelector('img')?.src || null;
+    let previewPhotoUrl = null;
+
+    function setInitial() {
+        const name = $('profileDisplayName')?.textContent.trim() || 'Siswa';
+        const initial = Array.from(name)[0]?.toLocaleUpperCase('id-ID') || 'S';
+        const large = document.createElement('span');
+        large.id = 'profileAvatarInitial';
+        large.textContent = initial;
+        avatar.replaceChildren(large);
+        if (topbarAvatar) {
+            topbarAvatar.dataset.initial = initial;
+            topbarAvatar.replaceChildren(document.createTextNode(initial));
+        }
+    }
+
+    function setPhoto(url) {
+        const large = document.createElement('img');
+        large.id = 'profileAvatarImage';
+        large.alt = 'Foto profil siswa';
+        large.src = url;
+        large.addEventListener('error', () => setInitial(), { once: true });
+        avatar.replaceChildren(large);
+
+        if (topbarAvatar) {
+            const small = document.createElement('img');
+            small.className = 'sd-topbar-avatar-img';
+            small.alt = 'Foto profil siswa';
+            small.src = url;
+            small.addEventListener('error', () => {
+                topbarAvatar.replaceChildren(
+                    document.createTextNode(topbarAvatar.dataset.initial || 'S')
+                );
+            }, { once: true });
+            topbarAvatar.replaceChildren(small);
+        }
+    }
+
+    avatar.querySelector('img')?.addEventListener('error', () => setInitial(), { once: true });
+    topbarAvatar?.querySelector('img')?.addEventListener('error', () => {
+        topbarAvatar.replaceChildren(document.createTextNode(topbarAvatar.dataset.initial || 'S'));
+    }, { once: true });
+
+    function revokePreview() {
+        if (previewPhotoUrl) {
+            URL.revokeObjectURL(previewPhotoUrl);
+            previewPhotoUrl = null;
+        }
+    }
+
+    function resetPhotoSelection() {
+        revokePreview();
+        photoInput.value = '';
+        savePhotoButton.hidden = true;
+        savePhotoButton.disabled = true;
+        cancelPhotoButton.hidden = true;
+        deletePhotoButton.disabled = false;
+        if (savedPhotoUrl) {
+            setPhoto(savedPhotoUrl);
+        } else {
+            setInitial();
+        }
+    }
+
     photoButton.addEventListener('click', function () {
-        if (!uploadingPhoto) {
+        if (!savingPhoto) {
             photoInput.click();
         }
     });
-    photoInput.addEventListener('change', async function () {
+    photoInput.addEventListener('change', function () {
         const file = photoInput.files?.[0];
         if (!file) return;
         // Validasi awal di browser.
@@ -151,22 +255,39 @@ document.addEventListener('DOMContentLoaded', function () {
             'image/webp',
         ];
         if (!allowedTypes.includes(file.type)) {
-            filename.textContent =
-                'Gunakan gambar JPG, PNG, atau WebP.';
-            photoInput.value = '';
+            resetPhotoSelection();
+            filename.textContent = 'Gunakan gambar JPG, PNG, atau WebP.';
+            filename.classList.add('is-error');
             return;
         }
         if (file.size > 2 * 1024 * 1024) {
-            filename.textContent =
-                'Ukuran foto maksimal 2 MB.';
-            photoInput.value = '';
+            resetPhotoSelection();
+            filename.textContent = 'Ukuran foto maksimal 2 MB.';
+            filename.classList.add('is-error');
             return;
         }
+
+        revokePreview();
+        previewPhotoUrl = URL.createObjectURL(file);
+        setPhoto(previewPhotoUrl);
+        savePhotoButton.hidden = false;
+        savePhotoButton.disabled = false;
+        cancelPhotoButton.hidden = false;
+        deletePhotoButton.disabled = true;
+        filename.classList.remove('is-error');
+        filename.textContent = 'Pratinjau siap. Pilih Simpan Foto untuk menerapkan perubahan.';
+    });
+
+    savePhotoButton.addEventListener('click', async function () {
+        const file = photoInput.files?.[0];
+        if (!file || savingPhoto) return;
         const formData = new FormData();
         formData.append('photo', file);
-        uploadingPhoto = true;
+        savingPhoto = true;
+        savePhotoButton.disabled = true;
         photoButton.disabled = true;
-        filename.textContent = 'Mengunggah foto...';
+        filename.classList.remove('is-error');
+        filename.textContent = 'Menyimpan foto...';
         try {
             const response = await fetch('/siswa/profil/foto', {
                 method: 'POST',
@@ -180,45 +301,31 @@ document.addEventListener('DOMContentLoaded', function () {
                 },
                 body: formData,
             });
-            const contentType =
-                response.headers.get('content-type') || '';
-            const result = contentType.includes('application/json')
-                ? await response.json()
-                : {};
-            if (!response.ok) {
-                const validationMessage =
-                    result.errors?.photo?.[0];
-                throw new Error(
-                    validationMessage ||
-                    result.message ||
-                    'Foto gagal diunggah.'
-                );
-            }
-            const avatar = $('profileAvatar');
-            let image = $('profileAvatarImage');
-            // Buat elemen gambar jika sebelumnya hanya ada inisial.
-            if (!image) {
-                image = document.createElement('img');
-                image.id = 'profileAvatarImage';
-            }
-            image.alt = 'Foto profil siswa';
-            image.src = result.photo_url;
-            avatar.replaceChildren(image);
-            filename.textContent =
-                'Foto profil berhasil disimpan.';
-            $('profileDeletePhotoButton').hidden = false;
+            const result = await readJsonResponse(response, 'Foto gagal diunggah.');
+            setPhoto(result.photo_url);
+            savedPhotoUrl = result.photo_url;
+            revokePreview();
+            photoInput.value = '';
+            savePhotoButton.hidden = true;
+            cancelPhotoButton.hidden = true;
+            filename.textContent = result.message || 'Foto profil berhasil disimpan.';
+            deletePhotoButton.hidden = false;
+            deletePhotoButton.disabled = false;
+            filename.classList.remove('is-error');
         } catch (error) {
             filename.textContent = error.message;
+            filename.classList.add('is-error');
         } finally {
-            uploadingPhoto = false;
+            savingPhoto = false;
             photoButton.disabled = false;
-            photoInput.value = '';
+            if (!savePhotoButton.hidden) savePhotoButton.disabled = false;
         }
     });
+    cancelPhotoButton.addEventListener('click', resetPhotoSelection);
+
     /* =====================================================
        04. MENGHAPUS FOTO PROFIL
        ===================================================== */
-    const deletePhotoButton = $('profileDeletePhotoButton');
     const deletePhotoModal = $('profileDeletePhotoModal');
     const deletePhotoCancel = $('profileDeletePhotoCancel');
     const deletePhotoConfirm = $('profileDeletePhotoConfirm');
@@ -283,21 +390,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     )?.content || ''
                 }
             });
-            const result = await response.json();
-            if (!response.ok) {
-                throw new Error(
-                    result.message || 'Foto gagal dihapus.'
-                );
-            }
+            const result = await readJsonResponse(response, 'Foto gagal dihapus.');
             // Kembalikan avatar menjadi inisial nama akun.
-            const avatar = $('profileAvatar');
-            const profileName = $('profileDisplayName')
-                ?.textContent.trim() || 'Siswa';
-            const initial = document.createElement('span');
-            initial.id = 'profileAvatarInitial';
-            initial.textContent =
-                Array.from(profileName)[0]?.toUpperCase() || 'S';
-            avatar.replaceChildren(initial);
+            setInitial();
+            savedPhotoUrl = null;
+            revokePreview();
             deletePhotoButton.hidden = true;
             $('profilePhotoFilename').textContent =
                 'Foto profil berhasil dihapus.';

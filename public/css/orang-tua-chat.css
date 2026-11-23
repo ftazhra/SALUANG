@@ -196,7 +196,35 @@
     font-size: 14px;
     border: 1px solid #d7e9e6;
     border-radius: 12px;
-    overflow: hidden
+    overflow: hidden;
+    padding: 12px 14px;
+    background: #fff;
+    line-height: 1.6;
+}
+
+.pc-chat-empty {
+    margin: 14px 0 0;
+    padding: 14px 16px;
+    border: 1px solid #d7e9e6;
+    border-radius: 11px;
+    background: #fff;
+    color: #547787;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.pc-chat-retry {
+    margin-top: 10px;
+    padding: 9px 14px;
+    border: 1px solid #cfe4dc;
+    border-radius: 9px;
+    background: #fff;
+    color: #075477;
+    font-weight: 600;
+}
+
+.pc-chat-retry:hover {
+    background: #eef8f4;
 }
 
 .pc-conversation {

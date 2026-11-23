@@ -48,7 +48,7 @@ class Chapter extends Model
         $path = $this->getAttribute('gambar_pengenalan_path');
 
         return is_string($path) && $path !== ''
-            ? Storage::disk('public')->url($path)
+            ? Storage::disk('material_public')->url($path)
             : null;
     }
     /*

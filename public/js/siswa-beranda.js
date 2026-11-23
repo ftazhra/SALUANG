@@ -126,7 +126,11 @@
                 const detail = el(
                     'small',
                     '',
-                    `Kuis ${grade.quiz_completed_count}/${grade.quiz_required_count} · Evaluasi ${grade.evaluation_completed ? 'selesai' : 'belum selesai'}`
+                    [
+                        `Kuis ${grade.quiz_completed_count}/${grade.quiz_required_count}`,
+                        `Evaluasi ${grade.evaluation_completed ? 'selesai' : 'belum selesai'}`,
+                        grade.pending_reason
+                    ].filter(Boolean).join(' · ')
                 );
                 item.append(heading, value, detail);
                 gradeList.appendChild(item);

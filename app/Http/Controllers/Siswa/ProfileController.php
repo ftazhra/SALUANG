@@ -1,9 +1,9 @@
 <?php
 namespace App\Http\Controllers\Siswa;
 use App\Http\Controllers\Controller;
+use App\Services\ProfilePhotoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\ValidationException;
@@ -71,7 +71,10 @@ class ProfileController extends Controller
     | 01. MENGUBAH FOTO PROFIL SISWA
     |--------------------------------------------------------------------------
     */
-    public function updatePhoto(Request $request): JsonResponse
+    public function updatePhoto(
+        Request $request,
+        ProfilePhotoService $photos
+    ): JsonResponse
     {
         abort_unless(
             $request->user()
@@ -83,33 +86,21 @@ class ProfileController extends Controller
             'photo' => [
                 'required',
                 File::image()
-                    ->max('2mb')
+                    ->max(2048)
                     ->types(['jpg', 'jpeg', 'png', 'webp']),
             ],
+        ], [
+            'photo.required' => 'Pilih foto profil terlebih dahulu.',
+            'photo.image' => 'File yang dipilih harus berupa gambar.',
+            'photo.max' => 'Ukuran foto maksimal 2 MB.',
+            'photo.mimes' => 'Format foto harus JPG, PNG, atau WebP.',
+            'photo.extensions' => 'Format foto harus JPG, PNG, atau WebP.',
         ]);
-        $user = $request->user();
-        $oldPath = $user->profile_photo_path;
-        // Simpan foto baru ke public disk.
-        $newPath = $request->file('photo')->store(
-            'profile-photos',
-            'public'
-        );
-        try {
-            // Hanya akun siswa yang login yang diperbarui.
-            $user->profile_photo_path = $newPath;
-            $user->save();
-        } catch (\Throwable $error) {
-            // Jangan tinggalkan file baru jika database gagal.
-            Storage::disk('public')->delete($newPath);
-            throw $error;
-        }
-        // Foto lama dihapus setelah data baru tersimpan.
-        if ($oldPath && $oldPath !== $newPath) {
-            Storage::disk('public')->delete($oldPath);
-        }
+        $photoUrl = $photos->replace($request->user(), $request->file('photo'));
+
         return response()->json([
             'message' => 'Foto profil berhasil diperbarui.',
-            'photo_url' => asset('storage/' . $newPath),
+            'photo_url' => $photoUrl,
         ]);
     }
     /*
@@ -117,7 +108,10 @@ class ProfileController extends Controller
     | 02. MENGHAPUS FOTO PROFIL SISWA
     |--------------------------------------------------------------------------
     */
-    public function destroyPhoto(Request $request): JsonResponse
+    public function destroyPhoto(
+        Request $request,
+        ProfilePhotoService $photos
+    ): JsonResponse
     {
         abort_unless(
             $request->user()
@@ -125,17 +119,10 @@ class ProfileController extends Controller
             403,
             'Hanya siswa yang dapat menghapus foto profil.'
         );
-        $user = $request->user();
-        $oldPath = $user->profile_photo_path;
-        // Hapus referensi foto pada akun siswa.
-        $user->profile_photo_path = null;
-        $user->save();
-        // Hapus file lama setelah database berhasil diperbarui.
-        if ($oldPath) {
-            Storage::disk('public')->delete($oldPath);
-        }
+        $photos->remove($request->user());
+
         return response()->json([
-            'message' => 'Foto profil berhasil dihapus.',
+            'message' => 'Foto profil dihapus dari akun. File lama tetap disimpan.',
         ]);
     }
 }

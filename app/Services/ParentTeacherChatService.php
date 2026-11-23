@@ -63,6 +63,7 @@ class ParentTeacherChatService
                     'relationship_id' => (int) $relation->id,
                     'student_id' => (int) $student->id,
                     'student_name' => $student->name,
+                    'school_name' => $student->sekolah,
                     'class_name' => $student->kelas,
                     'id' => (int) $teacher->id,
                     'name' => $teacher->name,
@@ -257,31 +258,25 @@ class ParentTeacherChatService
     {
         abort_unless($teacher->role === 'guru', 403);
 
-        $studentIds = $this->teacherStudentAccess->studentsForTeacher($teacher)
+        return $this->teacherStudentAccess->studentsForTeacher($teacher)
             ->pluck('id')
             ->map(fn ($id) => (int) $id)
             ->all();
-
-        foreach ($this->evaluationResults->quizResultsForTeacher((int) $teacher->id) as $result) {
-            $studentIds[] = (int) $result['user_id'];
-        }
-
-        return array_values(array_unique($studentIds));
     }
 
     private function teacherIdsForStudent(User $student): array
     {
-        $teacherIds = $this->teacherStudentAccess->teacherIdsForStudent($student);
-
-        foreach ($this->evaluationResults->quizResultsForStudent((int) $student->id) as $result) {
-            $teacherIds[] = (int) $result['teacher_id'];
-        }
-
-        return array_values(array_unique($teacherIds));
+        return $this->teacherStudentAccess->teacherIdsForStudent($student);
     }
 
     private function assertTeacherHasLearningAccess(User $teacher, User $student): void
     {
+        abort_unless(
+            $this->teacherStudentAccess->isSameSchool($student, $teacher),
+            404,
+            'Guru tidak memiliki relasi pembelajaran dengan Siswa ini.'
+        );
+
         $isAssigned = $this->teacherStudentAccess->isAssignedToTeacher($student, $teacher);
         $ownsCompletedQuiz = $this->evaluationResults->quizResultsForTeacher(
             (int) $teacher->id,

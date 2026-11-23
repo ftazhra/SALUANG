@@ -16,7 +16,7 @@ class ChapterIntroductionImageTest extends TestCase
 
     public function test_chapter_image_is_shared_with_students_and_preserved_or_replaced_safely(): void
     {
-        Storage::fake('public');
+        Storage::fake('material_public');
         $guru = $this->createUser('guru', 'guru-image');
         $siswa = $this->createUser('siswa', 'siswa-image');
         $payload = [
@@ -37,8 +37,8 @@ class ChapterIntroductionImageTest extends TestCase
         $created->assertCreated();
         $chapterId = $created->json('chapter.id');
         $firstPath = Chapter::findOrFail($chapterId)->gambar_pengenalan_path;
-        $this->publicDisk()->assertExists($firstPath);
-        $firstUrl = $this->publicDisk()->url($firstPath);
+        $this->materialDisk()->assertExists($firstPath);
+        $firstUrl = $this->materialDisk()->url($firstPath);
         $created->assertJsonPath('chapter.gambar_pengenalan_url', $firstUrl);
         $created->assertJsonPath(
             'chapter.gambar_pengenalan_judul',
@@ -106,7 +106,7 @@ class ChapterIntroductionImageTest extends TestCase
                 'chapter.gambar_pengenalan_keterangan',
                 'Keterangan hasil edit.'
             );
-        $this->publicDisk()->assertExists($firstPath);
+        $this->materialDisk()->assertExists($firstPath);
         $this->assertDatabaseHas('chapters', [
             'id' => $chapterId,
             'gambar_pengenalan_judul' => 'Judul hasil edit',
@@ -142,14 +142,14 @@ class ChapterIntroductionImageTest extends TestCase
         );
         $updated->assertOk();
         $secondPath = Chapter::findOrFail($chapterId)->gambar_pengenalan_path;
-        $this->publicDisk()->assertExists($secondPath);
-        $this->publicDisk()->assertMissing($firstPath);
+        $this->materialDisk()->assertExists($secondPath);
+        $this->materialDisk()->assertMissing($firstPath);
         $this->assertDatabaseHas('chapters', [
             'id' => $chapterId,
             'gambar_pengenalan_judul' => 'Judul hasil edit',
             'gambar_pengenalan_keterangan' => 'Keterangan hasil edit.',
         ]);
-        $secondUrl = $this->publicDisk()->url($secondPath);
+        $secondUrl = $this->materialDisk()->url($secondPath);
 
         $this->actingAs($siswa)->getJson('/siswa/materials')
             ->assertOk()
@@ -169,7 +169,7 @@ class ChapterIntroductionImageTest extends TestCase
 
     public function test_chapter_image_is_optional_and_file_validation_enforces_format_and_size(): void
     {
-        Storage::fake('public');
+        Storage::fake('material_public');
         $guru = $this->createUser('guru', 'guru-validation');
         $payload = [
             'nomor_bab' => 1,
@@ -212,7 +212,7 @@ class ChapterIntroductionImageTest extends TestCase
 
     public function test_explicit_image_removal_preserves_files_still_referenced_by_another_chapter(): void
     {
-        Storage::fake('public');
+        Storage::fake('material_public');
         $guru = $this->createUser('guru', 'guru-shared-image');
         $image = UploadedFile::fake()->image('shared.png');
         $created = $this->actingAs($guru)->post('/guru/chapters', [
@@ -243,7 +243,7 @@ class ChapterIntroductionImageTest extends TestCase
             ]
         )->assertOk()
             ->assertJsonPath('chapter.gambar_pengenalan_url', null);
-        $this->publicDisk()->assertExists(
+        $this->materialDisk()->assertExists(
             $secondChapter->gambar_pengenalan_path
         );
 
@@ -257,15 +257,15 @@ class ChapterIntroductionImageTest extends TestCase
                 'remove_introduction_image' => '1',
             ]
         )->assertOk();
-        $this->publicDisk()->assertMissing(
+        $this->materialDisk()->assertMissing(
             $secondChapter->gambar_pengenalan_path
         );
     }
 
-    private function publicDisk(): FilesystemAdapter
+    private function materialDisk(): FilesystemAdapter
     {
         /** @var FilesystemAdapter $disk */
-        $disk = Storage::disk('public');
+        $disk = Storage::disk('material_public');
 
         return $disk;
     }

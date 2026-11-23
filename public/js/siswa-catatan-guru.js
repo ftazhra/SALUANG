@@ -1,12 +1,13 @@
 /* Catatan Guru dibaca oleh siswa pemilik akun melalui API aman. */
 document.addEventListener('DOMContentLoaded', () => {
-    const page = document.getElementById('profilePage');
-    const container = page?.querySelector('.sd-profile-container');
+    const page = document.getElementById('homePage');
+    const container = page?.querySelector('#sdFinalGradeSummary')?.parentElement;
     if (!container) return;
 
     const card = document.createElement('section');
-    card.className = 'sd-profile-card sd-teacher-notes-card';
+    card.className = 'sd-teacher-notes-card';
     const heading = document.createElement('h2');
+    heading.className = 'sd-heading';
     heading.textContent = 'Catatan Guru';
     card.append(heading);
     const content = document.createElement('div');
@@ -31,9 +32,19 @@ document.addEventListener('DOMContentLoaded', () => {
             item.className = 'sd-teacher-note';
             const author = document.createElement('strong');
             author.textContent = note.teacher_name || 'Guru';
+            const metadata = document.createElement('small');
+            const date = note.updated_at ? new Date(note.updated_at) : null;
+            const dateText = date && !Number.isNaN(date.getTime())
+                ? date.toLocaleString('id-ID')
+                : 'Tanggal tidak tersedia';
+            metadata.textContent = [
+                note.assessment_label || 'Catatan Guru',
+                note.material,
+                dateText
+            ].filter(Boolean).join(' · ');
             const body = document.createElement('p');
             body.textContent = note.note || '';
-            item.append(author, body);
+            item.append(author, metadata, body);
             content.append(item);
         });
     }).catch(error => { content.textContent = error.message; });

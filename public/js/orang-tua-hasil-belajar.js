@@ -78,7 +78,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const meta = document.createElement('small');
             meta.className = 'pr-final-grade-meta';
-            meta.textContent = `Kuis ${grade.quiz_completed_count}/${grade.quiz_required_count} · Evaluasi ${grade.evaluation_completed ? 'selesai' : 'belum selesai'}`;
+            meta.textContent = [
+                `Kuis ${grade.quiz_completed_count}/${grade.quiz_required_count}`,
+                `Evaluasi ${grade.evaluation_completed ? 'selesai' : 'belum selesai'}`,
+                grade.pending_reason
+            ].filter(Boolean).join(' · ');
 
             const scoreBox = document.createElement('div');
             scoreBox.className = 'pr-final-grade-value-wrap';

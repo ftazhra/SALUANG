@@ -280,6 +280,6 @@ test('activity cards omit empty image frames and keep failed-image fallback comp
     assert.equal(children.length, 0);
 
     assert.match(guruCss, /object-fit:\s*cover;\s*object-position:\s*center;/);
-    assert.match(studentCss, /object-fit:\s*cover;\s*object-position:\s*center;/);
+    assert.match(studentCss, /object-fit:\s*contain;\s*object-position:\s*center;/);
     assert.match(studentCss, /\.sd-page #lessonPage \.sd-matching-card\.is-text-only/);
 });

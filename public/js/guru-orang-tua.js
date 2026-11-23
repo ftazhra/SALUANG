@@ -147,6 +147,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return number;
     }
+    function learningResultMessage(student) {
+        const name = String(student?.name ?? '').trim() || 'Siswa';
+        const className = String(student?.class ?? '').trim() || 'belum dicantumkan';
+
+        return [
+            '*PEMBERITAHUAN HASIL BELAJAR SISWA — SALUANG*',
+            '',
+            'Yth. Bapak/Ibu Orang Tua/Wali,',
+            '',
+            `Kami informasikan bahwa hasil belajar ananda *${name}* kelas *${className}* pada mata pelajaran IPA Kelas VII telah tersedia di website SALUANG.`,
+            '',
+            'Bapak/Ibu dapat melihat informasi lebih lanjut mengenai hasil kuis, evaluasi akhir, dan perkembangan belajar anak melalui website berikut:',
+            '',
+            'https://saluangbelajar.infinityfreeapp.com',
+            '',
+            'Silakan login menggunakan akun Orang Tua/Wali untuk melihat hasil belajar anak.',
+            '',
+            'Terima kasih atas perhatian dan kerja samanya.',
+            '',
+            'Hormat kami,',
+            '*Guru IPA — SALUANG*',
+        ].join('\n');
+    }
     /* 04. TAMPILKAN KONTAK TERPILIH */
     function selectContact(contact) {
         if (!selectedClass) return;
@@ -171,7 +194,8 @@ document.addEventListener('DOMContentLoaded', () => {
         whatsappLink.removeAttribute('href');
         const number = whatsappNumber(guardian.phone);
         if (number) {
-            whatsappLink.href = `https://wa.me/${number}`;
+            const text = encodeURIComponent(learningResultMessage(student));
+            whatsappLink.href = `https://wa.me/${number}?text=${text}`;
             whatsappLink.hidden = false;
         }
         setText(

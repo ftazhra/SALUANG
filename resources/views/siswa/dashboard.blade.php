@@ -27,13 +27,13 @@
          03. CSS DASHBOARD
     ====================================================== -->
     <link rel="stylesheet" href="{{ asset('css/siswa.css') }}?v=40">
-    <link rel="stylesheet" href="{{ asset('css/siswa-beranda.css') }}?v=20261115r3">
+    <link rel="stylesheet" href="{{ asset('css/siswa-beranda.css') }}?v=20261115r4">
     <link rel="stylesheet" href="{{ asset('css/siswa-materi.css') }}?v=20261115r3">
-    <link rel="stylesheet" href="{{ asset('css/siswa-evaluasi.css') }}?v=61">
+    <link rel="stylesheet" href="{{ asset('css/siswa-evaluasi.css') }}?v=62">
     <link rel="stylesheet" href="{{ asset('css/siswa-forum.css') }}?v=7">
     <link rel="stylesheet" href="{{ asset('css/siswa-profil.css') }}?v=5">
     <link rel="stylesheet" href="{{ asset('css/saluang-selects.css') }}?v=3">
-    <link rel="stylesheet" href="{{ asset('css/website-notifications.css') }}?v=5">
+    <link rel="stylesheet" href="{{ asset('css/website-notifications.css') }}?v=6">
 </head>
 
 <body class="sd-page">
@@ -250,10 +250,12 @@
 
                     <button type="button" class="sd-user" data-bs-toggle="dropdown" aria-expanded="false"
                         aria-label="Menu profil">
-                        <span class="sd-avatar">
-                            @if (auth()->user()?->profile_photo_path)
-                                <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}"
-                                    alt="Foto profil" class="sd-topbar-avatar-img">
+                        <span class="sd-avatar" id="sdTopbarAvatar"
+                            data-initial="{{ strtoupper(substr(auth()->user()?->name ?? 'S', 0, 1)) }}">
+                            @if (auth()->user()?->profile_photo_url)
+                                <img src="{{ auth()->user()->profile_photo_url }}"
+                                    alt="Foto profil" class="sd-topbar-avatar-img"
+                                    onerror="this.remove(); this.parentElement.textContent=this.parentElement.dataset.initial">
                             @else
                                 {{ strtoupper(substr(auth()->user()?->name ?? 'Siswa', 0, 1)) }}
                             @endif
@@ -401,17 +403,18 @@
     ====================================================== --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script src="{{ asset('js/siswa-beranda.js') }}?v=20261115r3" defer></script>
+    <script src="{{ asset('js/siswa-beranda.js') }}?v=20261115r4" defer></script>
 
     <script src="{{ asset('js/siswa-materi.js') }}?v=20261115r2" defer></script>
 
     <script src="{{ asset('js/siswa.js') }}?v=20261115r3" defer></script>
 
-    <script src="{{ asset('js/siswa-evaluasi.js') }}?v=61" defer></script>
+    <script src="{{ asset('js/siswa-evaluasi.js') }}?v=63" defer></script>
 
     <script src="{{ asset('js/siswa-forum.js') }}?v=4" defer></script>
 
-    <script src="{{ asset('js/siswa-profil.js') }}?v=2" defer></script>
+    <script src="{{ asset('js/siswa-profil.js') }}?v=4" defer></script>
+    <script src="{{ asset('js/siswa-catatan-guru.js') }}?v=1" defer></script>
 
     <script src="{{ asset('js/siswa-logout.js') }}?v=1" defer></script>
     <script src="{{ asset('js/website-notifications.js') }}?v=3" defer></script>

@@ -165,6 +165,9 @@ document.addEventListener('DOMContentLoaded', () => {
             section.hidden =
                 section.dataset.guruSection !== page;
         });
+        window.dispatchEvent(new CustomEvent('guru:page-shown', {
+            detail: { page }
+        }));
         // Sesuaikan menu aktif di sidebar
         document.querySelectorAll(
             '.gd-nav .gd-menu'

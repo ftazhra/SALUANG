@@ -19,6 +19,49 @@ class QuizFormativeActivitiesTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_teacher_quiz_chapter_list_includes_owned_bab_without_questions_and_refreshes_new_subchapters(): void
+    {
+        $teacher = $this->createUser('guru', 'guru-quiz-chapter-list');
+        $otherTeacher = $this->createUser('guru', 'other-guru-quiz-chapter-list');
+        $chapterWithoutSubchapters = Chapter::create([
+            'user_id' => $teacher->id,
+            'nomor_bab' => 8,
+            'judul' => 'Bab Baru Tanpa Subbab',
+            'is_published' => false,
+        ]);
+        $foreignChapter = Chapter::create([
+            'user_id' => $otherTeacher->id,
+            'nomor_bab' => 9,
+            'judul' => 'Bab Guru Lain',
+            'is_published' => true,
+        ]);
+
+        $this->actingAs($teacher)
+            ->getJson('/guru/quiz/chapters')
+            ->assertOk()
+            ->assertJsonFragment([
+                'id' => $chapterWithoutSubchapters->id,
+                'judul' => 'Bab Baru Tanpa Subbab',
+            ])
+            ->assertJsonMissing([
+                'id' => $foreignChapter->id,
+                'judul' => 'Bab Guru Lain',
+            ]);
+
+        $subchapter = Subchapter::create([
+            'chapter_id' => $chapterWithoutSubchapters->id,
+            'nomor_subbab' => 1,
+            'judul' => 'Subbab Baru',
+            'konten' => 'Materi',
+            'is_published' => false,
+        ]);
+
+        $this->getJson('/guru/quiz/chapters')
+            ->assertOk()
+            ->assertJsonPath('chapters.0.subchapters.0.id', $subchapter->id)
+            ->assertJsonPath('chapters.0.subchapters.0.judul', 'Subbab Baru');
+    }
+
     public function test_published_questions_still_load_when_attempt_schema_is_pending(): void
     {
         $teacher = $this->createUser('guru', 'guru-attempt-schema-pending');
@@ -1156,7 +1199,7 @@ class QuizFormativeActivitiesTest extends TestCase
             ->assertJsonPath('questions.1.id', $activeMultipleChoice->id);
     }
 
-    public function test_refresh_starts_a_clean_attempt_without_overwriting_old_answers_or_showing_archived_questions(): void
+    public function test_refresh_resets_the_active_attempt_and_uses_current_questions(): void
     {
         $teacher = $this->createUser('guru', 'guru-refresh-quiz');
         $student = $this->createUser('siswa', 'siswa-refresh-quiz');
@@ -1190,24 +1233,21 @@ class QuizFormativeActivitiesTest extends TestCase
             ->assertOk()
             ->assertJsonPath('action', 'archived');
 
-        $newAttemptId = $this->actingAs($student)
+        $refreshedAttemptId = $this->actingAs($student)
             ->postJson("/siswa/quiz/subchapters/{$subchapter->id}/attempts", [
                 'restart' => true,
             ])
             ->assertCreated()
             ->json('attempt.id');
-        $this->assertNotSame($oldAttemptId, $newAttemptId);
+        $this->assertSame($oldAttemptId, $refreshedAttemptId);
         $this->assertDatabaseHas('student_quiz_attempts', [
             'id' => $oldAttemptId,
             'status' => 'in_progress',
+            'answers' => '[]',
         ]);
-        $this->assertSame(
-            ['type' => 'multiple_choice', 'answer' => 'A'],
-            StudentQuizAttempt::findOrFail($oldAttemptId)->answers[(string) $archivedQuestion->id]
-        );
 
         $this->getJson(
-            "/siswa/quiz/subchapters/{$subchapter->id}/questions?attempt_id={$newAttemptId}"
+            "/siswa/quiz/subchapters/{$subchapter->id}/questions?attempt_id={$refreshedAttemptId}"
         )->assertOk()
             ->assertJsonCount(1, 'questions')
             ->assertJsonPath('questions.0.id', $activeQuestion->id)
@@ -1215,20 +1255,17 @@ class QuizFormativeActivitiesTest extends TestCase
             ->assertJsonMissingPath('questions.0.answer_feedback');
 
         $this->postJson("/siswa/quiz/questions/{$activeQuestion->id}/check", [
-            'attempt_id' => $newAttemptId,
+            'attempt_id' => $refreshedAttemptId,
             'jawaban' => 'B',
         ])->assertOk()
             ->assertJsonPath('saved', true)
             ->assertJsonPath('completed', true);
 
         $this->assertSame(
-            ['type' => 'multiple_choice', 'answer' => 'A'],
-            StudentQuizAttempt::findOrFail($oldAttemptId)->answers[(string) $archivedQuestion->id]
-        );
-        $this->assertSame(
             ['type' => 'multiple_choice', 'answer' => 'B'],
-            StudentQuizAttempt::findOrFail($newAttemptId)->answers[(string) $activeQuestion->id]
+            StudentQuizAttempt::findOrFail($refreshedAttemptId)->answers[(string) $activeQuestion->id]
         );
+        $this->assertDatabaseCount('student_quiz_attempts', 1);
         $this->assertSoftDeleted('quiz_questions', ['id' => $archivedQuestion->id]);
     }
 

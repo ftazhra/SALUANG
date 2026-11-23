@@ -21,9 +21,9 @@
 
                             <div class="gp-profile-avatar" id="parentProfileAvatar">
 
-                                @if ($parent?->profile_photo_path)
+                                @if ($parent?->profile_photo_url)
                                     <img id="parentProfileAvatarImage"
-                                        src="{{ asset('storage/' . $parent->profile_photo_path) }}"
+                                        src="{{ $parent->profile_photo_url }}"
                                         alt="Foto profil Orang Tua">
                                 @else
                                     <span id="parentProfileAvatarInitial">
@@ -50,9 +50,19 @@
                                     <input type="file" id="parentProfilePhotoInput"
                                         accept="image/png,image/jpeg,image/webp" hidden>
 
+                                    <button type="button" class="gp-profile-primary" id="parentProfileSavePhotoButton"
+                                        hidden disabled>
+                                        Simpan Foto
+                                    </button>
+
+                                    <button type="button" class="gp-profile-outline" id="parentProfileCancelPhotoButton"
+                                        hidden>
+                                        Batal
+                                    </button>
+
                                     <button type="button" class="gp-profile-delete-photo"
                                         id="parentProfileDeletePhotoButton"
-                                        @if (!$parent?->profile_photo_path) hidden @endif>
+                                        @if (!$parent?->profile_photo_url) hidden @endif>
                                         Hapus Foto
                                     </button>
 

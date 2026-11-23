@@ -72,6 +72,13 @@ class StudentAssessmentTeacherNotesTest extends TestCase
             'assessment_type' => 'quiz',
             'assessment_result_id' => $quizResultId,
         ])->assertOk()->assertJsonPath('note', '');
+        $this->putJson($baseUrl, [
+            'note' => 'Catatan khusus untuk Siswa',
+            'audience' => 'siswa',
+            'action' => 'publish',
+            'assessment_type' => 'quiz',
+            'assessment_result_id' => $quizResultId,
+        ])->assertOk();
 
         $this->assertDatabaseHas('student_teacher_notes', [
             'student_id' => $student->id,
@@ -130,7 +137,7 @@ class StudentAssessmentTeacherNotesTest extends TestCase
             'updated_at' => now()->subDay(),
         ]);
 
-        $this->assertDatabaseCount('student_teacher_note_messages', 4);
+        $this->assertDatabaseCount('student_teacher_note_messages', 5);
         $dashboard = app(ParentDashboardService::class)->dashboard($parent);
         $this->assertCount(2, $dashboard['teacherNotes']['assessments']);
         $this->assertCount(1, $dashboard['teacherNotes']['general']);
@@ -147,12 +154,24 @@ class StudentAssessmentTeacherNotesTest extends TestCase
             ['Catatan kuis kedua', 'Catatan kuis pertama'],
             array_column($quizNotes['notes'], 'body')
         );
+        $this->assertSame(
+            $teacher->name,
+            $quizNotes['notes'][0]['teacher_name']
+        );
         $this->assertNull($evaluationNotes['chapter_title']);
         $this->assertSame($teacher->name, $evaluationNotes['teacher_name']);
         $this->assertSame(
             ['Catatan evaluasi'],
             array_column($evaluationNotes['notes'], 'body')
         );
+        $this->actingAs($student)
+            ->getJson('/siswa/teacher-notes')
+            ->assertOk()
+            ->assertJsonCount(1, 'notes')
+            ->assertJsonPath('notes.0.note', 'Catatan khusus untuk Siswa')
+            ->assertJsonPath('notes.0.teacher_name', $teacher->name)
+            ->assertJsonPath('notes.0.assessment_label', 'Kuis Subbab')
+            ->assertJsonPath('notes.0.material', 'Subbab Perubahan');
         $this->assertSame('Catatan umum lama', $dashboard['teacherNotes']['general'][0]['body']);
         $this->assertStringNotContainsString(
             'Draf belum terkirim',

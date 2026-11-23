@@ -150,9 +150,26 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 result = await response.json();
             } catch {
-                throw new Error('Server tidak mengembalikan respons JSON yang valid.');
+                result = null;
+            }
+            if (!result || typeof result !== 'object') {
+                throw new Error(
+                    response.redirected
+                        ? 'Sesi berakhir atau halaman dialihkan. Muat ulang halaman lalu login kembali.'
+                        : response.status === 419
+                            ? 'Sesi berakhir. Muat ulang halaman lalu coba kembali.'
+                            : response.status === 413
+                                ? 'Server menolak foto. Gunakan ukuran maksimal 2 MB; batas hosting mungkin lebih rendah.'
+                                : `Server tidak mengembalikan respons JSON yang valid (HTTP ${response.status}).`
+                );
             }
             if (!response.ok) {
+                if (response.status === 413) {
+                    throw new Error('Server menolak foto. Gunakan ukuran maksimal 2 MB; batas hosting mungkin lebih rendah.');
+                }
+                if (response.redirected || response.status === 419) {
+                    throw new Error('Sesi berakhir atau halaman dialihkan. Muat ulang halaman lalu login kembali.');
+                }
                 const first = result.errors ? Object.values(result.errors).flat()[0] : null;
                 throw new Error(first || result.message || `Permintaan gagal (HTTP ${response.status}).`);
             }
@@ -185,6 +202,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { once: true });
         topbarAvatar.replaceChildren(small);
     }
+
+    avatar.querySelector('img')?.addEventListener('error', () => {
+        setInitial(byId('parentProfileDisplayName').textContent);
+    }, { once: true });
+    topbarAvatar.querySelector('img')?.addEventListener('error', () => {
+        topbarAvatar.replaceChildren(document.createTextNode(topbarAvatar.dataset.initial || 'O'));
+    }, { once: true });
 
     byId('parentProfileEditButton').addEventListener('click', () => {
         information.hidden = true;
@@ -264,36 +288,86 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const photoInput = byId('parentProfilePhotoInput');
     const photoButton = byId('parentProfilePhotoButton');
+    const savePhotoButton = byId('parentProfileSavePhotoButton');
+    const cancelPhotoButton = byId('parentProfileCancelPhotoButton');
+    const deletePhotoButton = byId('parentProfileDeletePhotoButton');
+    const photoStatus = byId('parentProfilePhotoMessage');
+    let savedPhotoUrl = avatar.querySelector('img')?.src || null;
+    let previewPhotoUrl = null;
+
+    function revokePreview() {
+        if (previewPhotoUrl) {
+            URL.revokeObjectURL(previewPhotoUrl);
+            previewPhotoUrl = null;
+        }
+    }
+
+    function resetPhotoSelection() {
+        revokePreview();
+        photoInput.value = '';
+        savePhotoButton.hidden = true;
+        savePhotoButton.disabled = true;
+        cancelPhotoButton.hidden = true;
+        deletePhotoButton.disabled = false;
+        if (savedPhotoUrl) {
+            setPhoto(savedPhotoUrl);
+        } else {
+            setInitial(byId('parentProfileDisplayName').textContent);
+        }
+    }
+
     photoButton.addEventListener('click', () => photoInput.click());
-    photoInput.addEventListener('change', async () => {
+    photoInput.addEventListener('change', () => {
         const file = photoInput.files?.[0];
         if (!file) return;
-        const status = byId('parentProfilePhotoMessage');
         if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 2 * 1024 * 1024) {
-            status.textContent = 'Gunakan JPG, PNG, atau WebP maksimal 2 MB.';
-            photoInput.value = '';
+            resetPhotoSelection();
+            message(photoStatus, 'Gunakan JPG, PNG, atau WebP maksimal 2 MB.', true);
             return;
         }
+
+        revokePreview();
+        previewPhotoUrl = URL.createObjectURL(file);
+        setPhoto(previewPhotoUrl);
+        savePhotoButton.hidden = false;
+        savePhotoButton.disabled = false;
+        cancelPhotoButton.hidden = false;
+        deletePhotoButton.disabled = true;
+        message(photoStatus, 'Pratinjau siap. Pilih Simpan Foto untuk menerapkan perubahan.');
+    });
+
+    savePhotoButton.addEventListener('click', async () => {
+        const file = photoInput.files?.[0];
+        if (!file || savePhotoButton.disabled) return;
+        savePhotoButton.disabled = true;
         photoButton.disabled = true;
-        status.textContent = 'Mengunggah foto...';
+        message(photoStatus, 'Menyimpan foto...');
         try {
             const data = new FormData();
             data.append('photo', file);
             const result = await request('/orang-tua/profile/photo', 'POST', data, true);
             setPhoto(result.photo_url);
-            byId('parentProfileDeletePhotoButton').hidden = false;
-            status.textContent = result.message;
+            savedPhotoUrl = result.photo_url;
+            revokePreview();
+            photoInput.value = '';
+            savePhotoButton.hidden = true;
+            cancelPhotoButton.hidden = true;
+            deletePhotoButton.hidden = false;
+            deletePhotoButton.disabled = false;
+            message(photoStatus, result.message);
         } catch (error) {
-            status.textContent = error.message;
+            message(photoStatus, error.message, true);
         } finally {
             photoButton.disabled = false;
-            photoInput.value = '';
+            if (!savePhotoButton.hidden) savePhotoButton.disabled = false;
         }
     });
 
-    byId('parentProfileDeletePhotoButton').addEventListener('click', async event => {
+    cancelPhotoButton.addEventListener('click', resetPhotoSelection);
+
+    deletePhotoButton.addEventListener('click', async event => {
         const button = event.currentTarget;
-        const status = byId('parentProfilePhotoMessage');
+        const status = photoStatus;
         showConfirmDialog({
             title: 'Hapus Foto Profil?',
             message: 'Apakah Anda yakin ingin menghapus foto profil ini?',
@@ -303,6 +377,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     const result = await request('/orang-tua/profile/photo', 'DELETE');
                     setInitial(byId('parentProfileDisplayName').textContent);
+                    savedPhotoUrl = null;
+                    revokePreview();
                     button.hidden = true;
                     status.textContent = result.message;
                 } catch (error) {

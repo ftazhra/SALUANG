@@ -18,20 +18,7 @@ class DiscussionController extends Controller
     private function attachForumAvatar(?User $author): void
     {
         if (!$author) return;
-        $path = $author->profile_photo_path;
-        // Kolom foto_profil dipakai beberapa versi lama SALUANG.
-        // Utamakan kolom foto profil baru, fallback hanya jika tersedia.
-        if ((!is_string($path) || trim($path) === '') && is_string($author->foto_profil ?? null)) {
-            $path = $author->foto_profil;
-        }
-        $author->setAttribute(
-            'forum_avatar_url',
-            is_string($path) && $path !== ''
-                ? (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')
-                    ? $path
-                    : asset('storage/' . ltrim(preg_replace('~^/?storage/~', '', $path), '/')))
-                : null
-        );
+        $author->setAttribute('forum_avatar_url', $author->profile_photo_url);
     }
     /** @param array<string, mixed> $data
      *  @param array<string, list<string>> $options

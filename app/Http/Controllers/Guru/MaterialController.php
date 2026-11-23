@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Chapter;
 use App\Models\Subchapter;
 use App\Models\SubchapterMedia;
+use App\Services\SchoolAccessService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -69,21 +70,63 @@ class MaterialController extends Controller
     | 01. DAFTAR BAB
     |--------------------------------------------------------------------------
     */
-    public function index(Request $request): JsonResponse
+    public function index(
+        Request $request,
+        SchoolAccessService $schoolAccess
+    ): JsonResponse
     {
         $this->ensureGuru($request);
-        $chapters = Chapter::query()
+        $teacher = $request->user();
+        $ownedChapters = Chapter::query()
             ->where('user_id', $request->user()->id)
             ->with([
+                'guru:id,name',
                 'subchapters.media',
                 'subchapters.contentBlocks.media',
             ])
             ->orderBy('nomor_bab')
             ->get();
-        $chapters->each(
-            fn(Chapter $chapter) =>
-            $this->attachMaterialBlocks($chapter)
-        );
+        $sharedChapters = collect();
+        if (trim((string) $teacher->sekolah) !== '') {
+            $sharedChapters = Chapter::query()
+                ->where('user_id', '!=', $teacher->id)
+                ->where('is_published', true)
+                ->whereHas('guru', function ($query) use ($teacher, $schoolAccess) {
+                    $query->where('role', 'guru');
+                    $schoolAccess->constrainUsersToSchool($query, $teacher);
+                })
+                ->with([
+                    'guru:id,name',
+                    'subchapters' => function ($query) {
+                        $query->where('is_published', true)
+                            ->with([
+                                'media',
+                                'contentBlocks.media',
+                            ]);
+                    },
+                ])
+                ->orderBy('nomor_bab')
+                ->get();
+        }
+        $chapters = $ownedChapters
+            ->concat($sharedChapters)
+            ->sortBy(fn (Chapter $chapter) => [
+                (int) $chapter->nomor_bab,
+                mb_strtolower($chapter->judul),
+                (int) $chapter->id,
+            ])
+            ->values();
+        $chapters->each(function (Chapter $chapter) use ($teacher) {
+            $chapter->setAttribute(
+                'can_manage',
+                (int) $chapter->user_id === (int) $teacher->id
+            );
+            $chapter->setAttribute(
+                'owner_name',
+                $chapter->guru?->name
+            );
+            $this->attachMaterialBlocks($chapter);
+        });
         return response()->json([
             'chapters' => $chapters,
             'image_library' => $this->imageLibrary(),
@@ -157,7 +200,7 @@ class MaterialController extends Controller
         $introductionImage = $data['introduction_image'] ?? null;
         unset($data['introduction_image'], $data['remove_introduction_image']);
         $storedPath = $introductionImage
-            ? $introductionImage->store('chapters/introduction', 'public')
+            ? $introductionImage->storePublicly('chapters/introduction', 'material_public')
             : null;
         if ($introductionImage && !is_string($storedPath)) {
             throw new RuntimeException(
@@ -292,7 +335,7 @@ class MaterialController extends Controller
         );
         unset($data['introduction_image'], $data['remove_introduction_image']);
         $storedPath = $introductionImage
-            ? $introductionImage->store('chapters/introduction', 'public')
+            ? $introductionImage->storePublicly('chapters/introduction', 'material_public')
             : null;
         if ($introductionImage && !is_string($storedPath)) {
             throw new RuntimeException(
@@ -894,7 +937,7 @@ class MaterialController extends Controller
                 if ($source === 'upload') {
                     $file = $request->file("content_block_files.$position");
                     $path = $file instanceof UploadedFile
-                        ? $file->storePublicly('subchapter-media', 'public')
+                        ? $file->storePublicly('subchapter-media', 'material_public')
                         : false;
                     if (!$path) {
                         throw new RuntimeException(
@@ -1039,7 +1082,7 @@ class MaterialController extends Controller
                 ->first();
             abort_unless(
                 $libraryVideo
-                    && Storage::disk('public')->exists($libraryVideo->storage_path),
+                    && Storage::disk('material_public')->exists($libraryVideo->storage_path),
                 422,
                 'Video pilihan tidak tersedia di pustaka SALUANG.'
             );
@@ -1063,7 +1106,7 @@ class MaterialController extends Controller
                 if ($action === 'upload') {
                     $file = $request->file($mediaType . '_file');
                     $path = $file instanceof UploadedFile
-                        ? $file->storePublicly('subchapter-media', 'public')
+                        ? $file->storePublicly('subchapter-media', 'material_public')
                         : false;
                     if (!$path) {
                         throw new RuntimeException(
@@ -1173,7 +1216,7 @@ class MaterialController extends Controller
             ->get(['id', 'title', 'storage_path'])
             ->filter(
                 fn(SubchapterMedia $media) =>
-                Storage::disk('public')->exists($media->storage_path)
+                Storage::disk('material_public')->exists($media->storage_path)
             )
             ->map(fn(SubchapterMedia $media) => [
                 'id' => $media->id,
@@ -1220,21 +1263,27 @@ class MaterialController extends Controller
             ) {
                 continue;
             }
-            $disk = Storage::disk('public');
+
+            $disk = Storage::disk('material_public');
             if ($disk->exists($path) && !$disk->delete($path)) {
                 throw new RuntimeException(
-                    'Media lama sudah diganti, tetapi berkas lamanya gagal dihapus.'
+                    'Media lama gagal dihapus.'
                 );
             }
         }
     }
+
     private function deleteStoredFiles(array $paths): void
     {
-        $disk = Storage::disk('public');
         foreach (array_unique($paths) as $path) {
-            if ($path && $disk->exists($path) && !$disk->delete($path)) {
+            if (!$path) {
+                continue;
+            }
+
+            $disk = Storage::disk('material_public');
+            if ($disk->exists($path) && !$disk->delete($path)) {
                 throw new RuntimeException(
-                    'Pembersihan berkas sementara gagal. Periksa izin storage.'
+                    'Pembersihan berkas gagal. Periksa izin storage.'
                 );
             }
         }

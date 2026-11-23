@@ -10,7 +10,6 @@ use App\Services\DiscussionAccessService;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class DiscussionController extends Controller
@@ -21,12 +20,9 @@ class DiscussionController extends Controller
             return;
         }
 
-        $path = $author->profile_photo_path;
         $author->setAttribute(
             'forum_avatar_url',
-            is_string($path) && $path !== ''
-                ? asset('storage/' . ltrim($path, '/'))
-                : null
+            $author->profile_photo_url
         );
     }
 

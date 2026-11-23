@@ -102,11 +102,12 @@ class ChatPresenceService
         $student = User::query()->where('role', 'siswa')->findOrFail($thread['student_id']);
         $teacher = User::query()->where('role', 'guru')->findOrFail($thread['teacher_id']);
         abort_unless(
-            $this->teacherStudentAccess->isAssignedToTeacher($student, $teacher)
+            $this->teacherStudentAccess->isSameSchool($student, $teacher)
+                && ($this->teacherStudentAccess->isAssignedToTeacher($student, $teacher)
                 || $this->evaluationResults->quizResultsForTeacher(
                     (int) $teacher->id,
                     [(int) $student->id]
-                ) !== [],
+                ) !== []),
             404,
             'Percakapan tidak lagi tersedia.'
         );
@@ -114,16 +115,10 @@ class ChatPresenceService
 
     private function studentIdsForTeacher(User $teacher): array
     {
-        $studentIds = $this->teacherStudentAccess->studentsForTeacher($teacher)
+        return $this->teacherStudentAccess->studentsForTeacher($teacher)
             ->pluck('id')
             ->map(fn ($id) => (int) $id)
             ->all();
-
-        foreach ($this->evaluationResults->quizResultsForTeacher((int) $teacher->id) as $result) {
-            $studentIds[] = (int) $result['user_id'];
-        }
-
-        return array_values(array_unique($studentIds));
     }
 
     private function presenceKey(int $userId): string

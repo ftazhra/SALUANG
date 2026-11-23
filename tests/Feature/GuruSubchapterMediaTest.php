@@ -77,7 +77,7 @@ class GuruSubchapterMediaTest extends TestCase
 
     public function test_guru_can_upload_an_image_and_save_a_youtube_video(): void
     {
-        Storage::fake('public');
+        Storage::fake('material_public');
 
         $guru = $this->createUser('guru');
         $chapter = $this->createChapter($guru, true);
@@ -113,11 +113,72 @@ class GuruSubchapterMediaTest extends TestCase
         $image = SubchapterMedia::query()
             ->where('media_type', 'image')
             ->firstOrFail();
-        $this->publicDisk()->assertExists($image->storage_path);
+        $this->materialDisk()->assertExists($image->storage_path);
+        $this->assertSame(
+            $this->materialDisk()->url($image->storage_path),
+            $image->url
+        );
     }
 
-    public function test_guru_can_replace_uploaded_video_without_losing_old_file_before_save(): void
+    public function test_video_library_uses_material_disk_and_keeps_other_disks_untouched(): void
     {
+        Storage::fake('material_public');
+        Storage::fake('public');
+
+        $guru = $this->createUser('guru');
+        $chapter = $this->createChapter($guru, true);
+        $librarySubchapter = $chapter->subchapters()->create(
+            $this->subchapterPayload()
+        );
+        $targetSubchapter = $chapter->subchapters()->create(
+            $this->subchapterPayload(2)
+        );
+        $path = 'subchapter-media/library-video.mp4';
+        $this->materialDisk()->put($path, 'video');
+        Storage::disk('public')->put($path, 'unrelated legacy file');
+        $libraryVideo = $librarySubchapter->media()->create([
+            'media_type' => 'video',
+            'source' => 'upload',
+            'storage_path' => $path,
+            'title' => 'Video pustaka',
+        ]);
+
+        $this->actingAs($guru)->getJson('/guru/chapters')
+            ->assertOk()
+            ->assertJsonFragment([
+                'id' => $libraryVideo->id,
+                'title' => 'Video pustaka',
+            ]);
+
+        $this->actingAs($guru)->putJson(
+            "/guru/chapters/{$chapter->id}/subchapters/{$targetSubchapter->id}",
+            array_merge($this->subchapterPayload(2), [
+                'image_action' => 'none',
+                'video_action' => 'library',
+                'video_library_id' => $libraryVideo->id,
+            ])
+        )->assertOk();
+
+        $this->assertSame($path, $targetSubchapter->fresh()
+            ->media()
+            ->where('media_type', 'video')
+            ->value('storage_path'));
+
+        $this->actingAs($guru)->putJson(
+            "/guru/chapters/{$chapter->id}/subchapters/{$targetSubchapter->id}",
+            array_merge($this->subchapterPayload(2), [
+                'image_action' => 'none',
+                'video_action' => 'remove',
+            ])
+        )->assertOk();
+
+        $this->materialDisk()->assertExists($path);
+        Storage::disk('public')->assertExists($path);
+    }
+
+    public function test_media_removal_deletes_only_from_material_disk(): void
+    {
+        Storage::fake('material_public');
         Storage::fake('public');
 
         $guru = $this->createUser('guru');
@@ -125,8 +186,39 @@ class GuruSubchapterMediaTest extends TestCase
         $subchapter = $chapter->subchapters()->create(
             $this->subchapterPayload()
         );
+        $path = 'subchapter-media/same-relative-path.mp4';
+        $this->materialDisk()->put($path, 'material video');
+        Storage::disk('public')->put($path, 'legacy file');
+        $subchapter->media()->create([
+            'media_type' => 'video',
+            'source' => 'upload',
+            'storage_path' => $path,
+            'title' => 'Video uji',
+        ]);
+
+        $this->actingAs($guru)->putJson(
+            "/guru/chapters/{$chapter->id}/subchapters/{$subchapter->id}",
+            array_merge($this->subchapterPayload(), [
+                'image_action' => 'none',
+                'video_action' => 'remove',
+            ])
+        )->assertOk();
+
+        $this->materialDisk()->assertMissing($path);
+        Storage::disk('public')->assertExists($path);
+    }
+
+    public function test_guru_can_replace_uploaded_video_without_losing_old_file_before_save(): void
+    {
+        Storage::fake('material_public');
+
+        $guru = $this->createUser('guru');
+        $chapter = $this->createChapter($guru, true);
+        $subchapter = $chapter->subchapters()->create(
+            $this->subchapterPayload()
+        );
         $oldPath = 'subchapter-media/old-video.mp4';
-        $this->publicDisk()->put($oldPath, 'old video');
+        $this->materialDisk()->put($oldPath, 'old video');
 
         $subchapter->media()->create([
             'media_type' => 'video',
@@ -152,7 +244,7 @@ class GuruSubchapterMediaTest extends TestCase
         );
 
         $invalidReplacement->assertUnprocessable();
-        $this->publicDisk()->assertExists($oldPath);
+        $this->materialDisk()->assertExists($oldPath);
 
         $replacement = $this->actingAs($guru)
             ->withHeader('Accept', 'application/json')
@@ -172,7 +264,7 @@ class GuruSubchapterMediaTest extends TestCase
         );
 
         $replacement->assertOk();
-        $this->publicDisk()->assertMissing($oldPath);
+        $this->materialDisk()->assertMissing($oldPath);
         $this->assertDatabaseHas('subchapter_media', [
             'subchapter_id' => $subchapter->id,
             'media_type' => 'video',
@@ -182,7 +274,7 @@ class GuruSubchapterMediaTest extends TestCase
 
     public function test_guru_can_remove_media_from_owned_subchapter(): void
     {
-        Storage::fake('public');
+        Storage::fake('material_public');
 
         $guru = $this->createUser('guru');
         $chapter = $this->createChapter($guru, true);
@@ -190,7 +282,7 @@ class GuruSubchapterMediaTest extends TestCase
             $this->subchapterPayload()
         );
         $imagePath = 'subchapter-media/gambar-lama.png';
-        $this->publicDisk()->put($imagePath, 'image');
+        $this->materialDisk()->put($imagePath, 'image');
 
         $subchapter->media()->create([
             'media_type' => 'image',
@@ -214,12 +306,12 @@ class GuruSubchapterMediaTest extends TestCase
             'subchapter_id' => $subchapter->id,
             'media_type' => 'image',
         ]);
-        $this->publicDisk()->assertMissing($imagePath);
+        $this->materialDisk()->assertMissing($imagePath);
     }
 
     public function test_guru_cannot_upload_an_unsupported_image_or_video(): void
     {
-        Storage::fake('public');
+        Storage::fake('material_public');
 
         $guru = $this->createUser('guru');
         $chapter = $this->createChapter($guru);
@@ -309,7 +401,7 @@ class GuruSubchapterMediaTest extends TestCase
 
     public function test_only_published_subchapter_media_is_returned_to_students(): void
     {
-        Storage::fake('public');
+        Storage::fake('material_public');
 
         $guru = $this->createUser('guru');
         $student = $this->createUser('siswa');
@@ -374,11 +466,10 @@ class GuruSubchapterMediaTest extends TestCase
         $this->assertDatabaseCount('subchapter_media', 0);
     }
 
-    private function publicDisk(): FilesystemAdapter
+    private function materialDisk(): FilesystemAdapter
     {
         /** @var FilesystemAdapter $disk */
-        $disk = Storage::disk('public');
-
+        $disk = Storage::disk('material_public');
         return $disk;
     }
 

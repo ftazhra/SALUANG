@@ -119,19 +119,20 @@ class StudentGradeController extends Controller
                 'completed_at' => $attempt['completed_at'],
                 'valid_for_grading' => $attempt['valid_for_grading'],
             ]);
-        // Hanya tampilkan hasil terakhir setiap Kuis Subbab dan Evaluasi.
-        // Attempt lama tetap tersimpan di database untuk audit dan catatan.
         $results = $quizResults->concat($evaluationAttempts)
             ->sort(function (array $a, array $b): int {
-                return [$b['completed_at'], $b['id']]
-                    <=> [$a['completed_at'], $a['id']];
-            })
-            ->unique(function (array $result): string {
-                if ($result['assessment_type'] === 'evaluation') {
-                    return 'evaluation';
+                $completedAt = strcmp(
+                    (string) $b['completed_at'],
+                    (string) $a['completed_at']
+                );
+                if ($completedAt !== 0) {
+                    return $completedAt;
+                }
+                if ($a['assessment_type'] !== $b['assessment_type']) {
+                    return strcmp($a['assessment_type'], $b['assessment_type']);
                 }
 
-                return 'quiz:' . ($result['subchapter_id'] ?? 'chapter:' . $result['chapter_id']);
+                return $b['id'] <=> $a['id'];
             })
             ->values();
         return response()->json([

@@ -13,6 +13,41 @@ class TeacherInvitationRegistrationTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_smpn21_registration_code_is_reusable_and_uses_the_school_of_ibu_ayu(): void
+    {
+        $ibuAyu = User::create([
+            'name' => 'Putri Ayu S.B, S.Pd,. Gr.',
+            'username' => 'ibu-ayu-school-group',
+            'nip_nipk' => 'NIP-AYU-SCHOOL-GROUP',
+            'password' => 'secret123',
+            'role' => 'guru',
+            'sekolah' => 'SMP Negeri 21 Banjarmasin',
+            'is_approved' => true,
+        ]);
+
+        foreach ([
+            ['Guru SMPN21 Pertama', 'smpn21-teacher-one', 'NIP-SMPN21-ONE', 'SMPN21'],
+            ['Guru SMPN21 Kedua', 'smpn21-teacher-two', 'NIP-SMPN21-TWO', 'smpn21'],
+        ] as [$name, $username, $nip, $code]) {
+            $this->post(route('register.store'), [
+                'role' => 'guru',
+                'name' => $name,
+                'username' => $username,
+                'nip_nipk' => $nip,
+                'guru_token' => $code,
+                'password' => 'secret123',
+                'password_confirmation' => 'secret123',
+            ])->assertRedirect(route('login'));
+
+            $newTeacher = User::query()
+                ->where('username', $username)
+                ->firstOrFail();
+            $this->assertSame($ibuAyu->sekolah, $newTeacher->sekolah);
+        }
+
+        $this->assertDatabaseCount('teacher_invitations', 0);
+    }
+
     public function test_teacher_registration_uses_school_from_single_use_invitation(): void
     {
         $existingTeacher = User::create([
@@ -116,5 +151,35 @@ class TeacherInvitationRegistrationTest extends TestCase
         $this->assertNull(
             DB::table('teacher_invitations')->where('id', $invitationId)->value('used_at')
         );
+    }
+
+    public function test_existing_teacher_can_log_in_after_invitation_expires(): void
+    {
+        $teacher = User::create([
+            'name' => 'Guru Sudah Terdaftar',
+            'username' => 'teacher-expired-login',
+            'nip_nipk' => 'NIP-EXPIRED-LOGIN',
+            'password' => 'secret123',
+            'role' => 'guru',
+            'sekolah' => 'Sekolah A',
+        ]);
+        DB::table('teacher_invitations')->insert([
+            'school_name' => 'Sekolah A',
+            'code_hash' => hash('sha256', 'EXPIREDTEACHER123'),
+            'expires_at' => Carbon::now()->subDay(),
+            'used_at' => Carbon::now()->subDays(2),
+            'used_by' => $teacher->id,
+            'created_at' => Carbon::now()->subDays(3),
+            'updated_at' => Carbon::now()->subDays(2),
+        ]);
+
+        $this->post('/masuk', [
+            'role' => 'guru',
+            'identifier' => $teacher->nip_nipk,
+            'password' => 'secret123',
+        ])->assertRedirect(route('dashboard'))
+            ->assertSessionHasNoErrors();
+
+        $this->assertAuthenticatedAs($teacher);
     }
 }

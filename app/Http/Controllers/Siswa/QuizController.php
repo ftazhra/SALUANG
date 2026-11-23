@@ -283,18 +283,27 @@ class QuizController extends Controller
                 return $activeAttempt;
             }
 
+            $review = [
+                self::ATTEMPT_QUESTION_SNAPSHOTS => $questions
+                    ->map(fn(QuizQuestion $question) => $this->randomizeMatchingSnapshot(
+                        $question->getAttributes()
+                    ))
+                    ->all(),
+            ];
+            if ($activeAttempt) {
+                $activeAttempt->answers = [];
+                $activeAttempt->review = $review;
+                $activeAttempt->saveOrFail();
+
+                return $activeAttempt;
+            }
+
             return StudentQuizAttempt::query()->create([
                 'user_id' => $request->user()->id,
                 'subchapter_id' => $lockedSubchapter->id,
                 'status' => 'in_progress',
                 'answers' => [],
-                'review' => [
-                    self::ATTEMPT_QUESTION_SNAPSHOTS => $questions
-                        ->map(fn(QuizQuestion $question) => $this->randomizeMatchingSnapshot(
-                            $question->getAttributes()
-                        ))
-                        ->all(),
-                ],
+                'review' => $review,
             ]);
         });
 

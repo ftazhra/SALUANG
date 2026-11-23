@@ -1,15 +1,19 @@
-document.addEventListener('DOMContentLoaded', () => {
+function initParentChat() {
   const open = document.getElementById('pcChatOpen');
   if (!open) return;
   const card = document.getElementById('pcChatTeacherCard');
   const name = document.getElementById('pcTeacherName');
   const statusText = document.getElementById('pcTeacherStatus');
   const statusDot = document.getElementById('pcTeacherPresenceDot');
+  const schoolName = document.getElementById('pcTeacherSchool');
+  const studentLabel = document.getElementById('pcTeacherStudent');
   const unreadBadge = document.getElementById('pcTeacherUnread');
   const chatPage = document.querySelector('[data-parent-section="chat"]');
   const pane = document.getElementById('pcConversation');
   const messages = document.getElementById('pcMessages');
   const errorBox = document.getElementById('pcChatError');
+  const emptyState = document.getElementById('pcTeacherEmpty');
+  const retryButton = document.getElementById('pcChatRetry');
   const form = document.getElementById('pcChatForm');
   const input = document.getElementById('pcMessageInput');
   const send = document.getElementById('pcSendMessage');
@@ -23,7 +27,11 @@ document.addEventListener('DOMContentLoaded', () => {
   let teacherSelect = null;
   let lastActivitySentAt = 0;
   let requestedThreadOpened = false;
-  function notify(text) { errorBox.textContent = text; errorBox.hidden = !text; }
+  function notify(text, retry = false) {
+    errorBox.textContent = text;
+    errorBox.hidden = !text;
+    retryButton.hidden = !retry;
+  }
   function displayDate(value) {
     const date = new Date(value);
     return Number.isNaN(date.getTime()) ? String(value ?? '') : new Intl.DateTimeFormat('id-ID', {
@@ -31,12 +39,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }).format(date);
   }
   async function call(path, method = 'GET', body = null) {
-    const opts = { method, credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrf } };
+    const opts = { method, credentials: 'same-origin', cache: 'no-store', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrf } };
     if (body !== null) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
-    const response = await fetch(api + path, opts);
-    const data = await response.json().catch(() => ({ message: 'Respons server tidak valid.' }));
-    if (!response.ok) throw new Error(Object.values(data.errors || {})[0]?.[0] || data.message || 'Permintaan gagal.');
-    return data;
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 15000);
+    opts.signal = controller.signal;
+    try {
+      const response = await fetch(api + path, opts);
+      const data = await response.json().catch(() => ({
+        message: response.redirected
+          ? 'Sesi berakhir atau halaman dialihkan. Muat ulang halaman lalu login kembali.'
+          : `Server tidak mengembalikan JSON yang valid (HTTP ${response.status}).`
+      }));
+      if (!response.ok) {
+        const statusMessage = {
+          401: 'Sesi login berakhir. Muat ulang halaman lalu login kembali.',
+          419: 'Sesi keamanan kedaluwarsa. Muat ulang halaman lalu coba lagi.',
+          403: 'Akses chat tidak diizinkan untuk akun ini.',
+          404: 'Percakapan atau relasi anak dengan Guru tidak ditemukan.',
+          503: 'Fitur chat belum siap. Migrasi chat atau penugasan kelas perlu diterapkan.',
+        }[response.status];
+        throw new Error(Object.values(data.errors || {})[0]?.[0] || statusMessage || data.message || `Permintaan gagal (HTTP ${response.status}).`);
+      }
+      return data;
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        throw new Error('Permintaan daftar Guru terlalu lama. Periksa koneksi lalu coba lagi.');
+      }
+      throw error;
+    } finally {
+      window.clearTimeout(timeout);
+    }
   }
   function renderUnreadCount(count) {
     const unread = Number(count) || 0;
@@ -46,9 +79,31 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadTeachers(silent = false) {
     try {
       const result = await call('/teachers');
-      teacherThreads = Array.isArray(result.teachers) ? result.teachers : [];
+      teacherThreads = Array.isArray(result.teachers)
+        ? result.teachers.filter(thread =>
+          Number.isInteger(Number(thread?.id)) && Number(thread.id) > 0
+          && Number.isInteger(Number(thread?.student_id)) && Number(thread.student_id) > 0
+          && typeof thread?.name === 'string'
+        )
+        : [];
+      notify('');
+      emptyState.hidden = true;
+      statusDot.hidden = false;
       if (!teacherThreads.length) {
-        name.textContent = 'Belum ada Guru IPA yang tersedia';
+        teacherId = null;
+        studentId = null;
+        requestedThreadOpened = false;
+        open.disabled = true;
+        pane.hidden = true;
+        name.textContent = 'Belum ada Guru yang dapat dihubungi';
+        statusText.textContent = 'Guru belum tersedia';
+        statusDot.hidden = true;
+        emptyState.textContent = 'Belum ada Guru IPA yang terhubung ke sekolah dan kelas anak Anda. Coba lagi nanti atau hubungi pengelola SALUANG.';
+        emptyState.hidden = false;
+        if (teacherSelect) {
+          teacherSelect.remove();
+          teacherSelect = null;
+        }
         renderUnreadCount(0);
         return;
       }
@@ -64,7 +119,10 @@ document.addEventListener('DOMContentLoaded', () => {
         name.textContent = currentThread.name;
         renderTeacherPresence(currentThread);
       }
+      schoolName.textContent = currentThread.school_name || 'Sekolah belum tercantum';
+      studentLabel.textContent = `Siswa: ${currentThread.student_name || 'Siswa'} · ${currentThread.class_name || '-'}`;
       open.disabled = false;
+      if (teacherSelect) teacherSelect.disabled = false;
       if (teacherThreads.length > 1) {
         if (!teacherSelect) {
           teacherSelect = document.createElement('select');
@@ -98,12 +156,23 @@ document.addEventListener('DOMContentLoaded', () => {
         loadMessages().catch(error => notify(error.message));
       }
     } catch (e) {
-      if (!silent) {
-        name.textContent = 'Belum dapat memuat Guru';
-        notify(e.message);
+      if (!teacherThreads.length) {
+        teacherId = null;
+        studentId = null;
+        open.disabled = true;
+        name.textContent = 'Daftar Guru tidak dapat dimuat';
+        statusText.textContent = 'Status belum tersedia';
+        statusDot.hidden = true;
+        emptyState.textContent = 'Daftar Guru belum berhasil dimuat. Periksa koneksi Anda, lalu coba lagi.';
+        emptyState.hidden = false;
       }
+      if (!silent || !teacherThreads.length) notify(e.message, true);
     }
   }
+  retryButton.addEventListener('click', () => {
+    retryButton.disabled = true;
+    loadTeachers().finally(() => { retryButton.disabled = false; });
+  });
   function sendActivity() {
     if (document.visibilityState !== 'visible' || Date.now() - lastActivitySentAt < 30000) return;
     lastActivitySentAt = Date.now();
@@ -147,6 +216,8 @@ document.addEventListener('DOMContentLoaded', () => {
     teacherId = Number(thread.id);
     studentId = Number(thread.student_id);
     name.textContent = thread.name;
+    schoolName.textContent = thread.school_name || 'Sekolah belum tercantum';
+    studentLabel.textContent = `Siswa: ${thread.student_name || 'Siswa'} · ${thread.class_name || '-'}`;
     renderTeacherPresence(thread);
     renderUnreadCount(thread.unread_count);
     messageRequestVersion += 1;
@@ -200,4 +271,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   loadTeachers();
   window.setInterval(refreshTeacherThreads, 30000);
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initParentChat, { once: true });
+} else {
+  initParentChat();
+}

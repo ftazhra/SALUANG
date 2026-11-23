@@ -200,7 +200,6 @@
                 </div>
 
                 {{-- FORM CHAT INTERNAL --}}
-                {{-- Akan diaktifkan setelah API pesan dibuat --}}
                 <form class="gp-chat-form" id="gpChatForm">
 
                     <input type="hidden" id="gpSelectedRelationshipId">
@@ -210,8 +209,8 @@
                     </label>
 
                     <div class="gp-chat-compose">
-                        <textarea id="gpMessageInput" rows="3" maxlength="5000"
-                            placeholder="Chat internal akan tersedia setelah integrasi pesan selesai..." disabled></textarea>
+                        <textarea id="gpMessageInput" rows="3" maxlength="2000"
+                            placeholder="Tulis pesan untuk Orang Tua..." disabled></textarea>
 
                         <button type="submit" class="gp-btn gp-btn-send" id="gpSendMessage" disabled>
                             <i class="bi bi-send"></i>

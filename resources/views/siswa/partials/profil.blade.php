@@ -28,9 +28,9 @@
 
                         <div class="sd-profile-avatar" id="profileAvatar">
 
-                            @if (auth()->user()?->profile_photo_path)
+                            @if (auth()->user()?->profile_photo_url)
                                 <img id="profileAvatarImage"
-                                    src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}"
+                                    src="{{ auth()->user()->profile_photo_url }}"
                                     alt="Foto profil siswa">
                             @else
                                 <span id="profileAvatarInitial">
@@ -61,8 +61,17 @@
                                 <input type="file" id="profilePhotoInput" accept="image/png,image/jpeg,image/webp"
                                     hidden>
 
+                                <button type="button" class="sd-profile-primary" id="profileSavePhotoButton" hidden
+                                    disabled>
+                                    Simpan Foto
+                                </button>
+
+                                <button type="button" class="sd-profile-outline" id="profileCancelPhotoButton" hidden>
+                                    Batal
+                                </button>
+
                                 <button type="button" class="sd-profile-delete-photo" id="profileDeletePhotoButton"
-                                    @if (!auth()->user()?->profile_photo_path) hidden @endif>
+                                    @if (!auth()->user()?->profile_photo_url) hidden @endif>
                                     Hapus Foto
                                 </button>
 

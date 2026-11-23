@@ -20,6 +20,9 @@
                     Kelola Bab, Subbab, dan materi pembelajaran
                     IPA untuk siswa melalui SALUANG.
                 </p>
+                <small class="gd-muted">
+                    Materi terbit Guru lain di sekolah yang sama dapat dibaca, tetapi hanya dapat dikelola oleh pemiliknya.
+                </small>
             </div>
             <button type="button" class="gm-btn gm-btn-primary" id="gmAddChapter">
                 <i class="bi bi-plus-lg"></i>
@@ -66,6 +69,7 @@
                     <h1 id="gmDetailTitle">
                         Detail Bab
                     </h1>
+                    <p class="gm-chapter-meta" id="gmDetailOwner" hidden></p>
                 </div>
                 <div class="gm-detail-actions">
                     <button type="button" class="gm-btn gm-btn-outline" id="gmEditChapter">
@@ -335,8 +339,7 @@
                 <div class="gm-field" id="gmTextBlockEditor" hidden>
                     <label for="gmRichContentEditor">Editor teks blok terpilih</label>
                     <p class="gm-field-help">
-                        Enter untuk pindah baris. Dua kali Enter untuk satu baris kosong; Backspace atau tombol Jarak
-                        untuk mengatur sendiri.
+                        Enter untuk pindah baris. Dua kali Enter untuk membuat satu baris kosong.
                     </p>
                     <div class="gm-rich-editor">
 
@@ -395,14 +398,6 @@
                             </button>
                             <span class="gm-rich-separator" aria-hidden="true"></span>
 
-                            {{-- Jarak dikendalikan pengguna, bukan margin otomatis. --}}
-                            <button type="button" class="gm-rich-tool gm-rich-tool-text" data-gm-spacing="add"
-                                title="Tambah satu baris kosong" aria-label="Tambah satu baris kosong">+
-                                Jarak</button>
-                            <button type="button" class="gm-rich-tool gm-rich-tool-text" data-gm-spacing="remove"
-                                title="Kurangi satu baris kosong" aria-label="Kurangi satu baris kosong">−
-                                Jarak</button>
-                            <span class="gm-rich-separator" aria-hidden="true"></span>
                             {{-- REMOVE FORMATTING --}}
                             <button type="button" class="gm-rich-tool" data-gm-command="removeFormat"
                                 title="Hapus pemformatan" aria-label="Hapus pemformatan">
@@ -420,7 +415,7 @@
                     <textarea id="gmSubchapterContent" rows="8" class="gm-rich-source" aria-label="Data sumber materi"
                         tabindex="-1" placeholder="Tuliskan isi materi pembelajaran"></textarea>
                     <small>
-                        Pilih teks untuk memformatnya. Spasi antarbagiannya dapat kamu tambah atau kurangi sendiri.
+                        Pilih teks untuk memformatnya. Gunakan paragraf kosong untuk mengatur jarak antarbagiannya.
                     </small>
                     <p class="gm-editor-status" id="gmEditorStatus" role="status" aria-live="polite"></p>
                 </div>

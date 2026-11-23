@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const options = {
             method: method,
             credentials: 'same-origin',
+            cache: 'no-store',
             headers: {
                 'Accept': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
@@ -214,6 +215,8 @@ document.addEventListener('DOMContentLoaded', () => {
     /* 05. MEMUAT BAB DAN SUBBAB */
     async function loadChapters() {
         const version = ++chapterLoadVersion;
+        const previousChapterId = chapterSelect.value || selectedChapterId;
+        const previousSubchapterId = subchapterSelect.value || selectedSubchapterId;
         chapterSelect.disabled = true;
         chapterSelect.innerHTML = `
             <option value="">Memuat daftar Bab...</option>
@@ -223,6 +226,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (version !== chapterLoadVersion) return;
             chapters = result.chapters || [];
             if (!chapters.length) {
+                selectedChapterId = null;
+                selectedSubchapterId = null;
+                subchapterSelect.innerHTML = '<option value="">Pilih Bab terlebih dahulu</option>';
+                subchapterSelect.disabled = true;
                 chapterSelect.innerHTML = `
                     <option value="">
                         Belum ada Bab. Buat di Kelola Materi.
@@ -240,7 +247,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 `).join('')}
             `;
             chapterSelect.disabled = false;
+            chapterSelect.value = chapters.some(chapter => String(chapter.id) === String(previousChapterId))
+                ? String(previousChapterId)
+                : '';
+            if (chapterSelect.value) {
+                updateSubchapters();
+                if ((getSelectedChapter()?.subchapters || []).some(
+                    item => String(item.id) === String(previousSubchapterId)
+                )) {
+                    subchapterSelect.value = String(previousSubchapterId);
+                    await selectSubchapter();
+                }
+            } else {
+                selectedChapterId = null;
+                selectedSubchapterId = null;
+                subchapterSelect.innerHTML = '<option value="">Pilih Bab terlebih dahulu</option>';
+                subchapterSelect.disabled = true;
+            }
         } catch (error) {
+            chapters = [];
+            selectedChapterId = null;
+            selectedSubchapterId = null;
+            subchapterSelect.innerHTML = '<option value="">Pilih Bab terlebih dahulu</option>';
+            subchapterSelect.disabled = true;
+            workspace.hidden = true;
+            initialEmpty.hidden = false;
             chapterSelect.innerHTML = `
                 <option value="">Gagal memuat Bab</option>
             `;
@@ -1895,6 +1926,9 @@ document.addEventListener('DOMContentLoaded', () => {
     /* 12. EVENT DROPDOWN */
     chapterSelect.addEventListener('change', updateSubchapters);
     subchapterSelect.addEventListener('change', selectSubchapter);
+    window.addEventListener('guru:page-shown', event => {
+        if (event.detail?.page === 'kuis') loadChapters();
+    });
     activityTypeSelect.addEventListener('change', () => {
         if (activityTypeSelect.disabled) return;
         activityDraft = defaultActivityDraft(activityTypeSelect.value);

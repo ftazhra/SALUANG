@@ -16,11 +16,11 @@
     <link rel="stylesheet" href="{{ asset('css/guru.css') }}?v=10">
 
     <link rel="stylesheet" href="{{ asset('css/guru-materi.css') }}?v=28">
-    <script src="{{ asset('js/guru-materi.js') }}?v=19" defer></script>
+    <script src="{{ asset('js/guru-materi.js') }}?v=21" defer></script>
 
     <link rel="stylesheet" href="{{ asset('css/guru-kuis.css') }}?v=20261111b">
     <script src="{{ asset('js/guru-matching-preview.js') }}?v=20261111b" defer></script>
-    <script src="{{ asset('js/guru-kuis.js') }}?v=20261115r3" defer></script>
+    <script src="{{ asset('js/guru-kuis.js') }}?v=20261120r1" defer></script>
 
     <link rel="stylesheet" href="{{ asset('css/guru-evaluasi.css') }}?v=20261115r3">
     <script src="{{ asset('js/guru-evaluasi.js') }}?v=9" defer></script>
@@ -29,20 +29,20 @@
     <script src="{{ asset('js/guru-forum.js') }}?v=4" defer></script>
 
     <link rel="stylesheet" href="{{ asset('css/guru-nilai.css') }}?v=4">
-    <script src="{{ asset('js/guru-nilai.js') }}?v=6" defer></script>
+    <script src="{{ asset('js/guru-nilai.js') }}?v=7" defer></script>
 
     <link rel="stylesheet" href="{{ asset('css/guru-siswa.css') }}?v=5">
     <script src="{{ asset('js/guru-siswa.js') }}?v=6" defer></script>
 
-    <link rel="stylesheet" href="{{ asset('css/guru-orang-tua.css') }}?v=5">
-    <script src="{{ asset('js/guru-orang-tua.js') }}?v=4" defer></script>
+    <link rel="stylesheet" href="{{ asset('css/guru-orang-tua.css') }}?v=6">
+    <script src="{{ asset('js/guru-orang-tua.js') }}?v=6" defer></script>
 
     <link rel="stylesheet" href="{{ asset('css/guru-profil.css') }}?v=6">
-    <script src="{{ asset('js/guru-profil.js') }}?v=4" defer></script>
+    <script src="{{ asset('js/guru-profil.js') }}?v=6" defer></script>
 
     <link rel="stylesheet" href="{{ asset('css/saluang-selects.css') }}?v=3">
     <script src="{{ asset('js/guru-logout.js') }}?v=1" defer></script>
-    <link rel="stylesheet" href="{{ asset('css/website-notifications.css') }}?v=5">
+    <link rel="stylesheet" href="{{ asset('css/website-notifications.css') }}?v=6">
 </head>
 
 <body class="gd-page">
@@ -194,9 +194,10 @@
                         aria-label="Menu profil" aria-expanded="false" aria-controls="guruProfileMenu">
                         <span class="gd-avatar" id="gdTopbarAvatar"
                             data-initial="{{ mb_strtoupper(mb_substr(auth()->user()?->name ?? 'G', 0, 1)) }}">
-                            @if (auth()->user()?->profile_photo_path)
-                                <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}"
-                                    alt="Foto profil Guru">
+                            @if (auth()->user()?->profile_photo_url)
+                                <img src="{{ auth()->user()->profile_photo_url }}"
+                                    alt="Foto profil Guru"
+                                    onerror="this.remove(); this.parentElement.textContent=this.parentElement.dataset.initial">
                             @else
                                 {{ mb_strtoupper(mb_substr(auth()->user()?->name ?? 'G', 0, 1)) }}
                             @endif
@@ -358,7 +359,7 @@
     {{-- =====================================================
          07. JAVASCRIPT DASHBOARD GURU
          ===================================================== --}}
-    <script src="{{ asset('js/guru-dashboard.js') }}?v=2"></script>
+    <script src="{{ asset('js/guru-dashboard.js') }}?v=3"></script>
     <script src="{{ asset('js/website-notifications.js') }}?v=3" defer></script>
 
     {{-- Modal konfirmasi Keluar Guru (berlaku untuk sidebar dan dropdown profil) --}}

@@ -382,7 +382,7 @@ class SubchapterContentBlocksTest extends TestCase
 
     public function test_editing_blocks_retains_existing_media_and_uses_the_same_public_url(): void
     {
-        Storage::fake('public');
+        Storage::fake('material_public');
 
         $guru = $this->createUser('guru');
         $student = $this->createUser('siswa');
@@ -394,7 +394,7 @@ class SubchapterContentBlocksTest extends TestCase
             'content_blocks_enabled' => true,
         ]);
         $path = 'subchapter-media/gambar-tersimpan.jpg';
-        $this->publicDisk()->put($path, 'saved image bytes');
+        $this->materialDisk()->put($path, 'saved image bytes');
         $media = $subchapter->media()->create([
             'media_type' => 'image',
             'source' => 'upload',
@@ -435,10 +435,10 @@ class SubchapterContentBlocksTest extends TestCase
             )
             ->assertJsonPath(
                 'subchapter.content_blocks.1.media.url',
-                $this->publicDisk()->url($path)
+                $this->materialDisk()->url($path)
             );
 
-        $this->publicDisk()->assertExists($path);
+        $this->materialDisk()->assertExists($path);
         $this->assertDatabaseHas('subchapter_content_blocks', [
             'subchapter_id' => $subchapter->id,
             'position' => 2,
@@ -451,7 +451,7 @@ class SubchapterContentBlocksTest extends TestCase
 
         $studentResponse->assertJsonPath(
             'chapters.0.subchapters.0.content_blocks.1.media.url',
-            $this->publicDisk()->url($path)
+            $this->materialDisk()->url($path)
         );
         $this->assertFalse(
             str_starts_with(
@@ -465,7 +465,7 @@ class SubchapterContentBlocksTest extends TestCase
 
     public function test_block_only_edit_preserves_unreferenced_legacy_media(): void
     {
-        Storage::fake('public');
+        Storage::fake('material_public');
 
         $guru = $this->createUser('guru');
         $student = $this->createUser('siswa');
@@ -477,7 +477,7 @@ class SubchapterContentBlocksTest extends TestCase
             'content_blocks_enabled' => true,
         ]);
         $path = 'subchapter-media/media-lama.png';
-        $this->publicDisk()->put($path, 'existing image');
+        $this->materialDisk()->put($path, 'existing image');
         $media = $subchapter->media()->create([
             'media_type' => 'image',
             'source' => 'upload',
@@ -502,9 +502,9 @@ class SubchapterContentBlocksTest extends TestCase
             ->assertJsonPath('subchapter.content_blocks.1.media_id', $media->id)
             ->assertJsonPath(
                 'subchapter.content_blocks.1.media.url',
-                $this->publicDisk()->url($path)
+                $this->materialDisk()->url($path)
             );
-        $this->publicDisk()->assertExists($path);
+        $this->materialDisk()->assertExists($path);
         $this->assertDatabaseHas('subchapter_media', [
             'id' => $media->id,
             'storage_path' => $path,
@@ -515,13 +515,13 @@ class SubchapterContentBlocksTest extends TestCase
             ->assertOk()
             ->assertJsonPath(
                 'chapters.0.subchapters.0.content_blocks.1.media.url',
-                $this->publicDisk()->url($path)
+                $this->materialDisk()->url($path)
             );
     }
 
     public function test_media_blocks_can_upload_more_than_one_asset_and_deleting_blocks_keeps_files(): void
     {
-        Storage::fake('public');
+        Storage::fake('material_public');
 
         $guru = $this->createUser('guru');
         $chapter = $this->createChapter($guru);
@@ -577,7 +577,7 @@ class SubchapterContentBlocksTest extends TestCase
             ->pluck('storage_path')
             ->all();
         foreach ($storedPaths as $path) {
-            $this->publicDisk()->assertExists($path);
+            $this->materialDisk()->assertExists($path);
         }
 
         $this->post(
@@ -588,7 +588,7 @@ class SubchapterContentBlocksTest extends TestCase
         $this->assertDatabaseCount('subchapter_content_blocks', 0);
         $this->assertDatabaseCount('subchapter_media', 3);
         foreach ($storedPaths as $path) {
-            $this->publicDisk()->assertExists($path);
+            $this->materialDisk()->assertExists($path);
         }
     }
 
@@ -709,10 +709,10 @@ class SubchapterContentBlocksTest extends TestCase
         $this->assertDatabaseCount('subchapter_content_blocks', 0);
     }
 
-    private function publicDisk(): FilesystemAdapter
+    private function materialDisk(): FilesystemAdapter
     {
         /** @var FilesystemAdapter $disk */
-        $disk = Storage::disk('public');
+        $disk = Storage::disk('material_public');
 
         return $disk;
     }

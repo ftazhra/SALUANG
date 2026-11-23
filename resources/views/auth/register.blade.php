@@ -168,7 +168,7 @@
 
                     {{-- TOKEN: KHUSUS GURU --}}
                     <div class="sl-field" data-sl-only="guru" hidden>
-                        <label for="guru_token">Kode Undangan Guru dari Pengelola Sekolah</label>
+                        <label for="guru_token">Kode pendaftaran Guru</label>
 
                         <div class="sl-input">
                             <span class="sl-input-icon" aria-hidden="true">
@@ -181,7 +181,8 @@
                             </span>
 
                             <input type="text" id="guru_token" name="guru_token" maxlength="64" autocomplete="off"
-                                spellcheck="false" placeholder="Masukkan kode undangan khusus Guru">
+                                spellcheck="false"
+                                placeholder="SMPN21 untuk Guru SMP Negeri 21; kode admin untuk sekolah lain">
                         </div>
                     </div>
 

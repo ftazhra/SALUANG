@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
@@ -16,8 +17,7 @@ class EvaluationController extends Controller
 {
     public function __construct(
         private SchoolAccessService $schoolAccess
-    ) {
-    }
+    ) {}
 
     private function ensureSiswa(Request $request): int
     {
@@ -86,7 +86,7 @@ class EvaluationController extends Controller
                 ->pluck('user_id'))
             ->orderBy('id')
             ->pluck('id')
-            ->map(fn ($id) => (int) $id)
+            ->map(fn($id) => (int) $id)
             ->values();
 
         if ($publishedTeacherIds->count() === 1) {
@@ -105,7 +105,7 @@ class EvaluationController extends Controller
     {
         if (
             $questions->count() !== 15
-            || $questions->pluck('nomor_soal')->map(fn ($n) => (int) $n)->all() !== range(1, 15)
+            || $questions->pluck('nomor_soal')->map(fn($n) => (int) $n)->all() !== range(1, 15)
         ) {
             return false;
         }
@@ -121,13 +121,17 @@ class EvaluationController extends Controller
             if ($question->tipe_soal !== 'pilihan_ganda') {
                 return false;
             }
-            if (!is_string($question->pertanyaan)
-                || trim($question->pertanyaan) === '') {
+            if (
+                !is_string($question->pertanyaan)
+                || trim($question->pertanyaan) === ''
+            ) {
                 return false;
             }
             foreach (['a', 'b', 'c', 'd'] as $letter) {
-                if (!is_string($content['pilihan_'.$letter] ?? null)
-                    || trim($content['pilihan_'.$letter]) === '') {
+                if (
+                    !is_string($content['pilihan_' . $letter] ?? null)
+                    || trim($content['pilihan_' . $letter]) === ''
+                ) {
                     return false;
                 }
             }
@@ -190,11 +194,11 @@ class EvaluationController extends Controller
             ->where('teacher_id', $teacherId)
             ->orderByDesc('id')
             ->get()
-            ->filter(fn (object $attempt) => $this->snapshotTeacherId($attempt) === $teacherId)
+            ->filter(fn(object $attempt) => $this->snapshotTeacherId($attempt) === $teacherId)
             ->values();
 
         $inProgress = $attempts->first(
-            fn (object $attempt) => $attempt->submitted_at === null
+            fn(object $attempt) => $attempt->submitted_at === null
         );
         if ($inProgress) {
             return $inProgress;
@@ -209,7 +213,7 @@ class EvaluationController extends Controller
             ->all();
 
         return $attempts->first(
-            fn (object $attempt) => in_array((int) $attempt->id, $validAttemptIds, true)
+            fn(object $attempt) => in_array((int) $attempt->id, $validAttemptIds, true)
         );
     }
 
@@ -223,10 +227,12 @@ class EvaluationController extends Controller
         $numbers = [];
         $teacherIds = [];
         foreach ($snapshot as $question) {
-            if (!is_array($question)
+            if (
+                !is_array($question)
                 || !isset($question['nomor_soal'], $question['user_id'])
                 || !is_numeric($question['nomor_soal'])
-                || !is_numeric($question['user_id'])) {
+                || !is_numeric($question['user_id'])
+            ) {
                 return null;
             }
 
@@ -246,8 +252,25 @@ class EvaluationController extends Controller
     {
         if (!$attempt) return 'none';
         if ($attempt->submitted_at) return 'completed';
-        if (Carbon::parse($attempt->ends_at)->isPast()) return 'expired';
+        if ($this->attemptDeadline($attempt)->isPast()) return 'expired';
         return 'active';
+    }
+
+    private function attemptDeadline($attempt): Carbon
+    {
+        // TIMESTAMP MySQL mengikuti zona waktu sesi saat dibaca sebagai teks.
+        // UNIX_TIMESTAMP menghasilkan waktu absolut yang sama untuk PHP dan browser.
+        if (DB::getDriverName() === 'mysql' && isset($attempt->id)) {
+            $epoch = DB::table('evaluation_attempts')
+                ->where('id', $attempt->id)
+                ->value(DB::raw('UNIX_TIMESTAMP(ends_at)'));
+
+            if ($epoch !== null) {
+                return Carbon::createFromTimestampUTC((int) $epoch);
+            }
+        }
+
+        return Carbon::parse((string) $attempt->ends_at, 'UTC')->utc();
     }
 
     /** Siswa yang memperoleh nilai >= 70 tidak perlu mengulang Evaluasi Guru tersebut. */
@@ -259,7 +282,7 @@ class EvaluationController extends Controller
             app(\App\Services\EvaluationResultService::class)
                 ->validCompletedForStudent($userId)
         )
-            ->first(fn (array $attempt) => $attempt['teacher_id'] === $teacherId
+            ->first(fn(array $attempt) => $attempt['teacher_id'] === $teacherId
                 && $attempt['score'] >= self::KKM)['id'] ?? null;
 
         return $attemptId === null
@@ -302,17 +325,16 @@ class EvaluationController extends Controller
         Request $request,
         int $teacher,
         WebsiteNotificationService $notifications
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $id = $this->ensureSiswa($request);
         $this->requireAttemptSchema();
         $owner = $this->evaluationTeacher($id, $teacher);
         $attempt = $this->current($id, $teacher);
-        $status=$this->status($attempt);
+        $status = $this->status($attempt);
         if ($status === 'expired') {
             $this->finishAttempt($attempt, $notifications);
-            $attempt=$this->current($id, $teacher);
-            $status=$this->status($attempt);
+            $attempt = $this->current($id, $teacher);
+            $status = $this->status($attempt);
         }
         $questions = $status === 'active'
             ? collect($this->normalizeSnapshot(
@@ -327,19 +349,21 @@ class EvaluationController extends Controller
         }
         return response()->json([
             'teacher' => ['id' => $owner->id, 'name' => $owner->name],
-            'status'=>$status,
+            'server_now' => Carbon::now('UTC')->toIso8601String(),
+            'status' => $status,
             'passed' => (bool) $passing,
             'can_retry' => !$passing,
             'kkm' => self::KKM,
             'ready' => $status === 'active' || $this->isReady($questions),
-            'questions'=>$status==='active'?$this->publicQuestions($questions):[],
-            'attempt'=>$attempt ? [
-                'id'=>$attempt->id, 'ends_at'=>Carbon::parse($attempt->ends_at)->toIso8601String(),
-                'answers'=>$status==='active'?(json_decode($attempt->answers, true) ?: []):[],
-                'score'=>$status==='completed'?$attempt->score:null,
-                'correct_count'=>$status==='completed'?$attempt->correct_count:null,
-                'details'=>$status==='completed'?$this->buildAttemptDetails($attempt):[],
-            ]:null,
+            'questions' => $status === 'active' ? $this->publicQuestions($questions) : [],
+            'attempt' => $attempt ? [
+                'id' => $attempt->id,
+                'ends_at' => $this->attemptDeadline($attempt)->toIso8601String(),
+                'answers' => $status === 'active' ? (json_decode($attempt->answers, true) ?: []) : [],
+                'score' => $status === 'completed' ? $attempt->score : null,
+                'correct_count' => $status === 'completed' ? $attempt->correct_count : null,
+                'details' => $status === 'completed' ? $this->buildAttemptDetails($attempt) : [],
+            ] : null,
         ]);
     }
 
@@ -347,8 +371,7 @@ class EvaluationController extends Controller
         Request $request,
         int $teacher,
         WebsiteNotificationService $notifications
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $id = $this->ensureSiswa($request);
         $this->requireAttemptSchema();
         $this->evaluationTeacher($id, $teacher);
@@ -370,6 +393,7 @@ class EvaluationController extends Controller
             }
 
             if ($current && $this->status($current) === 'active') {
+                $serverNow = Carbon::now('UTC');
                 $snapshot = collect(
                     json_decode((string) $current->question_snapshot, true) ?: []
                 );
@@ -377,7 +401,8 @@ class EvaluationController extends Controller
                 return response()->json([
                     'message' => 'Evaluasi dilanjutkan.',
                     'attempt_id' => (int) $current->id,
-                    'ends_at' => Carbon::parse($current->ends_at)->toIso8601String(),
+                    'ends_at' => $this->attemptDeadline($current)->toIso8601String(),
+                    'server_now' => $serverNow->toIso8601String(),
                     'questions' => $this->publicQuestions($snapshot),
                     'answers' => json_decode((string) $current->answers, true) ?: [],
                 ]);
@@ -394,16 +419,25 @@ class EvaluationController extends Controller
             $questions = $this->questions($teacher);
             $this->requireReady($questions);
 
-            $now=now();
-            $attemptId=DB::table('evaluation_attempts')->insertGetId([
-                'user_id'=>$id,
-                'teacher_id'=>$teacher,
-                'answers'=>json_encode(new \stdClass()),
-                'question_snapshot'=>json_encode($this->normalizeSnapshot($questions)),
-                'ends_at'=>$now->copy()->addMinutes(45),
-                'created_at'=>$now,'updated_at'=>$now,
+            $now = Carbon::now('UTC');
+            $attemptId = DB::table('evaluation_attempts')->insertGetId([
+                'user_id' => $id,
+                'teacher_id' => $teacher,
+                'answers' => json_encode(new \stdClass()),
+                'question_snapshot' => json_encode($this->normalizeSnapshot($questions)),
+                // Hitung tenggat di sesi MySQL yang sama agar TIMESTAMP tidak bergeser zona waktu.
+                'ends_at' => DB::raw('DATE_ADD(CURRENT_TIMESTAMP(), INTERVAL 45 MINUTE)'),
+                'created_at' => $now,
+                'updated_at' => $now,
             ]);
-            return response()->json(['message'=>'Evaluasi dimulai.','attempt_id'=>$attemptId,'ends_at'=>$now->copy()->addMinutes(45)->toIso8601String(), 'questions'=>$this->publicQuestions($questions)]);
+            $deadline = $this->attemptDeadline((object) ['id' => $attemptId]);
+            return response()->json([
+                'message' => 'Evaluasi dimulai.',
+                'attempt_id' => $attemptId,
+                'ends_at' => $deadline->toIso8601String(),
+                'server_now' => Carbon::now('UTC')->toIso8601String(),
+                'questions' => $this->publicQuestions($questions),
+            ]);
         });
     }
 
@@ -411,48 +445,85 @@ class EvaluationController extends Controller
         Request $request,
         int $teacher,
         WebsiteNotificationService $notifications
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $id = $this->ensureSiswa($request);
         $this->requireAttemptSchema();
         $this->evaluationTeacher($id, $teacher);
-        $data=$request->validate(['answers'=>['required','array']]);
+        $data = $request->validate([
+            'answers' => ['required', 'array'],
+            'attempt_id' => ['sometimes', 'required', 'integer', 'min:1'],
+        ]);
         return DB::transaction(function () use ($id, $teacher, $data, $notifications) {
-        $attempt=DB::table('evaluation_attempts')->where('user_id',$id)
-            ->where('teacher_id', $teacher)
-            ->whereNull('submitted_at')->orderByDesc('id')->lockForUpdate()->first();
-            if (!$attempt || $attempt->submitted_at) return response()->json(['message'=>'Tidak ada evaluasi aktif.'],409);
-            if (Carbon::parse($attempt->ends_at)->isPast()) {
-                $this->finishAttempt($attempt, $notifications);
-                return response()->json(['message'=>'Waktu evaluasi habis. Jawaban terakhir sebelum batas waktu sudah dinilai.'],409);
+            $attemptQuery = DB::table('evaluation_attempts')
+                ->where('user_id', $id)
+                ->where('teacher_id', $teacher)
+                ->whereNull('submitted_at');
+            if (isset($data['attempt_id'])) {
+                $attemptQuery->where('id', $data['attempt_id']);
             }
-            $questions=collect(json_decode($attempt->question_snapshot,true) ?: []);
-            $valid=[];
+            $attempt = $attemptQuery
+                ->orderByDesc('id')
+                ->lockForUpdate()
+                ->first();
+            if (!$attempt) {
+                return response()->json([
+                    'message' => 'Sesi evaluasi aktif tidak ditemukan. Muat ulang halaman untuk memeriksa status evaluasi.',
+                ], 409);
+            }
+            if ($this->attemptDeadline($attempt)->isPast()) {
+                $this->finishAttempt($attempt, $notifications);
+                return response()->json([
+                    'message' => 'Waktu evaluasi habis. Jawaban terakhir sebelum batas waktu sudah dinilai.',
+                ], 409);
+            }
+            abort_unless(
+                $this->snapshotTeacherId($attempt) === $teacher,
+                409,
+                'Sesi evaluasi tidak cocok dengan Guru yang dipilih.'
+            );
+            $questions = collect(json_decode($attempt->question_snapshot, true) ?: []);
+            $valid = [];
             foreach ($questions as $q) {
-                $n=(string)$q['nomor_soal'];
-                $answer=$data['answers'][$n] ?? null;
-                if ($q['tipe_soal']==='pilihan_ganda') {
-                    if (in_array($answer,['A','B','C','D'],true)) $valid[$n]=$answer;
-                } elseif (is_array($answer)) {
-                    $items=collect($q['konten_soal']['items'] ?? [])->pluck('id')->map(fn($v)=>(string)$v)->all();
-                    $targets=collect($q['konten_soal']['targets'] ?? [])->pluck('id')->map(fn($v)=>(string)$v)->all();
-                    $pairs=[];
-                    foreach ($answer as $key=>$value) {
-                        if (in_array((string)$key,$items,true) && is_string($value) && in_array($value,$targets,true)) $pairs[(string)$key]=$value;
+                $n = (string) $q['nomor_soal'];
+                $answer = $data['answers'][$n] ?? null;
+                if ($q['tipe_soal'] === 'pilihan_ganda') {
+                    if (in_array($answer, ['A', 'B', 'C', 'D'], true)) {
+                        $valid[$n] = $answer;
                     }
-                    $valid[$n]=$pairs;
+                } elseif (is_array($answer)) {
+                    $items = collect($q['konten_soal']['items'] ?? [])
+                        ->pluck('id')
+                        ->map(fn($value) => (string) $value)
+                        ->all();
+                    $targets = collect($q['konten_soal']['targets'] ?? [])
+                        ->pluck('id')
+                        ->map(fn($value) => (string) $value)
+                        ->all();
+                    $pairs = [];
+                    foreach ($answer as $key => $value) {
+                        if (
+                            in_array((string) $key, $items, true)
+                            && is_string($value)
+                            && in_array($value, $targets, true)
+                        ) {
+                            $pairs[(string) $key] = $value;
+                        }
+                    }
+                    $valid[$n] = $pairs;
                 }
             }
-            DB::table('evaluation_attempts')->where('id',$attempt->id)->update(['answers'=>json_encode($valid),'updated_at'=>now()]);
-            return response()->json(['message'=>'Jawaban tersimpan.']);
+            DB::table('evaluation_attempts')->where('id', $attempt->id)->update([
+                'answers' => json_encode($valid),
+                'updated_at' => now(),
+            ]);
+            return response()->json(['message' => 'Jawaban tersimpan.']);
         });
     }
 
     private function finishAttempt(
         $attempt,
         WebsiteNotificationService $notifications
-    ): array
-    {
+    ): array {
         return DB::transaction(function () use ($attempt, $notifications) {
             $current = DB::table('evaluation_attempts')
                 ->where('id', $attempt->id)
@@ -485,7 +556,12 @@ class EvaluationController extends Controller
                 $number = (string) $question['nomor_soal'];
                 $expected = $question['kunci_jawaban'] ?? null;
                 if (is_string($expected)) {
-                    $expected = json_decode($expected, true);
+                    $decoded = json_decode($expected, true);
+                    $expected = is_array($decoded)
+                        ? $decoded
+                        : (in_array(strtoupper(trim($expected)), ['A', 'B', 'C', 'D'], true)
+                            ? ['jawaban' => strtoupper(trim($expected))]
+                            : null);
                 }
                 $response = $answers[$number] ?? null;
                 if ($question['tipe_soal'] === 'pilihan_ganda') {
@@ -570,7 +646,7 @@ class EvaluationController extends Controller
             } else {
                 $studentPairs = is_array($answer) ? $answer : [];
                 $correctPairs = $key['pairs'] ?? [];
-                $targetLabels = collect($content['targets'] ?? [])->mapWithKeys(fn ($target) => [
+                $targetLabels = collect($content['targets'] ?? [])->mapWithKeys(fn($target) => [
                     (string) ($target['id'] ?? '') => $target['label'] ?? ''
                 ])->all();
                 foreach ($content['items'] ?? [] as $item) {
@@ -590,7 +666,7 @@ class EvaluationController extends Controller
             }
             $details[] = $entry;
         }
-        usort($details, fn ($a, $b) => $a['nomor_soal'] <=> $b['nomor_soal']);
+        usort($details, fn($a, $b) => $a['nomor_soal'] <=> $b['nomor_soal']);
         return $details;
     }
 
@@ -598,20 +674,34 @@ class EvaluationController extends Controller
         Request $request,
         int $teacher,
         WebsiteNotificationService $notifications
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $id = $this->ensureSiswa($request);
         $this->requireAttemptSchema();
         $this->evaluationTeacher($id, $teacher);
 
-        return DB::transaction(function () use ($id, $teacher, $notifications) {
-            $attempt=DB::table('evaluation_attempts')->where('user_id',$id)
+        $data = $request->validate([
+            'attempt_id' => ['sometimes', 'required', 'integer', 'min:1'],
+        ]);
+
+        return DB::transaction(function () use ($id, $teacher, $notifications, $data) {
+            $attemptQuery = DB::table('evaluation_attempts')->where('user_id', $id)
                 ->where('teacher_id', $teacher)
-                ->whereNull('submitted_at')->orderByDesc('id')->lockForUpdate()->first();
-            if (!$attempt) return response()->json(['message'=>'Belum ada evaluasi.'],409);
-            $result=$this->finishAttempt($attempt, $notifications);
+                ->whereNull('submitted_at');
+            if (isset($data['attempt_id'])) {
+                $attemptQuery->where('id', $data['attempt_id']);
+            }
+            $attempt = $attemptQuery->orderByDesc('id')->lockForUpdate()->first();
+            if (!$attempt) {
+                return response()->json(['message' => 'Belum ada evaluasi aktif untuk dikirim.'], 409);
+            }
+            abort_unless(
+                $this->snapshotTeacherId($attempt) === $teacher,
+                409,
+                'Sesi evaluasi tidak cocok dengan Guru yang dipilih.'
+            );
+            $result = $this->finishAttempt($attempt, $notifications);
             $saved = DB::table('evaluation_attempts')->where('id', $attempt->id)->first();
-            return response()->json(['message'=>'Evaluasi selesai.'] + $result + [
+            return response()->json(['message' => 'Evaluasi selesai.'] + $result + [
                 'details' => $this->buildAttemptDetails($saved),
             ]);
         });

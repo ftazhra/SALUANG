@@ -48,6 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const topbarAvatar = byId('gdTopbarAvatar');
     const photoButton = byId('gpProfilePhotoButton');
     const photoInput = byId('gpProfilePhotoInput');
+    const savePhotoButton = byId('gpProfileSavePhotoButton');
+    const cancelPhotoButton = byId('gpProfileCancelPhotoButton');
     const deletePhotoButton = byId('gpProfileDeletePhotoButton');
     const photoFilename = byId('gpProfilePhotoFilename');
 
@@ -231,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
         large.src = url;
         large.addEventListener('error', () => {
             setAvatarInitial(displayName?.textContent || 'G');
-            showMessage(photoFilename, 'Foto sudah disimpan, tetapi gagal ditampilkan. Periksa php artisan storage:link.', true);
+            showMessage(photoFilename, 'Foto gagal dimuat dari penyimpanan publik.', true);
         }, { once: true });
         avatar.replaceChildren(large);
 
@@ -254,7 +256,31 @@ document.addEventListener('DOMContentLoaded', () => {
         setAvatarInitial(displayName?.textContent || 'G');
     }, { once: true });
 
-        /* 04. REQUEST KE LARAVEL */
+    let savedPhotoUrl = avatar.querySelector('img')?.src || null;
+    let previewPhotoUrl = null;
+
+    function revokePreview() {
+        if (previewPhotoUrl) {
+            URL.revokeObjectURL(previewPhotoUrl);
+            previewPhotoUrl = null;
+        }
+    }
+
+    function resetPhotoSelection() {
+        revokePreview();
+        photoInput.value = '';
+        savePhotoButton.hidden = true;
+        savePhotoButton.disabled = true;
+        cancelPhotoButton.hidden = true;
+        deletePhotoButton.disabled = false;
+        if (savedPhotoUrl) {
+            setAvatarPhoto(savedPhotoUrl);
+        } else {
+            setAvatarInitial(displayName?.textContent || 'G');
+        }
+    }
+
+    /* 04. REQUEST KE LARAVEL */
     async function requestApi(url, method, data, isFile = false) {
         const headers = {
             'Accept': 'application/json',
@@ -273,14 +299,32 @@ document.addEventListener('DOMContentLoaded', () => {
             body: isFile ? data : JSON.stringify(data ?? {})
         });
 
-        const result = await response.json().catch(() => ({}));
+        const contentType = response.headers.get('content-type') || '';
+        let result = null;
+        if (contentType.includes('application/json')) {
+            try {
+                result = await response.json();
+            } catch {
+                result = null;
+            }
+        }
 
         if (!response.ok) {
+            const fallback = response.redirected
+                ? 'Sesi berakhir atau halaman dialihkan. Muat ulang halaman lalu login kembali.'
+                : response.status === 419
+                    ? 'Sesi berakhir. Muat ulang halaman lalu coba kembali.'
+                    : response.status === 413
+                        ? 'Server menolak foto. Gunakan ukuran maksimal 2 MB; batas hosting mungkin lebih rendah.'
+                        : `Permintaan gagal (HTTP ${response.status}).`;
+            throw new Error(getErrorMessage(result, fallback));
+        }
+
+        if (!result || typeof result !== 'object') {
             throw new Error(
-                getErrorMessage(
-                    result,
-                    `Permintaan gagal (HTTP ${response.status}).`
-                )
+                response.redirected
+                    ? 'Sesi berakhir atau halaman dialihkan. Muat ulang halaman lalu login kembali.'
+                    : `Server tidak mengembalikan respons JSON yang valid (HTTP ${response.status}).`
             );
         }
 
@@ -358,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    /* 07. UNGGAH FOTO PROFIL */
+    /* 07. PILIH DAN SIMPAN FOTO PROFIL */
     photoButton.disabled = false;
     photoButton.removeAttribute('title');
 
@@ -366,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
         photoInput.click();
     });
 
-    photoInput.addEventListener('change', async () => {
+    photoInput.addEventListener('change', () => {
         const file = photoInput.files?.[0];
         if (!file) return;
 
@@ -380,15 +424,28 @@ document.addEventListener('DOMContentLoaded', () => {
             !acceptedTypes.includes(file.type) ||
             file.size > 2 * 1024 * 1024
         ) {
-            photoFilename.textContent =
-                'Gunakan JPG, PNG, atau WebP maksimal 2 MB.';
-
-            photoInput.value = '';
+            resetPhotoSelection();
+            showMessage(photoFilename, 'Gunakan JPG, PNG, atau WebP maksimal 2 MB.', true);
             return;
         }
 
+        revokePreview();
+        previewPhotoUrl = URL.createObjectURL(file);
+        setAvatarPhoto(previewPhotoUrl);
+        savePhotoButton.hidden = false;
+        savePhotoButton.disabled = false;
+        cancelPhotoButton.hidden = false;
+        deletePhotoButton.disabled = true;
+        showMessage(photoFilename, 'Pratinjau siap. Pilih Simpan Foto untuk menerapkan perubahan.');
+    });
+
+    savePhotoButton.addEventListener('click', async () => {
+        const file = photoInput.files?.[0];
+        if (!file || savePhotoButton.disabled) return;
+
+        savePhotoButton.disabled = true;
         photoButton.disabled = true;
-        photoFilename.textContent = 'Mengunggah foto...';
+        showMessage(photoFilename, 'Menyimpan foto...');
 
         try {
             const formData = new FormData();
@@ -402,20 +459,26 @@ document.addEventListener('DOMContentLoaded', () => {
             );
 
             setAvatarPhoto(result.photo_url);
+            savedPhotoUrl = result.photo_url;
+            revokePreview();
+            photoInput.value = '';
+            savePhotoButton.hidden = true;
+            cancelPhotoButton.hidden = true;
 
             deletePhotoButton.hidden = false;
             deletePhotoButton.disabled = false;
 
-            photoFilename.textContent =
-                'Foto profil berhasil diperbarui.';
+            showMessage(photoFilename, result.message || 'Foto profil berhasil diperbarui.');
 
         } catch (error) {
-            photoFilename.textContent = error.message;
+            showMessage(photoFilename, error.message, true);
         } finally {
             photoButton.disabled = false;
-            photoInput.value = '';
+            if (!savePhotoButton.hidden) savePhotoButton.disabled = false;
         }
     });
+
+    cancelPhotoButton.addEventListener('click', resetPhotoSelection);
 
     /* 08. HAPUS FOTO PROFIL */
     if (!deletePhotoButton.hidden) {
@@ -438,6 +501,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     );
 
                     setAvatarInitial(displayName.textContent.trim());
+                    savedPhotoUrl = null;
+                    revokePreview();
 
                     deletePhotoButton.hidden = true;
                     photoFilename.textContent = 'Foto profil berhasil dihapus.';

@@ -2004,6 +2004,19 @@
     border-color: #a6c9d8;
 }
 
+.sd-page .se-choice.is-chosen {
+    background: #e4f4e9;
+    border: 2px solid #087248;
+    color: #075c3d;
+    font-weight: 700;
+    box-shadow: 0 0 0 2px rgba(8, 114, 72, .12);
+}
+
+.sd-page .se-choice.is-chosen .se-letter {
+    background: #087248;
+    color: #fff;
+}
+
 .sd-page .se-choice .se-letter {
     border-radius: 7px;
     background: #e9f6ef;

@@ -200,37 +200,15 @@ class ParentDashboardService
 
     private function completedQuizSubchapterIds(int $studentId, array $subchapterIds): array
     {
-        $table = 'student_assessment_results';
-        foreach ([
-            'user_id',
-            'assessment_type',
-            'subchapter_id',
-            'score',
-            'completed_at',
-            'total_questions',
-            'correct_answers',
-        ] as $column) {
-            if (!$this->has($table, $column)) {
-                return [];
-            }
-        }
-
         if ($subchapterIds === []) {
             return [];
         }
 
-        return DB::table($table)
-            ->where('user_id', $studentId)
-            ->where('assessment_type', 'quiz')
+        return collect($this->evaluationResults->quizResultsForStudent($studentId))
             ->whereIn('subchapter_id', $subchapterIds)
-            ->whereNotNull('score')
-            ->whereBetween('score', [0, 100])
-            ->whereNotNull('completed_at')
-            ->where('total_questions', '>', 0)
-            ->where('correct_answers', '>=', 0)
-            ->whereColumn('correct_answers', '<=', 'total_questions')
-            ->distinct()
             ->pluck('subchapter_id')
+            ->filter()
+            ->unique()
             ->map(fn ($id) => (int) $id)
             ->all();
     }
@@ -574,7 +552,7 @@ class ParentDashboardService
             if (str_contains($rawType, 'evaluasi') || str_contains($rawType, 'evaluation') || str_contains($rawType, 'exam')) {
                 continue;
             } elseif (str_contains($rawType, 'kuis') || str_contains($rawType, 'quiz')) {
-                $type = 'kuis';
+                continue;
             } else {
                 // Tanpa tipe eksplisit, jangan memberi label kuis/evaluasi yang tidak terbukti.
                 $type = 'lainnya';
@@ -613,14 +591,27 @@ class ParentDashboardService
 
         $hasAssessmentContext = $this->has($table, 'assessment_type')
             && $this->has($table, 'assessment_result_id');
-        $messages = DB::table($table)
-            ->where('student_id', $studentId)
-            ->where('audience', 'orang_tua')
-            ->whereNotNull('published_at')
-            ->where('note', '!=', '')
-            ->orderByDesc('published_at')
-            ->orderByDesc('id')
-            ->get();
+        $columns = [
+            'note.id',
+            'note.teacher_id',
+            'note.note',
+            'note.published_at',
+            'teacher.name as teacher_name',
+        ];
+        if ($hasAssessmentContext) {
+            $columns[] = 'note.assessment_type';
+            $columns[] = 'note.assessment_result_id';
+        }
+        $messages = DB::table($table . ' as note')
+            ->join('users as teacher', 'teacher.id', '=', 'note.teacher_id')
+            ->where('note.student_id', $studentId)
+            ->where('note.audience', 'orang_tua')
+            ->whereNotNull('note.published_at')
+            ->where('note.note', '!=', '')
+            ->where('teacher.role', 'guru')
+            ->orderByDesc('note.published_at')
+            ->orderByDesc('note.id')
+            ->get($columns);
 
         if ($messages->isEmpty()) {
             return $empty;
@@ -659,6 +650,7 @@ class ParentDashboardService
                 'id' => (int) $message->id,
                 'body' => $body,
                 'date' => $message->published_at,
+                'teacher_name' => $message->teacher_name,
             ];
 
             if ($assessmentType === null && $assessmentResultId === null) {

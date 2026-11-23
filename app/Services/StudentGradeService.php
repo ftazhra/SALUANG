@@ -171,13 +171,20 @@ class StudentGradeService
             $requiredQuizzesCount = count($requiredSubchapterIds);
             $allRequiredQuizzesComplete = $requiredQuizzesCount === 0
                 || count($completedQuizzes) === $requiredQuizzesCount;
-            $complete = $allRequiredQuizzesComplete && $evaluation !== null;
+            $complete = $allRequiredQuizzesComplete
+                && $quizAverage !== null
+                && $evaluation !== null;
+            $pendingReason = $complete
+                ? null
+                : (!$allRequiredQuizzesComplete
+                    ? 'Kuis wajib belum lengkap'
+                    : ($quizAverage === null
+                        ? 'Belum ada nilai Kuis untuk bobot 50%'
+                        : 'Evaluasi Akhir belum selesai atau belum terverifikasi'));
             $finalScore = null;
             if ($complete) {
                 $evaluationScore = (float) $evaluation['score'];
-                $finalScore = $quizAverage === null
-                    ? $evaluationScore
-                    : round(($quizAverage + $evaluationScore) / 2, 2);
+                $finalScore = round(($quizAverage + $evaluationScore) / 2, 2);
             }
 
             $summaries[$studentId] = [
@@ -189,6 +196,7 @@ class StudentGradeService
                 'completion_status' => !$complete
                     ? 'belum_dinilai'
                     : ($finalScore >= 70 ? 'tuntas' : 'belum_tuntas'),
+                'pending_reason' => $pendingReason,
                 'quiz_completed_count' => count($completedQuizzes),
                 'quiz_required_count' => $requiredQuizzesCount,
                 'evaluation_completed' => $evaluation !== null,
@@ -237,6 +245,7 @@ class StudentGradeService
             'evaluation_score' => null,
             'final_score' => null,
             'completion_status' => 'belum_dinilai',
+            'pending_reason' => 'Nilai belum dapat dihitung',
             'quiz_completed_count' => 0,
             'quiz_required_count' => 0,
             'evaluation_completed' => false,

@@ -3,7 +3,6 @@ namespace App\Http\Controllers\Siswa;
 use App\Http\Controllers\Controller;
 use App\Models\Chapter;
 use App\Models\QuizQuestion;
-use App\Models\StudentAssessmentResult;
 use App\Models\StudentSubchapterProgress;
 use App\Models\Subchapter;
 use App\Models\User;
@@ -62,33 +61,19 @@ class ProgressController extends Controller
                 $status = 'Sedang Dipelajari';
             }
         }
-        $results = StudentAssessmentResult::query()
-            ->where('user_id', $request->user()->id)
-            ->where('assessment_type', 'quiz')
-            ->whereNotNull('score')
-            ->whereBetween('score', [0, 100])
-            ->whereNotNull('completed_at')
-            ->where('total_questions', '>', 0)
-            ->where('correct_answers', '>=', 0)
-            ->whereColumn('correct_answers', '<=', 'total_questions')
-            ->where(function ($query) use ($request, $schoolAccess) {
-                $query->where(function ($subchapterResults) use ($request, $schoolAccess) {
-                    $subchapterResults->whereNotNull('subchapter_id')
-                        ->whereHas('subchapter.chapter.guru', function ($guru) use ($request, $schoolAccess) {
-                            $guru->where('role', 'guru');
-                            $schoolAccess->constrainUsersToSchool($guru, $request->user());
-                        });
-                })->orWhere(function ($chapterResults) use ($request, $schoolAccess) {
-                    $chapterResults->whereNull('subchapter_id')
-                        ->whereHas('chapter.guru', function ($guru) use ($request, $schoolAccess) {
-                            $guru->where('role', 'guru');
-                            $schoolAccess->constrainUsersToSchool($guru, $request->user());
-                        });
-                });
-            })
-            ->with(['subchapter', 'chapter'])
-            ->orderByDesc('completed_at')
-            ->get();
+        $quizResults = collect(
+            $evaluationResults->quizResultsForStudent((int) $request->user()->id)
+        );
+        $quizTeacherQuery = User::query()
+            ->where('role', 'guru')
+            ->whereIn('id', $quizResults->pluck('teacher_id')->unique()->all());
+        $schoolAccess->constrainUsersToSchool($quizTeacherQuery, $request->user());
+        $allowedQuizTeacherIds = $quizTeacherQuery->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+        $results = $quizResults
+            ->whereIn('teacher_id', $allowedQuizTeacherIds)
+            ->values();
         $evaluationAttempts = collect(
             $evaluationResults->validCompletedForStudent((int) $request->user()->id)
         );
@@ -123,22 +108,22 @@ class ProgressController extends Controller
                 'description' => $item->subchapter?->judul,
                 'occurred_at' => $item->completed_at ?? $item->opened_at ?? $item->updated_at,
             ];
-        })->concat($results->map(function (StudentAssessmentResult $result) {
-            $description = $result->subchapter?->judul
-                ?? $result->chapter?->judul
+        })->concat($results->map(function (array $result) {
+            $description = $result['subchapter_title']
+                ?? $result['chapter_title']
                 ?? 'Hasil penilaian tersimpan';
-            if ($result->score !== null) {
+            if ($result['score'] !== null) {
                 $description .= ' · Nilai ' . rtrim(
-                    rtrim(number_format((float) $result->score, 2, '.', ''), '0'),
+                    rtrim(number_format((float) $result['score'], 2, '.', ''), '0'),
                     '.'
                 );
             }
 
             return [
-                'type' => $result->assessment_type,
-                'title' => $result->assessment_type === 'quiz' ? 'Kuis selesai' : 'Evaluasi selesai',
+                'type' => 'quiz',
+                'title' => 'Kuis selesai',
                 'description' => $description,
-                'occurred_at' => $result->completed_at,
+                'occurred_at' => $result['completed_at'],
             ];
         }))->concat($evaluationAttempts->map(function (array $attempt) {
             $attribution = $attempt['teacher_id'] === null

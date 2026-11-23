@@ -1826,3 +1826,397 @@ body.parent-page [hidden] {
         display: none;
     }
 }
+
+
+/* Chat Guru Orang Tua — fallback di CSS dashboard agar tidak bergantung pada CSS chat terpisah. */
+.parent-page [data-parent-section="chat"] {
+    min-width: 0;
+}
+
+.parent-page [data-parent-section="chat"] .pc-chat-page {
+    padding-top: 20px;
+}
+
+.parent-page [data-parent-section="chat"] .pc-chat-card {
+    background: #fff;
+    border: 1px solid #d7e9e6;
+    border-radius: 14px;
+    padding: 26px;
+    min-width: 0;
+}
+
+.parent-page [data-parent-section="chat"] .pc-chat-card h1 {
+    color: #075477;
+    font-size: 24px;
+    line-height: 1.4;
+    font-weight: 700;
+    margin: 0 0 12px;
+}
+
+.parent-page [data-parent-section="chat"] .pc-chat-subtitle {
+    color: #526b74;
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 0 0 20px;
+}
+
+.parent-page [data-parent-section="chat"] .pc-chat-teacher {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    background: #eef8f4;
+    border: 1px solid #dfebe6;
+    border-radius: 12px;
+    padding: 22px;
+    min-width: 0;
+}
+
+.parent-page [data-parent-section="chat"] .pc-chat-teacher>div {
+    flex: 1;
+    min-width: 0;
+}
+
+.parent-page [data-parent-section="chat"] .pc-chat-teacher h2 {
+    color: #075477;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+    margin: 0 0 12px;
+}
+
+.parent-page [data-parent-section="chat"] .pc-chat-teacher p {
+    margin: 0 0 12px;
+    color: #075477;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.parent-page [data-parent-section="chat"] .pc-chat-teacher span {
+    color: #547787;
+    font-size: 12px;
+}
+
+.parent-page [data-parent-section="chat"] .pc-teacher-status-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 12px;
+    color: #547787;
+    font-size: 13px;
+}
+
+.parent-page [data-parent-section="chat"] .pc-teacher-presence {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #a6b5b8;
+}
+
+.parent-page [data-parent-section="chat"] .pc-teacher-presence.is-online {
+    background: #2fa86f;
+}
+
+.parent-page [data-parent-section="chat"] .pc-chat-unread {
+    display: inline-flex;
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: #dcedf8;
+    color: #075477;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.parent-page [data-parent-section="chat"] .pc-chat-unread[hidden] {
+    display: none !important;
+}
+
+.parent-page [data-parent-section="chat"] .pc-teacher-select {
+    display: block;
+    width: 100%;
+    max-width: 480px;
+    min-height: 45px;
+    margin: 14px 0 0;
+    padding: 10px 35px 10px 14px;
+    border: 1px solid #cfe4dc;
+    border-radius: 10px;
+    background: #fff;
+    color: #075477;
+    font: inherit;
+    font-size: 14px;
+}
+
+.parent-page [data-parent-section="chat"] .pc-chat-open,
+.parent-page [data-parent-section="chat"] .pc-compose button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 43px;
+    padding: 10px 17px;
+    border: 0;
+    border-radius: 9px;
+    background: #258452;
+    color: #fff;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.parent-page [data-parent-section="chat"] .pc-chat-open:hover:not(:disabled),
+.parent-page [data-parent-section="chat"] .pc-compose button:hover:not(:disabled) {
+    background: #1f6e45;
+}
+
+.parent-page [data-parent-section="chat"] .pc-chat-open:disabled,
+.parent-page [data-parent-section="chat"] .pc-compose button:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+.parent-page [data-parent-section="chat"] .pc-chat-open:focus-visible,
+.parent-page [data-parent-section="chat"] .pc-compose button:focus-visible,
+.parent-page [data-parent-section="chat"] .pc-teacher-select:focus-visible,
+.parent-page [data-parent-section="chat"] .pc-compose textarea:focus-visible {
+    outline: 2px solid #77b4d3;
+    outline-offset: 2px;
+}
+
+.parent-page [data-parent-section="chat"] .pc-chat-error,
+.parent-page [data-parent-section="chat"] .pc-chat-empty,
+.parent-page [data-parent-section="chat"] .pc-chat-locked {
+    margin-top: 14px;
+    border: 1px solid #d7e9e6;
+    border-radius: 11px;
+    background: #fff;
+    padding: 14px 16px;
+    font-size: 14px;
+    line-height: 1.65;
+    color: #547787;
+}
+
+.parent-page [data-parent-section="chat"] .pc-chat-error {
+    color: #a52d2d;
+}
+
+.parent-page [data-parent-section="chat"] .pc-chat-retry,
+.parent-page [data-parent-section="chat"] .pc-chat-close,
+.parent-page [data-parent-section="chat"] .pc-back {
+    border: 1px solid #cfe4dc;
+    border-radius: 9px;
+    background: #fff;
+    color: #075477;
+    padding: 9px 14px;
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.parent-page [data-parent-section="chat"] .pc-conversation {
+    margin-top: 22px;
+    min-width: 0;
+    border: 1px solid #d7e9e6;
+    border-radius: 13px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.parent-page [data-parent-section="chat"] .pc-conversation-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 15px 18px;
+    background: #f4faf7;
+    border-bottom: 1px solid #e0eeeb;
+}
+
+.parent-page [data-parent-section="chat"] .pc-conversation-header h2 {
+    margin: 0;
+    color: #075477;
+    font-size: 18px;
+    line-height: 1.4;
+}
+
+.parent-page [data-parent-section="chat"] .pc-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 180px;
+    max-height: 390px;
+    overflow-y: auto;
+    padding: 18px;
+    background: #fbfdfc;
+}
+
+.parent-page [data-parent-section="chat"] .pc-message {
+    align-self: flex-start;
+    max-width: 80%;
+    min-width: 90px;
+    border: 1px solid #dce9e6;
+    border-radius: 15px 15px 15px 4px;
+    background: #fff;
+    padding: 11px 15px;
+    color: #075477;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    box-shadow: 0 2px 8px rgba(7, 84, 119, .05);
+}
+
+.parent-page [data-parent-section="chat"] .pc-message.mine {
+    align-self: flex-end;
+    color: #fff;
+    background: #075477;
+    border-color: #075477;
+    border-radius: 15px 15px 4px 15px;
+}
+
+.parent-page [data-parent-section="chat"] .pc-message-meta {
+    display: block;
+    margin-top: 7px;
+    font-size: 11px;
+    color: #728f97;
+    line-height: 1.5;
+}
+
+.parent-page [data-parent-section="chat"] .pc-message.mine .pc-message-meta {
+    color: #e5f5fc;
+    text-align: right;
+}
+
+.parent-page [data-parent-section="chat"] .pc-empty {
+    margin: 0;
+    padding: 12px;
+    font-size: 14px;
+    color: #648491;
+}
+
+.parent-page [data-parent-section="chat"] .pc-message-form {
+    border-top: 1px solid #e0eeeb;
+    padding: 16px 18px;
+}
+
+.parent-page [data-parent-section="chat"] .pc-message-form label {
+    display: block;
+    margin-bottom: 8px;
+    color: #075477;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.parent-page [data-parent-section="chat"] .pc-compose {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    min-width: 0;
+}
+
+.parent-page [data-parent-section="chat"] .pc-compose textarea {
+    flex: 1;
+    min-width: 0;
+    min-height: 47px;
+    padding: 12px 14px;
+    border: 1px solid #cfe1e0;
+    border-radius: 9px;
+    background: #fff;
+    color: #075477;
+    font: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: vertical;
+}
+
+@media (max-width: 680px) {
+    .parent-page [data-parent-section="chat"] .pc-chat-page {
+        padding-top: 12px;
+    }
+
+    .parent-page [data-parent-section="chat"] .pc-chat-card {
+        padding: 18px 14px;
+    }
+
+    .parent-page [data-parent-section="chat"] .pc-chat-teacher {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        padding: 16px;
+    }
+
+    .parent-page [data-parent-section="chat"] .pc-chat-open {
+        width: 100%;
+    }
+
+    .parent-page [data-parent-section="chat"] .pc-teacher-select {
+        max-width: 100%;
+    }
+
+    .parent-page [data-parent-section="chat"] .pc-conversation-header,
+    .parent-page [data-parent-section="chat"] .pc-message-form {
+        padding: 13px;
+    }
+
+    .parent-page [data-parent-section="chat"] .pc-messages {
+        padding: 13px;
+    }
+
+    .parent-page [data-parent-section="chat"] .pc-message {
+        max-width: 90%;
+    }
+
+    .parent-page [data-parent-section="chat"] .pc-compose {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .parent-page [data-parent-section="chat"] .pc-compose button {
+        width: 100%;
+    }
+}
+
+/* Dropdown Guru tidak menimpa panah dan tetap muat di HP. */
+.parent-page [data-parent-section="chat"] .pc-chat-teacher,
+.parent-page [data-parent-section="chat"] .pc-chat-teacher>div {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.parent-page [data-parent-section="chat"] .pc-teacher-select {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding: 12px 46px 12px 14px;
+    appearance: none;
+    -webkit-appearance: none;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    background-color: #fff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23075477' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 18px 18px;
+}
+
+.parent-page [data-parent-section="chat"] .pc-teacher-select option {
+    color: #075477;
+}
+
+@media (max-width: 680px) {
+
+    .parent-page [data-parent-section="chat"] .pc-chat-card,
+    .parent-page [data-parent-section="chat"] .pc-chat-teacher,
+    .parent-page [data-parent-section="chat"] .pc-conversation {
+        min-width: 0;
+        max-width: 100%;
+    }
+}

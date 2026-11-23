@@ -147,8 +147,23 @@ class SingleEvaluationTest extends TestCase
             $answers[(string) $number] = 'A';
         }
         $this->actingAs($student)
-            ->putJson("/siswa/evaluations/teachers/{$teacher->id}/answers", ['answers' => $answers])
+            ->putJson("/siswa/evaluations/teachers/{$teacher->id}/answers", [
+                'attempt_id' => $attemptId,
+                'answers' => $answers,
+            ])
             ->assertOk();
+
+        $this->putJson("/siswa/evaluations/teachers/{$teacher->id}/answers", [
+            'attempt_id' => $attemptId + 1,
+            'answers' => array_fill_keys(array_map('strval', range(1, 15)), 'B'),
+        ])->assertStatus(409);
+        $otherStudent = $this->createUser('siswa', 'single-eval-other-student');
+        $this->actingAs($otherStudent)
+            ->putJson("/siswa/evaluations/teachers/{$teacher->id}/answers", [
+                'attempt_id' => $attemptId,
+                'answers' => $answers,
+            ])->assertStatus(409);
+        $this->actingAs($student);
 
         $this->getJson("/siswa/evaluations/teachers/{$teacher->id}/state")
             ->assertOk()
@@ -157,7 +172,9 @@ class SingleEvaluationTest extends TestCase
             ->assertJsonPath('attempt.answers.1', 'A')
             ->assertJsonPath('questions.0.pertanyaan', 'Pertanyaan 1');
 
-        $this->postJson("/siswa/evaluations/teachers/{$teacher->id}/finish")
+        $this->postJson("/siswa/evaluations/teachers/{$teacher->id}/finish", [
+            'attempt_id' => $attemptId,
+        ])
             ->assertOk()
             ->assertJsonPath('correct_count', 10)
             ->assertJsonPath('score', 67);
@@ -166,6 +183,10 @@ class SingleEvaluationTest extends TestCase
             'id' => $attemptId,
             'score' => 67,
         ]);
+        $this->putJson("/siswa/evaluations/teachers/{$teacher->id}/answers", [
+            'attempt_id' => $attemptId,
+            'answers' => $answers,
+        ])->assertStatus(409);
 
         $retryStarted = $this->postJson("/siswa/evaluations/teachers/{$teacher->id}/start")
             ->assertOk();
@@ -174,9 +195,14 @@ class SingleEvaluationTest extends TestCase
         foreach (range(1, 11) as $number) {
             $retryAnswers[(string) $number] = 'A';
         }
-        $this->putJson("/siswa/evaluations/teachers/{$teacher->id}/answers", ['answers' => $retryAnswers])
+        $this->putJson("/siswa/evaluations/teachers/{$teacher->id}/answers", [
+            'attempt_id' => $retryId,
+            'answers' => $retryAnswers,
+        ])
             ->assertOk();
-        $this->postJson("/siswa/evaluations/teachers/{$teacher->id}/finish")
+        $this->postJson("/siswa/evaluations/teachers/{$teacher->id}/finish", [
+            'attempt_id' => $retryId,
+        ])
             ->assertOk()
             ->assertJsonPath('correct_count', 11)
             ->assertJsonPath('score', 73);
@@ -188,6 +214,63 @@ class SingleEvaluationTest extends TestCase
             ->assertJsonPath('passed', true)
             ->assertJsonPath('can_retry', false);
         $this->postJson("/siswa/evaluations/teachers/{$teacher->id}/start")->assertStatus(409);
+    }
+
+    public function test_attempt_with_forty_four_minutes_left_saves_and_only_expires_after_its_utc_deadline(): void
+    {
+        $teacher = $this->createUser('guru', 'utc-evaluation-teacher');
+        $student = $this->createUser('siswa', 'utc-evaluation-student');
+        foreach (range(1, 15) as $number) {
+            $this->actingAs($teacher)
+                ->postJson('/guru/evaluations/questions', $this->question($number))
+                ->assertCreated();
+        }
+
+        $this->travelTo(Carbon::parse('2026-11-20T01:00:00Z'));
+        $started = $this->actingAs($student)
+            ->postJson("/siswa/evaluations/teachers/{$teacher->id}/start")
+            ->assertOk();
+        $attemptId = (int) $started->json('attempt_id');
+        $this->assertSame('+00:00', config('database.connections.mysql.timezone'));
+        $this->assertSame(
+            now('UTC')->copy()->addMinutes(45)->timestamp,
+            Carbon::parse($started->json('ends_at'))->timestamp
+        );
+        $this->assertSame(
+            now('UTC')->timestamp,
+            Carbon::parse($started->json('server_now'))->timestamp
+        );
+
+        DB::table('evaluation_attempts')->where('id', $attemptId)->update([
+            'ends_at' => now('UTC')->addMinutes(44),
+        ]);
+        $answers = ['1' => 'A'];
+        $this->putJson("/siswa/evaluations/teachers/{$teacher->id}/answers", [
+            'attempt_id' => $attemptId,
+            'answers' => $answers,
+        ])->assertOk();
+        $this->getJson("/siswa/evaluations/teachers/{$teacher->id}/state")
+            ->assertOk()
+            ->assertJsonPath('status', 'active')
+            ->assertJsonPath('attempt.id', $attemptId)
+            ->assertJsonPath('attempt.answers.1', 'A');
+
+        $this->travel(45)->minutes();
+        $this->putJson("/siswa/evaluations/teachers/{$teacher->id}/answers", [
+            'attempt_id' => $attemptId,
+            'answers' => ['1' => 'B'],
+        ])->assertStatus(409)
+            ->assertJsonPath('message', 'Waktu evaluasi habis. Jawaban terakhir sebelum batas waktu sudah dinilai.');
+
+        $this->assertDatabaseHas('evaluation_attempts', [
+            'id' => $attemptId,
+            'submitted_at' => now('UTC')->toDateTimeString(),
+        ]);
+        $savedAnswers = json_decode(
+            DB::table('evaluation_attempts')->where('id', $attemptId)->value('answers'),
+            true
+        );
+        $this->assertSame('A', $savedAnswers['1']);
     }
 
     public function test_published_evaluation_with_formative_activity_types_is_not_startable(): void

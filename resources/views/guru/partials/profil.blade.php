@@ -6,7 +6,7 @@
 
 @php
     $guru = auth()->user();
-    $fotoProfil = $guru?->profile_photo_path;
+    $fotoProfil = $guru?->profile_photo_url;
 @endphp
 
 <section id="guruProfilePage" class="gp-profile-page" data-guru-section="profil" hidden>
@@ -33,7 +33,7 @@
             <div class="gp-profile-avatar" id="gpProfileAvatar">
 
                 @if ($fotoProfil)
-                    <img id="gpProfileAvatarImage" src="{{ asset('storage/' . $fotoProfil) }}" alt="Foto profil Guru">
+                    <img id="gpProfileAvatarImage" src="{{ $fotoProfil }}" alt="Foto profil Guru">
                 @else
                     <span id="gpProfileAvatarInitial">
                         {{ strtoupper(mb_substr($guru?->name ?? 'G', 0, 1)) }}
@@ -56,12 +56,19 @@
 
                 <div class="gp-profile-photo-actions">
 
-                    <button type="button" class="gp-profile-outline" id="gpProfilePhotoButton" disabled
-                        title="Fitur unggah foto akan dihubungkan ke server">
+                    <button type="button" class="gp-profile-outline" id="gpProfilePhotoButton">
                         Ubah Foto Profil
                     </button>
 
                     <input type="file" id="gpProfilePhotoInput" accept="image/png,image/jpeg,image/webp" hidden>
+
+                    <button type="button" class="gp-profile-primary" id="gpProfileSavePhotoButton" hidden disabled>
+                        Simpan Foto
+                    </button>
+
+                    <button type="button" class="gp-profile-outline" id="gpProfileCancelPhotoButton" hidden>
+                        Batal
+                    </button>
 
                     <button type="button" class="gp-profile-delete-photo" id="gpProfileDeletePhotoButton" disabled
                         @if (!$fotoProfil) hidden @endif>

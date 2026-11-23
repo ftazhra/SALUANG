@@ -18,10 +18,10 @@
     <link rel="stylesheet" href="{{ asset('css/orang-tua-dashboard.css') }}?v=33">
     <link rel="stylesheet" href="{{ asset('css/guru-profil.css') }}?v=6">
     <link rel="stylesheet" href="{{ asset('css/orang-tua-aktivitas.css') }}?v=4">
-    <link rel="stylesheet" href="{{ asset('css/orang-tua-hasil-belajar.css') }}?v=13">
+    <link rel="stylesheet" href="{{ asset('css/orang-tua-hasil-belajar.css') }}?v=14">
     <link rel="stylesheet" href="{{ asset('css/orang-tua-progres.css') }}?v=6">
-    <link rel="stylesheet" href="{{ asset('css/orang-tua-chat.css') }}?v=6">
-    <link rel="stylesheet" href="{{ asset('css/website-notifications.css') }}?v=5">
+    <link rel="stylesheet" href="{{ asset('css/orang-tua-chat.css') }}?v=8">
+    <link rel="stylesheet" href="{{ asset('css/website-notifications.css') }}?v=6">
 
 </head>
 
@@ -71,8 +71,7 @@
 
             <div class="parent-brand">
                 <img src="{{ asset('images/saluang-logo-transparent.png') }}" alt="Logo SALUANG">
-                <button type="button" class="parent-mobile-close" id="parentSidebarClose"
-                    aria-label="Tutup menu">
+                <button type="button" class="parent-mobile-close" id="parentSidebarClose" aria-label="Tutup menu">
                     <i class="bi bi-x-lg" aria-hidden="true"></i>
                 </button>
             </div>
@@ -180,9 +179,9 @@
                             <span class="parent-avatar" id="parentTopbarAvatar"
                                 data-initial="{{ strtoupper(mb_substr($parentName, 0, 1)) }}">
 
-                                @if ($parent?->profile_photo_path)
-                                    <img src="{{ asset('storage/' . $parent->profile_photo_path) }}"
-                                        alt="Foto profil Orang Tua">
+                                @if ($parent?->profile_photo_url)
+                                    <img src="{{ $parent->profile_photo_url }}" alt="Foto profil Orang Tua"
+                                        onerror="this.remove(); this.parentElement.textContent=this.parentElement.dataset.initial">
                                 @else
                                     {{ strtoupper(mb_substr($parentName, 0, 1)) }}
                                 @endif
@@ -339,7 +338,8 @@
          JAVASCRIPT DASHBOARD ORANG TUA
          ===================================================== --}}
 
-    <script src="{{ asset('js/orang-tua-dashboard.js') }}?v=1"></script>
+    <script src="{{ asset('js/orang-tua-dashboard.js') }}?v={{ filemtime(public_path('js/orang-tua-dashboard.js')) }}">
+    </script>
     <script src="{{ asset('js/website-notifications.js') }}?v=3" defer></script>
 
     {{-- =====================================================
@@ -347,10 +347,9 @@
          ===================================================== --}}
 
     <script src="{{ asset('js/orang-tua-aktivitas.js') }}?v=2" defer></script>
-    <script src="{{ asset('js/orang-tua-hasil-belajar.js') }}?v=7" defer></script>
+    <script src="{{ asset('js/orang-tua-hasil-belajar.js') }}?v=8" defer></script>
     <script src="{{ asset('js/orang-tua-progres.js') }}?v=1" defer></script>
-    <script src="{{ asset('js/orang-tua-chat.js') }}?v=3" defer></script>
-    <script src="{{ asset('js/orang-tua-profile.js') }}?v=3" defer></script>
+    <script src="{{ asset('js/orang-tua-profile.js') }}?v=5" defer></script>
     <script src="{{ asset('js/guru-logout.js') }}?v=1" defer></script>
 
 </body>

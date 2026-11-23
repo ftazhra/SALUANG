@@ -422,3 +422,49 @@
         height: 150px;
     }
 }
+
+.sd-teacher-notes-card {
+    display: grid;
+    gap: 10px;
+    margin-top: 18px;
+    padding-top: 15px;
+    border-top: 1px solid #dce9e5;
+}
+
+.sd-teacher-notes-card .sd-heading {
+    margin: 0;
+}
+
+.sd-teacher-notes-content {
+    display: grid;
+    gap: 8px;
+}
+
+.sd-teacher-note {
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid #e0ebe5;
+    border-radius: 8px;
+    background: #f8fbf9;
+}
+
+.sd-teacher-note strong,
+.sd-teacher-note small {
+    display: block;
+}
+
+.sd-teacher-note small {
+    margin-top: 3px;
+    color: #526b74;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.sd-teacher-note p {
+    margin: 7px 0 0;
+    color: #315e68;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}

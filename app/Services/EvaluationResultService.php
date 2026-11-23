@@ -38,8 +38,6 @@ class EvaluationResultService
             ->leftJoin('users as direct_teacher', 'direct_teacher.id', '=', 'direct_chapter.user_id')
             ->leftJoin('users as subchapter_teacher', 'subchapter_teacher.id', '=', 'subchapter_chapter.user_id')
             ->where('result.assessment_type', 'quiz')
-            ->whereNotNull('result.score')
-            ->whereBetween('result.score', [0, 100])
             ->whereNotNull('result.completed_at')
             ->where('result.total_questions', '>', 0)
             ->where('result.correct_answers', '>=', 0)
@@ -74,7 +72,6 @@ class EvaluationResultService
             'result.subchapter_id',
             'result.total_questions',
             'result.correct_answers',
-            'result.score',
             'result.completed_at',
             'direct_chapter.judul as direct_chapter_title',
             'direct_teacher.id as direct_teacher_id',
@@ -102,7 +99,11 @@ class EvaluationResultService
                 : $result->direct_teacher_name,
             'total_questions' => (int) $result->total_questions,
             'correct_answers' => (int) $result->correct_answers,
-            'score' => (float) $result->score,
+            // The score is a projection of immutable attempt counts.
+            'score' => round(
+                100 * (int) $result->correct_answers / (int) $result->total_questions,
+                2
+            ),
             'completed_at' => $result->completed_at,
         ])->all();
     }

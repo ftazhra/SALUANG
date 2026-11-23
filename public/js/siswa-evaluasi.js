@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const bankStatus = el('sd-eval-bank-status');
     let stateRequestVersion = 0;
     let kkm = 70;
-    let questions = [], answers = {}, index = 0, endAt = null, interval = null, mode = 'overview', selected = null, busy = false, saveQueue = Promise.resolve(), drag = null, matchContext = null, matchPointer = null;
+    let questions = [], answers = {}, index = 0, endAt = null, deadlineMonotonicMs = null, attemptId = null, interval = null, mode = 'overview', selected = null, busy = false, saveQueue = Promise.resolve(), saveVersion = 0, drag = null, matchContext = null, matchPointer = null;
     const labels = { pilihan_ganda: 'Pilihan Ganda', drag_drop: 'Drag-and-Drop', menghubungkan: 'Menghubungkan Pasangan' };
     const n = q => String(q.nomor_soal);
     function make(tag, txt = '', cls = '') { const x = document.createElement(tag); x.textContent = txt; x.className = cls; return x; }
@@ -59,27 +59,39 @@ document.addEventListener('DOMContentLoaded', () => {
         if (outer)
             outer.hidden = name !== 'overview';
     }
-    function cleanSession() { clearInterval(interval); interval = null; endAt = null; questions = []; answers = {}; index = 0; selected = null; matchPointer = null; matchContext = null; }
-    function remaining() { return endAt ? Math.max(0, new Date(endAt).getTime() - Date.now()) : 0; }
+    function cleanSession() { clearInterval(interval); interval = null; endAt = null; deadlineMonotonicMs = null; attemptId = null; questions = []; answers = {}; index = 0; selected = null; matchPointer = null; matchContext = null; }
+    function setDeadline(endsAt, serverNow) {
+        endAt = endsAt;
+        const deadline = Date.parse(endsAt);
+        const serverTime = Date.parse(serverNow);
+        deadlineMonotonicMs = Number.isFinite(deadline) && Number.isFinite(serverTime)
+            ? performance.now() + Math.max(0, deadline - serverTime)
+            : null;
+    }
+    function remaining() {
+        if (deadlineMonotonicMs !== null) {
+            return Math.max(0, deadlineMonotonicMs - performance.now());
+        }
+        return endAt ? Math.max(0, Date.parse(endAt) - Date.now()) : 0;
+    }
     // Timer mengikuti ends_at Laravel, bukan menghitung mundur secara lokal.
     // Pembaruan tetap berjalan sekalipun proses kirim jawaban mengalami error.
     let timerSubmitting = false;
     let nextExpiryRetryAt = 0;
     function updateTimer() {
         if (!endAt || !timer) return;
-        const deadline = new Date(endAt).getTime();
-        if (!Number.isFinite(deadline)) {
+        if (!Number.isFinite(Date.parse(endAt))) {
             message('Batas waktu evaluasi tidak valid. Silakan muat ulang halaman.');
             return;
         }
-        const secondsLeft = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+        const secondsLeft = Math.max(0, Math.ceil(remaining() / 1000));
         timer.textContent = `${String(Math.floor(secondsLeft / 60)).padStart(2, '0')}:${String(secondsLeft % 60).padStart(2, '0')}`;
         const panel = root.querySelector('.sd-eval-exam-timer-panel');
         panel?.classList.toggle('is-urgent', secondsLeft > 0 && secondsLeft <= 300);
         panel?.classList.toggle('is-expired', secondsLeft === 0);
-        if (secondsLeft === 0 && mode === 'quiz' && !timerSubmitting && !busy && Date.now() >= nextExpiryRetryAt) {
+        if (secondsLeft === 0 && mode === 'quiz' && !timerSubmitting && !busy && performance.now() >= nextExpiryRetryAt) {
             timerSubmitting = true;
-            nextExpiryRetryAt = Date.now() + 15000;
+            nextExpiryRetryAt = performance.now() + 15000;
             finish(true).finally(() => { timerSubmitting = false; });
         }
     }
@@ -113,6 +125,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 b.classList.add('is-active');
             if (filled(q))
                 b.classList.add('is-answered');
+            b.setAttribute('aria-current', i === index ? 'step' : 'false');
+            b.setAttribute('aria-label', `Soal ${q.nomor_soal}, ${filled(q) ? 'sudah dijawab' : 'belum dijawab'}${i === index ? ', aktif' : ''}`);
             b.onclick = () => { index = i; render(); };
             grid.append(b);
         });
@@ -141,8 +155,26 @@ document.addEventListener('DOMContentLoaded', () => {
     function queueSave() {
         const snapshot = JSON.parse(JSON.stringify(answers));
         const teacherId = selectedTeacherId;
-        saveQueue = saveQueue.catch(() => { }).then(() => request(`${api}/teachers/${teacherId}/answers`, 'PUT', { answers: snapshot }));
-        saveQueue.catch(e => message('Gagal menyimpan jawaban: ' + e.message));
+        const currentAttemptId = attemptId;
+        if (!teacherId || currentAttemptId === null) {
+            message('Sesi evaluasi tidak tersedia. Muat ulang halaman untuk memeriksa status.');
+            return;
+        }
+        const payload = { attempt_id: currentAttemptId, answers: snapshot };
+        const version = ++saveVersion;
+        saveQueue = saveQueue.catch(() => { }).then(() =>
+            request(`${api}/teachers/${teacherId}/answers`, 'PUT', payload)
+        );
+        saveQueue.then(
+            () => {
+                if (version === saveVersion) message('Jawaban tersimpan.');
+            },
+            error => {
+                if (version === saveVersion) {
+                    message('Gagal menyimpan jawaban: ' + error.message);
+                }
+            }
+        );
     }
     // =====================================================
     // ELEMEN INTERAKTIF: GAMBAR DAN GARIS PENGHUBUNG
@@ -277,7 +309,9 @@ document.addEventListener('DOMContentLoaded', () => {
         ['A', 'B', 'C', 'D'].forEach(letter => {
             const b = make('button', '', 'se-choice');
             b.type = 'button';
-            if (answers[n(q)] === letter)
+            const chosen = answers[n(q)] === letter;
+            b.setAttribute('aria-pressed', String(chosen));
+            if (chosen)
                 b.classList.add('is-chosen');
             const choice = String(choices['pilihan_' + letter.toLowerCase()] ?? '');
             const capitalizedChoice = choice.replace(
@@ -476,7 +510,10 @@ document.addEventListener('DOMContentLoaded', () => {
     async function finish(auto = false) {
         if (busy || mode === 'result') return;
         const teacherId = selectedTeacherId;
-        if (!teacherId) return;
+        if (!teacherId || attemptId === null) {
+            message('Sesi evaluasi tidak tersedia. Muat ulang halaman untuk memeriksa status.');
+            return;
+        }
         busy = true;
         if (prev) prev.disabled = true;
         if (next) next.disabled = true;
@@ -489,9 +526,12 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if (endAt && remaining() > 0) {
                 // Kirim snapshot terakhir supaya jawaban tidak terlewat.
-                await request(`${api}/teachers/${teacherId}/answers`, 'PUT', { answers: { ...answers } });
+                const payload = { answers: { ...answers } };
+                if (attemptId !== null) payload.attempt_id = attemptId;
+                await request(`${api}/teachers/${teacherId}/answers`, 'PUT', payload);
             }
-            const data = await request(`${api}/teachers/${teacherId}/finish`, 'POST', {});
+            const finishPayload = attemptId === null ? {} : { attempt_id: attemptId };
+            const data = await request(`${api}/teachers/${teacherId}/finish`, 'POST', finishPayload);
             results(data);
         } catch (error) {
             console.error('SALUANG: pengiriman evaluasi gagal:', error);
@@ -525,13 +565,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const state = await request(`${api}/teachers/${selectedTeacherId}/start`, 'POST', {});
             questions = state.questions;
             answers = state.answers || {};
+            attemptId = state.attempt_id ?? null;
             index = 0;
-            endAt = state.ends_at;
+            setDeadline(state.ends_at, state.server_now);
             selected = null;
             show('quiz');
             render();
             runTimer();
-            message('Jawaban disimpan secara otomatis.');
+            message('Jawaban akan tersimpan otomatis setelah server mengonfirmasi.');
         }
         catch (e) {
             if (bankStatus) {
@@ -638,7 +679,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (state.status === 'active') {
                 questions = state.questions;
                 answers = state.attempt.answers || {};
-                endAt = state.attempt.ends_at;
+                attemptId = state.attempt.id ?? null;
+                setDeadline(state.attempt.ends_at, state.server_now);
                 show('quiz');
                 render();
                 runTimer();

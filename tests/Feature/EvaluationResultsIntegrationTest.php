@@ -85,6 +85,12 @@ class EvaluationResultsIntegrationTest extends TestCase
             true,
             $chapter->id
         );
+        $this->createCompletedAttempt(
+            $incompleteStudent,
+            $teacher,
+            true,
+            $chapter->id
+        );
         DB::table('evaluation_questions')
             ->where('user_id', $teacher->id)
             ->where('nomor_soal', 1)
@@ -103,6 +109,26 @@ class EvaluationResultsIntegrationTest extends TestCase
             ->assertOk()
             ->assertJsonPath('grading_configured', true);
         $students = collect($response->json('data'))->keyBy('id');
+
+        $detailResults = $this->getJson("/guru/student-grades/{$completeStudent->id}")
+            ->assertOk()
+            ->json('results');
+        $quizRows = collect($detailResults)
+            ->where('assessment_type', 'quiz')
+            ->values();
+        $this->assertCount(3, $quizRows);
+        $latestSubchapterTwo = $quizRows->firstWhere('subchapter_id', $subchapters[1]->id);
+        $this->assertSame('Bab VI Nilai', $latestSubchapterTwo['chapter_name']);
+        $this->assertSame('Subbab 2', $latestSubchapterTwo['subchapter_name']);
+        $this->assertSame(10, $latestSubchapterTwo['total_questions']);
+        $this->assertSame(8, $latestSubchapterTwo['correct_answers']);
+        $this->assertSame(80.0, (float) $latestSubchapterTwo['score']);
+        $olderAndNewerScores = $quizRows->where('subchapter_id', $subchapters[0]->id)
+            ->pluck('score')
+            ->map(fn ($score) => (float) $score)
+            ->all();
+        sort($olderAndNewerScores);
+        $this->assertSame([60.0, 100.0], $olderAndNewerScores);
 
         $complete = $students[$completeStudent->id];
         $this->assertSame(70.0, (float) $complete['quiz_score']);
@@ -123,6 +149,105 @@ class EvaluationResultsIntegrationTest extends TestCase
         $incomplete = $students[$incompleteStudent->id];
         $this->assertNull($incomplete['final_score']);
         $this->assertSame('belum_dinilai', $incomplete['completion_status']);
+        $this->assertTrue($incomplete['evaluation_completed']);
+        $this->assertSame('Kuis wajib belum lengkap', $incomplete['pending_reason']);
+    }
+
+    public function test_evaluation_alone_does_not_replace_the_missing_fifty_percent_quiz_component(): void
+    {
+        $teacher = $this->createUser('guru', 'guru-grade-without-quiz');
+        $student = $this->createUser('siswa', 'student-grade-without-quiz');
+        $student->update(['kelas' => 'VII A']);
+        DB::table('teacher_class_assignments')->insert([
+            'teacher_id' => $teacher->id,
+            'class_name' => 'VII A',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $this->createCompletedAttempt($student, $teacher, true);
+
+        $summary = app(\App\Services\StudentGradeService::class)
+            ->summaryForStudent((int) $teacher->id, (int) $student->id);
+
+        $this->assertSame(100.0, $summary['evaluation_score']);
+        $this->assertNull($summary['quiz_score']);
+        $this->assertNull($summary['final_score']);
+        $this->assertSame(
+            'Belum ada nilai Kuis untuk bobot 50%',
+            $summary['pending_reason']
+        );
+    }
+
+    public function test_teacher_quiz_detail_calculates_score_from_completed_question_counts(): void
+    {
+        $teacher = $this->createUser('guru', 'teacher-quiz-count-score');
+        $student = $this->createUser('siswa', 'student-quiz-count-score');
+        $student->update(['kelas' => 'VII A']);
+        DB::table('teacher_class_assignments')->insert([
+            'teacher_id' => $teacher->id,
+            'class_name' => 'VII A',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $chapter = Chapter::create([
+            'user_id' => $teacher->id,
+            'nomor_bab' => 8,
+            'judul' => 'Bab Snapshot',
+            'is_published' => true,
+        ]);
+        $subchapter = Subchapter::create([
+            'chapter_id' => $chapter->id,
+            'nomor_subbab' => 3,
+            'judul' => 'Subbab Snapshot',
+            'is_published' => true,
+        ]);
+        DB::table('student_assessment_results')->insert([
+            'user_id' => $student->id,
+            'assessment_type' => 'quiz',
+            'chapter_id' => $chapter->id,
+            'subchapter_id' => $subchapter->id,
+            'total_questions' => 3,
+            'correct_answers' => 2,
+            'score' => 0,
+            'completed_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->actingAs($teacher)
+            ->getJson("/guru/student-grades/{$student->id}")
+            ->assertOk()
+            ->assertJsonCount(1, 'results')
+            ->assertJsonPath('results.0.chapter_name', 'Bab Snapshot')
+            ->assertJsonPath('results.0.subchapter_name', 'Subbab Snapshot')
+            ->assertJsonPath('results.0.total_questions', 3)
+            ->assertJsonPath('results.0.correct_answers', 2)
+            ->assertJsonPath('results.0.score', 66.67);
+
+        $studentProgress = $this->actingAs($student)
+            ->getJson('/siswa/progress')
+            ->assertOk();
+        $this->assertTrue(collect($studentProgress->json('activities'))
+            ->contains(fn(array $activity) => str_contains(
+                $activity['description'] ?? '',
+                'Nilai 66.67'
+            )));
+
+        $parent = $this->createUser('orang_tua', 'parent-quiz-count-score');
+        $this->link($student, $parent, 'approved');
+        $parentQuiz = collect(app(ParentDashboardService::class)
+            ->dashboard($parent)['learningResults'])
+            ->firstWhere('id', DB::table('student_assessment_results')
+                ->where('user_id', $student->id)
+                ->value('id'));
+        $this->assertNotNull($parentQuiz);
+        $this->assertSame(66.67, (float) $parentQuiz['score']);
+        $this->assertDatabaseHas('student_assessment_results', [
+            'user_id' => $student->id,
+            'score' => 0,
+            'correct_answers' => 2,
+            'total_questions' => 3,
+        ]);
     }
 
     public function test_archived_evaluation_attempt_remains_in_history_but_does_not_count_for_grading(): void

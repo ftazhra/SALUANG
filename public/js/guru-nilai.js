@@ -433,6 +433,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${detailItem('Rata-rata Kuis Subbab', displayScore(student.grading?.quiz_score))}
                     ${detailItem('Evaluasi Akhir', displayScore(student.grading?.evaluation_score))}
                     ${detailItem('Nilai Akhir', displayScore(student.grading?.final_score))}
+                    ${student.grading?.pending_reason
+                        ? detailItem('Komponen yang ditunggu', student.grading.pending_reason)
+                        : ''}
                     ${detailItem(
                 'Ketuntasan',
                 student.grading?.completion_status === 'tuntas'

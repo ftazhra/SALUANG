@@ -11,15 +11,17 @@
                     <h2 id="pcTeacherName">Memuat daftar Guru IPA...</h2>
                     <div class="pc-teacher-status-line" aria-live="polite">
                         <span id="pcTeacherPresenceDot" class="pc-teacher-presence" aria-hidden="true"></span>
-                        <span id="pcTeacherStatus">Status tidak tersedia</span>
+                        <span id="pcTeacherStatus">Memuat status Guru...</span>
                     </div>
                     <span id="pcTeacherUnread" class="pc-chat-unread" hidden></span>
-                    <p>{{ $child->sekolah ?: 'Sekolah belum tercantum' }}</p>
-                    <span>Siswa: {{ $child->name ?? 'Siswa' }} · {{ $child->kelas ?? '-' }}</span>
+                    <p id="pcTeacherSchool">{{ $child->sekolah ?: 'Sekolah belum tercantum' }}</p>
+                    <span id="pcTeacherStudent">Siswa: {{ $child->name ?? 'Siswa' }} · {{ $child->kelas ?? '-' }}</span>
                 </div>
                 <button type="button" class="pc-chat-open" id="pcChatOpen" disabled>Buka Percakapan</button>
             </div>
+            <p class="pc-chat-empty" id="pcTeacherEmpty" hidden role="status"></p>
             <div class="pc-chat-error" id="pcChatError" hidden role="alert"></div>
+            <button type="button" class="pc-chat-retry" id="pcChatRetry" hidden>Coba lagi</button>
             <section class="pc-conversation" id="pcConversation" hidden aria-label="Percakapan Guru">
                 <div class="pc-conversation-header">
                     <h2>Riwayat Percakapan</h2>

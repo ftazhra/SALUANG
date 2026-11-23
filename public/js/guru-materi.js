@@ -1186,7 +1186,7 @@ document.addEventListener('DOMContentLoaded', () => {
     toolbar.addEventListener('mousedown', e => {
       if (
         e.target.closest(
-          'button[data-gm-command],button[data-gm-block],button[data-gm-spacing]'
+          'button[data-gm-command],button[data-gm-block]'
         )
       ) {
         e.preventDefault();
@@ -1194,28 +1194,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     toolbar.addEventListener('click', e => {
       const button = e.target.closest(
-        'button[data-gm-command],button[data-gm-block],button[data-gm-spacing]'
+        'button[data-gm-command],button[data-gm-block]'
       );
       if (!button) return;
       e.preventDefault();
       const cmd = button.dataset.gmCommand;
       const block = button.dataset.gmBlock;
-      const spacing = button.dataset.gmSpacing;
       const value = editor.value;
       const selectionStart = editor.selectionStart;
       const selectionEnd = editor.selectionEnd;
-      if (spacing === 'add') {
-        // Tambahkan satu baris kosong setelah baris tempat kursor berada.
-        const lineEndAt = value.indexOf('\n', selectionEnd);
-        const lineEnd = lineEndAt === -1 ? value.length : lineEndAt;
-        editor.setRangeText('\n', lineEnd, lineEnd, 'end');
-      } else if (spacing === 'remove') {
-        // Kurangi hanya satu baris kosong terdekat, bukan semua jarak materi.
-        const before = value.lastIndexOf('\n\n', selectionStart);
-        const after = value.indexOf('\n\n', selectionEnd);
-        const pos = before >= 0 ? before : after;
-        if (pos >= 0) editor.setRangeText('', pos, pos + 1, 'end');
-      } else if (block || cmd === 'insertOrderedList' || cmd === 'insertUnorderedList') {
+      if (block || cmd === 'insertOrderedList' || cmd === 'insertUnorderedList') {
         const lineStart = value.lastIndexOf('\n', Math.max(0, selectionStart - 1)) + 1;
         const nextLineBreak = value.indexOf('\n', selectionEnd);
         const lineEnd = nextLineBreak === -1 ? value.length : nextLineBreak;
@@ -1356,11 +1344,38 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       return;
     }
-    chapterList.innerHTML = chapters.map(c => `
+    chapterList.innerHTML = chapters.map(c => {
+      const ownerLabel = c.can_manage
+        ? ''
+        : `<p class="gm-chapter-meta">Materi bersama · ${escapeHTML(c.owner_name || 'Guru sekolah')}</p>`;
+      const manageActions = c.can_manage
+        ? `
+          <button
+            type="button"
+            class="gm-btn gm-btn-outline"
+            data-gm-action="edit-chapter"
+            data-id="${Number(c.id)}"
+          >
+            <i class="bi bi-pencil-square"></i>
+            Edit
+          </button>
+          <button
+            type="button"
+            class="gm-btn gm-btn-danger"
+            data-gm-action="delete-chapter"
+            data-id="${Number(c.id)}"
+          >
+            <i class="bi bi-trash3"></i>
+            Hapus
+          </button>
+        `
+        : '';
+      return `
       <article class="gm-chapter-card">
         <span class="gm-chapter-label">
           BAB ${escapeHTML(c.nomor_bab)}
         </span>
+        ${ownerLabel}
         <h2>${escapeHTML(c.judul)}</h2>
         <p>
           ${escapeHTML(
@@ -1383,37 +1398,27 @@ document.addEventListener('DOMContentLoaded', () => {
             <i class="bi bi-eye"></i>
             Lihat Selengkapnya
           </button>
-          <button
-            type="button"
-            class="gm-btn gm-btn-outline"
-            data-gm-action="edit-chapter"
-            data-id="${Number(c.id)}"
-          >
-            <i class="bi bi-pencil-square"></i>
-            Edit
-          </button>
-          <button
-            type="button"
-            class="gm-btn gm-btn-danger"
-            data-gm-action="delete-chapter"
-            data-id="${Number(c.id)}"
-          >
-            <i class="bi bi-trash3"></i>
-            Hapus
-          </button>
+          ${manageActions}
         </div>
       </article>
-    `).join('');
+      `;
+    }).join('');
   }
   // ========================================================
   // 06. DETAIL BAB
   // ========================================================
   async function openChapter(id) {
     try {
-      const result = await api(
-        chapterUrl(id)
+      const listedChapter = chapters.find(
+        chapter => Number(chapter.id) === Number(id)
       );
+      const result = listedChapter?.can_manage === false
+        ? { chapter: listedChapter }
+        : await api(chapterUrl(id));
       selectedChapter = result.chapter;
+      if (selectedChapter.can_manage === undefined) {
+        selectedChapter.can_manage = true;
+      }
       $('gmDetailNumber').textContent =
         `BAB ${selectedChapter.nomor_bab}`;
       $('gmDetailTitle').textContent =
@@ -1421,6 +1426,15 @@ document.addEventListener('DOMContentLoaded', () => {
       $('gmDetailDescription').textContent =
         selectedChapter.deskripsi ||
         'Belum ada deskripsi Bab.';
+      const canManage = selectedChapter.can_manage !== false;
+      const ownerLabel = $('gmDetailOwner');
+      ownerLabel.textContent = canManage
+        ? ''
+        : `Materi bersama dari ${selectedChapter.owner_name || 'Guru sekolah'} · hanya dapat dibaca.`;
+      ownerLabel.hidden = canManage;
+      $('gmEditChapter').hidden = !canManage;
+      $('gmDeleteChapter').hidden = !canManage;
+      $('gmAddSubchapter').hidden = !canManage;
       const introductionImage = $('gmDetailIntroductionImage');
       const introductionFigure = $('gmDetailIntroductionFigure');
       const introductionCaption = $('gmDetailIntroductionCaption');
@@ -1590,7 +1604,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!items.length) {
       subchapterList.innerHTML = `
         <div class="gm-empty">
-          Belum ada Subbab. Klik Tambah Subbab.
+          ${selectedChapter?.can_manage === false
+            ? 'Belum ada Subbab yang dipublikasikan.'
+            : 'Belum ada Subbab. Klik Tambah Subbab.'}
         </div>
       `;
       return;
@@ -1614,20 +1630,14 @@ document.addEventListener('DOMContentLoaded', () => {
           'Lihat Materi',
           'bi-eye',
           'gm-btn-outline'
-        ],
-        [
-          'edit-subchapter',
-          'Edit',
-          'bi-pencil-square',
-          'gm-btn-outline'
-        ],
-        [
-          'delete-subchapter',
-          'Hapus',
-          'bi-trash3',
-          'gm-btn-danger'
         ]
       ];
+      if (selectedChapter.can_manage !== false) {
+        buttons.push(
+          ['edit-subchapter', 'Edit', 'bi-pencil-square', 'gm-btn-outline'],
+          ['delete-subchapter', 'Hapus', 'bi-trash3', 'gm-btn-danger']
+        );
+      }
       for (const [action, label, icon, style] of buttons) {
         const b = document.createElement('button');
         b.type = 'button';
@@ -1682,6 +1692,8 @@ document.addEventListener('DOMContentLoaded', () => {
       // Ganti ikon gambar rusak dengan pesan, agar pratinjau tidak menyesatkan.
       content.querySelectorAll('img[data-gm-preview-image]').forEach(img => {
         img.addEventListener('error', () => {
+          console.error('SALUANG - Gambar gagal dimuat:', img.currentSrc || img.src);
+
           const message = document.createElement('p');
           message.className = 'gm-preview-unavailable';
           message.textContent = 'Gambar belum dapat dimuat di Dashboard Guru. Periksa URL media atau akses penyimpanannya.';
@@ -2107,13 +2119,19 @@ document.addEventListener('DOMContentLoaded', () => {
   );
   $('gmAddSubchapter')?.addEventListener(
     'click',
-    () => openSubchapterForm()
+    () => {
+      if (selectedChapter?.can_manage) {
+        openSubchapterForm();
+      }
+    }
   );
   $('gmEditChapter')?.addEventListener(
     'click',
     () => {
       if (selectedChapter) {
-        openChapterForm(selectedChapter);
+        if (selectedChapter.can_manage !== false) {
+          openChapterForm(selectedChapter);
+        }
       }
     }
   );
@@ -2121,10 +2139,9 @@ document.addEventListener('DOMContentLoaded', () => {
     'click',
     () => {
       if (selectedChapter) {
-        askDelete(
-          'chapter',
-          selectedChapter.id
-        );
+        if (selectedChapter.can_manage !== false) {
+          askDelete('chapter', selectedChapter.id);
+        }
       }
     }
   );
@@ -2159,12 +2176,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const item = chapters.find(
         c => Number(c.id) === id
       );
-      if (item) {
+      if (item?.can_manage) {
         openChapterForm(item);
       }
     }
     if (action === 'delete-chapter') {
-      askDelete('chapter', id);
+      if (chapters.some(c => Number(c.id) === id && c.can_manage)) {
+        askDelete('chapter', id);
+      }
     }
     if (action === 'view-subchapter') {
       const content = $(`gmContent-${id}`);
@@ -2177,6 +2196,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     if (action === 'edit-subchapter') {
+      if (selectedChapter?.can_manage === false) return;
       const item = selectedChapter
         ?.subchapters
         ?.find(
@@ -2187,7 +2207,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     if (action === 'delete-subchapter') {
-      askDelete('subchapter', id);
+      if (selectedChapter?.can_manage !== false) {
+        askDelete('subchapter', id);
+      }
     }
   });
   // ========================================================

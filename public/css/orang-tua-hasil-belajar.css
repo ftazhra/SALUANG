@@ -617,3 +617,65 @@
     grid-column: 1 / -1;
     color: #526b74;
 }
+
+.pr-teacher-notes {
+    display: grid;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.pr-teacher-notes > h3 {
+    margin: 0;
+    color: #075477;
+    font-size: 16px;
+}
+
+.pr-teacher-notes-empty,
+.pr-teacher-note-context {
+    margin: 0;
+    color: #526b74;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.pr-teacher-note-group,
+.pr-teacher-note {
+    min-width: 0;
+    padding: 14px 16px;
+    border: 1px solid #dceae8;
+    border-radius: 10px;
+    background: #f8fbfa;
+}
+
+.pr-teacher-note-group h4,
+.pr-teacher-note h4 {
+    margin: 0;
+    color: #174860;
+    font-size: 14px;
+}
+
+.pr-teacher-note-context {
+    margin-top: 4px;
+}
+
+.pr-teacher-note {
+    margin-top: 9px;
+    background: #fff;
+}
+
+.pr-teacher-note p {
+    margin: 0;
+    color: #315e68;
+    font-size: 14px;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.pr-teacher-note small {
+    display: block;
+    margin-top: 8px;
+    color: #526b74;
+    font-size: 12px;
+    line-height: 1.5;
+}
