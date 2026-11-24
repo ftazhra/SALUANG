@@ -342,6 +342,7 @@ class ParentDashboardService
                 'teacher_id' => $attempt['teacher_id'],
                 'teacher_name' => $attempt['teacher_name'],
                 'attribution_status' => $attempt['attribution_status'],
+                'evaluation_bank_id' => $attempt['evaluation_bank_id'],
                 'chapter_id' => null,
                 'chapter_title' => null,
                 'subchapter_id' => null,
@@ -428,7 +429,7 @@ class ParentDashboardService
         }
 
         $student = User::query()->where('role', 'siswa')->findOrFail($studentId);
-        $quizResults = $this->evaluationResults->quizResultsForStudent($studentId);
+        $quizResults = $this->evaluationResults->bestQuizResultsForStudent($studentId);
         foreach ($quizResults as $result) {
             $existingKey = null;
             foreach ($rows as $index => $row) {
@@ -449,6 +450,7 @@ class ParentDashboardService
                 'subchapter_id' => $result['subchapter_id'],
                 'subchapter_title' => $result['subchapter_title'],
                 'score' => $result['score'],
+                'attempt_count' => $result['attempt_count'],
                 'status' => $result['score'] >= 70 ? 'Tuntas' : 'Belum tuntas',
                 'date' => $result['completed_at'],
             ];
@@ -459,7 +461,7 @@ class ParentDashboardService
             }
         }
 
-        foreach ($this->evaluationResults->validCompletedForStudent($studentId) as $attempt) {
+        foreach ($this->evaluationResults->bestCompletedByAssessmentForStudent($studentId) as $attempt) {
             $verified = $attempt['teacher_id'] !== null;
             $rows[] = [
                 'id' => $attempt['id'],
@@ -470,6 +472,9 @@ class ParentDashboardService
                 'teacher_id' => $attempt['teacher_id'],
                 'teacher_name' => $attempt['teacher_name'],
                 'attribution_status' => $attempt['attribution_status'],
+                'evaluation_bank_id' => $attempt['evaluation_bank_id'],
+                'evaluation_identity' => $attempt['evaluation_identity'],
+                'attempt_count' => $attempt['attempt_count'],
                 'chapter_id' => null,
                 'chapter_title' => null,
                 'subchapter_id' => null,

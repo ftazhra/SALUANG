@@ -91,34 +91,44 @@ class StudentGradeController extends Controller
             404,
             'Siswa tidak ditemukan pada kelas yang ditugaskan kepada Guru ini.'
         );
-        $quizResults = collect($evaluationResults->quizResultsForTeacher($teacherId, [(int) $student->id]))
-            ->map(fn(array $result) => [
-                'id' => $result['id'],
-                'assessment_type' => 'quiz',
-                'chapter_id' => $result['chapter_id'],
-                'subchapter_id' => $result['subchapter_id'],
-                'subchapter_name' => $result['subchapter_title'],
-                'chapter_name' => $result['chapter_title'],
-                'score' => $result['score'],
-                'total_questions' => $result['total_questions'],
-                'correct_answers' => $result['correct_answers'],
-                'completed_at' => $result['completed_at'],
-            ]);
-        $evaluationAttempts = collect($evaluationResults->validCompletedForTeacher($teacherId, [(int) $student->id]))
-            ->map(fn(array $attempt) => [
-                'id' => $attempt['id'],
-                'assessment_type' => 'evaluation',
-                'chapter_id' => $attempt['chapter_id'],
-                'subchapter_id' => null,
-                'subchapter_name' => null,
-                'chapter_name' => null,
-                'teacher_name' => $attempt['teacher_name'],
-                'score' => $attempt['score'],
-                'total_questions' => $attempt['total_questions'],
-                'correct_answers' => $attempt['correct_answers'],
-                'completed_at' => $attempt['completed_at'],
-                'valid_for_grading' => $attempt['valid_for_grading'],
-            ]);
+        $quizResults = collect($evaluationResults->bestQuizResultsForTeacher(
+            $teacherId,
+            [(int) $student->id]
+        ))->map(fn(array $result) => [
+            'id' => $result['id'],
+            'assessment_type' => 'quiz',
+            'chapter_id' => $result['chapter_id'],
+            'subchapter_id' => $result['subchapter_id'],
+            'subchapter_name' => $result['subchapter_title'],
+            'chapter_name' => $result['chapter_title'],
+            'score' => $result['score'],
+            'total_questions' => $result['total_questions'],
+            'correct_answers' => $result['correct_answers'],
+            'completed_at' => $result['completed_at'],
+            'attempt_count' => $result['attempt_count'],
+            'is_best_attempt' => true,
+        ]);
+        $evaluationAttempts = collect($evaluationResults->bestCompletedByAssessmentForTeacher(
+            $teacherId,
+            [(int) $student->id]
+        ))->map(fn(array $attempt) => [
+            'id' => $attempt['id'],
+            'assessment_type' => 'evaluation',
+            'evaluation_bank_id' => $attempt['evaluation_bank_id'],
+            'evaluation_identity' => $attempt['evaluation_identity'],
+            'attempt_count' => $attempt['attempt_count'],
+            'chapter_id' => $attempt['chapter_id'],
+            'subchapter_id' => null,
+            'subchapter_name' => null,
+            'chapter_name' => null,
+            'teacher_name' => $attempt['teacher_name'],
+            'score' => $attempt['score'],
+            'total_questions' => $attempt['total_questions'],
+            'correct_answers' => $attempt['correct_answers'],
+            'completed_at' => $attempt['completed_at'],
+            'valid_for_grading' => $attempt['valid_for_grading'],
+            'is_best_attempt' => true,
+        ]);
         $results = $quizResults->concat($evaluationAttempts)
             ->sort(function (array $a, array $b): int {
                 $completedAt = strcmp(

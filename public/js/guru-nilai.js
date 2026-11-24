@@ -512,7 +512,12 @@ document.addEventListener('DOMContentLoaded', () => {
                                                 /
                                                 ${displayValue(item.total_questions)}
                                             </td>
-                                            <td class="gn-history-score-cell">${displayScore(item.score)}</td>
+                                            <td class="gn-history-score-cell">
+                                                ${displayScore(item.score)}
+                                                ${item.is_best_attempt
+                                                    ? '<small class="gn-best-attempt">Nilai terbaik</small>'
+                                                    : ''}
+                                            </td>
                                             <td class="gn-history-date-cell">${displayDate(item.completed_at)}</td>
                                             <td class="gn-history-note-cell">
                                                 <button type="button"

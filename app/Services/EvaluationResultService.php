@@ -144,6 +144,26 @@ class EvaluationResultService
         return $latest;
     }
 
+    public function bestQuizResultsForTeacher(
+        int $teacherId,
+        ?array $studentIds = null
+    ): array {
+        return $this->bestByAssessment(
+            $this->quizResultsForTeacher($teacherId, $studentIds),
+            fn(array $result): string => 'quiz:' . $result['user_id'] . ':'
+                . ($result['subchapter_id'] ?? $result['chapter_id'] ?? $result['id'])
+        );
+    }
+
+    public function bestQuizResultsForStudent(int $studentId): array
+    {
+        return $this->bestByAssessment(
+            $this->quizResultsForStudent($studentId),
+            fn(array $result): string => 'quiz:' . $result['user_id'] . ':'
+                . ($result['subchapter_id'] ?? $result['chapter_id'] ?? $result['id'])
+        );
+    }
+
     public function completedForTeacher(int $teacherId, ?array $studentIds = null): array
     {
         if (
@@ -157,19 +177,19 @@ class EvaluationResultService
             return [];
         }
 
-        $query = DB::table('evaluation_attempts')
+        $query = $this->attemptsWithEvaluationMetadata()
             ->where(function ($attempts) use ($teacherId) {
-                $attempts->where('teacher_id', $teacherId)
-                    ->orWhereNull('teacher_id');
+                $attempts->where('attempt.teacher_id', $teacherId)
+                    ->orWhereNull('attempt.teacher_id');
             })
-            ->whereNotNull('submitted_at')
-            ->whereNotNull('score')
-            ->whereBetween('score', [0, 100])
-            ->orderByDesc('submitted_at')
-            ->orderByDesc('id');
+            ->whereNotNull('attempt.submitted_at')
+            ->whereNotNull('attempt.score')
+            ->whereBetween('attempt.score', [0, 100])
+            ->orderByDesc('attempt.submitted_at')
+            ->orderByDesc('attempt.id');
 
         if ($studentIds !== null) {
-            $query->whereIn('user_id', $studentIds);
+            $query->whereIn('attempt.user_id', $studentIds);
         }
 
         return collect($this->projectAttempts($query->get()))
@@ -202,6 +222,49 @@ class EvaluationResultService
         return $latest;
     }
 
+    public function bestCompletedByAssessmentForTeacher(
+        int $teacherId,
+        ?array $studentIds = null
+    ): array {
+        return $this->bestByAssessment(
+            $this->validCompletedForTeacher($teacherId, $studentIds),
+            fn(array $result): string => 'evaluation:' . $result['user_id'] . ':'
+                . $this->evaluationIdentity($result)
+        );
+    }
+
+    public function bestCompletedByAssessmentForStudent(int $studentId): array
+    {
+        return $this->bestByAssessment(
+            $this->validCompletedForStudent($studentId),
+            fn(array $result): string => 'evaluation:' . $result['user_id'] . ':'
+                . $this->evaluationIdentity($result)
+        );
+    }
+
+    public function bestByStudentForTeacher(
+        int $teacherId,
+        ?array $studentIds = null
+    ): array {
+        $latestIdentityByStudent = [];
+        foreach ($this->validCompletedForTeacher($teacherId, $studentIds) as $result) {
+            $latestIdentityByStudent[$result['user_id']] ??= $this->evaluationIdentity($result);
+        }
+
+        $bestByIdentity = [];
+        foreach ($this->bestCompletedByAssessmentForTeacher($teacherId, $studentIds) as $result) {
+            $studentId = $result['user_id'];
+            if (
+                ($latestIdentityByStudent[$studentId] ?? null)
+                === $this->evaluationIdentity($result)
+            ) {
+                $bestByIdentity[$studentId] = $result;
+            }
+        }
+
+        return $bestByIdentity;
+    }
+
     public function completedForStudent(int $studentId): array
     {
         if (
@@ -211,13 +274,13 @@ class EvaluationResultService
             return [];
         }
 
-        $attempts = DB::table('evaluation_attempts')
-            ->where('user_id', $studentId)
-            ->whereNotNull('submitted_at')
-            ->whereNotNull('score')
-            ->whereBetween('score', [0, 100])
-            ->orderByDesc('submitted_at')
-            ->orderByDesc('id')
+        $attempts = $this->attemptsWithEvaluationMetadata()
+            ->where('attempt.user_id', $studentId)
+            ->whereNotNull('attempt.submitted_at')
+            ->whereNotNull('attempt.score')
+            ->whereBetween('attempt.score', [0, 100])
+            ->orderByDesc('attempt.submitted_at')
+            ->orderByDesc('attempt.id')
             ->get();
 
         return $this->projectAttempts($attempts);
@@ -229,6 +292,45 @@ class EvaluationResultService
             $this->completedForStudent($studentId),
             fn(array $result) => $result['valid_for_grading']
         ));
+    }
+
+    private function attemptsWithEvaluationMetadata()
+    {
+        $query = DB::table('evaluation_attempts as attempt')
+            ->select('attempt.*');
+
+        if (
+            Schema::hasColumn('evaluation_attempts', 'evaluation_bank_id')
+            && Schema::hasTable('evaluation_banks')
+            && Schema::hasColumn('evaluation_banks', 'teacher_id')
+            && Schema::hasColumn('evaluation_banks', 'chapter_id')
+            && Schema::hasColumn('evaluation_banks', 'class_name')
+        ) {
+            $query->leftJoin(
+                'evaluation_banks as evaluation_bank',
+                'evaluation_bank.id',
+                '=',
+                'attempt.evaluation_bank_id'
+            )->addSelect([
+                'evaluation_bank.teacher_id as bank_teacher_id',
+                'evaluation_bank.chapter_id as bank_chapter_id',
+                'evaluation_bank.class_name as bank_class_name',
+            ]);
+        }
+
+        if (
+            Schema::hasTable('users')
+            && Schema::hasColumn('users', 'kelas')
+        ) {
+            $query->leftJoin(
+                'users as evaluation_student',
+                'evaluation_student.id',
+                '=',
+                'attempt.user_id'
+            )->addSelect('evaluation_student.kelas as evaluation_student_class');
+        }
+
+        return $query;
     }
 
     private function projectAttempts($attempts): array
@@ -386,7 +488,7 @@ class EvaluationResultService
         }
 
         if (isset($attempt->evaluation_bank_id) && $attempt->evaluation_bank_id !== null) {
-            return $this->isActiveBankAttempt($attempt, $teacherId);
+            return $this->isValidBankAttempt($attempt, $teacherId);
         }
 
         $activeQuestionIds = $legacyQuestionIdsByTeacher[$teacherId] ?? [];
@@ -425,11 +527,13 @@ class EvaluationResultService
         );
     }
 
-    private function isActiveBankAttempt(object $attempt, int $teacherId): bool
+    private function isValidBankAttempt(object $attempt, int $teacherId): bool
     {
         if (
             !Schema::hasTable('evaluation_banks')
             || !Schema::hasColumn('evaluation_banks', 'teacher_id')
+            || !Schema::hasColumn('evaluation_banks', 'chapter_id')
+            || !Schema::hasColumn('evaluation_banks', 'class_name')
             || !Schema::hasColumn('evaluation_banks', 'is_published')
             || !Schema::hasColumn('evaluation_banks', 'active_slot')
         ) {
@@ -442,10 +546,27 @@ class EvaluationResultService
         if (
             !$bank
             || (int) $bank->teacher_id !== $teacherId
-            || !(bool) $bank->is_published
-            || (int) $bank->active_slot !== 1
         ) {
             return false;
+        }
+
+        $isActive = (bool) $bank->is_published && (int) $bank->active_slot === 1;
+        if (!$isActive) {
+            $className = mb_strtolower(trim((string) $bank->class_name));
+            $hasReplacement = DB::table('evaluation_banks')
+                ->where('teacher_id', $teacherId)
+                ->where('chapter_id', $bank->chapter_id)
+                ->where('is_published', true)
+                ->where('active_slot', 1)
+                ->where('id', '!=', $bank->id)
+                ->get(['class_name'])
+                ->contains(fn(object $replacement) => mb_strtolower(
+                    trim((string) $replacement->class_name)
+                ) === $className);
+
+            if (!$hasReplacement) {
+                return false;
+            }
         }
 
         if (
@@ -602,17 +723,23 @@ class EvaluationResultService
             $teacherId = null;
         }
 
-        return [
+        $chapterId = isset($attempt->chapter_id)
+            ? $attempt->chapter_id
+            : ($attempt->bank_chapter_id ?? null);
+        $result = [
             'id' => (int) $attempt->id,
             'user_id' => (int) $attempt->user_id,
             'teacher_id' => $teacherId,
             'teacher_name' => $teacher?->name,
             'attribution_status' => $teacherId === null ? 'unverified' : 'verified',
             'assessment_type' => 'evaluation',
-            'chapter_id' => null,
+            'chapter_id' => $chapterId === null ? null : (int) $chapterId,
             'evaluation_bank_id' => isset($attempt->evaluation_bank_id)
                 ? (int) $attempt->evaluation_bank_id
                 : null,
+            'evaluation_class' => $attempt->bank_class_name
+                ?? $attempt->evaluation_student_class
+                ?? null,
             'chapter_title' => null,
             'subchapter_id' => null,
             'total_questions' => count($snapshot),
@@ -622,6 +749,59 @@ class EvaluationResultService
             'score' => (float) $attempt->score,
             'completed_at' => $attempt->submitted_at,
         ];
+        $result['evaluation_identity'] = $this->evaluationIdentity($result);
+
+        return $result;
+    }
+
+    private function bestByAssessment(array $results, callable $identity): array
+    {
+        $best = [];
+        $attemptCounts = [];
+        foreach ($results as $result) {
+            $key = $identity($result);
+            $attemptCounts[$key] = ($attemptCounts[$key] ?? 0) + 1;
+            $existing = $best[$key] ?? null;
+            if (
+                $existing === null
+                || (float) $result['score'] > (float) $existing['score']
+                || (
+                    (float) $result['score'] === (float) $existing['score']
+                    && [
+                        (string) $result['completed_at'],
+                        (int) $result['id'],
+                    ] > [
+                        (string) $existing['completed_at'],
+                        (int) $existing['id'],
+                    ]
+                )
+            ) {
+                $best[$key] = $result;
+            }
+        }
+
+        foreach ($best as $key => &$result) {
+            $result['attempt_count'] = $attemptCounts[$key];
+        }
+        unset($result);
+
+        return array_values($best);
+    }
+
+    private function evaluationIdentity(array $result): string
+    {
+        $teacherId = $result['teacher_id'] ?? 'unverified';
+        if ($result['chapter_id'] !== null) {
+            $className = mb_strtolower(trim((string) ($result['evaluation_class'] ?? '')));
+
+            return 'teacher:' . $teacherId
+                . ':chapter:' . $result['chapter_id']
+                . ':class:' . $className;
+        }
+
+        return $result['evaluation_bank_id'] !== null
+            ? 'teacher:' . $teacherId . ':bank:' . $result['evaluation_bank_id']
+            : 'teacher:' . $teacherId . ':legacy';
     }
 
     /**
@@ -660,6 +840,10 @@ class EvaluationResultService
 
     private function bankTeacherId(object $attempt): ?int
     {
+        if (isset($attempt->bank_teacher_id) && is_numeric($attempt->bank_teacher_id)) {
+            return (int) $attempt->bank_teacher_id;
+        }
+
         if (
             !isset($attempt->evaluation_bank_id)
             || !is_numeric($attempt->evaluation_bank_id)

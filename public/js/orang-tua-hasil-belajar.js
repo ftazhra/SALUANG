@@ -15,10 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeType = 'semua';
     let openResultKey = null;
 
-    // Tiap kuis Subbab dan Evaluasi Akhir hanya menampilkan hasil terbaru.
-    // Attempt lama tetap tersimpan di database; ini hanya ringkasan tampilan.
-    function latestResults(list) {
-        const latest = new Map();
+    // Tiap penilaian menampilkan nilai terbaik; attempt lama tetap tersimpan.
+    function bestResults(list) {
+        const best = new Map();
         const scoreDate = item => {
             const value = item.date || item.completed_at || '';
             const timestamp = Date.parse(value);
@@ -26,20 +25,32 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         list.forEach(item => {
             const key = item.type === 'evaluasi'
-                ? `evaluasi:${item.teacher_id ?? 'unverified'}`
+                ? `evaluasi:${item.evaluation_identity ?? `${item.teacher_id ?? 'unverified'}:${item.evaluation_bank_id ?? 'legacy'}`}`
                 : item.type === 'kuis'
                     ? `kuis:${item.teacher_id ?? 'unknown'}:${item.subchapter_id ?? item.chapter_id ?? item.id}`
                     : `lainnya:${item.id}`;
-            const old = latest.get(key);
-            if (!old || scoreDate(item) > scoreDate(old) ||
-                (scoreDate(item) === scoreDate(old) && Number(item.id) > Number(old.id))) {
-                latest.set(key, item);
+            const old = best.get(key);
+            if (
+                !old
+                || Number(item.score) > Number(old.score)
+                || (
+                    Number(item.score) === Number(old.score)
+                    && (
+                        scoreDate(item) > scoreDate(old)
+                        || (
+                            scoreDate(item) === scoreDate(old)
+                            && Number(item.id) > Number(old.id)
+                        )
+                    )
+                )
+            ) {
+                best.set(key, item);
             }
         });
-        return [...latest.values()].sort((a, b) => scoreDate(b) - scoreDate(a));
+        return [...best.values()].sort((a, b) => scoreDate(b) - scoreDate(a));
     }
 
-    const visibleRows = latestResults(rows);
+    const visibleRows = bestResults(rows);
 
     function subchapters() {
         const chapter = chapters.find(item => String(item.id) === chapterSelect.value);

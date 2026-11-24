@@ -146,13 +146,23 @@ class StudentGradeService
             $existing = $quizResults[$studentId][$subchapterId] ?? null;
             if (
                 $existing === null
-                || [$result['completed_at'], $result['id']] > [$existing['completed_at'], $existing['id']]
+                || (float) $result['score'] > (float) $existing['score']
+                || (
+                    (float) $result['score'] === (float) $existing['score']
+                    && [
+                        (string) $result['completed_at'],
+                        (int) $result['id'],
+                    ] > [
+                        (string) $existing['completed_at'],
+                        (int) $existing['id'],
+                    ]
+                )
             ) {
                 $quizResults[$studentId][$subchapterId] = $result;
             }
         }
 
-        $evaluationResults = $this->evaluationResults->latestByStudentForTeacher(
+        $evaluationResults = $this->evaluationResults->bestByStudentForTeacher(
             $teacherId,
             $studentIds
         );

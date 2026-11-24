@@ -6,15 +6,17 @@ use App\Models\Chapter;
 use App\Models\Subchapter;
 use App\Models\User;
 use App\Services\ParentDashboardService;
+use App\Services\StudentGradeService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 class EvaluationResultsIntegrationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_teacher_grade_uses_latest_quiz_per_published_subchapter_and_waits_for_all_components(): void
+    public function test_teacher_grade_uses_best_quiz_per_published_subchapter_and_waits_for_all_components(): void
     {
         $teacher = $this->createUser('guru', 'guru-final-grade');
         $completeStudent = $this->createUser('siswa', 'siswa-final-grade-complete');
@@ -116,41 +118,297 @@ class EvaluationResultsIntegrationTest extends TestCase
         $quizRows = collect($detailResults)
             ->where('assessment_type', 'quiz')
             ->values();
-        $this->assertCount(3, $quizRows);
-        $latestSubchapterTwo = $quizRows->firstWhere('subchapter_id', $subchapters[1]->id);
-        $this->assertSame('Bab VI Nilai', $latestSubchapterTwo['chapter_name']);
-        $this->assertSame('Subbab 2', $latestSubchapterTwo['subchapter_name']);
-        $this->assertSame(10, $latestSubchapterTwo['total_questions']);
-        $this->assertSame(8, $latestSubchapterTwo['correct_answers']);
-        $this->assertSame(80.0, (float) $latestSubchapterTwo['score']);
-        $olderAndNewerScores = $quizRows->where('subchapter_id', $subchapters[0]->id)
-            ->pluck('score')
-            ->map(fn ($score) => (float) $score)
-            ->all();
-        sort($olderAndNewerScores);
-        $this->assertSame([60.0, 100.0], $olderAndNewerScores);
+        $this->assertCount(2, $quizRows);
+        $subchapterTwo = $quizRows->firstWhere('subchapter_id', $subchapters[1]->id);
+        $this->assertSame('Bab VI Nilai', $subchapterTwo['chapter_name']);
+        $this->assertSame('Subbab 2', $subchapterTwo['subchapter_name']);
+        $this->assertSame(10, $subchapterTwo['total_questions']);
+        $this->assertSame(8, $subchapterTwo['correct_answers']);
+        $this->assertSame(80.0, (float) $subchapterTwo['score']);
+        $subchapterOne = $quizRows->firstWhere('subchapter_id', $subchapters[0]->id);
+        $this->assertSame(100.0, (float) $subchapterOne['score']);
+        $this->assertSame(2, $subchapterOne['attempt_count']);
+        $this->assertSame(3, DB::table('student_assessment_results')
+            ->where('user_id', $completeStudent->id)
+            ->count());
 
         $complete = $students[$completeStudent->id];
-        $this->assertSame(70.0, (float) $complete['quiz_score']);
+        $this->assertSame(90.0, (float) $complete['quiz_score']);
         $this->assertSame(90.0, (float) $complete['evaluation_score']);
-        $this->assertSame(80.0, (float) $complete['final_score']);
+        $this->assertSame(90.0, (float) $complete['final_score']);
         $this->assertSame('tuntas', $complete['completion_status']);
         $this->assertSame(2, $complete['quiz_completed_count']);
         $this->assertSame(2, $complete['quiz_required_count']);
         $this->actingAs($completeStudent)
             ->getJson('/siswa/progress')
             ->assertOk()
-            ->assertJsonPath('final_grades.0.final_score', 80)
+            ->assertJsonPath('final_grades.0.final_score', 90)
             ->assertJsonPath('final_grades.0.completion_status', 'tuntas');
         $parentDashboard = app(ParentDashboardService::class)->dashboard($parent);
-        $this->assertSame(80.0, (float) $parentDashboard['finalGrades'][0]['final_score']);
-        $this->assertSame(80.0, (float) $parentDashboard['stats']['average']);
+        $this->assertSame(90.0, (float) $parentDashboard['finalGrades'][0]['final_score']);
+        $this->assertSame(90.0, (float) $parentDashboard['stats']['average']);
 
         $incomplete = $students[$incompleteStudent->id];
         $this->assertNull($incomplete['final_score']);
         $this->assertSame('belum_dinilai', $incomplete['completion_status']);
         $this->assertTrue($incomplete['evaluation_completed']);
         $this->assertSame('Kuis wajib belum lengkap', $incomplete['pending_reason']);
+    }
+
+    public function test_legacy_repeated_evaluations_80_7_0_0_return_one_best_row_and_keep_attempts(): void
+    {
+        $teacher = $this->createUser('guru', 'guru-legacy-best-row');
+        $student = $this->createUser('siswa', 'student-legacy-best-row');
+        $student->update(['kelas' => 'VII A']);
+        DB::table('teacher_class_assignments')->insert([
+            'teacher_id' => $teacher->id,
+            'class_name' => 'VII A',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $attemptIds = [];
+        foreach ([80, 7, 0, 0] as $index => $score) {
+            $attemptIds[] = $this->createCompletedAttempt(
+                $student,
+                $teacher,
+                false
+            );
+            DB::table('evaluation_attempts')
+                ->where('id', $attemptIds[$index])
+                ->update([
+                    'score' => $score,
+                    'correct_count' => (int) round($score * 15 / 100),
+                    'submitted_at' => now()->subMinutes(4 - $index),
+                    'updated_at' => now()->subMinutes(4 - $index),
+                ]);
+        }
+
+        $results = $this->actingAs($teacher)
+            ->getJson("/guru/student-grades/{$student->id}")
+            ->assertOk()
+            ->json('results');
+        $this->assertCount(1, $results);
+        $this->assertSame('evaluation', $results[0]['assessment_type']);
+        $this->assertSame(80.0, (float) $results[0]['score']);
+        $this->assertSame(4, $results[0]['attempt_count']);
+        $this->assertSame($attemptIds[0], $results[0]['id']);
+        $this->assertDatabaseCount('evaluation_attempts', 4);
+        foreach ([80, 7, 0, 0] as $index => $score) {
+            $this->assertDatabaseHas('evaluation_attempts', [
+                'id' => $attemptIds[$index],
+                'score' => $score,
+            ]);
+        }
+    }
+
+    public function test_excel_export_logs_a_redacted_failure_stage_and_rethrows_the_error(): void
+    {
+        $teacher = $this->createUser('guru', 'guru-excel-diagnostic');
+        $grades = \Mockery::mock(StudentGradeService::class);
+        $grades->shouldReceive('overview')
+            ->once()
+            ->andThrow(new \RuntimeException(
+                'ZipArchive failed at C:\\private\\report.xlsx token=secret-value'
+            ));
+        $this->app->instance(StudentGradeService::class, $grades);
+        Log::shouldReceive('error')
+            ->once()
+            ->withArgs(function (string $message, array $context): bool {
+                return $message === 'Student grade Excel export failed.'
+                    && $context['stage'] === 'load_grade_data'
+                    && $context['exception'] === \RuntimeException::class
+                    && str_contains($context['message'], '[path]')
+                    && str_contains($context['message'], 'token=[redacted]')
+                    && !str_contains($context['message'], 'secret-value');
+            });
+
+        $this->withoutExceptionHandling();
+        $this->expectException(\RuntimeException::class);
+        $this->actingAs($teacher)->get('/guru/student-grades/export/excel');
+    }
+
+    public function test_repeated_quiz_and_evaluation_use_best_completed_score_without_losing_history(): void
+    {
+        $teacher = $this->createUser('guru', 'guru-best-attempt-grade');
+        $student = $this->createUser('siswa', 'student-best-attempt-grade');
+        $parent = $this->createUser('orang_tua', 'parent-best-attempt-grade');
+        $student->update(['kelas' => 'VII A']);
+        DB::table('teacher_class_assignments')->insert([
+            'teacher_id' => $teacher->id,
+            'class_name' => 'VII A',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $chapter = Chapter::create([
+            'user_id' => $teacher->id,
+            'nomor_bab' => 11,
+            'judul' => 'Bab Baru untuk Regresi',
+            'is_published' => true,
+        ]);
+        $subchapter = Subchapter::create([
+            'chapter_id' => $chapter->id,
+            'nomor_subbab' => 2,
+            'judul' => 'Subbab Baru',
+            'is_published' => true,
+        ]);
+        DB::table('quiz_questions')->insert([
+            'subchapter_id' => $subchapter->id,
+            'nomor_soal' => 1,
+            'activity_type' => 'multiple_choice',
+            'activity_payload' => null,
+            'pertanyaan' => 'Soal bab baru',
+            'pilihan_a' => 'A',
+            'pilihan_b' => 'B',
+            'pilihan_c' => 'C',
+            'pilihan_d' => 'D',
+            'kunci_jawaban' => 'A',
+            'pembahasan' => null,
+            'is_published' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $quizIds = [];
+        foreach ([60, 90, 75] as $index => $score) {
+            $completedAt = now()->subDays(4 - $index);
+            $quizIds[] = DB::table('student_assessment_results')->insertGetId([
+                'user_id' => $student->id,
+                'assessment_type' => 'quiz',
+                'chapter_id' => $chapter->id,
+                'subchapter_id' => $subchapter->id,
+                'total_questions' => 20,
+                'correct_answers' => (int) ($score * 20 / 100),
+                'score' => $score,
+                'completed_at' => $completedAt,
+                'created_at' => $completedAt,
+                'updated_at' => $completedAt,
+            ]);
+        }
+
+        $evaluationIds = [];
+        foreach ([60, 90, 75] as $index => $score) {
+            $evaluationIds[] = $this->createCompletedAttempt(
+                $student,
+                $teacher,
+                false,
+                $chapter->id
+            );
+            DB::table('evaluation_attempts')
+                ->where('id', $evaluationIds[$index])
+                ->update([
+                    'score' => $score,
+                    'correct_count' => (int) round($score * 15 / 100),
+                    'submitted_at' => now()->subDays(3 - $index),
+                    'updated_at' => now()->subDays(3 - $index),
+                ]);
+        }
+        $this->link($student, $parent, 'approved');
+
+        $grade = collect($this->actingAs($teacher)
+            ->getJson('/guru/student-grades')
+            ->assertOk()
+            ->json('data'))->firstWhere('id', $student->id);
+        $this->assertSame(90.0, (float) $grade['quiz_score']);
+        $this->assertSame(90.0, (float) $grade['evaluation_score']);
+        $this->assertSame(90.0, (float) $grade['final_score']);
+        $this->assertSame(1, $grade['quiz_completed_count']);
+
+        $detail = $this->getJson("/guru/student-grades/{$student->id}")
+            ->assertOk()
+            ->json('results');
+        $quizHistory = collect($detail)->where('assessment_type', 'quiz')->values();
+        $evaluationHistory = collect($detail)->where('assessment_type', 'evaluation')->values();
+        $this->assertCount(1, $quizHistory);
+        $this->assertCount(1, $evaluationHistory);
+        $this->assertSame($quizIds[1], $quizHistory[0]['id']);
+        $this->assertSame(90.0, (float) $quizHistory[0]['score']);
+        $this->assertSame(3, $quizHistory[0]['attempt_count']);
+        $this->assertSame(90.0, (float) $evaluationHistory[0]['score']);
+        $this->assertSame(3, $evaluationHistory[0]['attempt_count']);
+        $this->assertSame(
+            $evaluationIds[1],
+            $evaluationHistory[0]['id']
+        );
+        $this->assertDatabaseCount('student_assessment_results', 3);
+        $this->assertDatabaseCount('evaluation_attempts', 3);
+
+        $parentResults = app(ParentDashboardService::class)
+            ->dashboard($parent)['learningResults'];
+        $this->assertCount(1, collect($parentResults)->where('type', 'kuis'));
+        $this->assertCount(1, collect($parentResults)->where('type', 'evaluasi'));
+        $this->assertSame(
+            [90.0, 90.0],
+            collect($parentResults)
+                ->whereIn('type', ['kuis', 'evaluasi'])
+                ->pluck('score')
+                ->map(fn($score) => (float) $score)
+                ->sort()
+                ->values()
+                ->all()
+        );
+
+        $excel = $this->get('/guru/student-grades/export/excel')->assertOk();
+        $workbook = $this->downloadedWorkbook($excel);
+        $this->assertSame(
+            90.0,
+            (float) $workbook->getActiveSheet()->getCell('D4')->getValue()
+        );
+        $workbook->disconnectWorksheets();
+
+        $tieQuizAt = now()->addSecond();
+        $quizIds[] = DB::table('student_assessment_results')->insertGetId([
+            'user_id' => $student->id,
+            'assessment_type' => 'quiz',
+            'chapter_id' => $chapter->id,
+            'subchapter_id' => $subchapter->id,
+            'total_questions' => 20,
+            'correct_answers' => 18,
+            'score' => 90,
+            'completed_at' => $tieQuizAt,
+            'created_at' => $tieQuizAt,
+            'updated_at' => $tieQuizAt,
+        ]);
+        $lastEvaluationId = $evaluationIds[2];
+        DB::table('evaluation_attempts')->where('id', $lastEvaluationId)->update([
+            'score' => 90,
+            'correct_count' => 14,
+            'submitted_at' => now()->addSecond(),
+            'updated_at' => now()->addSecond(),
+        ]);
+        $tieDetail = collect($this->getJson("/guru/student-grades/{$student->id}")
+            ->assertOk()
+            ->json('results'));
+        $quizTieHistory = $tieDetail->where('assessment_type', 'quiz')->values();
+        $this->assertSame(
+            $quizIds[3],
+            $quizTieHistory[0]['id']
+        );
+        $this->assertSame(4, $quizTieHistory[0]['attempt_count']);
+        $evaluationHistory = $tieDetail->where('assessment_type', 'evaluation')->values();
+        $this->assertSame(
+            $lastEvaluationId,
+            $evaluationHistory[0]['id']
+        );
+        $this->assertSame(3, $evaluationHistory[0]['attempt_count']);
+        $this->assertSame(
+            90.0,
+            (float) app(\App\Services\StudentGradeService::class)
+                ->summaryForStudent((int) $teacher->id, (int) $student->id)['evaluation_score']
+        );
+        $this->assertSame(
+            90.0,
+            (float) app(\App\Services\StudentGradeService::class)
+                ->summaryForStudent((int) $teacher->id, (int) $student->id)['quiz_score']
+        );
+        $this->assertDatabaseCount('student_assessment_results', 4);
+        $this->assertDatabaseCount('evaluation_attempts', 3);
+
+        $unrelatedTeacher = $this->createUser('guru', 'guru-best-attempt-other-school');
+        $unrelatedTeacher->update(['sekolah' => 'Sekolah Lain']);
+        $this->actingAs($unrelatedTeacher)
+            ->getJson("/guru/student-grades/{$student->id}")
+            ->assertNotFound();
     }
 
     public function test_evaluation_alone_does_not_replace_the_missing_fifty_percent_quiz_component(): void
@@ -402,13 +660,7 @@ class EvaluationResultsIntegrationTest extends TestCase
         $excel = $this->actingAs($teacher)
             ->get('/guru/student-grades/export/excel')
             ->assertOk();
-        $temporaryFile = tmpfile();
-        $this->assertIsResource($temporaryFile);
-        fwrite($temporaryFile, $excel->streamedContent());
-        rewind($temporaryFile);
-        $workbook = \PhpOffice\PhpSpreadsheet\IOFactory::load(
-            stream_get_meta_data($temporaryFile)['uri']
-        );
+        $workbook = $this->downloadedWorkbook($excel);
         $sheet = $workbook->getActiveSheet();
         $studentRow = null;
         for ($row = 4; $row <= $sheet->getHighestRow(); $row++) {
@@ -422,7 +674,6 @@ class EvaluationResultsIntegrationTest extends TestCase
         $this->assertSame('Belum Dinilai', $sheet->getCell("E{$studentRow}")->getValue());
         $this->assertSame('Riwayat tersedia', $sheet->getCell("F{$studentRow}")->getValue());
         $workbook->disconnectWorksheets();
-        fclose($temporaryFile);
         $freshGrade = collect($this->actingAs($teacher)
             ->getJson('/guru/student-grades')
             ->assertOk()
@@ -435,7 +686,7 @@ class EvaluationResultsIntegrationTest extends TestCase
         ]);
     }
 
-    public function test_bank_attempt_counts_only_while_its_published_bank_is_active_for_the_student_class(): void
+    public function test_unpublished_bank_without_a_replacement_is_not_used_for_grading(): void
     {
         $teacher = $this->createUser('guru', 'guru-active-evaluation-bank');
         $student = $this->createUser('siswa', 'student-active-evaluation-bank');
@@ -479,6 +730,176 @@ class EvaluationResultsIntegrationTest extends TestCase
             'id' => $attemptId,
             'score' => 100,
         ]);
+    }
+
+    public function test_republished_bank_versions_share_best_score_as_one_logical_evaluation(): void
+    {
+        $teacher = $this->createUser('guru', 'guru-republished-evaluation-bank');
+        $student = $this->createUser('siswa', 'student-republished-evaluation-bank');
+        $parent = $this->createUser('orang_tua', 'parent-republished-evaluation-bank');
+        $student->update(['kelas' => 'VII A']);
+        DB::table('teacher_class_assignments')->insert([
+            'teacher_id' => $teacher->id,
+            'class_name' => 'VII A',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $chapter = Chapter::create([
+            'user_id' => $teacher->id,
+            'nomor_bab' => 14,
+            'judul' => 'Bab Bank Berulang',
+            'is_published' => true,
+        ]);
+        $oldBankId = DB::table('evaluation_banks')->insertGetId([
+            'chapter_id' => $chapter->id,
+            'teacher_id' => $teacher->id,
+            'class_name' => 'VII A',
+            'title' => 'Evaluasi Lama',
+            'is_published' => true,
+            'active_slot' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $oldAttemptId = $this->createCompletedAttempt(
+            $student,
+            $teacher,
+            false,
+            $chapter->id,
+            $oldBankId
+        );
+        DB::table('evaluation_attempts')->where('id', $oldAttemptId)->update([
+            'score' => 80,
+            'correct_count' => 12,
+            'submitted_at' => now()->subMinute(),
+        ]);
+        DB::table('evaluation_banks')->where('id', $oldBankId)->update([
+            'is_published' => false,
+            'active_slot' => null,
+        ]);
+
+        $newBankId = DB::table('evaluation_banks')->insertGetId([
+            'chapter_id' => $chapter->id,
+            'teacher_id' => $teacher->id,
+            'class_name' => 'VII A',
+            'title' => 'Evaluasi Diterbitkan Ulang',
+            'is_published' => true,
+            'active_slot' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $newAttemptId = $this->createCompletedAttempt(
+            $student,
+            $teacher,
+            false,
+            $chapter->id,
+            $newBankId
+        );
+        DB::table('evaluation_attempts')->where('id', $newAttemptId)->update([
+            'score' => 7,
+            'correct_count' => 1,
+            'submitted_at' => now(),
+        ]);
+        $this->link($student, $parent, 'approved');
+
+        $results = $this->actingAs($teacher)
+            ->getJson("/guru/student-grades/{$student->id}")
+            ->assertOk()
+            ->json('results');
+        $this->assertCount(1, $results);
+        $this->assertSame($oldAttemptId, $results[0]['id']);
+        $this->assertSame($oldBankId, $results[0]['evaluation_bank_id']);
+        $this->assertSame(80.0, (float) $results[0]['score']);
+        $this->assertSame(2, $results[0]['attempt_count']);
+        $summary = app(\App\Services\StudentGradeService::class)
+            ->summaryForStudent((int) $teacher->id, (int) $student->id);
+        $this->assertSame(80.0, (float) $summary['evaluation_score']);
+        $parentEvaluations = collect(
+            app(ParentDashboardService::class)->dashboard($parent)['learningResults']
+        )->where('type', 'evaluasi');
+        $this->assertCount(1, $parentEvaluations);
+        $this->assertSame(80.0, (float) $parentEvaluations->first()['score']);
+        $this->assertSame(2, $parentEvaluations->first()['attempt_count']);
+        $this->assertDatabaseCount('evaluation_attempts', 2);
+    }
+
+    public function test_different_chapter_banks_remain_separate_evaluations(): void
+    {
+        $teacher = $this->createUser('guru', 'guru-two-evaluation-banks');
+        $student = $this->createUser('siswa', 'student-two-evaluation-banks');
+        $student->update(['kelas' => 'VII A']);
+        DB::table('teacher_class_assignments')->insert([
+            'teacher_id' => $teacher->id,
+            'class_name' => 'VII A',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $chapterIds = [];
+        $attemptIdsByChapter = [];
+        foreach ([12, 13] as $number) {
+            $chapter = Chapter::create([
+                'user_id' => $teacher->id,
+                'nomor_bab' => $number,
+                'judul' => 'Bab Evaluasi',
+                'is_published' => true,
+            ]);
+            $bankId = DB::table('evaluation_banks')->insertGetId([
+                'chapter_id' => $chapter->id,
+                'teacher_id' => $teacher->id,
+                'class_name' => 'VII A',
+                'title' => 'Evaluasi Akhir',
+                'is_published' => true,
+                'active_slot' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $chapterIds[$number] = (int) $chapter->id;
+            $scores = $number === 12 ? [80, 7] : [60];
+            foreach ($scores as $index => $score) {
+                $attemptId = $this->createCompletedAttempt(
+                    $student,
+                    $teacher,
+                    false,
+                    $chapter->id,
+                    $bankId
+                );
+                $attemptIdsByChapter[$number][] = $attemptId;
+                DB::table('evaluation_attempts')->where('id', $attemptId)->update([
+                    'score' => $score,
+                    'correct_count' => (int) round($score * 15 / 100),
+                    'submitted_at' => now()->subMinutes(count($scores) - $index),
+                    'updated_at' => now()->subMinutes(count($scores) - $index),
+                ]);
+            }
+        }
+
+        $results = $this->actingAs($teacher)
+            ->getJson("/guru/student-grades/{$student->id}")
+            ->assertOk()
+            ->json('results');
+        $this->assertCount(2, $results);
+        $this->assertEqualsCanonicalizing(
+            [
+                $attemptIdsByChapter[12][0],
+                $attemptIdsByChapter[13][0],
+            ],
+            collect($results)->pluck('id')->all()
+        );
+        $this->assertCount(2, collect($results)
+            ->pluck('evaluation_identity')
+            ->unique());
+        $sameEvaluation = collect($results)->firstWhere(
+            'chapter_id',
+            $chapterIds[12]
+        );
+        $this->assertSame(80.0, (float) $sameEvaluation['score']);
+        $this->assertSame(2, $sameEvaluation['attempt_count']);
+        $otherEvaluation = collect($results)->firstWhere(
+            'chapter_id',
+            $chapterIds[13]
+        );
+        $this->assertSame(60.0, (float) $otherEvaluation['score']);
+        $this->assertSame(1, $otherEvaluation['attempt_count']);
     }
 
     public function test_legacy_evaluation_ownership_is_inferred_from_complete_snapshot_without_mutating_history(): void
@@ -624,13 +1045,7 @@ class EvaluationResultsIntegrationTest extends TestCase
         $excel = $this->actingAs($teacher)
             ->get('/guru/student-grades/export/excel')
             ->assertOk();
-        $temporaryFile = tmpfile();
-        $this->assertIsResource($temporaryFile);
-        fwrite($temporaryFile, $excel->streamedContent());
-        rewind($temporaryFile);
-        $workbook = \PhpOffice\PhpSpreadsheet\IOFactory::load(
-            stream_get_meta_data($temporaryFile)['uri']
-        );
+        $workbook = $this->downloadedWorkbook($excel);
         $this->assertSame(
             85.0,
             (float) $workbook->getActiveSheet()->getCell('D4')->getValue()
@@ -640,7 +1055,6 @@ class EvaluationResultsIntegrationTest extends TestCase
             $workbook->getActiveSheet()->getCell('E4')->getValue()
         );
         $workbook->disconnectWorksheets();
-        fclose($temporaryFile);
         $this->assertSame(2, DB::table('evaluation_attempts')
             ->where('user_id', $student->id)
             ->whereNull('teacher_id')
@@ -832,7 +1246,9 @@ class EvaluationResultsIntegrationTest extends TestCase
 
         $excel = $this->get('/guru/student-grades/export/excel');
         $excel->assertOk();
-        $this->assertStringStartsWith('PK', $excel->streamedContent());
+        $workbook = $this->downloadedWorkbook($excel);
+        $this->assertGreaterThanOrEqual(4, $workbook->getActiveSheet()->getHighestRow());
+        $workbook->disconnectWorksheets();
         $pdf = $this->get('/guru/student-grades/export/pdf');
         $pdf->assertOk();
         $this->assertStringStartsWith('%PDF-', $pdf->getContent());
@@ -882,6 +1298,36 @@ class EvaluationResultsIntegrationTest extends TestCase
             ->count());
     }
 
+    private function downloadedWorkbook($response): \PhpOffice\PhpSpreadsheet\Spreadsheet
+    {
+        $binaryResponse = $response->baseResponse;
+        $this->assertInstanceOf(
+            \Symfony\Component\HttpFoundation\BinaryFileResponse::class,
+            $binaryResponse
+        );
+        $filePath = $binaryResponse->getFile()->getPathname();
+        $bytes = file_get_contents($filePath);
+        $this->assertIsString($bytes);
+        $this->assertStringStartsWith('PK', $bytes);
+        $this->assertSame(
+            (string) strlen($bytes),
+            $response->headers->get('Content-Length')
+        );
+        $temporaryFile = tmpfile();
+        $this->assertIsResource($temporaryFile);
+        fwrite($temporaryFile, $bytes);
+        rewind($temporaryFile);
+        $workbook = \PhpOffice\PhpSpreadsheet\IOFactory::load(
+            stream_get_meta_data($temporaryFile)['uri']
+        );
+        fclose($temporaryFile);
+        if (is_file($filePath)) {
+            unlink($filePath);
+        }
+
+        return $workbook;
+    }
+
     private function createCompletedAttempt(
         User $student,
         User $teacher,
@@ -924,6 +1370,15 @@ class EvaluationResultsIntegrationTest extends TestCase
         if ($bankId !== null) {
             $activeQuestionIds = [];
             foreach (range(1, 15) as $number) {
+                $existingQuestionId = DB::table('evaluation_bank_questions')
+                    ->where('evaluation_bank_id', $bankId)
+                    ->where('nomor_soal', $number)
+                    ->value('id');
+                if ($existingQuestionId !== null) {
+                    $activeQuestionIds[] = (int) $existingQuestionId;
+                    continue;
+                }
+
                 $activeQuestionIds[] = DB::table('evaluation_bank_questions')->insertGetId([
                     'evaluation_bank_id' => $bankId,
                     'nomor_soal' => $number,

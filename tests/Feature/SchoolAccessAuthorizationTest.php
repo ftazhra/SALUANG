@@ -54,10 +54,32 @@ class SchoolAccessAuthorizationTest extends TestCase
             ->assertJsonPath('total', 1);
         $this->assertSame([$studentA->id], collect($grades->json('data'))->pluck('id')->all());
         $this->getJson("/guru/student-grades/{$studentB->id}")->assertNotFound();
-        $excel = $this->get('/guru/student-grades/export/excel')->assertOk();
+        $excel = $this->get('/guru/student-grades/export/excel')
+            ->assertOk()
+            ->assertHeader(
+                'Content-Type',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            );
+        $this->assertStringContainsString(
+            'attachment',
+            strtolower($excel->headers->get('Content-Disposition', ''))
+        );
+        $binaryResponse = $excel->baseResponse;
+        $this->assertInstanceOf(
+            \Symfony\Component\HttpFoundation\BinaryFileResponse::class,
+            $binaryResponse
+        );
+        $excelPath = $binaryResponse->getFile()->getPathname();
+        $excelBytes = file_get_contents($excelPath);
+        $this->assertIsString($excelBytes);
+        $this->assertSame(
+            (string) strlen($excelBytes),
+            $excel->headers->get('Content-Length')
+        );
+        $this->assertStringStartsWith('PK', $excelBytes);
         $temporaryFile = tmpfile();
         $this->assertIsResource($temporaryFile);
-        fwrite($temporaryFile, $excel->streamedContent());
+        fwrite($temporaryFile, $excelBytes);
         rewind($temporaryFile);
         $workbook = \PhpOffice\PhpSpreadsheet\IOFactory::load(
             stream_get_meta_data($temporaryFile)['uri']
@@ -66,7 +88,25 @@ class SchoolAccessAuthorizationTest extends TestCase
         $this->assertSame($studentA->name, $workbook->getActiveSheet()->getCell('A4')->getValue());
         $workbook->disconnectWorksheets();
         fclose($temporaryFile);
-        $this->get('/guru/student-grades/export/pdf')->assertOk();
+        if (is_file($excelPath)) {
+            unlink($excelPath);
+        }
+        $pdf = $this->get('/guru/student-grades/export/pdf')
+            ->assertOk()
+            ->assertHeader('Content-Type', 'application/pdf');
+        $this->assertStringContainsString(
+            'attachment',
+            strtolower($pdf->headers->get('Content-Disposition', ''))
+        );
+        $pdfBytes = $pdf->getContent();
+        $this->assertStringStartsWith('%PDF-', $pdfBytes);
+        $this->assertStringEndsWith('%%EOF', trim($pdfBytes));
+
+        $this->actingAs($studentA)
+            ->get('/guru/student-grades/export/excel')
+            ->assertForbidden();
+        $this->get('/guru/student-grades/export/pdf')
+            ->assertForbidden();
     }
 
     public function test_teacher_and_student_cannot_change_school_or_class_through_self_service_profiles(): void

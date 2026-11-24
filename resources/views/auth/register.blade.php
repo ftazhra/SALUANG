@@ -182,7 +182,7 @@
 
                             <input type="text" id="guru_token" name="guru_token" maxlength="64" autocomplete="off"
                                 spellcheck="false"
-                                placeholder="SMPN21 untuk Guru SMP Negeri 21; kode admin untuk sekolah lain">
+                                placeholder="Masukkan kode pendaftaran Guru">
                         </div>
                     </div>
 

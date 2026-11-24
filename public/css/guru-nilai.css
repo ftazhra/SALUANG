@@ -228,6 +228,13 @@
     color: #627a82;
     line-height: 1.6;
 }
+.gn-history-table .gn-history-score-cell .gn-best-attempt {
+    display: block;
+    margin-top: 4px;
+    color: #28734e;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
 .gn-empty {
     padding: 38px 16px !important;
     text-align: center;

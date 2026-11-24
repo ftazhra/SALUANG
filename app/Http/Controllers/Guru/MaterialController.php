@@ -10,6 +10,7 @@ use App\Services\SchoolAccessService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -130,7 +131,7 @@ class MaterialController extends Controller
         return response()->json([
             'chapters' => $chapters,
             'image_library' => $this->imageLibrary(),
-            'video_library' => $this->videoLibrary(),
+            'video_library' => $this->videoLibrary($request, $schoolAccess),
         ]);
     }
     /*
@@ -411,7 +412,8 @@ class MaterialController extends Controller
     public function storeSubchapter(
         Request $request,
         int $chapter,
-        WebsiteNotificationService $notifications
+        WebsiteNotificationService $notifications,
+        SchoolAccessService $schoolAccess
     ): JsonResponse {
         $this->ensureGuru($request);
         $chapter = $this->chapterOwnedByGuru(
@@ -422,7 +424,7 @@ class MaterialController extends Controller
             $this->subchapterRules($chapter->id)
         );
         $blocks = $this->validatedContentBlocks($request, $data);
-        $media = $this->prepareMedia($request, $data);
+        $media = $this->prepareMedia($request, $data, $schoolAccess);
         try {
             $blockMedia = $blocks === null
                 ? ['media_data' => [], 'new_paths' => []]
@@ -485,7 +487,8 @@ class MaterialController extends Controller
         Request $request,
         int $chapter,
         int $subchapter,
-        WebsiteNotificationService $notifications
+        WebsiteNotificationService $notifications,
+        SchoolAccessService $schoolAccess
     ): JsonResponse {
         $this->ensureGuru($request);
         $chapter = $this->chapterOwnedByGuru(
@@ -502,7 +505,7 @@ class MaterialController extends Controller
             $data,
             $subchapter
         );
-        $media = $this->prepareMedia($request, $data);
+        $media = $this->prepareMedia($request, $data, $schoolAccess);
         try {
             $blockMedia = $blocks === null
                 ? ['media_data' => [], 'new_paths' => []]
@@ -1047,7 +1050,11 @@ class MaterialController extends Controller
             'is_published',
         ]));
     }
-    private function prepareMedia(Request $request, array $data): array
+    private function prepareMedia(
+        Request $request,
+        array $data,
+        SchoolAccessService $schoolAccess
+    ): array
     {
         $operations = [];
         $newPaths = [];
@@ -1074,12 +1081,10 @@ class MaterialController extends Controller
             );
         }
         if (($data['video_action'] ?? null) === 'library') {
-            $libraryVideo = SubchapterMedia::query()
-                ->whereKey($data['video_library_id'])
-                ->where('media_type', 'video')
-                ->whereIn('source', ['upload', 'library'])
-                ->whereNotNull('storage_path')
-                ->first();
+            $libraryVideo = $this->availableVideoLibraryQuery(
+                $request,
+                $schoolAccess
+            )->whereKey($data['video_library_id'])->first();
             abort_unless(
                 $libraryVideo
                     && Storage::disk('material_public')->exists($libraryVideo->storage_path),
@@ -1205,12 +1210,12 @@ class MaterialController extends Controller
         }
         return $images;
     }
-    private function videoLibrary(): array
+    private function videoLibrary(
+        Request $request,
+        SchoolAccessService $schoolAccess
+    ): array
     {
-        return SubchapterMedia::query()
-            ->where('media_type', 'video')
-            ->whereIn('source', ['upload', 'library'])
-            ->whereNotNull('storage_path')
+        return $this->availableVideoLibraryQuery($request, $schoolAccess)
             ->latest('id')
             ->limit(100)
             ->get(['id', 'title', 'storage_path'])
@@ -1224,6 +1229,56 @@ class MaterialController extends Controller
             ])
             ->values()
             ->all();
+    }
+
+    private function availableVideoLibraryQuery(
+        Request $request,
+        SchoolAccessService $schoolAccess
+    ): Builder {
+        $teacher = $request->user();
+
+        return SubchapterMedia::query()
+            ->where('media_type', 'video')
+            ->whereIn('source', ['upload', 'library'])
+            ->whereNotNull('storage_path')
+            ->whereHas('subchapter', function ($subchapters) use (
+                $teacher,
+                $schoolAccess
+            ) {
+                $subchapters->where(function ($accessible) use (
+                    $teacher,
+                    $schoolAccess
+                ) {
+                    $accessible->whereHas(
+                        'chapter',
+                        fn($chapters) => $chapters->where(
+                            'user_id',
+                            $teacher->id
+                        )
+                    )->orWhere(function ($shared) use (
+                        $teacher,
+                        $schoolAccess
+                    ) {
+                        $shared->where('is_published', true)
+                            ->whereHas('chapter', function ($chapters) use (
+                                $teacher,
+                                $schoolAccess
+                            ) {
+                                $chapters->where('is_published', true)
+                                    ->whereHas('guru', function ($users) use (
+                                        $teacher,
+                                        $schoolAccess
+                                    ) {
+                                        $users->where('role', 'guru');
+                                        $schoolAccess->constrainUsersToSchool(
+                                            $users,
+                                            $teacher
+                                        );
+                                    });
+                            });
+                    });
+                });
+            });
     }
     private function youtubeVideoId(string $url): ?string
     {
