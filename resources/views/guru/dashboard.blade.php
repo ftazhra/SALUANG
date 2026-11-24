@@ -38,7 +38,7 @@
     <script src="{{ asset('js/guru-orang-tua.js') }}?v=6" defer></script>
 
     <link rel="stylesheet" href="{{ asset('css/guru-profil.css') }}?v=6">
-    <script src="{{ asset('js/guru-profil.js') }}?v=6" defer></script>
+    <script src="{{ asset('js/guru-profil.js') }}?v=7" defer></script>
 
     <link rel="stylesheet" href="{{ asset('css/saluang-selects.css') }}?v=3">
     <script src="{{ asset('js/guru-logout.js') }}?v=1" defer></script>
@@ -203,10 +203,13 @@
                             @endif
                         </span>
                         <span class="gd-user-info">
+                            @php
+                                $mataPelajaranGuru = trim(auth()->user()?->mata_pelajaran ?? '');
+                            @endphp
                             <strong>
                                 {{ auth()->user()?->name ?? 'Guru SALUANG' }}
                             </strong>
-                            <small>Guru IPA</small>
+                            <small id="gdTopbarRole">{{ $mataPelajaranGuru !== '' ? 'Guru ' . $mataPelajaranGuru : 'Guru' }}</small>
                         </span>
                         <i class="bi bi-chevron-down"></i>
                     </button>

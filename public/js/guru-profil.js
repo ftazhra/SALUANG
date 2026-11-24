@@ -395,6 +395,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     element.textContent = valueOrDash(data.name);
                 });
 
+            const topbarRole = byId('gdTopbarRole');
+            if (topbarRole) {
+                const subject = String(data.mata_pelajaran ?? '').trim();
+                topbarRole.textContent = subject ? `Guru ${subject}` : 'Guru';
+            }
+
         } catch (error) {
             showMessage(editMessage, error.message, true);
         } finally {
